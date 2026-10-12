@@ -2,11 +2,31 @@
 <resources>
     <color name="indigo">#FF31264B</color>
     <color name="orange">#FFFF8012</color>
+    <color name="ground">#FFF8F8F8</color>
 
-    <style name="Pages" parent="@android:style/Theme.DeviceDefault.Light">
+    <!-- The pages of foodjis: its indigo above, its orange for what is pressed. -->
+    <style name="Pages" parent="@android:style/Theme.Material.Light.DarkActionBar">
         <item name="android:colorPrimary">@color/indigo</item>
         <item name="android:colorPrimaryDark">@color/indigo</item>
         <item name="android:colorAccent">@color/orange</item>
         <item name="android:statusBarColor">@color/indigo</item>
+        <item name="android:navigationBarColor">@color/indigo</item>
+        <item name="android:windowBackground">@color/ground</item>
+        <item name="android:actionBarStyle">@style/Bar</item>
+    </style>
+
+    <style name="Bar" parent="@android:style/Widget.Material.ActionBar.Solid">
+        <item name="android:background">@color/indigo</item>
+        <item name="android:titleTextStyle">@style/BarTitle</item>
+        <item name="android:subtitleTextStyle">@style/BarSubtitle</item>
+    </style>
+
+    <style name="BarTitle" parent="@android:style/TextAppearance.Material.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/orange</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="BarSubtitle" parent="@android:style/TextAppearance.Material.Widget.ActionBar.Subtitle">
+        <item name="android:textColor">#FFE0E7FF</item>
     </style>
 </resources>

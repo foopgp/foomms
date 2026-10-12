@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Sending an MMS, and finding the PGP messages among those the phone
-         has received. Not the network: the phone's own MMS service carries
-         the message. Not the contacts: whose key a number means, foodjis
-         knows. -->
+    <!-- Sending messages, and showing those the phone holds. Not the network:
+         the phone's own service carries a message, and what is asked of a key
+         server is asked through foodjis. -->
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
+
+    <!-- The address book says who a number is, and whose certificate it
+         means; tying a number to a certificate writes there. -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
 
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
 
@@ -25,7 +29,7 @@
         android:supportsRtl="true"
         android:theme="@style/Pages">
 
-        <!-- The PGP messages received, and what became of those sent. -->
+        <!-- The conversations. -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -35,17 +39,26 @@
             </intent-filter>
         </activity>
 
-        <!-- Writing and reading show foodjis's screens over themselves and
-             wait for their answer: they are not rebuilt when the phone turns. -->
+        <!-- One conversation. It shows foodjis's screens over itself and
+             waits for their answer: it is not rebuilt when the phone turns. -->
         <activity
-            android:name=".WriteActivity"
-            android:exported="false"
+            android:name=".ThreadActivity"
+            android:exported="true"
+            android:parentActivityName=".MainActivity"
             android:windowSoftInputMode="adjustResize"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize" />
-        <activity
-            android:name=".ReadActivity"
-            android:exported="false"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize" />
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize">
+            <!-- "Write to this number", asked by another application. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SENDTO" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="sms" />
+                <data android:scheme="smsto" />
+                <data android:scheme="mms" />
+                <data android:scheme="mmsto" />
+            </intent-filter>
+        </activity>
 
         <!-- What the phone's MMS service answers about a sending. Named by
              class, so nobody else can speak to it. -->

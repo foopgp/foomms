@@ -121,6 +121,8 @@ class Provider(private val context: Context) {
         const val ENCRYPT = "org.openintents.openpgp.action.ENCRYPT"
         const val SIGN_AND_ENCRYPT = "org.openintents.openpgp.action.SIGN_AND_ENCRYPT"
         const val DECRYPT_VERIFY = "org.openintents.openpgp.action.DECRYPT_VERIFY"
+        const val SIGN = "org.openintents.openpgp.action.SIGN"
+        const val GET_SIGN_KEY_ID = "org.openintents.openpgp.action.GET_SIGN_KEY_ID"
         const val EXTRA_API_VERSION = "api_version"
         const val EXTRA_USER_IDS = "user_ids"
         const val EXTRA_KEY_IDS = "key_ids"

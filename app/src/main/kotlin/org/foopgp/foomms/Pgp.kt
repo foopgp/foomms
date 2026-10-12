@@ -51,10 +51,37 @@ object Pgp {
         }
     }
 
+    /** The armored message a text carries, from its banner to its last line, or null. */
+    fun armorIn(text: String): String? {
+        val from = text.indexOf(BANNER)
+        if (from < 0) return null
+        val to = text.indexOf(END, from)
+        if (to < 0) return null
+        return text.substring(from, to + END.length)
+    }
+
+    /**
+     * Whether an armored message is locked for somebody, rather than signed
+     * and readable by anyone: told from its first packet, behind the armor's
+     * own headers and before its checksum (RFC 9580, section 6.2).
+     */
+    fun isLocked(armor: String): Boolean {
+        val lines = armor.lines().map { it.trim() }
+        val blank = lines.indexOf("")
+        if (blank < 0) return false
+        val body = lines.drop(blank + 1).takeWhile { it.isNotEmpty() && !it.startsWith("=") && !it.startsWith("-----") }
+        // Sixteen characters are twelve bytes: more than a packet's header and its version.
+        val start = body.joinToString("").take(16)
+        val bytes = runCatching { java.util.Base64.getDecoder().decode(start.dropLast(start.length % 4)) }
+            .getOrNull() ?: return false
+        return bytes.isNotEmpty() && bytes[0].toInt() and 0x80 != 0 && isMessage(bytes)
+    }
+
     private fun isArmor(start: ByteArray): Boolean =
         String(start, 0, minOf(start.size, 64), Charsets.US_ASCII).trimStart().startsWith(BANNER)
 
     private const val PUBLIC_KEY_SESSION = 1
     private const val SYMMETRIC_KEY_SESSION = 3
     private const val BANNER = "-----BEGIN PGP MESSAGE-----"
+    private const val END = "-----END PGP MESSAGE-----"
 }

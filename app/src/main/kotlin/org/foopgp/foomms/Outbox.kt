@@ -40,6 +40,9 @@ object Outbox {
         manager(context).sendMultimediaMessage(context, from, null, null, told)
     }
 
+    /** How many SMS a text would take. */
+    fun pieces(context: Context, words: String): Int = manager(context).divideMessage(words).size
+
     /** A text as SMS, in as many pieces as it takes; says how many. */
     fun text(context: Context, to: String, words: String): Int {
         val manager = manager(context)

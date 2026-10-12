@@ -1,9 +1,9 @@
 # foomms [PGP]
 
-**Des messages par MMS que seule la personne à qui vous écrivez peut lire** :
+**Des SMS et MMS que seule la personne à qui vous écrivez peut lire** :
 chiffrés pour la clé que désigne son numéro de téléphone, signés par la vôtre
 avec votre clé de sécurité, et transportés par le réseau téléphonique comme
-un MMS ordinaire.
+des messages ordinaires.
 
 *[Read in English](README.md)*
 
@@ -20,92 +20,85 @@ sécurité.
   que l'autre doive avoir rejointe, pas de serveur à nous entre les deux : les
   opérateurs transportent le message, comme n'importe quel MMS, et voient qui
   écrit à qui et combien — pas quoi.
-- **Le numéro désigne la clé.** Un certificat PGP ID porte le numéro de
-  téléphone de son titulaire parmi ses identités, et celles et ceux qui ont
-  certifié le titulaire s'en sont portés garants. Un message *pour un numéro*
-  peut donc être chiffré *pour le certificat de ce numéro*, sans rien à
-  choisir ni à confondre — et un message *venu d'un numéro* se confronte au
-  certificat de qui l'a signé.
-- **Le MMS, pas le SMS.** Un SMS fait 160 caractères ; un message PGP pour
-  une personne en fait au moins trois cents, sous armure, et part en deux à
-  dix SMS. Un MMS transporte des octets tels quels, trois cents kilo-octets
-  sur n'importe quel réseau : un seul message, sans armure, et de la place
-  pour une photo ou une note vocale.
+- **Le numéro désigne la clé.** Un message *pour un numéro* est chiffré *pour
+  le certificat que ce numéro désigne*, sans rien à choisir ni à confondre.
+  Peu de gens mettent leur numéro de mobile dans leur certificat : le lien se
+  garde donc là où vivent déjà les numéros, dans le carnet d'adresses, chacun
+  y inscrivant pour soi quel certificat un numéro désigne.
+- **Un message codé intrigue.** Ce qui voyage est du texte, sous armure. Qui
+  le reçoit sans l'application voit un message manifestement codé — et les
+  gens savent assez bien copier-coller pour l'ouvrir ailleurs.
 - **Le secret reste dans la clé de sécurité.** Ce que le téléphone détient
   est public. Perdre le téléphone, ou le voir fouillé, ne donne à personne de
   quoi relire les messages.
 
 ## Comment ça marche, aujourd'hui
 
-1. **✎ Écrire** : un numéro de téléphone et un texte.
-2. **⚿ Chiffrer & envoyer**, ou **✍⚿ Signer, chiffrer & envoyer** : on
-   demande à foodjis un message chiffré « pour `tel:+33…` ». Il répond avec le
-   certificat qui porte ce numéro parmi vos contacts — celui que vous avez
-   certifié si plusieurs le portent, aucun si rien ne les départage — et, pour
-   une signature, demande votre clé de sécurité. Quand aucun contact ne porte
-   le numéro, foodjis montre ses contacts, où chercher le certificat.
-3. Ce qui part est un MMS en deux parties : une ligne en clair, *Message PGP
-   chiffré : message.pgp*, et la pièce jointe `message.pgp`, un message PGP
-   tel que le lit tout outil PGP (RFC 9580 ; sans armure). C'est le service
-   MMS du téléphone qui l'envoie ; cette application n'a pas accès au réseau.
-4. **Recevoir** est l'affaire de l'application de messagerie du téléphone,
-   comme pour tout MMS. Celle-ci cherche, parmi les MMS que le téléphone
-   détient, les parties qui sont des messages PGP — reconnues à leurs premiers
-   octets, pas à leur étiquette — et en dresse la liste.
-5. **⚷ Lire** : foodjis ouvre le message avec la clé de sécurité. Le texte
-   s'affiche avec qui l'a signé, si vous l'avez certifié, et si le numéro
-   d'où vient le message est de ceux que porte son certificat. Il n'est
-   conservé nulle part.
+Cela ressemble à une application de messagerie : les conversations que le
+téléphone détient, puis l'une d'elles en bulles, un champ en bas.
 
-Qui reçoit un tel message sans cette application voit la ligne en clair et
-une pièce jointe, que foodjis sait ouvrir.
+- **Quatre couleurs.** Chaque message porte la couleur de ce qu'il vaut :
+  rouge, ni chiffré ni certifié ; jaune, chiffré et non certifié ; bleu,
+  certifié et non chiffré ; vert, les deux. Reçu, *certifié* veut dire signé
+  par quelqu'un que vous avez certifié ; envoyé, qu'il est parti vers
+  quelqu'un que vous avez certifié. Non signé, c'est non certifié. Un SMS
+  ordinaire est rouge.
+- **Un texte reste un texte.** Un message PGP part sous armure : en SMS tant
+  qu'il en faut cinq ou moins, en un MMS au-delà, en texte dans les deux cas.
+  Qui le reçoit sans cette application voit qu'il est codé, et peut le copier
+  dans foodjis.
+- **Comment part le prochain message** se lit sur le bouton à côté du champ,
+  dans la couleur qu'il aura : ✍⚿ signé et chiffré, ⚿ chiffré, ✍ signé, ✉ tel
+  quel. Avec un certificat relié au numéro, on commence par signé et chiffré.
+- **Lire.** Un message PGP reçu dit ce qu'il est jusqu'à ce qu'on appuie
+  dessus : foodjis l'ouvre, avec la clé de sécurité s'il est chiffré. Son
+  texte est gardé tant que l'application tourne et n'est écrit nulle part ; sa
+  couleur est retenue.
+- **Le carnet d'adresses dit quelle clé désigne un numéro.** *Relier un
+  certificat à ce numéro* prend une empreinte, ou une adresse qui en contient
+  une : foodjis dit à qui elle est et sur lequel de ses serveurs de clés le
+  certificat se récupère, et cette adresse est inscrite dans le contact comme
+  adresse web — la forme que lui donne un champ KEY de vCard — avec ce que le
+  certificat dit de son titulaire : nom, adresses, numéros, notes, visage.
+  Toute adresse web d'un contact qui contient une empreinte se lit comme telle.
+  Sans certificat relié, on demande à foodjis le certificat qui porte
+  lui-même le numéro.
+- **L'allure de foodjis** : ses couleurs et ses glyphes, et à côté d'un nom
+  la photo du contact, ou le visage que porte son certificat.
 
-Deux permissions : envoyer des MMS, et lire les messages que le téléphone
-détient — pour y trouver les messages PGP ; aucune autre partie n'est
-ouverte. De ce qui part d'ici, l'application garde une ligne par envoi :
-quand, pour quel numéro, quel poids, et si le réseau l'a pris. Jamais le
-texte.
+Permissions : envoyer des messages et lire ceux que le téléphone détient ;
+lire le carnet d'adresses et y écrire. Pas le réseau : c'est le service du
+téléphone qui transporte un message, et ce qui se demande à un serveur de
+clés se demande par foodjis.
 
 ## État
 
 Version 0.0.1, d'essai, essayée sur un téléphone face à une version d'essai
 de foodjis.
 
-- Vu fonctionner : les pages, et la question posée à foodjis — pour un numéro
-  qu'aucun contact ne porte, foodjis montre ses contacts.
+- Fait une fois, pour de vrai : un texte court chiffré pour un certificat,
+  envoyé sous armure par SMS (312 caractères, trois SMS), reçu sur un autre
+  téléphone et ouvert là par foodjis depuis une copie.
+- Vu fonctionner : la page de conversation et son bouton aux quatre
+  couleurs ; foodjis qui demande s'il faut laisser entrer l'application ; un
+  certificat relié à un numéro inventé, et le contact écrit avec son adresse
+  sur un serveur de clés, son nom, sa note et son visage.
 - Testé hors du téléphone : le MMS lui-même (`Pdu`, le M-Send.req
-  d'OMA-MMS-ENC 1.2 dans l'encodage binaire de WSP), octet par octet ; dire si
-  deux numéros n'en font qu'un ; reconnaître un message PGP à ses premiers
-  octets.
-- Fait une fois : un texte court chiffré pour un certificat désigné par son
-  empreinte, envoyé sous armure par SMS (312 caractères, trois SMS).
-- **Pas encore fait une seule fois : envoyer un vrai MMS, recevoir un
-  message, l'ouvrir.** Rien ici ne dit qu'un opérateur transporte une pièce
-  jointe sans y toucher.
+  d'OMA-MMS-ENC 1.2 dans l'encodage binaire de WSP), octet par octet ; les
+  numéros ; les empreintes ; reconnaître un message PGP, et un chiffré d'un
+  signé ; les valeurs vCard.
+- **Pas encore vu** : la liste des conversations et les bulles avec de vrais
+  messages dedans ; un message ouvert depuis sa bulle ; un message signé ; un
+  MMS envoyé ou reçu.
+- **Pas encore construit** : être l'application de messagerie du téléphone —
+  recevoir, garder et annoncer SMS et MMS. D'ici là c'est celle du téléphone
+  qui le fait, un MMS envoyé d'ici n'est pas gardé par le téléphone, et rien
+  n'annonce un message.
 
-Il faut un foodjis qui prenne un numéro de téléphone pour une adresse
-(branche `api-by-phone` de foodjis-android, dans aucune version publiée).
-
-## Où cela va
-
-Décidé depuis cette première application, et pas encore construit :
-
-- **L'application de messagerie du téléphone.** foomms doit recevoir, garder
-  et annoncer tous les SMS et MMS, et ressembler beaucoup aux applications de
-  messagerie que l'on connaît : des conversations, des bulles, un champ en bas.
-- **Un texte reste un texte.** Un message écrit voyage sous armure, en texte :
-  qui le reçoit sans l'application voit qu'il est codé, ce qui intrigue, et
-  peut le copier. Les octets sans armure sont pour les pièces jointes.
-- **Quatre couleurs**, pour les messages reçus et envoyés : rouge, ni chiffré
-  ni certifié ; jaune, chiffré et non certifié ; bleu, certifié et non
-  chiffré ; vert, les deux. Non signé, c'est non certifié.
-- **L'allure de foodjis** : ses couleurs, ses glyphes, les avatars de ses
-  contacts — que l'interface de service ne transporte pas encore.
-- **Le carnet d'adresses dit quelle clé désigne un numéro.** Peu de gens
-  mettent leur numéro de mobile dans leur certificat : chacun relie un numéro
-  à un certificat en inscrivant l'empreinte du certificat dans le contact,
-  comme le fait un champ KEY de vCard (`KEY;MEDIATYPE=application/pgp-keys:`
-  et l'adresse du certificat sur un serveur de clés).
+Il faut un foodjis avec deux ajouts (branche `api-by-phone` de
+foodjis-android, dans aucune version publiée) : un numéro de téléphone pris
+pour une adresse, et une porte qui répond, pour une empreinte, le nom du
+certificat, son statut, son visage et son adresse sur un serveur de clés.
 
 ## Construire
 

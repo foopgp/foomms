@@ -1,6 +1,8 @@
 package org.foopgp.foomms
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -32,5 +34,17 @@ class PgpTest {
         assertFalse(Pgp.isMessage("À demain".toByteArray()))
         assertFalse(Pgp.isMessage(bytes(0xC1)))
         assertFalse(Pgp.isMessage("-----BEGIN PGP PUBLIC KEY BLOCK-----".toByteArray()))
+    }
+
+    @Test fun `an armored message is found in a text, and told locked from signed`() {
+        // A session key packet for a public key (0x84, version 3) and a one-pass signature packet (0x90, version 3).
+        val locked = "-----BEGIN PGP MESSAGE-----\n\nhF4DAAAAAAAAAAAS\n=AAAA\n-----END PGP MESSAGE-----"
+        val signed = "-----BEGIN PGP MESSAGE-----\nComment: x\n\nkA0DAAoWAAAAAAAAAAAB\n-----END PGP MESSAGE-----"
+        assertEquals(locked, Pgp.armorIn("Bonjour,\n$locked\nÀ bientôt"))
+        assertNull(Pgp.armorIn("Bonjour"))
+        assertNull(Pgp.armorIn("-----BEGIN PGP MESSAGE-----\n\nhF4D"))
+        assertTrue(Pgp.isLocked(locked))
+        assertFalse(Pgp.isLocked(signed))
+        assertFalse(Pgp.isLocked("-----BEGIN PGP MESSAGE-----\nhF4DAAAAAAAAAAAS\n-----END PGP MESSAGE-----"))
     }
 }
