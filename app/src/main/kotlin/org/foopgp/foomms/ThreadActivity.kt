@@ -43,7 +43,7 @@ class ThreadActivity : AskingActivity() {
     private val foodjis by lazy { Foodjis.of(this) }
 
     private var person: Book.Person? = null
-    private var card: Foodjis.Card? = null
+    private var card: Foodjis.Cert? = null
     private var face: Bitmap? = null
     private var lines: List<Store.Line> = emptyList()
     private var mode = Mode.PLAIN
@@ -196,6 +196,14 @@ class ThreadActivity : AskingActivity() {
             val certified = signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED
             Opened.keep(this, armor, String(answer.bytes, Charsets.UTF_8), signed(signature), Verdict.of(Pgp.isLocked(armor), certified))
             bubbles.notifyDataSetChanged()
+            // Signed, from a number that means no certificate yet: it may well mean the signer's.
+            if (line.incoming && person?.fingerprint == null && signature?.result in VALID) {
+                val keyId = signature!!.keyId
+                thread {
+                    val whose = foodjis.signer(keyId) ?: return@thread
+                    runOnUiThread { if (!isFinishing && !isDestroyed) offer(whose) }
+                }
+            }
         }
     }
 
@@ -277,46 +285,95 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
-    /** Say whose certificate this number means: its fingerprint, or an address that holds it. */
+    /** Say whose certificate this number means: chosen in foodjis's list, or named by its fingerprint. */
     private fun tie() {
-        if (checkSelfPermission(Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED ||
-            checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS), 2)
-        }
         val asked = EditText(this).apply {
             setHint(R.string.fingerprint_hint)
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-            setText(person?.fingerprint.orEmpty())
         }
         AlertDialog.Builder(this)
             .setTitle(R.string.tie)
             .setMessage(R.string.tie_about)
             .setView(asked)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                val fingerprint = Fingerprint.of(asked.text.toString()) ?: return@setPositiveButton say(getString(R.string.not_a_fingerprint))
-                thread {
-                    val whose = foodjis.card(fingerprint)
-                    val outcome = when {
-                        foodjis.shut -> getString(R.string.foodjis_shut)
-                        whose == null -> getString(R.string.certificate_not_held)
-                        else -> runCatching {
-                            // Where a key server serves it; an address is written all the same when none does.
-                            val address = foodjis.address(fingerprint)
-                            Book.tie(this, number, address ?: Fingerprint.address(fingerprint), whose.name, whose.userIds, foodjis.avatar(fingerprint))
-                            getString(if (address != null) R.string.tied else R.string.tied_unserved, whose.name)
-                        }.getOrElse { getString(R.string.failed, it.message) }
-                    }
-                    runOnUiThread {
-                        if (isFinishing || isDestroyed) return@runOnUiThread
-                        say(outcome)
-                        person = null ; card = null
-                        load(first = true)
-                    }
-                }
+            .setPositiveButton(R.string.tie_choose) { _, _ -> choose() }
+            .setNeutralButton(R.string.tie_named) { _, _ ->
+                val fingerprint = Fingerprint.of(asked.text.toString()) ?: return@setNeutralButton say(getString(R.string.not_a_fingerprint))
+                found(fingerprint)
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+    }
+
+    /** foodjis shows its own list of contacts; the first ticked is whose certificate the number means. */
+    private fun choose() {
+        ask(Intent(Provider.GET_KEY_IDS), null, ::say) { answer ->
+            val keyId = answer.says.getLongArrayExtra(Provider.EXTRA_KEY_IDS)?.firstOrNull() ?: return@ask
+            found("%016X".format(keyId))
+        }
+    }
+
+    /** What foodjis says of the certificate named, by fingerprint or by key id, then the question. */
+    private fun found(named: String) {
+        thread {
+            val whose = foodjis.card(named)
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                when {
+                    foodjis.shut -> say(getString(R.string.foodjis_shut))
+                    whose == null -> say(getString(R.string.certificate_not_held))
+                    else -> offer(whose)
+                }
+            }
+        }
+    }
+
+    /**
+     * Nothing is written in the address book before the person has seen what
+     * would be: the card foodjis makes of the certificate, a line each.
+     */
+    private fun offer(whose: Foodjis.Cert) {
+        thread {
+            val card = foodjis.vcard(whose.fingerprint)
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                if (card == null) return@runOnUiThread say(getString(R.string.no_card, whose.name))
+                val told = card.told().joinToString("\n") { "•  $it" } +
+                    (if (card.photo != null) "\n•  " + getString(R.string.card_photo) else "") +
+                    "\n•  🔑 " + (card.key ?: Fingerprint.address(whose.fingerprint))
+                AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.tie_ask, number, whose.name))
+                    .setMessage(getString(R.string.tie_ask_about, whose.validity) + "\n\n" + told)
+                    .setPositiveButton(R.string.tie_write) { _, _ -> write(whose, card) }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+            }
+        }
+    }
+
+    private var waiting: (() -> Unit)? = null
+
+    private fun write(whose: Foodjis.Cert, vcard: Card) {
+        if (NEEDED_TO_WRITE.any { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }) {
+            waiting = { write(whose, vcard) }
+            return requestPermissions(NEEDED_TO_WRITE, 2)
+        }
+        thread {
+            val outcome = runCatching {
+                Book.tie(this, number, vcard, vcard.key?.takeIf { Fingerprint.of(it) == whose.fingerprint } ?: Fingerprint.address(whose.fingerprint))
+                getString(R.string.tied, whose.name)
+            }.getOrElse { getString(R.string.failed, it.message) }
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                Toast.makeText(this, outcome, Toast.LENGTH_LONG).show()
+                person = null ; card = null
+                load(first = true)
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(request: Int, permissions: Array<String>, results: IntArray) {
+        val then = waiting.also { waiting = null }
+        if (request == 2 && results.isNotEmpty() && results.all { it == PackageManager.PERMISSION_GRANTED }) then?.invoke()
     }
 
     private fun say(words: String) {
@@ -327,6 +384,11 @@ class ThreadActivity : AskingActivity() {
         const val EXTRA_NUMBER = "number"
         private const val TIE = 1
         private const val LET_IN = 2
+        private val NEEDED_TO_WRITE = arrayOf(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
+        private val VALID = setOf(
+            OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED,
+            OpenPgpSignatureResult.RESULT_VALID_KEY_UNCONFIRMED,
+        )
 
         /** Beyond this many SMS, a text leaves as one MMS. */
         private const val MOST_SMS = 5

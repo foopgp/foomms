@@ -37,8 +37,14 @@
     <string name="mode_plain">As it is: neither encrypted nor signed</string>
     <string name="tie">🔑 Tie a certificate to this number</string>
     <string name="let_in">Ask foodjis to let this application in</string>
-    <string name="tie_about">The fingerprint of their certificate, or an address that holds it. It is written in the contact, with what the certificate says of its holder.</string>
     <string name="fingerprint_hint">Fingerprint</string>
     <string name="tied">This number now means the certificate of %1$s.</string>
-    <string name="tied_unserved">This number now means the certificate of %1$s. No key server of foodjis serves it yet: publish it from foodjis.</string>
+    <string name="tie_about">Whose certificate does this number mean? Choose among your foodjis contacts, or give the certificate\'s fingerprint — or an address that holds it.</string>
+    <string name="tie_choose">Choose in foodjis</string>
+    <string name="tie_named">By this fingerprint</string>
+    <string name="no_card">foodjis has no card to make for %1$s: their certificate carries no name.</string>
+    <string name="card_photo">their picture</string>
+    <string name="tie_ask">%1$s is %2$s?</string>
+    <string name="tie_ask_about">Their certificate is %1$s. This will be written in your address book, where the contact does not say it already:</string>
+    <string name="tie_write">Write it</string>
 </resources>

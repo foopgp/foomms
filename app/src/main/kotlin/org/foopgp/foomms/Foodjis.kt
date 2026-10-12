@@ -15,7 +15,7 @@ import android.net.Uri
  */
 class Foodjis(private val context: Context) {
 
-    class Card(val fingerprint: String, val name: String, val eid: String?, val validity: String, val self: Boolean, val userIds: List<String>) {
+    class Cert(val fingerprint: String, val name: String, val eid: String?, val validity: String, val self: Boolean, val userIds: List<String>) {
         val certified: Boolean get() = validity == "certified"
         val usable: Boolean get() = validity == "certified" || validity == "uncertified"
     }
@@ -27,15 +27,15 @@ class Foodjis(private val context: Context) {
     private val door: String =
         "content://" + (if (context.packageName.endsWith(".dev")) Provider.FOODJIS_DEV else Provider.FOODJIS) + ".directory"
 
-    private val cards = HashMap<String, Card?>()
+    private val cards = HashMap<String, Cert?>()
     private val faces = HashMap<String, Bitmap?>()
 
-    fun card(fingerprint: String): Card? = synchronized(cards) {
+    fun card(fingerprint: String): Cert? = synchronized(cards) {
         if (cards.containsKey(fingerprint)) return cards[fingerprint]
         val card = asked {
             context.contentResolver.query(Uri.parse("$door/cert/$fingerprint"), null, null, null, null)?.use { rows ->
                 if (!rows.moveToFirst()) null
-                else Card(
+                else Cert(
                     rows.getString(0), rows.getString(1), rows.getString(2), rows.getString(3),
                     rows.getInt(4) == 1, rows.getString(5).orEmpty().split('\n').filter { it.isNotEmpty() },
                 )
@@ -55,6 +55,15 @@ class Foodjis(private val context: Context) {
         if (!shut) faces[fingerprint] = face
         face
     }
+
+    /** The vCard foodjis shares for this certificate; asks the network for the key server it names. */
+    fun vcard(fingerprint: String): Card? = asked {
+        context.contentResolver.openInputStream(Uri.parse("$door/vcard/$fingerprint"))
+            ?.use { Card.of(String(it.readBytes(), Charsets.UTF_8)) }
+    }
+
+    /** The certificate a key id means, when one alone wears it: all a signature is reported with. */
+    fun signer(keyId: Long): Cert? = card("%016X".format(keyId))
 
     /** Where the certificate can be fetched: asks the network, through foodjis. */
     fun address(fingerprint: String): String? = asked {

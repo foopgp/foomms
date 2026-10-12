@@ -52,13 +52,17 @@ then one of them in bubbles, a field at the bottom.
   held while the application runs and written nowhere; its colour is
   remembered.
 - **The address book says whose key a number means.** *Tie a certificate to
-  this number* takes a fingerprint, or an address that holds one: foodjis
-  says whose it is and on which of its key servers it can be fetched, and
-  that address is written in the contact as a web address — the form a
-  vCard's KEY field gives it — with what the certificate says of its holder:
-  name, addresses, numbers, notes, face. Any web address of a contact that
-  holds a fingerprint is read as one. With no certificate tied, foodjis is
-  asked for the certificate that carries the number itself.
+  this number*: chosen in foodjis's own list of contacts, or named by its
+  fingerprint — or an address that holds it. foodjis makes the vCard it
+  already shares for that certificate; what it says is shown, a line each,
+  and written in the contact once you agree: the address of the certificate
+  on a key server as a web address — the form a vCard's KEY field gives it —
+  and the name, addresses, numbers, notes and face, where the contact does
+  not say them already. Any web address of a contact that holds a
+  fingerprint is read as one. Opening a signed message from a number that
+  means no certificate yet offers to tie it to the signer's. With no
+  certificate tied, foodjis is asked for the certificate that carries the
+  number itself.
 - **The look of foodjis**: its colours and glyphs, and beside a name the
   contact's picture, or the face their certificate carries.
 
@@ -81,7 +85,8 @@ Version 0.0.1, a trial, tried on one phone against a trial build of foodjis.
 - Tested off the phone: the MMS itself (`Pdu`, the M-Send.req of OMA-MMS-ENC
   1.2 in WSP's binary encoding), byte for byte; numbers; fingerprints; telling
   a PGP message, and a locked one from a signed one; vCard values.
-- **Not seen yet**: the list of conversations and the bubbles with real
+- **Not seen yet**: tying a certificate since it goes through foodjis's list
+  and vCard, and the new icon; the list of conversations and the bubbles with real
   messages in them; a message opened from its bubble; a signed message; an
   MMS sent or received.
 - **Not built yet**: being the phone's messaging application — receiving,
@@ -89,10 +94,10 @@ Version 0.0.1, a trial, tried on one phone against a trial build of foodjis.
   MMS sent from here is not kept by the phone, and nothing announces a
   message.
 
-It needs a foodjis with two additions (branch `api-by-phone` of
+It needs a foodjis with three additions (branch `api-by-phone` of
 foodjis-android, not in a published version): a phone number taken for an
-address, and a door that answers, for one fingerprint, the certificate's
-name, standing, face and address on a key server.
+address; its list of contacts shown to choose from; and a door that answers,
+for one fingerprint, the certificate's name, standing, face and vCard.
 
 ## Building
 

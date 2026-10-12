@@ -52,14 +52,14 @@ object Book {
     }
 
     /**
-     * Write that [number] means the certificate at [address], and what the
-     * certificate says of its holder -- name, addresses, numbers, face -- where
-     * the contact does not say it already. A contact is made when the number
-     * has none.
+     * Write that [number] means the certificate [card] is the card of, and
+     * what the card says of its holder -- name, addresses, numbers, notes,
+     * face -- where the contact does not say it already. A contact is made
+     * when the number has none.
      */
-    fun tie(context: Context, number: String, address: String, name: String, userIds: List<String>, avatar: ByteArray?) {
+    fun tie(context: Context, number: String, card: Card, address: String) {
         val known = who(context, number)
-        val raw = known?.let { rawOf(context, it.contact) } ?: create(context, number, name)
+        val raw = known?.let { rawOf(context, it.contact) } ?: create(context, number, card.name ?: number)
         val contact = known?.contact ?: contactOf(context, raw)
         val resolver = context.contentResolver
 
@@ -71,75 +71,52 @@ object Book {
                 arrayOf(contact.toString(), Website.CONTENT_ITEM_TYPE, old),
             )
         }
-        val rows = ArrayList<ContentValues>()
         fun row(kind: String, column: String, value: String, more: ContentValues.() -> Unit = {}) {
-            rows += ContentValues().apply {
-                put(Data.RAW_CONTACT_ID, raw) ; put(Data.MIMETYPE, kind) ; put(column, value) ; more()
-            }
+            resolver.insert(
+                Data.CONTENT_URI,
+                ContentValues().apply { put(Data.RAW_CONTACT_ID, raw) ; put(Data.MIMETYPE, kind) ; put(column, value) ; more() },
+            )
         }
-        row(Website.CONTENT_ITEM_TYPE, Website.URL, address) {
-            put(Website.TYPE, Website.TYPE_CUSTOM) ; put(Website.LABEL, "PGP")
-        }
-        fun missing(kind: String, column: String, value: String, same: (String, String) -> Boolean) =
+        fun missing(kind: String, column: String, value: String, same: (String, String) -> Boolean = { a, b -> a == b }) =
             values(context, contact, kind, column).none { same(it, value) }
-        for (userId in userIds.flatMap(::properties)) {
-            val value = plain(userId.substringAfter(':').trim())
-            if (value.isEmpty()) continue
-            when (userId.substringBefore(':').substringBefore(';')) {
-                "EMAIL" -> if (missing(Email.CONTENT_ITEM_TYPE, Email.ADDRESS, value) { a, b -> a.equals(b, true) }) {
-                    row(Email.CONTENT_ITEM_TYPE, Email.ADDRESS, value) { put(Email.TYPE, Email.TYPE_OTHER) }
-                }
-                "TEL" -> Phone.plain(value)?.let { plain ->
-                    if (missing(PhoneRow.CONTENT_ITEM_TYPE, PhoneRow.NUMBER, plain, Phone::same)) {
-                        row(PhoneRow.CONTENT_ITEM_TYPE, PhoneRow.NUMBER, plain) { put(PhoneRow.TYPE, PhoneRow.TYPE_OTHER) }
-                    }
-                }
-                "ADR" -> {
-                    // A vCard address is seven fields between semicolons: read as lines, the empty ones dropped.
-                    val lines = value.split(';').map { it.trim() }.filter { it.isNotEmpty() }.joinToString("\n")
-                    if (lines.isNotEmpty() && missing(StructuredPostal.CONTENT_ITEM_TYPE, StructuredPostal.FORMATTED_ADDRESS, lines) { a, b -> a == b }) {
-                        row(StructuredPostal.CONTENT_ITEM_TYPE, StructuredPostal.FORMATTED_ADDRESS, lines) {
-                            put(StructuredPostal.TYPE, StructuredPostal.TYPE_OTHER)
-                        }
-                    }
-                }
-                "URL" -> if (missing(Website.CONTENT_ITEM_TYPE, Website.URL, value) { a, b -> a == b }) {
-                    row(Website.CONTENT_ITEM_TYPE, Website.URL, value) { put(Website.TYPE, Website.TYPE_OTHER) }
-                }
-                "NOTE" -> if (missing(Note.CONTENT_ITEM_TYPE, Note.NOTE, value) { a, b -> a == b }) {
-                    row(Note.CONTENT_ITEM_TYPE, Note.NOTE, value)
+
+        row(Website.CONTENT_ITEM_TYPE, Website.URL, address) { put(Website.TYPE, Website.TYPE_CUSTOM) ; put(Website.LABEL, "PGP") }
+        for (email in card.emails) {
+            if (missing(Email.CONTENT_ITEM_TYPE, Email.ADDRESS, email) { a, b -> a.equals(b, true) }) {
+                row(Email.CONTENT_ITEM_TYPE, Email.ADDRESS, email) { put(Email.TYPE, Email.TYPE_OTHER) }
+            }
+        }
+        for (phone in card.phones.mapNotNull { Phone.plain(it) }) {
+            if (!Phone.same(phone, number) && missing(PhoneRow.CONTENT_ITEM_TYPE, PhoneRow.NUMBER, phone, Phone::same)) {
+                row(PhoneRow.CONTENT_ITEM_TYPE, PhoneRow.NUMBER, phone) { put(PhoneRow.TYPE, PhoneRow.TYPE_OTHER) }
+            }
+        }
+        for (postal in card.addresses) {
+            if (missing(StructuredPostal.CONTENT_ITEM_TYPE, StructuredPostal.FORMATTED_ADDRESS, postal)) {
+                row(StructuredPostal.CONTENT_ITEM_TYPE, StructuredPostal.FORMATTED_ADDRESS, postal) {
+                    put(StructuredPostal.TYPE, StructuredPostal.TYPE_OTHER)
                 }
             }
         }
-        for (values in rows) resolver.insert(Data.CONTENT_URI, values)
+        for (site in card.websites) {
+            if (missing(Website.CONTENT_ITEM_TYPE, Website.URL, site)) {
+                row(Website.CONTENT_ITEM_TYPE, Website.URL, site) { put(Website.TYPE, Website.TYPE_OTHER) }
+            }
+        }
+        for (note in card.notes) {
+            if (missing(Note.CONTENT_ITEM_TYPE, Note.NOTE, note)) row(Note.CONTENT_ITEM_TYPE, Note.NOTE, note)
+        }
         // The face the certificate carries, when the contact has none of its own.
-        if (avatar != null && known?.photo == null) {
+        val face = card.photo
+        if (face != null && known?.photo == null) {
             resolver.insert(
                 Data.CONTENT_URI,
                 ContentValues().apply {
-                    put(Data.RAW_CONTACT_ID, raw) ; put(Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE) ; put(Photo.PHOTO, avatar)
+                    put(Data.RAW_CONTACT_ID, raw) ; put(Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE) ; put(Photo.PHOTO, face)
                 },
             )
         }
     }
-
-    /**
-     * A user id as vCard properties: itself when it is one (`EMAIL:…`), and
-     * for the older form `Name <address>` the address it carries.
-     */
-    internal fun properties(userId: String): List<String> = when {
-        PROPERTY.containsMatchIn(userId) -> listOf(userId)
-        else -> listOfNotNull(
-            userId.substringAfterLast('<', "").substringBefore('>').takeIf { '@' in it }?.let { "EMAIL:$it" },
-        )
-    }
-
-    /** A vCard value as it reads: `\,` is a comma, `\;` a semicolon, `\n` a new line (RFC 6350, section 3.4). */
-    internal fun plain(value: String): String =
-        ESCAPE.replace(value) { found -> if (found.groupValues[1].equals("n", true)) "\n" else found.groupValues[1] }
-
-    private val ESCAPE = Regex("""\\(.)""")
-    private val PROPERTY = Regex("^[A-Z]+[:;]")
 
     private fun rawOf(context: Context, contact: Long): Long? =
         context.contentResolver.query(

@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- An envelope on the indigo of foodjis, its flap in orange: a placeholder until the application has an icon of its own. -->
+<!-- A speech bubble on the indigo of foodjis, and in it the two keys foodjis
+     marks locking and opening with: one in its square, one bare. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="48dp" android:height="48dp"
     android:viewportWidth="48" android:viewportHeight="48">
     <path android:fillColor="#FF31264B" android:pathData="M8,0h32a8,8 0,0 1,8 8v32a8,8 0,0 1,-8 8h-32a8,8 0,0 1,-8 -8v-32a8,8 0,0 1,8 -8z" />
-    <path android:fillColor="#FFFFFFFF" android:pathData="M9,14h30v20h-30z" />
-    <path android:fillColor="#FFFF8012" android:pathData="M9,14h30l-15,12z" />
+    <!-- The bubble, its tail at the bottom left. -->
+    <path android:fillColor="#FFFFFFFF" android:pathData="M12,9h24a5,5 0,0 1,5 5v15a5,5 0,0 1,-5 5h-17l-8,7v-7.3a5,5 0,0 1,-4 -4.7v-15a5,5 0,0 1,5 -5z" />
+    <!-- Locking: a key in a square. -->
+    <path android:fillColor="#FFFF8012" android:pathData="M11,13h11v17h-11zM12.6,14.6v13.8h7.8v-13.8z" />
+    <path android:fillColor="#FFFF8012" android:pathData="M16.5,16a2.6,2.6 0,1 0,0.8 5.1v5.9h1.4v-1.4h1.5v-1.3h-1.5v-1.2h1.5v-1.3h-1.5v-0.7a2.6,2.6 0,0 0,-2.2 -5.1zM16.5,17.4a1.2,1.2 0,1 1,0 2.4a1.2,1.2 0,0 1,0 -2.4z" />
+    <!-- Opening: the key alone. -->
+    <path android:fillColor="#FF31264B" android:pathData="M31,12a4.2,4.2 0,1 0,1.2 8.2v9.8h2.2v-2.2h2.6v-2.1h-2.6v-1.9h2.6v-2.1h-2.6v-1.5a4.2,4.2 0,0 0,-3.4 -8.2zM31,14.2a2,2 0,1 1,0 4a2,2 0,0 1,0 -4z" />
 </vector>

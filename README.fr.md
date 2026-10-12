@@ -55,14 +55,17 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   texte est gardé tant que l'application tourne et n'est écrit nulle part ; sa
   couleur est retenue.
 - **Le carnet d'adresses dit quelle clé désigne un numéro.** *Relier un
-  certificat à ce numéro* prend une empreinte, ou une adresse qui en contient
-  une : foodjis dit à qui elle est et sur lequel de ses serveurs de clés le
-  certificat se récupère, et cette adresse est inscrite dans le contact comme
-  adresse web — la forme que lui donne un champ KEY de vCard — avec ce que le
-  certificat dit de son titulaire : nom, adresses, numéros, notes, visage.
-  Toute adresse web d'un contact qui contient une empreinte se lit comme telle.
-  Sans certificat relié, on demande à foodjis le certificat qui porte
-  lui-même le numéro.
+  certificat à ce numéro* : choisi dans la liste de contacts de foodjis, ou
+  désigné par son empreinte — ou par une adresse qui la contient. foodjis
+  produit la vCard qu'il partage déjà pour ce certificat ; ce qu'elle dit est
+  montré, une ligne par donnée, et inscrit dans le contact une fois votre
+  accord donné : l'adresse du certificat sur un serveur de clés comme adresse
+  web — la forme que lui donne un champ KEY de vCard — et le nom, les
+  adresses, numéros, notes et visage, là où le contact ne les dit pas déjà.
+  Toute adresse web d'un contact qui contient une empreinte se lit comme
+  telle. Ouvrir un message signé venu d'un numéro qui ne désigne encore aucun
+  certificat propose de le relier à celui du signataire. Sans certificat
+  relié, on demande à foodjis le certificat qui porte lui-même le numéro.
 - **L'allure de foodjis** : ses couleurs et ses glyphes, et à côté d'un nom
   la photo du contact, ou le visage que porte son certificat.
 
@@ -87,7 +90,8 @@ de foodjis.
   d'OMA-MMS-ENC 1.2 dans l'encodage binaire de WSP), octet par octet ; les
   numéros ; les empreintes ; reconnaître un message PGP, et un chiffré d'un
   signé ; les valeurs vCard.
-- **Pas encore vu** : la liste des conversations et les bulles avec de vrais
+- **Pas encore vu** : relier un certificat depuis que cela passe par la liste
+  et la vCard de foodjis, et la nouvelle icône ; la liste des conversations et les bulles avec de vrais
   messages dedans ; un message ouvert depuis sa bulle ; un message signé ; un
   MMS envoyé ou reçu.
 - **Pas encore construit** : être l'application de messagerie du téléphone —
@@ -95,10 +99,11 @@ de foodjis.
   qui le fait, un MMS envoyé d'ici n'est pas gardé par le téléphone, et rien
   n'annonce un message.
 
-Il faut un foodjis avec deux ajouts (branche `api-by-phone` de
+Il faut un foodjis avec trois ajouts (branche `api-by-phone` de
 foodjis-android, dans aucune version publiée) : un numéro de téléphone pris
-pour une adresse, et une porte qui répond, pour une empreinte, le nom du
-certificat, son statut, son visage et son adresse sur un serveur de clés.
+pour une adresse ; sa liste de contacts montrée pour y choisir ; et une porte
+qui répond, pour une empreinte, le nom du certificat, son statut, son visage
+et sa vCard.
 
 ## Construire
 
