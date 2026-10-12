@@ -77,12 +77,35 @@ de foodjis.
   d'OMA-MMS-ENC 1.2 dans l'encodage binaire de WSP), octet par octet ; dire si
   deux numéros n'en font qu'un ; reconnaître un message PGP à ses premiers
   octets.
-- **Pas encore fait une seule fois : envoyer un vrai MMS, en recevoir un,
-  l'ouvrir.** Rien ici ne dit qu'un opérateur transporte la pièce jointe sans
-  y toucher.
+- Fait une fois : un texte court chiffré pour un certificat désigné par son
+  empreinte, envoyé sous armure par SMS (312 caractères, trois SMS).
+- **Pas encore fait une seule fois : envoyer un vrai MMS, recevoir un
+  message, l'ouvrir.** Rien ici ne dit qu'un opérateur transporte une pièce
+  jointe sans y toucher.
 
 Il faut un foodjis qui prenne un numéro de téléphone pour une adresse
 (branche `api-by-phone` de foodjis-android, dans aucune version publiée).
+
+## Où cela va
+
+Décidé depuis cette première application, et pas encore construit :
+
+- **L'application de messagerie du téléphone.** foomms doit recevoir, garder
+  et annoncer tous les SMS et MMS, et ressembler beaucoup aux applications de
+  messagerie que l'on connaît : des conversations, des bulles, un champ en bas.
+- **Un texte reste un texte.** Un message écrit voyage sous armure, en texte :
+  qui le reçoit sans l'application voit qu'il est codé, ce qui intrigue, et
+  peut le copier. Les octets sans armure sont pour les pièces jointes.
+- **Quatre couleurs**, pour les messages reçus et envoyés : rouge, ni chiffré
+  ni certifié ; jaune, chiffré et non certifié ; bleu, certifié et non
+  chiffré ; vert, les deux. Non signé, c'est non certifié.
+- **L'allure de foodjis** : ses couleurs, ses glyphes, les avatars de ses
+  contacts — que l'interface de service ne transporte pas encore.
+- **Le carnet d'adresses dit quelle clé désigne un numéro.** Peu de gens
+  mettent leur numéro de mobile dans leur certificat : chacun relie un numéro
+  à un certificat en inscrivant l'empreinte du certificat dans le contact,
+  comme le fait un champ KEY de vCard (`KEY;MEDIATYPE=application/pgp-keys:`
+  et l'adresse du certificat sur un serveur de clés).
 
 ## Construire
 

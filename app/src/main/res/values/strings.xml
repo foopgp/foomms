@@ -13,7 +13,7 @@
     <string name="read">⚷ Read</string>
     <string name="read_line">⚷ Read — %1$s</string>
     <string name="sent_from_here">Sent from here: %1$d</string>
-    <string name="sent_line">To %1$s, %2$s — %3$d kB, %4$s</string>
+    <string name="sent_line">To %1$s, %2$s — %4$s</string>
     <string name="outcome_gone">sent</string>
     <string name="outcome_going">on its way</string>
     <string name="outcome_refused">not sent (%1$s)</string>
@@ -29,8 +29,8 @@
     <string name="notice">Encrypted PGP message: %1$s</string>
     <string name="too_heavy">This message weighs %1$d kB, and the network takes %2$d kB at most.</string>
     <string name="handed_over">Handed to the phone: %1$d kB to send.</string>
-    <string name="sent">MMS sent.</string>
-    <string name="not_sent">MMS not sent (%1$d).</string>
+    <string name="sent">Message sent.</string>
+    <string name="not_sent">Message not sent (%1$d).</string>
     <string name="read_title">Read</string>
     <string name="gone">This message is no longer on the phone.</string>
     <string name="answer">✎ Answer</string>
@@ -46,4 +46,7 @@
     <string name="signed_unknown">Signed by a key foodjis does not hold.</string>
     <string name="signed_broken">The signature does not hold.</string>
     <string name="close">Close</string>
+    <string name="fingerprint_hint">Fingerprint of their certificate, if their number is not in it</string>
+    <string name="not_a_fingerprint">This is not a fingerprint: forty hexadecimal digits.</string>
+    <string name="handed_over_sms">Handed to the phone: %1$d characters, %2$d SMS.</string>
 </resources>

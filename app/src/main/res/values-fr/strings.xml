@@ -11,7 +11,7 @@
     <string name="read">⚷ Lire</string>
     <string name="read_line">⚷ Lire — %1$s</string>
     <string name="sent_from_here">Envoyés d\'ici : %1$d</string>
-    <string name="sent_line">Pour %1$s, %2$s — %3$d ko, %4$s</string>
+    <string name="sent_line">Pour %1$s, %2$s — %4$s</string>
     <string name="outcome_gone">envoyé</string>
     <string name="outcome_going">en route</string>
     <string name="outcome_refused">non envoyé (%1$s)</string>
@@ -27,8 +27,8 @@
     <string name="notice">Message PGP chiffré : %1$s</string>
     <string name="too_heavy">Ce message pèse %1$d ko, et le réseau en accepte %2$d au plus.</string>
     <string name="handed_over">Confié au téléphone : %1$d ko à envoyer.</string>
-    <string name="sent">MMS envoyé.</string>
-    <string name="not_sent">MMS non envoyé (%1$d).</string>
+    <string name="sent">Message envoyé.</string>
+    <string name="not_sent">Message non envoyé (%1$d).</string>
     <string name="read_title">Lire</string>
     <string name="gone">Ce message n\'est plus sur le téléphone.</string>
     <string name="answer">✎ Répondre</string>
@@ -44,4 +44,7 @@
     <string name="signed_unknown">Signé par une clé que foodjis ne détient pas.</string>
     <string name="signed_broken">La signature ne tient pas.</string>
     <string name="close">Fermer</string>
+    <string name="fingerprint_hint">Empreinte de son certificat, si son numéro n\'y est pas</string>
+    <string name="not_a_fingerprint">Ce n\'est pas une empreinte : quarante chiffres hexadécimaux.</string>
+    <string name="handed_over_sms">Confié au téléphone : %1$d caractères, %2$d SMS.</string>
 </resources>

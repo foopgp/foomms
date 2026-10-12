@@ -23,6 +23,7 @@ class WriteActivity : AskingActivity() {
 
     private lateinit var number: EditText
     private lateinit var words: EditText
+    private lateinit var fingerprint: EditText
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
@@ -40,7 +41,12 @@ class WriteActivity : AskingActivity() {
             minLines = 4
             gravity = Gravity.TOP
         }
+        fingerprint = EditText(this).apply {
+            setHint(R.string.fingerprint_hint)
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+        }
         column.addView(number)
+        column.addView(fingerprint)
         column.addView(words)
         column.addView(Look.button(this, R.string.sign_encrypt_send) { seal(signed = true) })
         column.addView(Look.button(this, R.string.encrypt_send) { seal(signed = false) })
@@ -55,11 +61,26 @@ class WriteActivity : AskingActivity() {
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)
         }
-        // Not armored: an MMS carries bytes as they are, and armor would weigh a third more for nothing.
+        // In armor: a text stays a text, which whoever receives it without this
+        // application sees for what it is, and can copy.
         val request = Intent(if (signed) Provider.SIGN_AND_ENCRYPT else Provider.ENCRYPT)
-            .putExtra(Provider.EXTRA_USER_IDS, arrayOf("tel:$to"))
-            .putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, false)
-        ask(request, written.toByteArray(), ::say) { answer -> send(to, answer.bytes) }
+            .putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, true)
+        val named = fingerprint.text.toString()
+        if (named.isBlank()) {
+            request.putExtra(Provider.EXTRA_USER_IDS, arrayOf("tel:$to"))
+        } else {
+            val whose = Fingerprint.of(named) ?: return say(getString(R.string.not_a_fingerprint))
+            request.putExtra(Provider.EXTRA_KEY_IDS, longArrayOf(Fingerprint.keyId(whose)))
+        }
+        ask(request, written.toByteArray(), ::say) { answer -> text(to, String(answer.bytes, Charsets.US_ASCII).trim()) }
+    }
+
+    private fun text(to: String, armor: String) {
+        if (!Pgp.isMessage(armor.toByteArray())) return say(getString(R.string.failed, "what came back is not a PGP message"))
+        val pieces = runCatching { Outbox.text(this, to, armor) }
+            .getOrElse { return say(getString(R.string.failed, it.message)) }
+        Toast.makeText(this, getString(R.string.handed_over_sms, armor.length, pieces), Toast.LENGTH_LONG).show()
+        finish()
     }
 
     private fun send(to: String, message: ByteArray) {

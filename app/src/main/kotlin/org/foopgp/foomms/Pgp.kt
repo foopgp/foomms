@@ -7,8 +7,8 @@ package org.foopgp.foomms
  *
  * A message locked for somebody opens on a session key packet (RFC 9580,
  * section 5.1 for a key, 5.3 for a password), in either of the two ways a
- * packet says what it is (section 4.2); in armor it opens on its banner
- * (section 6.2).
+ * packet says what it is (section 4.2), and that packet on its version; in
+ * armor it opens on its banner (section 6.2).
  */
 object Pgp {
 
@@ -19,8 +19,36 @@ object Pgp {
         if (start.isEmpty()) return false
         val first = start[0].toInt() and 0xFF
         if (first and 0x80 == 0) return isArmor(start)
-        val tag = if (first and 0x40 != 0) first and 0x3F else first and 0x3C shr 2
-        return tag == PUBLIC_KEY_SESSION || tag == SYMMETRIC_KEY_SESSION
+        // The packet's tag, and where its body begins: behind one, two or
+        // four bytes of length the old way, one, two or five the new way.
+        val tag: Int
+        val body: Int
+        if (first and 0x40 != 0) {
+            tag = first and 0x3F
+            val length = start.getOrNull(1)?.toInt()?.and(0xFF) ?: return false
+            body = when {
+                length < 192 -> 2
+                length < 224 -> 3
+                length == 255 -> 6
+                else -> return false
+            }
+        } else {
+            tag = first and 0x3C shr 2
+            body = when (first and 0x03) {
+                0 -> 2
+                1 -> 3
+                2 -> 5
+                else -> return false
+            }
+        }
+        // A tag alone is one byte in sixteen, and a text that opens on "É" has
+        // it: the body must open on a version these packets exist in.
+        val version = start.getOrNull(body)?.toInt() ?: return false
+        return when (tag) {
+            PUBLIC_KEY_SESSION -> version == 3 || version == 6
+            SYMMETRIC_KEY_SESSION -> version in 4..6
+            else -> false
+        }
     }
 
     private fun isArmor(start: ByteArray): Boolean =

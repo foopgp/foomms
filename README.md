@@ -69,11 +69,34 @@ Version 0.0.1, a trial, tried on one phone against a trial build of foodjis.
 - Tested off the phone: the MMS itself (`Pdu`, the M-Send.req of OMA-MMS-ENC
   1.2 in WSP's binary encoding), byte for byte; telling whether two numbers
   are one; telling a PGP message from its first bytes.
-- **Not yet done once: sending a real MMS, receiving one, opening it.** Nothing
-  here says an operator carries the attachment untouched.
+- Done once: a short text locked for a certificate named by its fingerprint,
+  sent in armor as SMS (312 characters, three SMS).
+- **Not yet done once: sending a real MMS, receiving a message, opening it.**
+  Nothing here says an operator carries an attachment untouched.
 
 It needs a foodjis that takes a phone number for an address (branch
 `api-by-phone` of foodjis-android, not in a published version).
+
+## Where it is going
+
+Decided since this first application, and not yet built:
+
+- **The phone's messaging application.** foomms is to receive, keep and
+  announce every SMS and MMS, and to look much like the messaging
+  applications people know: conversations, bubbles, a field at the bottom.
+- **A text stays a text.** A written message travels in armor, as text: whoever
+  receives it without the application sees that it is coded, which makes one
+  ask, and can copy it. Bytes without armor are for attachments.
+- **Four colours**, for messages received and sent: red, neither encrypted nor
+  certified; yellow, encrypted and not certified; blue, certified and not
+  encrypted; green, both. Not signed is not certified.
+- **The look of foodjis**: its colours, its glyphs, the avatars of its
+  contacts — which the service interface does not carry yet.
+- **The address book says whose key a number means.** Few people put their
+  mobile number in their certificate: each person ties a number to a
+  certificate by writing the certificate's fingerprint in the contact, as a
+  vCard KEY field does (`KEY;MEDIATYPE=application/pgp-keys:` and the address
+  of the certificate on a key server).
 
 ## Building
 

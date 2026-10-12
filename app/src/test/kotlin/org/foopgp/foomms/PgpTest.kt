@@ -9,11 +9,12 @@ class PgpTest {
     private fun bytes(vararg values: Int) = values.map { it.toByte() }.toByteArray()
 
     @Test fun `a locked message is known by its first packet`() {
-        // Session key for a public key: tag 1, old way of writing a packet (0x84, 0x85) and new (0xC1).
+        // Session key for a public key: tag 1, old way of writing a packet (0x84, 0x85) and new (0xC1), version 3.
         assertTrue(Pgp.isMessage(bytes(0x84, 0x5E, 0x03)))
-        assertTrue(Pgp.isMessage(bytes(0x85, 0x01, 0x0C)))
+        assertTrue(Pgp.isMessage(bytes(0x85, 0x01, 0x0C, 0x03)))
         assertTrue(Pgp.isMessage(bytes(0xC1, 0x5E, 0x03)))
-        // For a password: tag 3.
+        assertTrue(Pgp.isMessage(bytes(0xC1, 0xC0, 0x10, 0x06)))
+        // For a password: tag 3, version 4.
         assertTrue(Pgp.isMessage(bytes(0x8C, 0x0D, 0x04)))
         assertTrue(Pgp.isMessage(bytes(0xC3, 0x0D, 0x04)))
         assertTrue(Pgp.isMessage("\n-----BEGIN PGP MESSAGE-----\n\nhF4D".toByteArray()))
@@ -26,6 +27,10 @@ class PgpTest {
         assertFalse(Pgp.isMessage(bytes(0x99, 0x01, 0x0D)))
         assertFalse(Pgp.isMessage(bytes(0xC2, 0x5E)))
         assertFalse(Pgp.isMessage("Bonjour".toByteArray()))
+        // A text in UTF-8 that opens on an accented capital wears the tag, and not the version.
+        assertFalse(Pgp.isMessage("États".toByteArray()))
+        assertFalse(Pgp.isMessage("À demain".toByteArray()))
+        assertFalse(Pgp.isMessage(bytes(0xC1)))
         assertFalse(Pgp.isMessage("-----BEGIN PGP PUBLIC KEY BLOCK-----".toByteArray()))
     }
 }

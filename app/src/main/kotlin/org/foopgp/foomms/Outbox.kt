@@ -40,6 +40,24 @@ object Outbox {
         manager(context).sendMultimediaMessage(context, from, null, null, told)
     }
 
+    /** A text as SMS, in as many pieces as it takes; says how many. */
+    fun text(context: Context, to: String, words: String): Int {
+        val manager = manager(context)
+        val pieces = manager.divideMessage(words)
+        val transaction = "S" + java.lang.Long.toHexString(System.currentTimeMillis())
+        journal(context).edit()
+            .putString(transaction, "${System.currentTimeMillis()}\t$to\t${words.length}\t$GOING").apply()
+        // Told once, by the last piece: the others answer nobody.
+        val told = PendingIntent.getBroadcast(
+            context, transaction.hashCode(),
+            Intent(context, Told::class.java).putExtra(EXTRA_TRANSACTION, transaction),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        val answers = ArrayList<PendingIntent?>(pieces.map { null }).apply { this[size - 1] = told }
+        manager.sendMultipartTextMessage(to, null, pieces, answers, null)
+        return pieces.size
+    }
+
     class Line(val at: Long, val to: String, val weight: Int, val outcome: String)
 
     fun lines(context: Context): List<Line> = journal(context).all.values.mapNotNull { kept ->
@@ -70,6 +88,7 @@ object Outbox {
                 kept.edit().putString(transaction, line.substringBeforeLast('\t') + "\t" + outcome).apply()
             }
             val words = if (outcome == GONE) R.string.sent else R.string.not_sent
+            // An MMS left a file behind; an SMS did not, and deleting nothing is no harm.
             Toast.makeText(context, context.getString(words, resultCode), Toast.LENGTH_LONG).show()
         }
     }
