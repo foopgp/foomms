@@ -8,8 +8,8 @@
     <!-- The bubble, its tail at the bottom left. -->
     <path android:fillColor="#FFFFFFFF" android:pathData="M12,9h24a5,5 0,0 1,5 5v15a5,5 0,0 1,-5 5h-17l-8,7v-7.3a5,5 0,0 1,-4 -4.7v-15a5,5 0,0 1,5 -5z" />
     <!-- Locking: a key in a square. -->
-    <path android:fillColor="#FFFF8012" android:pathData="M11,13h11v17h-11zM12.6,14.6v13.8h7.8v-13.8z" />
-    <path android:fillColor="#FFFF8012" android:pathData="M16.5,16a2.6,2.6 0,1 0,0.8 5.1v5.9h1.4v-1.4h1.5v-1.3h-1.5v-1.2h1.5v-1.3h-1.5v-0.7a2.6,2.6 0,0 0,-2.2 -5.1zM16.5,17.4a1.2,1.2 0,1 1,0 2.4a1.2,1.2 0,0 1,0 -2.4z" />
+    <path android:fillColor="#FFFF8012" android:fillType="evenOdd" android:pathData="M12.5,13h10v17h-10zM14,14.5h7v14h-7z" />
+    <path android:fillColor="#FFFF8012" android:fillType="evenOdd" android:pathData="M15.2,18.4a2.3,2.3 0,1 0,4.6 0a2.3,2.3 0,1 0,-4.6 0zM16.5,18.4a1,1 0,1 0,2 0a1,1 0,1 0,-2 0zM16.9,20.7h1.2v6.5h-1.2zM18.1,23.3h1.6v1.1h-1.6zM18.1,25.4h1.6v1.1h-1.6z" />
     <!-- Opening: the key alone. -->
-    <path android:fillColor="#FF31264B" android:pathData="M31,12a4.2,4.2 0,1 0,1.2 8.2v9.8h2.2v-2.2h2.6v-2.1h-2.6v-1.9h2.6v-2.1h-2.6v-1.5a4.2,4.2 0,0 0,-3.4 -8.2zM31,14.2a2,2 0,1 1,0 4a2,2 0,0 1,0 -4z" />
+    <path android:fillColor="#FF31264B" android:fillType="evenOdd" android:pathData="M27.4,16.6a3.6,3.6 0,1 0,7.2 0a3.6,3.6 0,1 0,-7.2 0zM29.4,16.6a1.6,1.6 0,1 0,3.2 0a1.6,1.6 0,1 0,-3.2 0zM30,20.2h2v9.8h-2zM32,24h2.6v1.8h-2.6zM32,27.2h2.6v1.8h-2.6z" />
 </vector>
