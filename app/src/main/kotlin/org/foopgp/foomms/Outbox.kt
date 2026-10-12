@@ -1,0 +1,99 @@
+package org.foopgp.foomms
+
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.ContentProvider
+import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
+import android.database.Cursor
+import android.net.Uri
+import android.os.Build
+import android.os.ParcelFileDescriptor
+import android.telephony.SmsManager
+import android.widget.Toast
+import java.io.File
+
+/**
+ * What is on its way: the message as the network will get it, in a file the
+ * phone's own MMS service comes and reads, and a line saying what became of
+ * each sending -- when, for whom, how heavy. Never what was written.
+ */
+object Outbox {
+
+    /** The heaviest message the network takes, by what the operator's settings say; 300 kB when they say nothing. */
+    fun heaviest(context: Context): Int =
+        runCatching { manager(context).carrierConfigValues.getInt(SmsManager.MMS_CONFIG_MAX_MESSAGE_SIZE, 0) }
+            .getOrDefault(0).takeIf { it > 0 } ?: (300 * 1024)
+
+    fun send(context: Context, to: String, pdu: ByteArray, transaction: String) {
+        File(context.cacheDir, DIR).mkdirs()
+        file(context, transaction).writeBytes(pdu)
+        journal(context).edit().putString(transaction, "${System.currentTimeMillis()}\t$to\t${pdu.size}\t$GOING").apply()
+        val told = PendingIntent.getBroadcast(
+            context, transaction.hashCode(),
+            Intent(context, Told::class.java).putExtra(EXTRA_TRANSACTION, transaction),
+            // The service adds what the network answered: the intent must let it.
+            PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0),
+        )
+        val from = Uri.parse("content://${context.packageName}.pdu/$transaction")
+        manager(context).sendMultimediaMessage(context, from, null, null, told)
+    }
+
+    class Line(val at: Long, val to: String, val weight: Int, val outcome: String)
+
+    fun lines(context: Context): List<Line> = journal(context).all.values.mapNotNull { kept ->
+        val said = (kept as? String)?.split('\t') ?: return@mapNotNull null
+        if (said.size != 4) return@mapNotNull null
+        Line(said[0].toLongOrNull() ?: return@mapNotNull null, said[1], said[2].toIntOrNull() ?: 0, said[3])
+    }.sortedByDescending { it.at }
+
+    fun forget(context: Context) = journal(context).edit().clear().apply()
+
+    private fun manager(context: Context): SmsManager =
+        if (Build.VERSION.SDK_INT >= 31) context.getSystemService(SmsManager::class.java)
+        else @Suppress("DEPRECATION") SmsManager.getDefault()
+
+    private fun journal(context: Context) = context.getSharedPreferences("sent", Context.MODE_PRIVATE)
+
+    private fun file(context: Context, transaction: String) =
+        File(File(context.cacheDir, DIR), transaction.filter { it.isLetterOrDigit() } + ".pdu")
+
+    /** The phone's MMS service telling what became of a sending. */
+    class Told : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val transaction = intent.getStringExtra(EXTRA_TRANSACTION) ?: return
+            file(context, transaction).delete()
+            val outcome = if (resultCode == android.app.Activity.RESULT_OK) GONE else "$REFUSED $resultCode"
+            val kept = journal(context)
+            kept.getString(transaction, null)?.let { line ->
+                kept.edit().putString(transaction, line.substringBeforeLast('\t') + "\t" + outcome).apply()
+            }
+            val words = if (outcome == GONE) R.string.sent else R.string.not_sent
+            Toast.makeText(context, context.getString(words, resultCode), Toast.LENGTH_LONG).show()
+        }
+    }
+
+    /** The door the MMS service reads a waiting message through: that file, to whom Android let in, and nothing else. */
+    class Files : ContentProvider() {
+        override fun onCreate() = true
+
+        override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
+            val context = context ?: return null
+            val transaction = uri.lastPathSegment ?: return null
+            return ParcelFileDescriptor.open(file(context, transaction), ParcelFileDescriptor.MODE_READ_ONLY)
+        }
+
+        override fun getType(uri: Uri) = "application/vnd.wap.mms-message"
+        override fun query(uri: Uri, p: Array<String>?, s: String?, a: Array<String>?, o: String?): Cursor? = null
+        override fun insert(uri: Uri, values: ContentValues?): Uri? = null
+        override fun delete(uri: Uri, s: String?, a: Array<String>?) = 0
+        override fun update(uri: Uri, values: ContentValues?, s: String?, a: Array<String>?) = 0
+    }
+
+    const val GOING = "going"
+    const val GONE = "gone"
+    const val REFUSED = "refused"
+    private const val DIR = "out"
+    private const val EXTRA_TRANSACTION = "transaction"
+}

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Sending an MMS, and finding the PGP messages among those the phone
+         has received. Not the network: the phone's own MMS service carries
+         the message. Not the contacts: whose key a number means, foodjis
+         knows. -->
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+
+    <queries>
+        <!-- The OpenPGP provider we speak to: invisible to us otherwise from
+             Android 11 on. -->
+        <intent>
+            <action android:name="org.openintents.openpgp.IOpenPgpService2" />
+        </intent>
+    </queries>
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@drawable/launcher"
+        android:allowBackup="false"
+        android:supportsRtl="true"
+        android:theme="@style/Pages">
+
+        <!-- The PGP messages received, and what became of those sent. -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Writing and reading show foodjis's screens over themselves and
+             wait for their answer: they are not rebuilt when the phone turns. -->
+        <activity
+            android:name=".WriteActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize" />
+        <activity
+            android:name=".ReadActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize" />
+
+        <!-- What the phone's MMS service answers about a sending. Named by
+             class, so nobody else can speak to it. -->
+        <receiver android:name=".Outbox$Told" android:exported="false" />
+
+        <!-- The message waiting to leave, read by the phone's MMS service and
+             by nobody else: closed, and opened one message at a time for the
+             service Android lets in on our behalf. -->
+        <provider
+            android:name=".Outbox$Files"
+            android:authorities="${applicationId}.pdu"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+    </application>
+</manifest>

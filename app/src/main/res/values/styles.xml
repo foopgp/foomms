@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="indigo">#FF31264B</color>
+    <color name="orange">#FFFF8012</color>
+
+    <style name="Pages" parent="@android:style/Theme.DeviceDefault.Light">
+        <item name="android:colorPrimary">@color/indigo</item>
+        <item name="android:colorPrimaryDark">@color/indigo</item>
+        <item name="android:colorAccent">@color/orange</item>
+        <item name="android:statusBarColor">@color/indigo</item>
+    </style>
+</resources>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about">Des messages par MMS que seule la personne à qui vous écrivez peut lire : chiffrés pour la clé que désigne son numéro de téléphone, signés par la vôtre. Pas de compte, pas de serveur à nous — le réseau téléphonique les transporte et ne peut pas les ouvrir.\n\nCette application ne détient aucune clé et ne fait aucune cryptographie : elle demande à foodjis, qui doit être installé.</string>
+    <string name="write">✎ Écrire un message</string>
+    <string name="why_read">Pour trouver les messages PGP parmi les MMS que ce téléphone a reçus, cette application a besoin de les lire. Elle n\'ouvre rien d\'autre.</string>
+    <string name="allow">Autoriser</string>
+    <string name="received">Messages PGP reçus : %1$d</string>
+    <string name="from">de %1$s, %2$s</string>
+    <string name="to">pour %1$s, %2$s</string>
+    <string name="unknown_number">un numéro inconnu</string>
+    <string name="read">⚷ Lire</string>
+    <string name="read_line">⚷ Lire — %1$s</string>
+    <string name="sent_from_here">Envoyés d\'ici : %1$d</string>
+    <string name="sent_line">Pour %1$s, %2$s — %3$d ko, %4$s</string>
+    <string name="outcome_gone">envoyé</string>
+    <string name="outcome_going">en route</string>
+    <string name="outcome_refused">non envoyé (%1$s)</string>
+    <string name="forget">⌫ Oublier ces lignes</string>
+    <string name="write_title">Écrire</string>
+    <string name="number_hint">Numéro de téléphone</string>
+    <string name="words_hint">Votre message</string>
+    <string name="sign_encrypt_send">✍⚿ Signer, chiffrer &amp; envoyer</string>
+    <string name="encrypt_send">⚿ Chiffrer &amp; envoyer</string>
+    <string name="write_about">Le message est chiffré pour le certificat qui porte ce numéro parmi vos contacts foodjis. Signer demande votre clé de sécurité.</string>
+    <string name="not_a_number">Ce n\'est pas un numéro de téléphone.</string>
+    <string name="nothing">Rien à envoyer : le message est vide.</string>
+    <string name="notice">Message PGP chiffré : %1$s</string>
+    <string name="too_heavy">Ce message pèse %1$d ko, et le réseau en accepte %2$d au plus.</string>
+    <string name="handed_over">Confié au téléphone : %1$d ko à envoyer.</string>
+    <string name="sent">MMS envoyé.</string>
+    <string name="not_sent">MMS non envoyé (%1$d).</string>
+    <string name="read_title">Lire</string>
+    <string name="gone">Ce message n\'est plus sur le téléphone.</string>
+    <string name="answer">✎ Répondre</string>
+    <string name="number_alone">Venu du %1$s, d\'après le réseau.</string>
+    <string name="number_theirs">Venu du %1$s, un numéro que porte son certificat.</string>
+    <string name="number_not_theirs">Venu du %1$s, un numéro que son certificat ne porte pas.</string>
+    <string name="no_provider">foodjis n\'est pas installé, ou ne répond pas.</string>
+    <string name="failed">foodjis dit : %1$s</string>
+    <string name="given_up">Abandonné.</string>
+    <string name="signed_certified">Signé par %1$s, certifié.</string>
+    <string name="signed_other">Signé par %1$s, non certifié.</string>
+    <string name="unsigned">Non signé.</string>
+    <string name="signed_unknown">Signé par une clé que foodjis ne détient pas.</string>
+    <string name="signed_broken">La signature ne tient pas.</string>
+    <string name="close">Fermer</string>
+</resources>
