@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The bubble alone, in one colour: what the status bar shows of a message that arrived. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="48" android:viewportHeight="48">
+    <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd" android:pathData="M12,9h24a5,5 0,0 1,5 5v15a5,5 0,0 1,-5 5h-17l-8,7v-7.3a5,5 0,0 1,-4 -4.7v-15a5,5 0,0 1,5 -5zM20.4,16.6a3.6,3.6 0,1 0,7.2 0a3.6,3.6 0,1 0,-7.2 0zM23,20.2h2v9.8h-2zM25,24h2.6v1.8h-2.6zM25,27.2h2.6v1.8h-2.6z" />
+</vector>

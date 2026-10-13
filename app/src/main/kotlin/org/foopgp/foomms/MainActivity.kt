@@ -60,11 +60,31 @@ class MainActivity : Activity() {
             asking.addView(Look.button(this, getString(R.string.allow)) { requestPermissions(missing.toTypedArray(), 1) })
             return
         }
-        asking.visibility = View.GONE
+        // Not the phone's messaging application yet: it can be asked for, and until then another receives.
+        if (Keep.ours(this)) asking.visibility = View.GONE
+        else {
+            asking.visibility = View.VISIBLE
+            asking.addView(Look.words(this, getString(R.string.not_default), size = 14f, muted = true).apply { setPadding(0, 0, 0, Look.dp(context, 8)) })
+            asking.addView(Look.button(this, getString(R.string.become_default)) { becomeDefault() })
+        }
         fill()
     }
 
     override fun onRequestPermissionsResult(request: Int, permissions: Array<String>, results: IntArray) = onResume()
+
+    private val arrivals = object : android.database.ContentObserver(android.os.Handler(android.os.Looper.getMainLooper())) {
+        override fun onChange(self: Boolean) = fill()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        runCatching { contentResolver.registerContentObserver(android.net.Uri.parse("content://mms-sms/"), true, arrivals) }
+    }
+
+    override fun onStop() {
+        contentResolver.unregisterContentObserver(arrivals)
+        super.onStop()
+    }
 
     private fun fill() {
         val contacts = checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
@@ -148,6 +168,18 @@ class MainActivity : Activity() {
             .setNegativeButton(android.R.string.cancel, null)
             .show()
         return true
+    }
+
+    /** Android asks the person; nothing changes unless they say so. */
+    private fun becomeDefault() {
+        val ask = if (android.os.Build.VERSION.SDK_INT >= 29) {
+            getSystemService(android.app.role.RoleManager::class.java).createRequestRoleIntent(android.app.role.RoleManager.ROLE_SMS)
+        } else {
+            Intent(android.provider.Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT)
+                .putExtra(android.provider.Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, packageName)
+        }
+        @Suppress("DEPRECATION")
+        startActivityForResult(ask, 3)
     }
 
     private fun open(number: String) =

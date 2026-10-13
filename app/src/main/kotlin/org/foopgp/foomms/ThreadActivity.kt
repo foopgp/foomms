@@ -88,9 +88,24 @@ class ThreadActivity : AskingActivity() {
         )
     }
 
+    /** Shown, and so read by the person: a conversation open behind another screen reads nothing. */
+    private var shown = false
+
+    private val arrivals = object : android.database.ContentObserver(android.os.Handler(android.os.Looper.getMainLooper())) {
+        override fun onChange(self: Boolean) { if (shown) load() }
+    }
+
     override fun onResume() {
         super.onResume()
+        shown = true
+        contentResolver.registerContentObserver(MESSAGES, true, arrivals)
         load(first = card == null && person == null)
+    }
+
+    override fun onPause() {
+        shown = false
+        contentResolver.unregisterContentObserver(arrivals)
+        super.onPause()
     }
 
     /** Who this is, what foodjis says of their certificate, and the messages. */
@@ -100,7 +115,12 @@ class ThreadActivity : AskingActivity() {
             val who = if (contacts) Book.who(this, number) else null
             val whose = who?.fingerprint?.let { foodjis.card(it) }
             val theirs = who?.fingerprint?.takeIf { who.photo == null }?.let { foodjis.face(it) }
-            val found = runCatching { Store.thread(this, number)?.let { Store.lines(this, it) } }.getOrNull().orEmpty()
+            val thread = runCatching { Store.thread(this, number) }.getOrNull()
+            val found = runCatching { thread?.let { Store.lines(this, it) } }.getOrNull().orEmpty()
+            if (shown) {
+                thread?.let { Keep.read(this, it) }
+                Notify.seen(this, number)
+            }
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 person = who ; card = whose ; face = theirs ; lines = found
@@ -183,7 +203,7 @@ class ThreadActivity : AskingActivity() {
         if (verdict != null) Opened.keep(this, text, written, null, verdict)
         field.setText("")
         // The phone writes what was sent a moment after taking it.
-        list.postDelayed({ if (!isFinishing && !isDestroyed) load() }, 1500)
+        list.postDelayed({ if (shown) load() }, 1500)
     }
 
     private fun pressed(line: Store.Line) {
@@ -384,6 +404,7 @@ class ThreadActivity : AskingActivity() {
         const val EXTRA_NUMBER = "number"
         private const val TIE = 1
         private const val LET_IN = 2
+        private val MESSAGES = android.net.Uri.parse("content://mms-sms/")
         private val NEEDED_TO_WRITE = arrayOf(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
         private val VALID = setOf(
             OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED,

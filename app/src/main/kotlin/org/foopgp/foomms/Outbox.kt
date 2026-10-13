@@ -38,6 +38,8 @@ object Outbox {
         )
         val from = Uri.parse("content://${context.packageName}.pdu/$transaction")
         manager(context).sendMultimediaMessage(context, from, null, null, told)
+        // The phone keeps what its messaging application tells it to, and nothing of what another sends.
+        if (Keep.ours(context)) runCatching { Keep.mmsSent(context, to, pdu) }
     }
 
     /** How many SMS a text would take. */
@@ -51,9 +53,11 @@ object Outbox {
         journal(context).edit()
             .putString(transaction, "${System.currentTimeMillis()}\t$to\t${words.length}\t$GOING").apply()
         // Told once, by the last piece: the others answer nobody.
+        // The phone writes what another application sends; its messaging application writes its own.
+        val written = if (Keep.ours(context)) runCatching { Keep.smsSent(context, to, words) }.getOrNull() else null
         val told = PendingIntent.getBroadcast(
             context, transaction.hashCode(),
-            Intent(context, Told::class.java).putExtra(EXTRA_TRANSACTION, transaction),
+            Intent(context, Told::class.java).putExtra(EXTRA_TRANSACTION, transaction).putExtra(EXTRA_WRITTEN, written?.toString()),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val answers = ArrayList<PendingIntent?>(pieces.map { null }).apply { this[size - 1] = told }
@@ -77,7 +81,8 @@ object Outbox {
 
     private fun journal(context: Context) = context.getSharedPreferences("sent", Context.MODE_PRIVATE)
 
-    private fun file(context: Context, transaction: String) =
+    /** The file a message waits in, on its way out or on its way in. */
+    fun file(context: Context, transaction: String) =
         File(File(context.cacheDir, DIR), transaction.filter { it.isLetterOrDigit() } + ".pdu")
 
     /** The phone's MMS service telling what became of a sending. */
@@ -86,6 +91,7 @@ object Outbox {
             val transaction = intent.getStringExtra(EXTRA_TRANSACTION) ?: return
             file(context, transaction).delete()
             val outcome = if (resultCode == android.app.Activity.RESULT_OK) GONE else "$REFUSED $resultCode"
+            if (outcome != GONE) intent.getStringExtra(EXTRA_WRITTEN)?.let { runCatching { Keep.smsFailed(context, Uri.parse(it)) } }
             val kept = journal(context)
             kept.getString(transaction, null)?.let { line ->
                 kept.edit().putString(transaction, line.substringBeforeLast('\t') + "\t" + outcome).apply()
@@ -103,7 +109,10 @@ object Outbox {
         override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
             val context = context ?: return null
             val transaction = uri.lastPathSegment ?: return null
-            return ParcelFileDescriptor.open(file(context, transaction), ParcelFileDescriptor.MODE_READ_ONLY)
+            // Read by the service for a message that leaves, written by it for one it fetched.
+            val how = if ('w' in mode) ParcelFileDescriptor.MODE_WRITE_ONLY or ParcelFileDescriptor.MODE_CREATE or ParcelFileDescriptor.MODE_TRUNCATE
+            else ParcelFileDescriptor.MODE_READ_ONLY
+            return ParcelFileDescriptor.open(file(context, transaction), how)
         }
 
         override fun getType(uri: Uri) = "application/vnd.wap.mms-message"
@@ -118,4 +127,5 @@ object Outbox {
     const val REFUSED = "refused"
     private const val DIR = "out"
     private const val EXTRA_TRANSACTION = "transaction"
+    private const val EXTRA_WRITTEN = "written"
 }

@@ -7,6 +7,13 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
 
+    <!-- As the phone's messaging application: receiving SMS and the
+         announcements of MMS, and saying that a message has arrived. -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_MMS" />
+    <uses-permission android:name="android.permission.RECEIVE_WAP_PUSH" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <!-- The address book says who a number is, and whose certificate it
          means; tying a number to a certificate writes there. -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -60,13 +67,50 @@
             </intent-filter>
         </activity>
 
+        <!-- What Android hands its messaging application, and what it asks
+             of one before it lets it be chosen: an SMS that arrived, the
+             announcement of an MMS, a quick answer to a call. Each is
+             guarded by a permission only the system holds. -->
+        <receiver
+            android:name=".Inbound$Sms"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_DELIVER" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".Inbound$Mms"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_WAP_PUSH">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.WAP_PUSH_DELIVER" />
+                <data android:mimeType="application/vnd.wap.mms-message" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".Inbound$Fetched" android:exported="false" />
+        <service
+            android:name=".Inbound$Respond"
+            android:exported="true"
+            android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE">
+            <intent-filter>
+                <action android:name="android.intent.action.RESPOND_VIA_MESSAGE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="sms" />
+                <data android:scheme="smsto" />
+                <data android:scheme="mms" />
+                <data android:scheme="mmsto" />
+            </intent-filter>
+        </service>
+
         <!-- What the phone's MMS service answers about a sending. Named by
              class, so nobody else can speak to it. -->
         <receiver android:name=".Outbox$Told" android:exported="false" />
 
-        <!-- The message waiting to leave, read by the phone's MMS service and
-             by nobody else: closed, and opened one message at a time for the
-             service Android lets in on our behalf. -->
+        <!-- The message waiting to leave, or being fetched: read and written
+             by the phone's MMS service and by nobody else: closed, and
+             opened one message at a time for the service Android lets in on
+             our behalf. -->
         <provider
             android:name=".Outbox$Files"
             android:authorities="${applicationId}.pdu"

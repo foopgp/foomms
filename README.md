@@ -66,8 +66,14 @@ then one of them in bubbles, a field at the bottom.
 - **The look of foodjis**: its colours and glyphs, and beside a name the
   contact's picture, or the face their certificate carries.
 
-Permissions: sending messages and reading those the phone holds; reading the
-address book and writing in it. Not the network: the phone's own service
+**The phone's messaging application**, when you make it so: it receives SMS
+and MMS, writes them in the phone's own store as they travelled — a PGP
+message in its armor —, and announces them; a PGP message is announced for
+what it is, its words are not on a locked screen. Until then the phone's own
+application receives, and this one shows and sends.
+
+Permissions: sending and receiving messages and reading those the phone
+holds; announcing them; reading the address book and writing in it. Not the network: the phone's own service
 carries a message, and what is asked of a key server is asked through
 foodjis.
 
@@ -85,14 +91,15 @@ Version 0.0.1, a trial, tried on one phone against a trial build of foodjis.
 - Tested off the phone: the MMS itself (`Pdu`, the M-Send.req of OMA-MMS-ENC
   1.2 in WSP's binary encoding), byte for byte; numbers; fingerprints; telling
   a PGP message, and a locked one from a signed one; vCard values.
-- **Not seen yet**: tying a certificate since it goes through foodjis's list
-  and vCard, and the new icon; the list of conversations and the bubbles with real
-  messages in them; a message opened from its bubble; a signed message; an
-  MMS sent or received.
-- **Not built yet**: being the phone's messaging application — receiving,
-  keeping and announcing SMS and MMS. Until then the phone's own does it, an
-  MMS sent from here is not kept by the phone, and nothing announces a
-  message.
+- Done for real, as the phone's messaging application: an SMS sent and
+  written, received, written and announced; a text too long for five SMS
+  sent as an MMS, announced by the network, fetched, read and written, its
+  text come back identical.
+- **Not seen yet**: a message opened from its bubble; a signed message;
+  tying a certificate since it goes through foodjis's list and vCard; an MMS
+  with an attachment; an MMS between two operators.
+- **Not built yet**: attachments, shown or sent; several people in one
+  conversation; deleting a message; a second SIM.
 
 It needs a foodjis with three additions (branch `api-by-phone` of
 foodjis-android, not in a published version): a phone number taken for an

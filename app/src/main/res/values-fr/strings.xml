@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="about">Des messages par MMS que seule la personne à qui vous écrivez peut lire : chiffrés pour la clé que désigne son numéro de téléphone, signés par la vôtre. Pas de compte, pas de serveur à nous — le réseau téléphonique les transporte et ne peut pas les ouvrir.\n\nCette application ne détient aucune clé et ne fait aucune cryptographie : elle demande à foodjis, qui doit être installé.</string>
-    <string name="why_read">Pour trouver les messages PGP parmi les MMS que ce téléphone a reçus, cette application a besoin de les lire. Elle n\'ouvre rien d\'autre.</string>
+    <string name="about">Des SMS et MMS que seule la personne à qui vous écrivez peut lire : chiffrés pour la clé que désigne son numéro de téléphone, signés par la vôtre. Pas de compte, pas de serveur à nous — le réseau téléphonique les transporte et ne peut pas les ouvrir.\n\nCette application ne détient aucune clé et ne fait aucune cryptographie : elle demande à foodjis, qui doit être installé.</string>
+    <string name="why_read">Pour montrer vos conversations, cette application a besoin de lire les messages que ce téléphone détient, et votre carnet d\'adresses pour nommer avec qui elles sont.</string>
     <string name="allow">Autoriser</string>
     <string name="unknown_number">un numéro inconnu</string>
     <string name="number_hint">Numéro de téléphone</string>
@@ -45,4 +45,7 @@
     <string name="tie_ask">%1$s, c\'est %2$s ?</string>
     <string name="tie_ask_about">Son certificat est %1$s. Ceci sera inscrit dans votre carnet d\'adresses, là où le contact ne le dit pas déjà :</string>
     <string name="tie_write">Inscrire</string>
+    <string name="channel_messages">Messages</string>
+    <string name="not_default">L\'application de messagerie du téléphone reçoit et garde encore les messages. foomms peut prendre sa place : Android vous le demandera.</string>
+    <string name="become_default">Faire de foomms l\'application de messagerie</string>
 </resources>

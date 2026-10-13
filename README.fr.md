@@ -69,8 +69,15 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
 - **L'allure de foodjis** : ses couleurs et ses glyphes, et à côté d'un nom
   la photo du contact, ou le visage que porte son certificat.
 
-Permissions : envoyer des messages et lire ceux que le téléphone détient ;
-lire le carnet d'adresses et y écrire. Pas le réseau : c'est le service du
+**L'application de messagerie du téléphone**, quand vous en décidez : elle
+reçoit SMS et MMS, les écrit dans la mémoire du téléphone tels qu'ils ont
+voyagé — un message PGP sous son armure —, et les annonce ; un message PGP
+est annoncé pour ce qu'il est, son texte n'est pas sur un écran verrouillé.
+D'ici là c'est l'application du téléphone qui reçoit, et celle-ci montre et
+envoie.
+
+Permissions : envoyer et recevoir des messages et lire ceux que le téléphone
+détient ; les annoncer ; lire le carnet d'adresses et y écrire. Pas le réseau : c'est le service du
 téléphone qui transporte un message, et ce qui se demande à un serveur de
 clés se demande par foodjis.
 
@@ -90,14 +97,16 @@ de foodjis.
   d'OMA-MMS-ENC 1.2 dans l'encodage binaire de WSP), octet par octet ; les
   numéros ; les empreintes ; reconnaître un message PGP, et un chiffré d'un
   signé ; les valeurs vCard.
-- **Pas encore vu** : relier un certificat depuis que cela passe par la liste
-  et la vCard de foodjis, et la nouvelle icône ; la liste des conversations et les bulles avec de vrais
-  messages dedans ; un message ouvert depuis sa bulle ; un message signé ; un
-  MMS envoyé ou reçu.
-- **Pas encore construit** : être l'application de messagerie du téléphone —
-  recevoir, garder et annoncer SMS et MMS. D'ici là c'est celle du téléphone
-  qui le fait, un MMS envoyé d'ici n'est pas gardé par le téléphone, et rien
-  n'annonce un message.
+- Fait pour de vrai, en tant qu'application de messagerie du téléphone : un
+  SMS envoyé et écrit, reçu, écrit et annoncé ; un texte trop long pour cinq
+  SMS envoyé en MMS, annoncé par le réseau, récupéré, lu et écrit, son texte
+  revenu identique.
+- **Pas encore vu** : un message ouvert depuis sa bulle ; un message signé ;
+  relier un certificat depuis que cela passe par la liste et la vCard de
+  foodjis ; un MMS avec pièce jointe ; un MMS entre deux opérateurs.
+- **Pas encore construit** : les pièces jointes, à montrer comme à envoyer ;
+  plusieurs personnes dans une conversation ; supprimer un message ; une
+  seconde carte SIM.
 
 Il faut un foodjis avec trois ajouts (branche `api-by-phone` de
 foodjis-android, dans aucune version publiée) : un numéro de téléphone pris
