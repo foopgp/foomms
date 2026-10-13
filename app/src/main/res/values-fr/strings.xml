@@ -25,8 +25,6 @@
     <string name="no_certificate">Aucun certificat relié à ce numéro</string>
     <string name="foodjis_shut">foodjis n\'a pas encore laissé entrer cette application</string>
     <string name="certificate_not_held">foodjis ne détient pas ce certificat</string>
-    <string name="certificate_certified">🔑 %1$s — certifié</string>
-    <string name="certificate_held">🔑 %1$s — %2$s</string>
     <string name="mode_sign_lock">Signé avec votre clé de sécurité, et chiffré</string>
     <string name="mode_lock">Chiffré, non signé</string>
     <string name="mode_sign">Signé avec votre clé de sécurité, non chiffré</string>
@@ -98,4 +96,5 @@
     <string name="conf_myself">Messages chiffrés</string>
     <string name="conf_to_myself">Chiffrer également à moi-même</string>
     <string name="conf_to_myself_note">Lors de l\'envoi de messages chiffrés, m\'inclure dans les destinataires, afin de me permettre de les relire.</string>
+    <string name="no_answer">On ne peut pas répondre à cet expéditeur</string>
 </resources>

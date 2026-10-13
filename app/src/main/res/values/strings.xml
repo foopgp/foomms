@@ -27,8 +27,6 @@
     <string name="no_certificate">No certificate tied to this number</string>
     <string name="foodjis_shut">foodjis has not let this application in yet</string>
     <string name="certificate_not_held">foodjis does not hold this certificate</string>
-    <string name="certificate_certified">🔑 %1$s — certified</string>
-    <string name="certificate_held">🔑 %1$s — %2$s</string>
     <string name="mode_sign_lock">Signed with your security key, and encrypted</string>
     <string name="mode_lock">Encrypted, not signed</string>
     <string name="mode_sign">Signed with your security key, not encrypted</string>
@@ -100,4 +98,5 @@
     <string name="conf_myself">Encrypted messages</string>
     <string name="conf_to_myself">Also encrypt to myself</string>
     <string name="conf_to_myself_note">When sending encrypted messages, include me among the recipients, so that I can read them again.</string>
+    <string name="no_answer">This sender cannot be answered</string>
 </resources>

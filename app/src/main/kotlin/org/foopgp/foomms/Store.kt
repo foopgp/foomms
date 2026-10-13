@@ -130,7 +130,8 @@ object Store {
             while (rows.moveToNext()) {
                 if (!seen.add(rows.getLong(0))) continue
                 val address = rows.getString(1) ?: continue
-                if (Phone.same(address, number) || Phone.plain(address) == Phone.plain(number)) return rows.getLong(0)
+                // A number however it is written; a sender that is a name, by that name.
+                if (Phone.same(address, number) || address.equals(number, ignoreCase = true)) return rows.getLong(0)
             }
         }
         return null

@@ -64,7 +64,14 @@ class MainActivity : Activity() {
         list = ListView(this).apply {
             divider = null
             adapter = talks
-            setOnItemClickListener { _, _, at, _ -> rows[at].talk.number?.let { open(it) } }
+            setOnItemClickListener { _, _, at, _ ->
+                val talk = rows[at].talk
+                startActivity(
+                    Intent(context, ThreadActivity::class.java)
+                        .putExtra(ThreadActivity.EXTRA_NUMBER, talk.number ?: getString(R.string.unknown_number))
+                        .putExtra(ThreadActivity.EXTRA_THREAD, talk.thread),
+                )
+            }
         }
         column.addView(asking)
         column.addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
@@ -225,9 +232,6 @@ class MainActivity : Activity() {
         @Suppress("DEPRECATION")
         startActivityForResult(ask, 3)
     }
-
-    private fun open(number: String) =
-        startActivity(Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, number))
 
     private fun ago(at: Long): CharSequence =
         DateUtils.getRelativeTimeSpanString(at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL)

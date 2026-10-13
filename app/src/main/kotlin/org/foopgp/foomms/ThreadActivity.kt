@@ -76,7 +76,7 @@ class ThreadActivity : AskingActivity() {
         Look.dress(this)
         dressed = Look.dark
         super.onCreate(state)
-        if (Phone.plain(number) == null) return finish()
+        if (number.isBlank()) return finish()
         title = number
         wanted = intent.getLongExtra(EXTRA_AT, 0L)
         list = ListView(this).apply {
@@ -157,7 +157,9 @@ class ThreadActivity : AskingActivity() {
             val who = if (contacts) Book.who(this, number) else null
             val whose = who?.fingerprint?.let { foodjis.card(it) }
             val theirs = who?.fingerprint?.takeIf { who.photo == null }?.let { foodjis.face(it) }
-            val thread = runCatching { Store.thread(this, number) }.getOrNull()
+            // The conversation it was opened from, when it was opened from one: a sender that is a name and not a
+            // number -- a bank, a shop -- has a conversation all the same.
+            val thread = intent.getLongExtra(EXTRA_THREAD, -1L).takeIf { it >= 0 } ?: runCatching { Store.thread(this, number) }.getOrNull()
             val found = runCatching { thread?.let { Store.lines(this, it) } }.getOrNull().orEmpty()
             // Whom each locked message is for, by the keys it names: a face each, asked of foodjis once.
             val named = found.mapNotNull { Pgp.armorIn(it.body) }.filter { Pgp.isLocked(it) }.flatMap { Pgp.recipients(it) }.distinct()
@@ -171,14 +173,20 @@ class ThreadActivity : AskingActivity() {
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 person = who ; card = whose ; face = theirs ; lines = found ; meant = theirFaces ; thumbs = small
+                // A conversation is with a number: the name it has in the address book, and under it the number
+                // and what its certificate is worth. With no name, the number is the title.
                 title = who?.name ?: number
-                actionBar?.subtitle = when {
+                val standing = when {
                     who?.fingerprint == null -> getString(R.string.no_certificate)
                     foodjis.shut -> getString(R.string.foodjis_shut)
                     whose == null -> getString(R.string.certificate_not_held)
-                    whose.certified -> getString(R.string.certificate_certified, whose.name)
-                    else -> getString(R.string.certificate_held, whose.name, standing(whose.validity))
+                    else -> "🔑 " + standing(whose.validity)
                 }
+                actionBar?.subtitle = if (who?.name != null && who.name != number) "$number — $standing" else standing
+                // Nothing can be written to a sender that is not a number.
+                val reachable = Phone.plain(number) != null
+                field.isEnabled = reachable
+                if (!reachable) field.setHint(R.string.no_answer)
                 // With a certificate that can be locked for, that is how a message leaves unless told otherwise.
                 if (first) mode = if (whose?.usable == true) Mode.SIGN_AND_LOCK else Mode.PLAIN
                 paint()
@@ -226,6 +234,7 @@ class ThreadActivity : AskingActivity() {
         val written = field.text.toString()
         val with = carried
         if (written.isBlank() && with == null) return
+        if (Phone.plain(number) == null) return
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)
         }
@@ -730,6 +739,9 @@ class ThreadActivity : AskingActivity() {
 
     companion object {
         const val EXTRA_NUMBER = "number"
+
+        /** The conversation, when the page is opened from the list of them. */
+        const val EXTRA_THREAD = "thread"
 
         /** The date of the message to show first. */
         const val EXTRA_AT = "at"
