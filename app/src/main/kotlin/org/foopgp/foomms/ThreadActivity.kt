@@ -347,31 +347,18 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
-    /** Say whose certificate this number means: chosen in foodjis's list, or named by its fingerprint. */
+    /**
+     * Say whose certificate this number means: foodjis shows its own list of
+     * contacts, over this page, and the one pressed is the one meant.
+     */
     private fun tie() {
-        val asked = EditText(this).apply {
-            setHint(R.string.fingerprint_hint)
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-        }
-        AlertDialog.Builder(this)
-            .setTitle(R.string.tie)
-            .setMessage(R.string.tie_about)
-            .setView(asked)
-            .setPositiveButton(R.string.tie_choose) { _, _ -> choose() }
-            .setNeutralButton(R.string.tie_named) { _, _ ->
-                val fingerprint = Fingerprint.of(asked.text.toString()) ?: return@setNeutralButton say(getString(R.string.not_a_fingerprint))
-                found(fingerprint)
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
-    /** foodjis shows its own list of contacts; the first ticked is whose certificate the number means. */
-    private fun choose() {
-        ask(Intent(Provider.GET_KEY_IDS), null, ::say) { answer ->
-            val keyId = answer.says.getLongArrayExtra(Provider.EXTRA_KEY_IDS)?.firstOrNull() ?: return@ask
+        fun chosen(says: Intent?): Boolean {
+            val keyId = says?.getLongArrayExtra(Provider.EXTRA_KEY_IDS)?.firstOrNull() ?: return false
             found("%016X".format(keyId))
+            return true
         }
+        // The list answers by itself: the contact pressed comes back with the screen.
+        ask(Intent(Provider.GET_KEY_IDS).putExtra(Provider.EXTRA_SINGLE, true), null, ::say, ::chosen) { chosen(it.says) }
     }
 
     /** What foodjis says of the certificate named, by fingerprint or by key id, then the question. */

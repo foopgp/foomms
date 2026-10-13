@@ -14,8 +14,49 @@ object Store {
 
     class Line(val at: Long, val incoming: Boolean, val body: String, val attachments: Int)
 
-    /** Every conversation, by its latest message, newest first. */
-    fun talks(context: Context): List<Talk> {
+    /**
+     * The [most] latest conversations, newest first, each by its last message.
+     *
+     * Read from the phone's own list of conversations, which is short; going
+     * through every message to find the last of each took the time it takes
+     * to read years of them.
+     */
+    fun talks(context: Context, most: Int): List<Talk> {
+        val talks = ArrayList<Talk>()
+        val listed = runCatching {
+            context.contentResolver.query(THREADS, arrayOf("_id", "date", "snippet", "recipient_ids", "read"), null, null, "date DESC")
+        }.getOrNull() ?: return everyTalk(context).take(most)
+        listed.use { rows ->
+            while (rows.moveToNext() && talks.size < most) {
+                val thread = rows.getLong(0)
+                val number = rows.getString(3)?.trim()?.split(' ')?.firstOrNull()?.toLongOrNull()?.let { address(context, it) }
+                val last = last(context, thread)
+                talks += Talk(
+                    thread, number ?: number(context, thread), last?.at ?: rows.getLong(1),
+                    last?.body ?: rows.getString(2).orEmpty(), last?.incoming ?: true, rows.getInt(4) == 0,
+                )
+            }
+        }
+        return talks
+    }
+
+    /** The address the phone's list of conversations names by a number of its own. */
+    private fun address(context: Context, id: Long): String? = runCatching {
+        context.contentResolver.query(Uri.parse("content://mms-sms/canonical-address/$id"), null, null, null, null)?.use { rows ->
+            if (rows.moveToFirst()) rows.getString(0) else null
+        }
+    }.getOrNull()
+
+    /** The last SMS of a conversation, whole: the phone's list keeps only its first words. */
+    private fun last(context: Context, thread: Long): Line? =
+        context.contentResolver.query(
+            SMS, arrayOf("date", "body", "type"), "thread_id = ?", arrayOf(thread.toString()), "date DESC LIMIT 1",
+        )?.use { rows ->
+            if (rows.moveToFirst()) Line(rows.getLong(0), rows.getInt(2) == SMS_INBOX, rows.getString(1).orEmpty(), 0) else null
+        }
+
+    /** The same found the long way, for a phone that keeps no such list. */
+    private fun everyTalk(context: Context): List<Talk> {
         val latest = HashMap<Long, Talk>()
         fun offer(talk: Talk) {
             val known = latest[talk.thread]
@@ -128,6 +169,7 @@ object Store {
 
     private val SMS = Uri.parse("content://sms")
     private val MMS = Uri.parse("content://mms")
+    private val THREADS = Uri.parse("content://mms-sms/conversations?simple=true")
     private val PARTS = Uri.parse("content://mms/part")
     private const val SMS_INBOX = 1
     private const val MMS_INBOX = 1

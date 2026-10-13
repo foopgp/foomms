@@ -18,15 +18,27 @@ abstract class AskingActivity : Activity() {
         val request: Intent,
         val input: ByteArray?,
         val failed: (String) -> Unit,
+        val shown: (Intent?) -> Boolean,
         val done: (Provider.Answer.Done) -> Unit,
     )
 
     private var errand: Errand? = null
     private var shown = 0
 
-    protected fun ask(request: Intent, input: ByteArray?, failed: (String) -> Unit, done: (Provider.Answer.Done) -> Unit) {
+    /**
+     * [screened] is told what a screen of foodjis answered, and says whether
+     * that was the whole answer: a list to choose from answers by itself, a
+     * question of consent only clears the way for asking again.
+     */
+    protected fun ask(
+        request: Intent,
+        input: ByteArray?,
+        failed: (String) -> Unit,
+        screened: (Intent?) -> Boolean = { false },
+        done: (Provider.Answer.Done) -> Unit,
+    ) {
         shown = 0
-        errand = Errand(request, input, failed, done)
+        errand = Errand(request, input, failed, screened, done)
         again(null)
     }
 
@@ -55,7 +67,10 @@ abstract class AskingActivity : Activity() {
     override fun onActivityResult(request: Int, outcome: Int, data: Intent?) {
         super.onActivityResult(request, outcome, data)
         if (request != SCREEN) return
-        if (outcome == RESULT_OK) return again(data?.extras)
+        if (outcome == RESULT_OK) {
+            if (errand?.shown?.invoke(data) == true) { errand = null ; return }
+            return again(data?.extras)
+        }
         errand?.failed?.invoke(getString(R.string.given_up))
         errand = null
     }

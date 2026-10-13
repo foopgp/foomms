@@ -52,14 +52,16 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   quel. Avec un certificat relié au numéro, on commence par signé et chiffré.
 - **Lire.** Un message PGP reçu dit ce qu'il est jusqu'à ce qu'on appuie
   dessus : foodjis l'ouvre, avec la clé de sécurité s'il est chiffré — et avec
-  lui, pour ce seul passage de la clé, les messages qui l'entourent : cinq
-  avant et cinq après, sauf autre nombre réglé par vous. ⚷, en haut, fait de
+  lui, pour ce seul passage de la clé, les messages qui l'entourent : trois
+  avant et trois après, sauf autre nombre, de un à dix, réglé dans la
+  configuration. ⚷, en haut, fait de
   même depuis le dernier message encore fermé. Son
   texte est gardé tant que l'application tourne et n'est écrit nulle part ; sa
   couleur est retenue.
 - **Le carnet d'adresses dit quelle clé désigne un numéro.** *Relier un
-  certificat à ce numéro* : choisi dans la liste de contacts de foodjis, ou
-  désigné par son empreinte — ou par une adresse qui la contient. foodjis
+  certificat à ce numéro* montre la liste de contacts de foodjis, par-dessus
+  la conversation : une ligne pour filtrer, puis chaque contact en un visage
+  et un nom sur la couleur de ce que vaut son certificat. foodjis
   produit la vCard qu'il partage déjà pour ce certificat ; ce qu'elle dit est
   montré, une ligne par donnée, et inscrit dans le contact une fois votre
   accord donné : l'adresse du certificat sur un serveur de clés comme adresse
@@ -108,7 +110,7 @@ de foodjis.
   relié au certificat du signataire depuis la vCard que produit foodjis.
 - **Pas encore vu** : un message chiffré ouvert depuis sa bulle, et plusieurs
   ouverts par un seul passage de la clé — le téléphone d'essai n'a pas de clé
-  qui parle en NFC ; choisir un certificat dans la liste de foodjis ; un MMS avec pièce jointe ; un MMS entre deux opérateurs.
+  qui parle en NFC ; un MMS avec pièce jointe ; un MMS entre deux opérateurs.
 - **Pas encore construit** : les pièces jointes, à montrer comme à envoyer ;
   plusieurs personnes dans une conversation ; supprimer un message ; une
   seconde carte SIM.

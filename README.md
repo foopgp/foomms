@@ -50,13 +50,15 @@ then one of them in bubbles, a field at the bottom.
 - **Reading.** A received PGP message says what it is until it is pressed:
   foodjis opens it, with the security key if it is encrypted — and with it,
   for that one presentation of the key, the messages around it: five before
-  and five after unless you set another number. ⚷, at the top, does the same
+  and three after unless you set another number, from one to ten, in the
+  configuration. ⚷, at the top, does the same
   from the last message still closed. Its words are
   held while the application runs and written nowhere; its colour is
   remembered.
 - **The address book says whose key a number means.** *Tie a certificate to
-  this number*: chosen in foodjis's own list of contacts, or named by its
-  fingerprint — or an address that holds it. foodjis makes the vCard it
+  this number* shows foodjis's own list of contacts, over the conversation:
+  a line to filter by, then each contact as a face and a name on the colour
+  of what their certificate is worth. foodjis makes the vCard it
   already shares for that certificate; what it says is shown, a line each,
   and written in the contact once you agree: the address of the certificate
   on a key server as a web address — the form a vCard's KEY field gives it —
@@ -102,7 +104,7 @@ Version 0.0.1, a trial, tried on one phone against a trial build of foodjis.
   tied to the signer's certificate from the vCard foodjis makes.
 - **Not seen yet**: an encrypted message opened from its bubble, and several
   opened by one presentation of the key — the phone it is tried on has no
-  key that speaks over NFC; choosing a certificate in foodjis's list; an MMS
+  key that speaks over NFC; an MMS
   with an attachment; an MMS between two operators.
 - **Not built yet**: attachments, shown or sent; several people in one
   conversation; deleting a message; a second SIM.

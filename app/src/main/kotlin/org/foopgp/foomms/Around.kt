@@ -9,16 +9,17 @@ import android.content.Context
  */
 object Around {
 
-    const val USUAL = 5
-    const val MOST = 50
+    const val LEAST = 1
+    const val USUAL = 3
+    const val MOST = 10
 
     /** The places of [count] messages within [reach] of the one at [chosen], that one left out. */
     fun others(count: Int, chosen: Int, reach: Int): List<Int> =
         (maxOf(0, chosen - reach)..minOf(count - 1, chosen + reach)).filter { it != chosen }
 
-    fun reach(context: Context): Int = kept(context).getInt("around", USUAL).coerceIn(0, MOST)
+    fun reach(context: Context): Int = kept(context).getInt("around", USUAL).coerceIn(LEAST, MOST)
 
-    fun set(context: Context, reach: Int) = kept(context).edit().putInt("around", reach.coerceIn(0, MOST)).apply()
+    fun set(context: Context, reach: Int) = kept(context).edit().putInt("around", reach.coerceIn(LEAST, MOST)).apply()
 
     private fun kept(context: Context) = context.getSharedPreferences("configuration", Context.MODE_PRIVATE)
 }

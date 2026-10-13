@@ -46,6 +46,12 @@
             </intent-filter>
         </activity>
 
+        <!-- What the person sets. -->
+        <activity
+            android:name=".ConfActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
         <!-- One conversation. It shows foodjis's screens over itself and
              waits for their answer: it is not rebuilt when the phone turns. -->
         <activity

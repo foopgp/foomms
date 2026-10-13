@@ -18,7 +18,6 @@
     <string name="signed_unknown">Signé par une clé que foodjis ne détient pas.</string>
     <string name="signed_broken">La signature ne tient pas.</string>
     <string name="close">Fermer</string>
-    <string name="not_a_fingerprint">Ce n\'est pas une empreinte : quarante chiffres hexadécimaux.</string>
     <string name="write">✎ Nouveau message</string>
     <string name="locked_message">⚿ Message chiffré</string>
     <string name="signed_message">✍ Message signé</string>
@@ -34,11 +33,7 @@
     <string name="mode_plain">Tel quel : ni chiffré ni signé</string>
     <string name="tie">🔑 Relier un certificat à ce numéro</string>
     <string name="let_in">Demander à foodjis de laisser entrer cette application</string>
-    <string name="fingerprint_hint">Empreinte</string>
     <string name="tied">Ce numéro désigne maintenant le certificat de %1$s.</string>
-    <string name="tie_about">Quel certificat ce numéro désigne-t-il ? Choisissez parmi vos contacts foodjis, ou donnez l\'empreinte du certificat — ou une adresse qui la contient.</string>
-    <string name="tie_choose">Choisir dans foodjis</string>
-    <string name="tie_named">Par cette empreinte</string>
     <string name="no_card">foodjis n\'a pas de fiche à faire pour %1$s : son certificat ne porte pas de nom.</string>
     <string name="card_photo">sa photo</string>
     <string name="tie_ask">%1$s, c\'est %2$s ?</string>
@@ -49,13 +44,13 @@
     <string name="become_default">Faire de foomms l\'application de messagerie</string>
     <string name="open_last">⚷</string>
     <string name="nothing_to_open">Tous les messages sont ouverts ici.</string>
-    <string name="configure">⚙ Configuration</string>
-    <string name="configure_around">Un passage de la clé ouvre…</string>
-    <string name="configure_around_about">…le message sur lequel vous appuyez — le dernier si vous appuyez sur ⚷ — et ce nombre de messages avant et après lui (%1$d au plus).</string>
+    <string name="configure">⚙️ Configuration</string>
     <string name="standing_certified">certifié</string>
     <string name="standing_uncertified">non certifié</string>
     <string name="standing_expired">expiré</string>
     <string name="standing_revoked">révoqué</string>
     <string name="standing_broken">cassé</string>
     <string name="locked_press">⚿ Message chiffré — appuyez pour le lire, avec ses voisins, grâce à votre clé de sécurité</string>
+    <string name="configure_around">Messages ouverts par un passage de la clé</string>
+    <string name="configure_around_about">Avec le message sur lequel vous appuyez — le dernier si vous appuyez sur ⚷ —, ce nombre de messages avant lui et autant après lui sont ouverts aussi.</string>
 </resources>

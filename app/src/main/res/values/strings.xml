@@ -20,7 +20,6 @@
     <string name="signed_unknown">Signed by a key foodjis does not hold.</string>
     <string name="signed_broken">The signature does not hold.</string>
     <string name="close">Close</string>
-    <string name="not_a_fingerprint">This is not a fingerprint: forty hexadecimal digits.</string>
     <string name="write">✎ New message</string>
     <string name="locked_message">⚿ Encrypted message</string>
     <string name="signed_message">✍ Signed message</string>
@@ -36,11 +35,7 @@
     <string name="mode_plain">As it is: neither encrypted nor signed</string>
     <string name="tie">🔑 Tie a certificate to this number</string>
     <string name="let_in">Ask foodjis to let this application in</string>
-    <string name="fingerprint_hint">Fingerprint</string>
     <string name="tied">This number now means the certificate of %1$s.</string>
-    <string name="tie_about">Whose certificate does this number mean? Choose among your foodjis contacts, or give the certificate\'s fingerprint — or an address that holds it.</string>
-    <string name="tie_choose">Choose in foodjis</string>
-    <string name="tie_named">By this fingerprint</string>
     <string name="no_card">foodjis has no card to make for %1$s: their certificate carries no name.</string>
     <string name="card_photo">their picture</string>
     <string name="tie_ask">%1$s is %2$s?</string>
@@ -51,13 +46,13 @@
     <string name="become_default">Make foomms the messaging application</string>
     <string name="open_last">⚷</string>
     <string name="nothing_to_open">Every message here is open.</string>
-    <string name="configure">⚙ Configuration</string>
-    <string name="configure_around">One presentation of the key opens…</string>
-    <string name="configure_around_about">…the message you press — the last one when you press ⚷ — and this many before and after it (%1$d at most).</string>
+    <string name="configure">⚙️ Configuration</string>
     <string name="standing_certified">certified</string>
     <string name="standing_uncertified">not certified</string>
     <string name="standing_expired">expired</string>
     <string name="standing_revoked">revoked</string>
     <string name="standing_broken">broken</string>
     <string name="locked_press">⚿ Encrypted message — press to read it, and those around it, with your security key</string>
+    <string name="configure_around">Messages opened by one presentation of the key</string>
+    <string name="configure_around_about">With the message you press — the last one when you press ⚷ —, this many before it and this many after it are opened too.</string>
 </resources>

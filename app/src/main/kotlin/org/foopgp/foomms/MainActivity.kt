@@ -51,6 +51,7 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        synchronized(people) { people.clear() }
         asking.removeAllViews()
         val missing = NEEDED.filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
         if (Manifest.permission.READ_SMS in missing) {
@@ -86,12 +87,24 @@ class MainActivity : Activity() {
         super.onStop()
     }
 
+    /** Who a number is, asked of the address book once for as long as this page is shown. */
+    private val people = HashMap<String, Book.Person?>()
+
+    /**
+     * The latest conversations first, shown as soon as they are read; the
+     * rest behind them. A phone holds years of messages, and what one opens
+     * the application for is at the top.
+     */
     private fun fill() {
         val contacts = checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
+        val turn = ++turns
         thread {
             val foodjis = Foodjis.of(this)
-            val found = runCatching { Store.talks(this) }.getOrDefault(emptyList()).map { talk ->
-                val person = talk.number?.takeIf { contacts }?.let { Book.who(this, it) }
+            fun row(talk: Store.Talk): Row {
+                val person = talk.number?.takeIf { contacts }?.let { number ->
+                    synchronized(people) { if (people.containsKey(number)) return@let people[number] }
+                    Book.who(this, number).also { synchronized(people) { people[number] = it } }
+                }
                 val face = person?.fingerprint?.takeIf { person.photo == null }?.let { foodjis.face(it) }
                 val armor = Pgp.armorIn(talk.last)
                 val verdict = when {
@@ -102,15 +115,22 @@ class MainActivity : Activity() {
                     armor == null -> talk.last
                     else -> Opened.words(armor)?.words ?: getString(if (Pgp.isLocked(armor)) R.string.locked_message else R.string.signed_message)
                 }
-                Row(talk, person, face, person?.name ?: talk.number ?: getString(R.string.unknown_number), verdict, last)
+                return Row(talk, person, face, person?.name ?: talk.number ?: getString(R.string.unknown_number), verdict, last)
             }
-            runOnUiThread {
-                if (isFinishing || isDestroyed) return@runOnUiThread
+            fun show(found: List<Row>) = runOnUiThread {
+                if (isFinishing || isDestroyed || turn != turns) return@runOnUiThread
                 rows = found
                 talks.notifyDataSetChanged()
             }
+            val first = runCatching { Store.talks(this, FIRST) }.getOrDefault(emptyList()).map(::row)
+            show(first)
+            if (first.size < FIRST) return@thread
+            show(runCatching { Store.talks(this, Int.MAX_VALUE) }.getOrDefault(emptyList()).map(::row))
         }
     }
+
+    /** Which filling is the latest asked for: an older one that finishes late shows nothing. */
+    private var turns = 0
 
     private val talks = object : BaseAdapter() {
         override fun getCount() = rows.size
@@ -160,7 +180,7 @@ class MainActivity : Activity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == CONFIGURE) return configure().let { true }
+        if (item.itemId == CONFIGURE) return startActivity(Intent(this, ConfActivity::class.java)).let { true }
         if (item.itemId != WRITE) return super.onOptionsItemSelected(item)
         val number = EditText(this).apply { inputType = InputType.TYPE_CLASS_PHONE ; setHint(R.string.number_hint) }
         AlertDialog.Builder(this)
@@ -184,22 +204,6 @@ class MainActivity : Activity() {
         startActivityForResult(ask, 3)
     }
 
-    /** How many messages before and after the one chosen a presentation of the key opens. */
-    private fun configure() {
-        val reach = EditText(this).apply {
-            inputType = InputType.TYPE_CLASS_NUMBER
-            setText(Around.reach(context).toString())
-            setSelection(text.length)
-        }
-        AlertDialog.Builder(this)
-            .setTitle(R.string.configure_around)
-            .setMessage(getString(R.string.configure_around_about, Around.MOST))
-            .setView(reach)
-            .setPositiveButton(android.R.string.ok) { _, _ -> reach.text.toString().toIntOrNull()?.let { Around.set(this, it) } }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
     private fun open(number: String) =
         startActivity(Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, number))
 
@@ -209,6 +213,9 @@ class MainActivity : Activity() {
     private companion object {
         const val WRITE = 1
         const val CONFIGURE = 2
+
+        /** How many conversations are shown before the rest is read. */
+        const val FIRST = 20
         val NEEDED = listOf(Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS, Manifest.permission.READ_CONTACTS)
     }
 }
