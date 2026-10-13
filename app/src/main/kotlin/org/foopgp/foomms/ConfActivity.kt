@@ -34,6 +34,24 @@ class ConfActivity : Activity() {
     private fun draw() {
         column.removeAllViews()
 
+        heading(R.string.conf_language)
+        // The language the pages are in, which is not always the phone's: one
+        // the application does not speak falls back to English.
+        column.addView(Look.words(this, getString(R.string.language_name), size = 17f))
+        note(R.string.conf_language_note)
+        // Chosen where Android keeps it, for this application alone: from
+        // Android 13 the system has a page for exactly that.
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            column.addView(
+                Look.button(this, getString(R.string.conf_language_change)) {
+                    startActivity(
+                        android.content.Intent(android.provider.Settings.ACTION_APP_LOCALE_SETTINGS)
+                            .setData(android.net.Uri.fromParts("package", packageName, null)),
+                    )
+                },
+            )
+        }
+
         heading(R.string.conf_theme)
         // Three states in a row, the one in force on the orange of what is pressed.
         column.addView(
@@ -83,15 +101,6 @@ class ConfActivity : Activity() {
             },
         )
 
-        heading(R.string.conf_mms)
-        column.addView(flip(R.string.conf_prefer_mms, Conf.preferMms(this)) { Conf.preferMms(this, it) ; draw() })
-        note(R.string.conf_prefer_mms_note)
-        // Left to itself, a long text still becomes an MMS: then one can ask to be told first.
-        if (!Conf.preferMms(this)) {
-            column.addView(flip(R.string.conf_warn_mms, Conf.warnMms(this)) { Conf.warnMms(this, it) })
-            note(R.string.conf_warn_mms_note)
-        }
-
         heading(R.string.conf_hold)
         note(R.string.conf_hold_note)
         val choices = Conf.Hold.entries
@@ -117,6 +126,15 @@ class ConfActivity : Activity() {
                     draw()
                 }.apply { (layoutParams as? LinearLayout.LayoutParams)?.topMargin = Look.dp(context, 6) },
             )
+        }
+
+        heading(R.string.conf_mms)
+        column.addView(flip(R.string.conf_prefer_mms, Conf.preferMms(this)) { Conf.preferMms(this, it) ; draw() })
+        note(R.string.conf_prefer_mms_note)
+        // Left to itself, a long text still becomes an MMS: then one can ask to be told first.
+        if (!Conf.preferMms(this)) {
+            column.addView(flip(R.string.conf_warn_mms, Conf.warnMms(this)) { Conf.warnMms(this, it) })
+            note(R.string.conf_warn_mms_note)
         }
     }
 

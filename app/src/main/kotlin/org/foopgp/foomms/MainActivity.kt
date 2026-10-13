@@ -29,6 +29,8 @@ class MainActivity : Activity() {
 
     private lateinit var list: ListView
     private lateinit var asking: LinearLayout
+    private lateinit var all: android.widget.TextView
+    private lateinit var unread: android.widget.TextView
     private var rows: List<Row> = emptyList()
 
     override fun onCreate(state: Bundle?) {
@@ -36,6 +38,27 @@ class MainActivity : Activity() {
         dressed = Look.dark
         super.onCreate(state)
         title = getString(R.string.app_title)
+        // In the bar: the application's mark, then how much of what the phone holds is PGP.
+        all = Look.words(this, "", size = 15f).apply { setTextColor(Look.ORANGE) ; setTypeface(typeface, Typeface.BOLD) }
+        unread = Look.words(this, "", size = 13f).apply { setTextColor(android.graphics.Color.rgb(0xE0, 0xE7, 0xFF)) }
+        actionBar?.apply {
+            setDisplayShowTitleEnabled(false)
+            setDisplayShowCustomEnabled(true)
+            customView = LinearLayout(this@MainActivity).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                val side = Look.dp(context, 36)
+                addView(android.widget.ImageView(context).apply { setImageResource(R.drawable.launcher) }, LinearLayout.LayoutParams(side, side))
+                addView(
+                    LinearLayout(context).apply {
+                        orientation = LinearLayout.VERTICAL
+                        setPadding(Look.dp(context, 12), 0, 0, 0)
+                        addView(all)
+                        addView(unread)
+                    },
+                )
+            }
+        }
         val column = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         asking = Look.column(this)
         list = ListView(this).apply {
@@ -128,6 +151,13 @@ class MainActivity : Activity() {
             }
             val first = runCatching { Store.talks(this, FIRST) }.getOrDefault(emptyList()).map(::row)
             show(first)
+            runCatching { Store.counts(this) }.getOrNull()?.let { counts ->
+                runOnUiThread {
+                    if (isFinishing || isDestroyed) return@runOnUiThread
+                    all.text = getString(R.string.count_all, counts.pgp, counts.all)
+                    unread.text = getString(R.string.count_unread, counts.unreadPgp, counts.unread)
+                }
+            }
             if (first.size < FIRST) return@thread
             show(runCatching { Store.talks(this, Int.MAX_VALUE) }.getOrDefault(emptyList()).map(::row))
         }

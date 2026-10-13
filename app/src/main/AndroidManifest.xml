@@ -34,6 +34,7 @@
         android:icon="@drawable/launcher"
         android:allowBackup="false"
         android:supportsRtl="true"
+        android:localeConfig="@xml/locales_config"
         android:theme="@style/Pages">
 
         <!-- The conversations. -->
@@ -45,6 +46,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Looking for a message by its words. -->
+        <activity
+            android:name=".SearchActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustResize" />
 
         <!-- What the person sets. -->
         <activity

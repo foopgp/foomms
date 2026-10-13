@@ -12,7 +12,20 @@ object Store {
 
     class Talk(val thread: Long, val number: String?, val at: Long, val last: String, val incoming: Boolean, val unread: Boolean)
 
-    class Line(val at: Long, val incoming: Boolean, val body: String, val attachments: Int)
+    /** What an MMS carries beside its words: a picture, a sound, a file. */
+    class Piece(val id: Long, val type: String, val name: String?) {
+        val uri: Uri get() = Uri.withAppendedPath(PARTS, id.toString())
+    }
+
+    class Line(val at: Long, val incoming: Boolean, val body: String, val pieces: List<Piece> = emptyList()) {
+        val attachments: Int get() = pieces.size
+    }
+
+    /** How many messages the phone holds, and how many of them are PGP; the same among those not read yet. */
+    class Counts(val pgp: Int, val all: Int, val unreadPgp: Int, val unread: Int)
+
+    /** A message found by its words. */
+    class Hit(val thread: Long, val number: String?, val at: Long, val incoming: Boolean, val words: String)
 
     /**
      * The [most] latest conversations, newest first, each by its last message.
@@ -52,7 +65,7 @@ object Store {
         context.contentResolver.query(
             SMS, arrayOf("date", "body", "type"), "thread_id = ?", arrayOf(thread.toString()), "date DESC LIMIT 1",
         )?.use { rows ->
-            if (rows.moveToFirst()) Line(rows.getLong(0), rows.getInt(2) == SMS_INBOX, rows.getString(1).orEmpty(), 0) else null
+            if (rows.moveToFirst()) Line(rows.getLong(0), rows.getInt(2) == SMS_INBOX, rows.getString(1).orEmpty()) else null
         }
 
     /** The same found the long way, for a phone that keeps no such list. */
@@ -81,8 +94,8 @@ object Store {
                 val at = rows.getLong(2) * 1000
                 if ((latest[thread]?.at ?: 0) >= at) continue
                 val incoming = rows.getInt(3) == MMS_INBOX
-                val (words, attachments) = parts(context, rows.getLong(0))
-                offer(Talk(thread, number(context, rows.getLong(0), incoming), at, words.ifEmpty { "📎".repeat(minOf(attachments, 3)) }, incoming, rows.getInt(4) == 0))
+                val (words, pieces) = parts(context, rows.getLong(0))
+                offer(Talk(thread, number(context, rows.getLong(0), incoming), at, words.ifEmpty { "📎".repeat(minOf(pieces.size, 3)) }, incoming, rows.getInt(4) == 0))
             }
         }
         return latest.values.sortedByDescending { it.at }
@@ -94,14 +107,14 @@ object Store {
         context.contentResolver.query(
             SMS, arrayOf("date", "body", "type"), "thread_id = ?", arrayOf(thread.toString()), null,
         )?.use { rows ->
-            while (rows.moveToNext()) lines += Line(rows.getLong(0), rows.getInt(2) == SMS_INBOX, rows.getString(1).orEmpty(), 0)
+            while (rows.moveToNext()) lines += Line(rows.getLong(0), rows.getInt(2) == SMS_INBOX, rows.getString(1).orEmpty())
         }
         context.contentResolver.query(
             MMS, arrayOf("_id", "date", "msg_box"), "thread_id = ?", arrayOf(thread.toString()), null,
         )?.use { rows ->
             while (rows.moveToNext()) {
-                val (words, attachments) = parts(context, rows.getLong(0))
-                lines += Line(rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, words, attachments)
+                val (words, pieces) = parts(context, rows.getLong(0))
+                lines += Line(rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, words, pieces)
             }
         }
         return lines.sortedBy { it.at }
@@ -134,11 +147,11 @@ object Store {
         return null
     }
 
-    /** The words of an MMS, and how many of its parts are something else. */
-    private fun parts(context: Context, message: Long): Pair<String, Int> {
+    /** The words of an MMS, and its parts that are something else. */
+    private fun parts(context: Context, message: Long): Pair<String, List<Piece>> {
         val words = StringBuilder()
-        var attachments = 0
-        context.contentResolver.query(PARTS, arrayOf("_id", "ct", "text"), "mid = ?", arrayOf(message.toString()), null)?.use { rows ->
+        val pieces = ArrayList<Piece>()
+        context.contentResolver.query(PARTS, arrayOf("_id", "ct", "text", "name", "cl"), "mid = ?", arrayOf(message.toString()), null)?.use { rows ->
             while (rows.moveToNext()) {
                 val type = rows.getString(1).orEmpty()
                 when {
@@ -150,11 +163,89 @@ object Store {
                         }.getOrNull()
                         if (!text.isNullOrEmpty()) words.append(if (words.isEmpty()) "" else "\n").append(text)
                     }
-                    else -> attachments++
+                    else -> pieces += Piece(rows.getLong(0), type, rows.getString(3) ?: rows.getString(4))
                 }
             }
         }
-        return words.toString() to attachments
+        return words.toString() to pieces
+    }
+
+    fun counts(context: Context): Counts {
+        fun count(table: Uri, where: String?): Int = runCatching {
+            context.contentResolver.query(table, arrayOf("_id"), where, null, null)?.use { it.count }
+        }.getOrNull() ?: 0
+        val armored = "body LIKE '%$BANNER%'"
+        // An MMS is PGP by a text part of it; which of those are unread is asked message by message.
+        val sealed = HashSet<Long>()
+        runCatching {
+            context.contentResolver.query(PARTS, arrayOf("mid"), "text LIKE '%$BANNER%'", null, null)?.use { rows ->
+                while (rows.moveToNext()) sealed += rows.getLong(0)
+            }
+        }
+        val unreadMms = HashSet<Long>()
+        runCatching {
+            context.contentResolver.query(MMS, arrayOf("_id"), "read = 0", null, null)?.use { rows ->
+                while (rows.moveToNext()) unreadMms += rows.getLong(0)
+            }
+        }
+        return Counts(
+            pgp = count(SMS, armored) + sealed.size,
+            all = count(SMS, null) + count(MMS, null),
+            unreadPgp = count(SMS, "$armored AND read = 0") + sealed.count { it in unreadMms },
+            unread = count(SMS, "read = 0") + unreadMms.size,
+        )
+    }
+
+    /**
+     * The messages that hold [wanted], newest first, in one conversation or
+     * in all. A PGP message is looked into only if it is open: what a closed
+     * one says is not known to anybody here.
+     */
+    fun search(context: Context, wanted: String, thread: Long?, most: Int = 200): List<Hit> {
+        val asked = wanted.trim()
+        if (asked.isEmpty()) return emptyList()
+        val hits = ArrayList<Hit>()
+        val within = thread?.let { " AND thread_id = $it" }.orEmpty()
+        val like = "%" + asked.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+        val columns = arrayOf("thread_id", "address", "date", "body", "type")
+        context.contentResolver.query(
+            SMS, columns, "body LIKE ? ESCAPE '\\' AND body NOT LIKE '%$BANNER%'$within", arrayOf(like), "date DESC",
+        )?.use { rows ->
+            while (rows.moveToNext() && hits.size < most) {
+                hits += Hit(rows.getLong(0), rows.getString(1), rows.getLong(2), rows.getInt(4) == SMS_INBOX, rows.getString(3).orEmpty())
+            }
+        }
+        context.contentResolver.query(SMS, columns, "body LIKE '%$BANNER%'$within", null, "date DESC")?.use { rows ->
+            while (rows.moveToNext()) {
+                val words = Pgp.armorIn(rows.getString(3).orEmpty())?.let { Opened.words(it)?.words } ?: continue
+                if (words.contains(asked, ignoreCase = true)) {
+                    hits += Hit(rows.getLong(0), rows.getString(1), rows.getLong(2), rows.getInt(4) == SMS_INBOX, words)
+                }
+            }
+        }
+        // The MMS whose words hold it: found by their text parts, then asked where and when they belong.
+        val found = LinkedHashMap<Long, String>()
+        runCatching {
+            context.contentResolver.query(PARTS, arrayOf("mid", "text"), "ct = 'text/plain' AND text LIKE ? ESCAPE '\\'", arrayOf(like), null)?.use { rows ->
+                while (rows.moveToNext()) {
+                    val text = rows.getString(1).orEmpty()
+                    val armor = Pgp.armorIn(text)
+                    val words = if (armor == null) text else Opened.words(armor)?.words?.takeIf { it.contains(asked, ignoreCase = true) } ?: continue
+                    found.putIfAbsent(rows.getLong(0), words)
+                }
+            }
+        }
+        for ((message, words) in found) {
+            context.contentResolver.query(
+                Uri.withAppendedPath(MMS, message.toString()), arrayOf("thread_id", "date", "msg_box"), null, null, null,
+            )?.use { rows ->
+                if (rows.moveToFirst() && (thread == null || rows.getLong(0) == thread)) {
+                    val incoming = rows.getInt(2) == MMS_INBOX
+                    hits += Hit(rows.getLong(0), number(context, message, incoming), rows.getLong(1) * 1000, incoming, words)
+                }
+            }
+        }
+        return hits.sortedByDescending { it.at }.take(most)
     }
 
     private fun number(context: Context, message: Long, incoming: Boolean): String? {
@@ -172,6 +263,7 @@ object Store {
     private val THREADS = Uri.parse("content://mms-sms/conversations?simple=true")
     private val PARTS = Uri.parse("content://mms/part")
     private const val SMS_INBOX = 1
+    private const val BANNER = "-----BEGIN PGP MESSAGE-----"
     private const val MMS_INBOX = 1
     private const val FROM = 137
     private const val TO = 151

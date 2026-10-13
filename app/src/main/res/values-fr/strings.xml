@@ -79,4 +79,20 @@
     <string name="conf_warn_mms_note">Un texte plus long que cinq SMS part en MMS. Être prévenu avant évite des frais supplémentaires que votre opérateur pourrait appliquer.</string>
     <string name="mms_ask">Ce message est long : il partira en MMS, que votre opérateur peut facturer.</string>
     <string name="mms_send">Envoyer</string>
+    <string name="language_name">français</string>
+    <string name="conf_language">Langue</string>
+    <string name="conf_language_note">foomms parle deux langues pour l\'instant : English et français.</string>
+    <string name="conf_language_change">⚑ Changer la langue de l\'application</string>
+    <string name="search_all">🔍 Rechercher dans les conversations</string>
+    <string name="search_here">🔍 Rechercher dans ces messages</string>
+    <string name="search_hint">Mots à chercher</string>
+    <string name="hit_from">de %1$s</string>
+    <string name="hit_to">pour %1$s</string>
+    <string name="count_all">%1$d/%2$d messages PGP</string>
+    <string name="count_unread">%1$d/%2$d non lus</string>
+    <string name="attach_picture">Une photo ou une image</string>
+    <string name="attach_sound">Un enregistrement audio</string>
+    <string name="carrying">📎 %1$s — %2$d ko   ✕</string>
+    <string name="too_heavy">Trop lourd pour un MMS sur ce réseau (%1$d ko au plus), ou illisible.</string>
+    <string name="handed_mms">MMS confié au téléphone : %1$s</string>
 </resources>

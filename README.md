@@ -45,6 +45,12 @@ then one of them in bubbles, a field at the bottom.
   operator may charge for. In both it is text, a PGP message in its armor. Whoever
   receives it without this application sees that it is coded, and can copy it
   into foodjis.
+- **A photo or a sound** goes as an MMS: chosen or recorded with **+**, a
+  picture made small enough for the network before it leaves. Locked or
+  signed, the file becomes a PGP message of its own, under its name and
+  `.pgp`, which foodjis opens as it opens any file; the words stay a text in
+  armor beside it. Received in clear, a picture is shown small and a sound
+  plays where it stands.
 - **How the next message leaves** is said by the button beside the field, in
   the colour it will have: ✍⚿ signed and encrypted, ⚿ encrypted, ✍ signed, ✉
   as it is. With a certificate tied to the number, signed and encrypted is how
@@ -111,8 +117,10 @@ Version 0.0.1, a trial, tried on one phone against a trial build of foodjis.
   opened by one presentation of the key — the phone it is tried on has no
   key that speaks over NFC; an MMS
   with an attachment; an MMS between two operators.
-- **Not built yet**: attachments, shown or sent; several people in one
-  conversation; deleting a message; a second SIM.
+- **Not seen yet either**: a picture or a sound chosen, sent and received —
+  built, and tried only as far as the choice between the two.
+- **Not built yet**: opening a locked attachment from its bubble; several
+  people in one conversation; deleting a message; a second SIM.
 
 It needs a foodjis with four additions (branch `api-by-phone` of
 foodjis-android, not in a published version): a phone number taken for an

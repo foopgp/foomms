@@ -39,6 +39,9 @@ class ThreadActivity : AskingActivity() {
         PLAIN("✉", false, false),
     }
 
+    /** Whom this conversation is with, for a page opened from this one. */
+    val talkingTo: String get() = number
+
     private val number by lazy { intent.getStringExtra(EXTRA_NUMBER) ?: intent.data?.schemeSpecificPart.orEmpty() }
     private val foodjis by lazy { Foodjis.of(this) }
 
@@ -58,6 +61,16 @@ class ThreadActivity : AskingActivity() {
     private lateinit var list: ListView
     private lateinit var field: EditText
     private lateinit var how: android.widget.Button
+    private lateinit var chip: android.widget.TextView
+
+    /** What the next message carries beside its words: a picture, a sound. */
+    private var carried: Media.Attachment? = null
+
+    /** The pictures of this conversation, small, by the part they are. */
+    private var thumbs: Map<Long, Bitmap?> = emptyMap()
+
+    /** The message to show first, when the page was opened from a search: its date, taken once. */
+    private var wanted = 0L
 
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
@@ -65,6 +78,7 @@ class ThreadActivity : AskingActivity() {
         super.onCreate(state)
         if (Phone.plain(number) == null) return finish()
         title = number
+        wanted = intent.getLongExtra(EXTRA_AT, 0L)
         list = ListView(this).apply {
             divider = null
             transcriptMode = ListView.TRANSCRIPT_MODE_NORMAL
@@ -81,11 +95,19 @@ class ThreadActivity : AskingActivity() {
         how = Look.button(this, mode.glyph) { next() }.apply { textSize = 20f }
         val send = Look.button(this, "➤") { send() }.apply { setTextColor(Look.ORANGE) ; textSize = 20f }
         val pad = Look.dp(this, 6)
+        val add = Look.button(this, "+") { attach() }.apply { textSize = 22f }
+        // What is attached, said above the field; pressed, it is taken off.
+        chip = Look.words(this, "", size = 14f, muted = true).apply {
+            setPadding(pad * 3, pad, pad * 3, 0)
+            visibility = View.GONE
+            setOnClickListener { carry(null) }
+        }
         val bar = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.BOTTOM
             setPadding(pad, pad, pad, pad)
             addView(how, LinearLayout.LayoutParams(Look.dp(context, 64), ViewGroup.LayoutParams.WRAP_CONTENT))
+            addView(add, LinearLayout.LayoutParams(Look.dp(context, 44), ViewGroup.LayoutParams.WRAP_CONTENT).apply { marginStart = pad })
             addView(field, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = pad ; marginEnd = pad })
             addView(send, LinearLayout.LayoutParams(Look.dp(context, 56), ViewGroup.LayoutParams.WRAP_CONTENT))
         }
@@ -93,6 +115,7 @@ class ThreadActivity : AskingActivity() {
             LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+                addView(chip)
                 addView(bar)
             },
         )
@@ -118,6 +141,8 @@ class ThreadActivity : AskingActivity() {
 
     override fun onPause() {
         shown = false
+        player?.let { runCatching { it.stop() ; it.release() } }
+        player = null
         // Set never to be remembered, what was opened here is gone with the page.
         if (Opened.holdFor == 0L) Opened.forget()
         contentResolver.unregisterContentObserver(arrivals)
@@ -135,6 +160,8 @@ class ThreadActivity : AskingActivity() {
             val found = runCatching { thread?.let { Store.lines(this, it) } }.getOrNull().orEmpty()
             // Whom each locked message is for, by the keys it names: a face each, asked of foodjis once.
             val named = found.mapNotNull { Pgp.armorIn(it.body) }.filter { Pgp.isLocked(it) }.flatMap { Pgp.recipients(it) }.distinct()
+            val small = found.takeLast(SHOWN_PICTURES).flatMap { it.pieces }.filter { it.type.startsWith("image/") }
+                .associate { piece -> piece.id to (thumbs[piece.id] ?: Media.thumbnail(this, piece.uri, Look.dp(this, 200))) }
             val theirFaces = named.associateWith { id -> foodjis.signer(id)?.let { whose -> For(whose.name, foodjis.face(whose.fingerprint)) } }
             if (shown) {
                 thread?.let { Keep.read(this, it) }
@@ -142,7 +169,7 @@ class ThreadActivity : AskingActivity() {
             }
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
-                person = who ; card = whose ; face = theirs ; lines = found ; meant = theirFaces
+                person = who ; card = whose ; face = theirs ; lines = found ; meant = theirFaces ; thumbs = small
                 title = who?.name ?: number
                 actionBar?.subtitle = when {
                     who?.fingerprint == null -> getString(R.string.no_certificate)
@@ -155,6 +182,10 @@ class ThreadActivity : AskingActivity() {
                 if (first) mode = if (whose?.usable == true) Mode.SIGN_AND_LOCK else Mode.PLAIN
                 paint()
                 bubbles.notifyDataSetChanged()
+                if (wanted > 0) {
+                    found.indexOfFirst { it.at == wanted }.takeIf { it >= 0 }?.let { list.setSelection(it) }
+                    wanted = 0
+                }
             }
         }
     }
@@ -181,29 +212,112 @@ class ThreadActivity : AskingActivity() {
 
     private fun send() {
         val written = field.text.toString()
-        if (written.isBlank()) return
+        val with = carried
+        if (written.isBlank() && with == null) return
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)
         }
         val mode = mode
+        if (with != null) return sendWith(with, written, mode)
         if (mode == Mode.PLAIN) return leave(written, written, null)
+        ask(request(mode, armored = true), written.toByteArray(), ::say) { answer ->
+            val armor = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
+                ?: return@ask say(getString(R.string.failed, "what came back is not a PGP message"))
+            leave(armor, written, worth(mode))
+        }
+    }
+
+    /** What foodjis is asked for a message leaving the way [mode] says. */
+    private fun request(mode: Mode, armored: Boolean): Intent {
         val request = Intent(
             when (mode) {
                 Mode.SIGN_AND_LOCK -> Provider.SIGN_AND_ENCRYPT
                 Mode.LOCK -> Provider.ENCRYPT
                 else -> Provider.SIGN
             },
-        ).putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, true)
+        ).putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, armored)
         if (mode.locks) {
             // The certificate the address book ties to this number; with none, whoever foodjis knows by the number.
             val whose = person?.fingerprint
             if (whose != null) request.putExtra(Provider.EXTRA_KEY_IDS, longArrayOf(Fingerprint.keyId(whose)))
             else request.putExtra(Provider.EXTRA_USER_IDS, arrayOf("tel:$number"))
         }
-        ask(request, written.toByteArray(), ::say) { answer ->
-            val armor = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
-                ?: return@ask say(getString(R.string.failed, "what came back is not a PGP message"))
-            leave(armor, written, worth(mode))
+        return request
+    }
+
+    /**
+     * A message that carries a picture or a sound is an MMS. Locked or
+     * signed, what it carries becomes a PGP message of its own -- the file
+     * itself, which foodjis opens as it opens any -- under its name and
+     * `.pgp`; the words, if there are any, stay a text in armor beside it.
+     */
+    private fun sendWith(with: Media.Attachment, written: String, mode: Mode) {
+        fun post(words: String?, piece: Pdu.Part, verdict: Verdict?) = confirmMms {
+            val transaction = "T" + java.lang.Long.toHexString(System.currentTimeMillis())
+            val parts = listOfNotNull(words?.let { Pdu.Part.text(it) }, piece)
+            runCatching { Outbox.send(this, number, Pdu.send(transaction, listOf(number), parts), transaction) }
+                .onFailure { return@confirmMms say(getString(R.string.failed, it.message)) }
+            if (verdict != null && words != null) Opened.keep(this, words, written, null, verdict)
+            field.setText("")
+            carry(null)
+            Toast.makeText(this, getString(R.string.handed_mms, with.name), Toast.LENGTH_SHORT).show()
+            list.postDelayed({ if (shown) load() }, 1500)
+        }
+        if (mode == Mode.PLAIN) return post(written.takeIf { it.isNotBlank() }, Pdu.Part(with.type, with.name, with.bytes), null)
+        ask(request(mode, armored = false), with.bytes, ::say) { sealed ->
+            val piece = Pdu.Part(Pgp.TYPE, with.name + ".pgp", sealed.bytes)
+            if (written.isBlank()) return@ask post(null, piece, worth(mode))
+            ask(request(mode, armored = true), written.toByteArray(), ::say) { answer ->
+                val armor = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
+                    ?: return@ask say(getString(R.string.failed, "what came back is not a PGP message"))
+                post(armor, piece, worth(mode))
+            }
+        }
+    }
+
+    /** An operator may charge for an MMS: the person who asked to be told is, before one leaves. */
+    private fun confirmMms(go: () -> Unit) {
+        if (Conf.preferMms(this) || !Conf.warnMms(this)) return go()
+        AlertDialog.Builder(this)
+            .setMessage(R.string.mms_ask)
+            .setPositiveButton(R.string.mms_send) { _, _ -> go() }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun carry(what: Media.Attachment?) {
+        carried = what
+        chip.visibility = if (what == null) View.GONE else View.VISIBLE
+        chip.text = what?.let { getString(R.string.carrying, it.name, it.bytes.size / 1024 + 1) }.orEmpty()
+    }
+
+    /** A picture from the phone, or a sound recorded now. */
+    private fun attach() {
+        AlertDialog.Builder(this)
+            .setItems(arrayOf(getString(R.string.attach_picture), getString(R.string.attach_sound))) { _, which ->
+                val picture = Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*")
+                val record = Intent(android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION)
+                // A phone with no recorder of its own still has sounds to choose among.
+                val sound = if (record.resolveActivity(packageManager) != null) record
+                else Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("audio/*")
+                @Suppress("DEPRECATION")
+                runCatching { startActivityForResult(if (which == 0) picture else sound, if (which == 0) PICTURE else SOUND) }
+                    .onFailure { say(getString(R.string.failed, it.message)) }
+            }
+            .show()
+    }
+
+    private fun attached(request: Int, from: android.net.Uri) {
+        // Room for the message around it, and for what locking adds.
+        val most = Outbox.heaviest(this) - 16 * 1024
+        thread {
+            val made = runCatching {
+                if (request == PICTURE) Media.picture(this, from, most) else Media.file(this, from, most)
+            }.getOrNull()
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                if (made == null) say(getString(R.string.too_heavy, most / 1024)) else carry(made)
+            }
         }
     }
 
@@ -228,15 +342,7 @@ class ThreadActivity : AskingActivity() {
             // The phone writes what was sent a moment after taking it.
             list.postDelayed({ if (shown) load() }, 1500)
         }
-        if (mms && !Conf.preferMms(this) && Conf.warnMms(this)) {
-            AlertDialog.Builder(this)
-                .setMessage(R.string.mms_ask)
-                .setPositiveButton(R.string.mms_send) { _, _ -> go() }
-                .setNegativeButton(android.R.string.cancel, null)
-                .show()
-        } else {
-            go()
-        }
+        if (mms) confirmMms(::go) else go()
     }
 
     /**
@@ -305,6 +411,10 @@ class ThreadActivity : AskingActivity() {
 
     override fun onActivityResult(request: Int, outcome: Int, data: Intent?) {
         super.onActivityResult(request, outcome, data)
+        if (request == PICTURE || request == SOUND) {
+            data?.data?.takeIf { outcome == RESULT_OK }?.let { attached(request, it) }
+            return
+        }
         if (request != SAVE) return
         val armor = saving.also { saving = null } ?: return
         val where = data?.data?.takeIf { outcome == RESULT_OK } ?: return
@@ -374,6 +484,40 @@ class ThreadActivity : AskingActivity() {
         else -> getString(R.string.signed_broken)
     }
 
+    /** One thing a message carries: a picture shown small, a sound to play, or what it is called. */
+    private fun shownPiece(piece: Store.Piece): View {
+        val small = thumbs[piece.id]
+        val name = piece.name ?: piece.type
+        return when {
+            small != null -> android.widget.ImageView(this).apply {
+                setImageBitmap(small)
+                adjustViewBounds = true
+                maxWidth = Look.dp(context, 220) ; maxHeight = Look.dp(context, 220)
+                setPadding(0, Look.dp(context, 4), 0, Look.dp(context, 4))
+            }
+            piece.type.startsWith("audio/") -> Look.button(this, "▶ $name") { play(piece) }
+            piece.type == Pgp.TYPE || name.endsWith(".pgp") || name.endsWith(".gpg") -> Look.words(this, "⚿ $name", size = 15f, muted = true)
+            else -> Look.words(this, "📎 $name", size = 15f, muted = true)
+        }
+    }
+
+    private var player: android.media.MediaPlayer? = null
+
+    /** Play a sound, or stop the one that plays. */
+    private fun play(piece: Store.Piece) {
+        val playing = player
+        player = null
+        if (playing != null) { runCatching { playing.stop() ; playing.release() } ; return }
+        runCatching {
+            player = android.media.MediaPlayer().apply {
+                setDataSource(this@ThreadActivity, piece.uri)
+                setOnCompletionListener { release() ; if (player === it) player = null }
+                prepare()
+                start()
+            }
+        }.onFailure { player = null ; say(getString(R.string.failed, it.message)) }
+    }
+
     /** The last message still locked, which is the one that says how they open. */
     private fun lastLocked(): Int =
         lines.indexOfLast { line -> Pgp.armorIn(line.body)?.let { Pgp.isLocked(it) && Opened.words(it) == null } == true }
@@ -404,7 +548,6 @@ class ThreadActivity : AskingActivity() {
                 append(DateUtils.getRelativeTimeSpanString(line.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL))
                 if (verdict.encrypted) append("  ⚿")
                 read?.signed?.let { append("  ✍ ").append(it) }
-                if (line.attachments > 0) append("  ").append("📎".repeat(minOf(line.attachments, 3)))
             }
             val pad = Look.dp(context, 10)
             val text = Look.words(context, words, size = 16f, muted = closed)
@@ -427,9 +570,10 @@ class ThreadActivity : AskingActivity() {
                     )
                     // Said once, on the last of them: every closed message opens the same way.
                     if (at == lastLocked()) addView(Look.words(context, getString(R.string.locked_help), size = 13f, muted = true))
-                } else {
+                } else if (words.isNotEmpty() || line.pieces.isEmpty()) {
                     addView(text)
                 }
+                for (piece in line.pieces) addView(shownPiece(piece))
                 addView(Look.words(context, under, size = 11f, muted = true))
             }
             // A mark of the full colour on the side the message came from, the bubble itself on that side.
@@ -565,9 +709,17 @@ class ThreadActivity : AskingActivity() {
 
     companion object {
         const val EXTRA_NUMBER = "number"
+
+        /** The date of the message to show first. */
+        const val EXTRA_AT = "at"
         private const val TIE = 1
         private const val LET_IN = 2
         private const val SAVE = 4
+        private const val PICTURE = 5
+        private const val SOUND = 6
+
+        /** How many of the latest messages have their pictures shown small. */
+        private const val SHOWN_PICTURES = 40
         private val MESSAGES = android.net.Uri.parse("content://mms-sms/")
         private val NEEDED_TO_WRITE = arrayOf(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
         private val VALID = setOf(
