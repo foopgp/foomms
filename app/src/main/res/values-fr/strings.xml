@@ -22,7 +22,6 @@
     <string name="write">✎ Nouveau message</string>
     <string name="locked_message">⚿ Message chiffré</string>
     <string name="signed_message">✍ Message signé</string>
-    <string name="locked_press">⚿ Message chiffré — appuyez pour le lire avec votre clé de sécurité</string>
     <string name="signed_press">✍ Message signé — appuyez pour le vérifier</string>
     <string name="no_certificate">Aucun certificat relié à ce numéro</string>
     <string name="foodjis_shut">foodjis n\'a pas encore laissé entrer cette application</string>
@@ -48,4 +47,15 @@
     <string name="channel_messages">Messages</string>
     <string name="not_default">L\'application de messagerie du téléphone reçoit et garde encore les messages. foomms peut prendre sa place : Android vous le demandera.</string>
     <string name="become_default">Faire de foomms l\'application de messagerie</string>
+    <string name="open_last">⚷</string>
+    <string name="nothing_to_open">Tous les messages sont ouverts ici.</string>
+    <string name="configure">⚙ Configuration</string>
+    <string name="configure_around">Un passage de la clé ouvre…</string>
+    <string name="configure_around_about">…le message sur lequel vous appuyez — le dernier si vous appuyez sur ⚷ — et ce nombre de messages avant et après lui (%1$d au plus).</string>
+    <string name="standing_certified">certifié</string>
+    <string name="standing_uncertified">non certifié</string>
+    <string name="standing_expired">expiré</string>
+    <string name="standing_revoked">révoqué</string>
+    <string name="standing_broken">cassé</string>
+    <string name="locked_press">⚿ Message chiffré — appuyez pour le lire, avec ses voisins, grâce à votre clé de sécurité</string>
 </resources>

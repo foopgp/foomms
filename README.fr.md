@@ -51,7 +51,10 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   dans la couleur qu'il aura : ✍⚿ signé et chiffré, ⚿ chiffré, ✍ signé, ✉ tel
   quel. Avec un certificat relié au numéro, on commence par signé et chiffré.
 - **Lire.** Un message PGP reçu dit ce qu'il est jusqu'à ce qu'on appuie
-  dessus : foodjis l'ouvre, avec la clé de sécurité s'il est chiffré. Son
+  dessus : foodjis l'ouvre, avec la clé de sécurité s'il est chiffré — et avec
+  lui, pour ce seul passage de la clé, les messages qui l'entourent : cinq
+  avant et cinq après, sauf autre nombre réglé par vous. ⚷, en haut, fait de
+  même depuis le dernier message encore fermé. Son
   texte est gardé tant que l'application tourne et n'est écrit nulle part ; sa
   couleur est retenue.
 - **Le carnet d'adresses dit quelle clé désigne un numéro.** *Relier un
@@ -101,18 +104,21 @@ de foodjis.
   SMS envoyé et écrit, reçu, écrit et annoncé ; un texte trop long pour cinq
   SMS envoyé en MMS, annoncé par le réseau, récupéré, lu et écrit, son texte
   revenu identique.
-- **Pas encore vu** : un message ouvert depuis sa bulle ; un message signé ;
-  relier un certificat depuis que cela passe par la liste et la vCard de
-  foodjis ; un MMS avec pièce jointe ; un MMS entre deux opérateurs.
+- Vu : un message signé vérifié depuis sa bulle, en bleu, et son numéro
+  relié au certificat du signataire depuis la vCard que produit foodjis.
+- **Pas encore vu** : un message chiffré ouvert depuis sa bulle, et plusieurs
+  ouverts par un seul passage de la clé — le téléphone d'essai n'a pas de clé
+  qui parle en NFC ; choisir un certificat dans la liste de foodjis ; un MMS avec pièce jointe ; un MMS entre deux opérateurs.
 - **Pas encore construit** : les pièces jointes, à montrer comme à envoyer ;
   plusieurs personnes dans une conversation ; supprimer un message ; une
   seconde carte SIM.
 
-Il faut un foodjis avec trois ajouts (branche `api-by-phone` de
+Il faut un foodjis avec quatre ajouts (branche `api-by-phone` de
 foodjis-android, dans aucune version publiée) : un numéro de téléphone pris
-pour une adresse ; sa liste de contacts montrée pour y choisir ; et une porte
-qui répond, pour une empreinte, le nom du certificat, son statut, son visage
-et sa vCard.
+pour une adresse ; sa liste de contacts montrée pour y choisir ; une porte qui
+répond, pour une empreinte, le nom du certificat, son statut, son visage et
+sa vCard ; et un seul passage de la clé qui répond pour tous les messages
+que la même application attend de lire.
 
 ## Construire
 
@@ -152,9 +158,6 @@ Un JDK 17 ou plus récent et le SDK Android (plateforme 36).
   qui s'écrit dans la mémoire du téléphone. Cela veut dire aussi porter
   correctement tous les SMS et MMS ordinaires, ce qui est un gros travail — et
   c'est ce qu'un magasin d'applications exige de qui demande ces permissions.
-- **Un seul geste de la clé pour plusieurs messages.** Ouvrir demande la clé
-  de sécurité à chaque fois. Les messages non lus pourraient s'ouvrir
-  ensemble, la clé posée une fois contre le téléphone.
 - **Envoyer son certificat.** À qui a foodjis et pas encore votre
   certificat : le même MMS, avec le certificat en pièce jointe.
 - **Dire qui peut recevoir.** foodjis sait quels contacts portent un numéro ;

@@ -24,7 +24,6 @@
     <string name="write">✎ New message</string>
     <string name="locked_message">⚿ Encrypted message</string>
     <string name="signed_message">✍ Signed message</string>
-    <string name="locked_press">⚿ Encrypted message — press to read it with your security key</string>
     <string name="signed_press">✍ Signed message — press to check it</string>
     <string name="no_certificate">No certificate tied to this number</string>
     <string name="foodjis_shut">foodjis has not let this application in yet</string>
@@ -50,4 +49,15 @@
     <string name="channel_messages">Messages</string>
     <string name="not_default">The phone\'s messaging application still receives and keeps the messages. foomms can take its place: Android will ask you.</string>
     <string name="become_default">Make foomms the messaging application</string>
+    <string name="open_last">⚷</string>
+    <string name="nothing_to_open">Every message here is open.</string>
+    <string name="configure">⚙ Configuration</string>
+    <string name="configure_around">One presentation of the key opens…</string>
+    <string name="configure_around_about">…the message you press — the last one when you press ⚷ — and this many before and after it (%1$d at most).</string>
+    <string name="standing_certified">certified</string>
+    <string name="standing_uncertified">not certified</string>
+    <string name="standing_expired">expired</string>
+    <string name="standing_revoked">revoked</string>
+    <string name="standing_broken">broken</string>
+    <string name="locked_press">⚿ Encrypted message — press to read it, and those around it, with your security key</string>
 </resources>

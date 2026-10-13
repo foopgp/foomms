@@ -61,7 +61,7 @@ class ThreadActivity : AskingActivity() {
             transcriptMode = ListView.TRANSCRIPT_MODE_NORMAL
             isStackFromBottom = true
             adapter = bubbles
-            setOnItemClickListener { _, _, at, _ -> pressed(lines[at]) }
+            setOnItemClickListener { _, _, at, _ -> pressed(at) }
         }
         field = EditText(this).apply {
             setHint(R.string.words_hint)
@@ -130,7 +130,7 @@ class ThreadActivity : AskingActivity() {
                     foodjis.shut -> getString(R.string.foodjis_shut)
                     whose == null -> getString(R.string.certificate_not_held)
                     whose.certified -> getString(R.string.certificate_certified, whose.name)
-                    else -> getString(R.string.certificate_held, whose.name, whose.validity)
+                    else -> getString(R.string.certificate_held, whose.name, standing(whose.validity))
                 }
                 // With a certificate that can be locked for, that is how a message leaves unless told otherwise.
                 if (first) mode = if (whose?.usable == true) Mode.SIGN_AND_LOCK else Mode.PLAIN
@@ -206,23 +206,63 @@ class ThreadActivity : AskingActivity() {
         list.postDelayed({ if (shown) load() }, 1500)
     }
 
-    private fun pressed(line: Store.Line) {
-        val armor = Pgp.armorIn(line.body) ?: return
-        if (Opened.words(armor) != null) return
-        ask(Intent(Provider.DECRYPT_VERIFY), armor.toByteArray(), ::say) { answer ->
-            answer.says.setExtrasClassLoader(OpenPgpSignatureResult::class.java.classLoader)
-            @Suppress("DEPRECATION")
-            val signature = answer.says.getParcelableExtra<OpenPgpSignatureResult>(Provider.RESULT_SIGNATURE)
-            val certified = signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED
-            Opened.keep(this, armor, String(answer.bytes, Charsets.UTF_8), signed(signature), Verdict.of(Pgp.isLocked(armor), certified))
-            bubbles.notifyDataSetChanged()
-            // Signed, from a number that means no certificate yet: it may well mean the signer's.
-            if (line.incoming && person?.fingerprint == null && signature?.result in VALID) {
-                val keyId = signature!!.keyId
-                thread {
-                    val whose = foodjis.signer(keyId) ?: return@thread
-                    runOnUiThread { if (!isFinishing && !isDestroyed) offer(whose) }
-                }
+    /**
+     * A PGP message pressed: it is opened, and with it those around it that
+     * are not yet -- as many before and after as the person set. foodjis is
+     * asked for the others first, so that it knows what waits; then for the
+     * one pressed, which is when it asks for the security key; and one
+     * presentation of the key has answered for all of them.
+     */
+    private fun pressed(at: Int) {
+        val chosen = lines.getOrNull(at)?.let { Pgp.armorIn(it.body) } ?: return
+        if (Opened.words(chosen) != null) return
+        val others = Around.others(lines.size, at, Around.reach(this))
+            .mapNotNull { Pgp.armorIn(lines[it].body) }
+            .filter { it != chosen && Opened.words(it) == null }
+            .distinct()
+        var left = others.size
+        fun theChosen() {
+            ask(Intent(Provider.DECRYPT_VERIFY), chosen.toByteArray(), ::say) { answer ->
+                opened(chosen, answer, offer = lines.getOrNull(at)?.incoming == true)
+                // What the key answered for the others is waiting: each is asked for again, and says nothing if it is not.
+                others.filter { Opened.words(it) == null }.forEach { quietly(it) }
+            }
+        }
+        if (left == 0) return theChosen()
+        for (other in others) {
+            provider.ask(Intent(Provider.DECRYPT_VERIFY), other.toByteArray()) { answer ->
+                // A signed message needs no key and is read at once.
+                if (answer is Provider.Answer.Done && !isFinishing && !isDestroyed) opened(other, answer, offer = false)
+                if (--left == 0 && !isFinishing && !isDestroyed) theChosen()
+            }
+        }
+    }
+
+    private fun quietly(armor: String) {
+        provider.ask(Intent(Provider.DECRYPT_VERIFY), armor.toByteArray()) { answer ->
+            if (answer is Provider.Answer.Done && !isFinishing && !isDestroyed) opened(armor, answer, offer = false)
+        }
+    }
+
+    /** The last message that is still closed, when the person names none. */
+    private fun pressLast() {
+        val at = lines.indexOfLast { line -> Pgp.armorIn(line.body)?.let { Opened.words(it) == null } == true }
+        if (at < 0) Toast.makeText(this, R.string.nothing_to_open, Toast.LENGTH_SHORT).show() else pressed(at)
+    }
+
+    private fun opened(armor: String, answer: Provider.Answer.Done, offer: Boolean) {
+        answer.says.setExtrasClassLoader(OpenPgpSignatureResult::class.java.classLoader)
+        @Suppress("DEPRECATION")
+        val signature = answer.says.getParcelableExtra<OpenPgpSignatureResult>(Provider.RESULT_SIGNATURE)
+        val certified = signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED
+        Opened.keep(this, armor, String(answer.bytes, Charsets.UTF_8), signed(signature), Verdict.of(Pgp.isLocked(armor), certified))
+        bubbles.notifyDataSetChanged()
+        // Signed, from a number that means no certificate yet: it may well mean the signer's.
+        if (offer && person?.fingerprint == null && signature?.result in VALID) {
+            val keyId = signature!!.keyId
+            thread {
+                val whose = foodjis.signer(keyId) ?: return@thread
+                runOnUiThread { if (!isFinishing && !isDestroyed) offer(whose) }
             }
         }
     }
@@ -286,12 +326,14 @@ class ThreadActivity : AskingActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menu.add(0, OPEN, 0, R.string.open_last).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         menu.add(0, TIE, 0, R.string.tie)
         menu.add(0, LET_IN, 1, R.string.let_in)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        OPEN -> { pressLast() ; true }
         TIE -> { tie() ; true }
         LET_IN -> { letIn() ; true }
         else -> super.onOptionsItemSelected(item)
@@ -362,7 +404,7 @@ class ThreadActivity : AskingActivity() {
                     "\n•  🔑 " + (card.key ?: Fingerprint.address(whose.fingerprint))
                 AlertDialog.Builder(this)
                     .setTitle(getString(R.string.tie_ask, number, whose.name))
-                    .setMessage(getString(R.string.tie_ask_about, whose.validity) + "\n\n" + told)
+                    .setMessage(getString(R.string.tie_ask_about, standing(whose.validity)) + "\n\n" + told)
                     .setPositiveButton(R.string.tie_write) { _, _ -> write(whose, card) }
                     .setNegativeButton(android.R.string.cancel, null)
                     .show()
@@ -396,6 +438,17 @@ class ThreadActivity : AskingActivity() {
         if (request == 2 && results.isNotEmpty() && results.all { it == PackageManager.PERMISSION_GRANTED }) then?.invoke()
     }
 
+    /** A certificate's standing, as foodjis words it, in the person's language. */
+    private fun standing(validity: String): String = getString(
+        when (validity) {
+            "certified" -> R.string.standing_certified
+            "uncertified" -> R.string.standing_uncertified
+            "expired" -> R.string.standing_expired
+            "revoked" -> R.string.standing_revoked
+            else -> R.string.standing_broken
+        },
+    )
+
     private fun say(words: String) {
         AlertDialog.Builder(this).setMessage(words).setPositiveButton(R.string.close, null).show()
     }
@@ -404,6 +457,7 @@ class ThreadActivity : AskingActivity() {
         const val EXTRA_NUMBER = "number"
         private const val TIE = 1
         private const val LET_IN = 2
+        private const val OPEN = 3
         private val MESSAGES = android.net.Uri.parse("content://mms-sms/")
         private val NEEDED_TO_WRITE = arrayOf(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
         private val VALID = setOf(

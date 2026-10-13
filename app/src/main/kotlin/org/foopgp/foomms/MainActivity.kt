@@ -155,10 +155,12 @@ class MainActivity : Activity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menu.add(0, WRITE, 0, R.string.write).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        menu.add(0, CONFIGURE, 1, R.string.configure)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == CONFIGURE) return configure().let { true }
         if (item.itemId != WRITE) return super.onOptionsItemSelected(item)
         val number = EditText(this).apply { inputType = InputType.TYPE_CLASS_PHONE ; setHint(R.string.number_hint) }
         AlertDialog.Builder(this)
@@ -182,6 +184,22 @@ class MainActivity : Activity() {
         startActivityForResult(ask, 3)
     }
 
+    /** How many messages before and after the one chosen a presentation of the key opens. */
+    private fun configure() {
+        val reach = EditText(this).apply {
+            inputType = InputType.TYPE_CLASS_NUMBER
+            setText(Around.reach(context).toString())
+            setSelection(text.length)
+        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.configure_around)
+            .setMessage(getString(R.string.configure_around_about, Around.MOST))
+            .setView(reach)
+            .setPositiveButton(android.R.string.ok) { _, _ -> reach.text.toString().toIntOrNull()?.let { Around.set(this, it) } }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
     private fun open(number: String) =
         startActivity(Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, number))
 
@@ -190,6 +208,7 @@ class MainActivity : Activity() {
 
     private companion object {
         const val WRITE = 1
+        const val CONFIGURE = 2
         val NEEDED = listOf(Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS, Manifest.permission.READ_CONTACTS)
     }
 }

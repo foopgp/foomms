@@ -48,7 +48,10 @@ then one of them in bubbles, a field at the bottom.
   as it is. With a certificate tied to the number, signed and encrypted is how
   it starts.
 - **Reading.** A received PGP message says what it is until it is pressed:
-  foodjis opens it, with the security key if it is encrypted. Its words are
+  foodjis opens it, with the security key if it is encrypted — and with it,
+  for that one presentation of the key, the messages around it: five before
+  and five after unless you set another number. ⚷, at the top, does the same
+  from the last message still closed. Its words are
   held while the application runs and written nowhere; its colour is
   remembered.
 - **The address book says whose key a number means.** *Tie a certificate to
@@ -95,16 +98,21 @@ Version 0.0.1, a trial, tried on one phone against a trial build of foodjis.
   written, received, written and announced; a text too long for five SMS
   sent as an MMS, announced by the network, fetched, read and written, its
   text come back identical.
-- **Not seen yet**: a message opened from its bubble; a signed message;
-  tying a certificate since it goes through foodjis's list and vCard; an MMS
+- Seen: a signed message checked from its bubble, in blue, and its number
+  tied to the signer's certificate from the vCard foodjis makes.
+- **Not seen yet**: an encrypted message opened from its bubble, and several
+  opened by one presentation of the key — the phone it is tried on has no
+  key that speaks over NFC; choosing a certificate in foodjis's list; an MMS
   with an attachment; an MMS between two operators.
 - **Not built yet**: attachments, shown or sent; several people in one
   conversation; deleting a message; a second SIM.
 
-It needs a foodjis with three additions (branch `api-by-phone` of
+It needs a foodjis with four additions (branch `api-by-phone` of
 foodjis-android, not in a published version): a phone number taken for an
-address; its list of contacts shown to choose from; and a door that answers,
-for one fingerprint, the certificate's name, standing, face and vCard.
+address; its list of contacts shown to choose from; a door that answers, for
+one fingerprint, the certificate's name, standing, face and vCard; and one
+presentation of the key answering for every message the same application
+waits to read.
 
 ## Building
 
@@ -143,9 +151,6 @@ A JDK 17 or newer and the Android SDK (platform 36).
   also means carrying every ordinary SMS and MMS properly, which is a large
   piece of work — and it is what an application store requires of one that
   asks for these permissions.
-- **One touch of the key for several messages.** Opening asks for the
-  security key each time. Unread messages could be opened together, while
-  the key is held against the phone once.
 - **Sending one's certificate.** To somebody who has foodjis and not yet your
   certificate: the same MMS, with the certificate as its attachment.
 - **Telling who can receive.** foodjis knows which contacts carry a number;
