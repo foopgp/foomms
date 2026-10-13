@@ -63,8 +63,9 @@ then one of them in bubbles, a field at the bottom.
   unless you set another number, from none to five, in the configuration. A
   message still locked says whom it is for, by a small face for each key it
   names. One that does not open — locked for somebody else — can be forwarded
-  or saved as it is. Pressed long, a message is shown alone, its text to
-  select from and copy: the armor itself, for one still closed. The words of
+  or saved as it is. Pressed long, a message says what can be done with it:
+  copy or select its text — the armor itself, for one still closed —, open
+  what it carries, forward it, see its details, delete it. The words of
   an opened message are held in memory for the time you set — fifteen minutes
   unless said otherwise — and never written down; its colour is remembered.
 - **The address book says whose key a number means.** *Tie a certificate to
@@ -80,6 +81,11 @@ then one of them in bubbles, a field at the bottom.
   means no certificate yet offers to tie it to the signer's. With no
   certificate tied, foodjis is asked for the certificate that carries the
   number itself.
+- **A conversation pressed long** says what can be done about it: show or
+  add the contact, tie the number to a certificate, block its sender or
+  silence it — which the list then shows —, delete it. A blocked sender's
+  messages are kept, arrive as read and are not announced; the configuration
+  lists who is blocked. Deleting is for the phone's messaging application.
 - **The look of foodjis**, light or dark as the phone is or as you set it:
   its colours and glyphs, and beside a name the
   contact's picture, or the face their certificate carries.

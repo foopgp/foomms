@@ -68,8 +68,9 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   cinq, réglé dans la configuration. Un message encore chiffré dit pour qui il est, par un petit
   visage pour chaque clé qu'il désigne. Celui qui ne s'ouvre pas — chiffré
   pour quelqu'un d'autre — peut être transféré ou enregistré tel quel. Par un
-  appui long, un message s'affiche seul, son texte à sélectionner et copier :
-  l'armure elle-même, pour un message encore fermé. Le texte d'un message
+  appui long, un message dit ce qu'on peut en faire : copier ou sélectionner
+  son texte — l'armure elle-même, pour un message encore fermé —, ouvrir ce
+  qu'il porte, le transférer, voir ses détails, le supprimer. Le texte d'un message
   ouvert est gardé en mémoire vive le temps que vous réglez — quinze minutes
   sauf autre choix — et n'est jamais écrit ; sa couleur est retenue.
 - **Le carnet d'adresses dit quelle clé désigne un numéro.** *Relier un
@@ -85,6 +86,12 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   telle. Ouvrir un message signé venu d'un numéro qui ne désigne encore aucun
   certificat propose de le relier à celui du signataire. Sans certificat
   relié, on demande à foodjis le certificat qui porte lui-même le numéro.
+- **Une conversation, par un appui long**, dit ce qu'on peut en faire :
+  afficher ou ajouter le contact, relier le numéro à un certificat, bloquer
+  son expéditeur ou le rendre silencieux — ce que la liste montre ensuite —,
+  la supprimer. Les messages d'un expéditeur bloqué sont conservés, arrivent
+  comme lus et ne sont pas annoncés ; la configuration liste qui est bloqué.
+  Supprimer est réservé à l'application de messagerie du téléphone.
 - **L'allure de foodjis**, claire ou sombre comme le téléphone ou comme vous
   le réglez : ses couleurs et ses glyphes, et à côté d'un nom
   la photo du contact, ou le visage que porte son certificat.

@@ -72,6 +72,26 @@ object Look {
         }
     }
 
+    /**
+     * What a certificate is worth, as foodjis words and paints it: the word
+     * on its colour -- green certified, yellow not certified, orange expired,
+     * red revoked or broken.
+     */
+    fun standing(context: Context, validity: String): CharSequence {
+        val (word, ground, ink) = when (validity) {
+            "certified" -> Triple(R.string.standing_certified, Color.rgb(0x00, 0xD3, 0x90), Color.rgb(0x00, 0x4C, 0x39))
+            "uncertified" -> Triple(R.string.standing_uncertified, Color.rgb(0xFA, 0xCC, 0x15), Color.BLACK)
+            "expired" -> Triple(R.string.standing_expired, Color.rgb(0xF9, 0x73, 0x16), Color.WHITE)
+            "revoked" -> Triple(R.string.standing_revoked, Color.rgb(0xFF, 0x62, 0x7D), Color.rgb(0x4D, 0x02, 0x18))
+            else -> Triple(R.string.standing_broken, Color.rgb(0xDB, 0x3A, 0x60), Color.WHITE)
+        }
+        // A space each side, inside the colour: a word flush against the edge of its ground reads as a stain.
+        return android.text.SpannableString(" ${context.getString(word)} ").apply {
+            setSpan(android.text.style.BackgroundColorSpan(ground), 0, length, 0)
+            setSpan(android.text.style.ForegroundColorSpan(ink), 0, length, 0)
+        }
+    }
+
     fun dp(context: Context, value: Int): Int =
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value.toFloat(), context.resources.displayMetrics).toInt()
 

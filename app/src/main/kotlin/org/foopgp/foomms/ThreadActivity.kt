@@ -85,7 +85,7 @@ class ThreadActivity : AskingActivity() {
             isStackFromBottom = true
             adapter = bubbles
             setOnItemClickListener { _, _, at, _ -> pressed(at) }
-            setOnItemLongClickListener { _, _, at, _ -> select(at) ; true }
+            setOnItemLongClickListener { _, _, at, _ -> about(at) ; true }
         }
         field = EditText(this).apply {
             setHint(R.string.words_hint)
@@ -176,13 +176,19 @@ class ThreadActivity : AskingActivity() {
                 // A conversation is with a number: the name it has in the address book, and under it the number
                 // and what its certificate is worth. With no name, the number is the title.
                 title = who?.name ?: number
-                val standing = when {
+                val standing: CharSequence = when {
                     who?.fingerprint == null -> getString(R.string.no_certificate)
                     foodjis.shut -> getString(R.string.foodjis_shut)
                     whose == null -> getString(R.string.certificate_not_held)
-                    else -> "🔑 " + standing(whose.validity)
+                    else -> android.text.SpannableStringBuilder("🔑 ").append(Look.standing(this, whose.validity))
                 }
-                actionBar?.subtitle = if (who?.name != null && who.name != number) "$number — $standing" else standing
+                actionBar?.subtitle =
+                    if (who?.name != null && who.name != number) android.text.SpannableStringBuilder("$number — ").append(standing) else standing
+                // Asked from the list of conversations: whose certificate this number means.
+                if (intent.getBooleanExtra(EXTRA_TIE, false)) {
+                    intent.removeExtra(EXTRA_TIE)
+                    tie()
+                }
                 // Nothing can be written to a sender that is not a number.
                 val reachable = Phone.plain(number) != null
                 field.isEnabled = reachable
@@ -453,39 +459,137 @@ class ThreadActivity : AskingActivity() {
             .onFailure { say(getString(R.string.failed, it.message)) }
     }
 
-    /**
-     * Pressed long, a message is shown alone, its text to select from -- a
-     * word, a line, all of it -- and to copy. A message still closed shows
-     * what travelled: its armor, to be opened elsewhere.
-     *
-     * In a window of its own: a list redraws its lines as it scrolls, and a
-     * selection does not survive that.
-     */
-    private fun select(at: Int) {
-        val line = lines.getOrNull(at) ?: return
+    /** The words of a message as they can be read now: opened, or as they travelled. */
+    private fun textOf(line: Store.Line): String {
         val armor = Pgp.armorIn(line.body)
-        val text = armor?.let { Opened.words(it)?.words } ?: armor ?: line.body
+        return armor?.let { Opened.words(it)?.words } ?: line.body
+    }
+
+    /** Pressed long, a message says what can be done with it. */
+    private fun about(at: Int) {
+        val line = lines.getOrNull(at) ?: return
+        val text = textOf(line)
+        val choices = ArrayList<Pair<Int, () -> Unit>>()
+        if (text.isNotEmpty()) {
+            choices += R.string.copy_text to {
+                getSystemService(android.content.ClipboardManager::class.java)
+                    ?.setPrimaryClip(android.content.ClipData.newPlainText(getString(R.string.message), text))
+                Toast.makeText(this, R.string.copied, Toast.LENGTH_SHORT).show()
+            }
+            choices += R.string.select_text to { select(text, armored = Pgp.armorIn(line.body) != null && Opened.words(Pgp.armorIn(line.body)!!) == null) }
+        }
+        if (line.pieces.isNotEmpty()) choices += R.string.open_file to { pick(line) { handOver(it, Intent.ACTION_VIEW) } }
+        choices += R.string.forward to {
+            if (text.isNotEmpty() || line.pieces.isEmpty()) {
+                startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text), null))
+            } else {
+                pick(line) { handOver(it, Intent.ACTION_SEND) }
+            }
+        }
+        choices += R.string.details to { details(line) }
+        choices += R.string.forget_message to {
+            AlertDialog.Builder(this)
+                .setMessage(R.string.forget_message_ask)
+                .setPositiveButton(R.string.forget_yes) { _, _ ->
+                    thread {
+                        val gone = Keep.forget(this, line)
+                        runOnUiThread {
+                            if (isFinishing || isDestroyed) return@runOnUiThread
+                            if (gone) load() else say(getString(if (Keep.ours(this)) R.string.forget_failed else R.string.forget_not_ours))
+                        }
+                    }
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
+        AlertDialog.Builder(this)
+            .setItems(choices.map { getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }
+            .show()
+    }
+
+    /** Which of the things a message carries: the only one, or the one the person names. */
+    private fun pick(line: Store.Line, then: (Store.Piece) -> Unit) {
+        if (line.pieces.size == 1) return then(line.pieces[0])
+        AlertDialog.Builder(this)
+            .setItems(line.pieces.map { it.name ?: it.type }.toTypedArray()) { _, which -> then(line.pieces[which]) }
+            .show()
+    }
+
+    /**
+     * Hand what a message carries to another application, to open or to
+     * send on: under the type its bytes say, which is not always the one it
+     * was labelled with.
+     */
+    private fun handOver(piece: Store.Piece, how: String) {
+        thread {
+            val handed = runCatching {
+                val bytes = contentResolver.openInputStream(piece.uri)?.use { it.readBytes() } ?: error("nothing to read")
+                Outbox.toOpen(this, piece.name ?: "file", bytes, piece.type)
+            }
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                val (where, type) = handed.getOrElse { return@runOnUiThread say(getString(R.string.failed, it.message)) }
+                val asked = if (how == Intent.ACTION_VIEW) Intent(how).setDataAndType(where, type) else Intent(how).setType(type).putExtra(Intent.EXTRA_STREAM, where)
+                asked.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                asked.clipData = android.content.ClipData.newRawUri(null, where)
+                runCatching { startActivity(Intent.createChooser(asked, null)) }
+                    .onFailure { say(getString(R.string.failed, it.message)) }
+            }
+        }
+    }
+
+    /** What is known of a message beyond its words: where from, when, how heavy, what it is made of. */
+    private fun details(line: Store.Line) {
+        val armor = Pgp.armorIn(line.body)
+        val precise = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM)
+        val told = buildString {
+            append(getString(if (line.incoming) R.string.detail_from else R.string.detail_to, line.address ?: number)).append('\n')
+            append(getString(if (line.incoming) R.string.detail_received else R.string.detail_handed, precise.format(java.util.Date(line.at)))).append('\n')
+            if (line.sentAt > 0 && line.incoming) append(getString(R.string.detail_sent, precise.format(java.util.Date(line.sentAt)))).append('\n')
+            append(getString(R.string.detail_kind, if (line.mms) "MMS" else "SMS"))
+            if (!line.mms) append(' ').append(getString(R.string.detail_pieces, runCatching { Outbox.pieces(this@ThreadActivity, line.body) }.getOrDefault(1)))
+            append('\n')
+            append(getString(R.string.detail_size, line.body.toByteArray().size)).append('\n')
+            for (piece in line.pieces) append("•  ").append(piece.name ?: "?").append(" — ").append(piece.type).append('\n')
+            if (armor != null) {
+                append(getString(if (Pgp.isLocked(armor)) R.string.detail_locked else R.string.detail_signed)).append('\n')
+                for (id in Pgp.recipients(armor)) {
+                    append("•  ").append(meant[id]?.name ?: getString(R.string.detail_unknown_key)).append("  0x%016X".format(id)).append('\n')
+                }
+                Opened.words(armor)?.signed?.let { append(it).append('\n') }
+            }
+        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.details)
+            .setView(
+                android.widget.ScrollView(this).apply {
+                    val pad = Look.dp(context, 20)
+                    addView(Look.words(context, told.trimEnd(), size = 15f).apply { setTextIsSelectable(true) ; setPadding(pad, pad / 2, pad, 0) })
+                },
+            )
+            .setPositiveButton(R.string.close, null)
+            .show()
+    }
+
+    /**
+     * A message shown alone, its text to select from -- a word, a line, all
+     * of it. In a window of its own: a list redraws its lines as it scrolls,
+     * and a selection does not survive that.
+     */
+    private fun select(text: String, armored: Boolean) {
         val pad = Look.dp(this, 20)
         AlertDialog.Builder(this)
             .setView(
                 android.widget.ScrollView(this).apply {
                     addView(
-                        Look.words(context, text, size = if (text === armor) 12f else 16f).apply {
+                        Look.words(context, text, size = if (armored) 12f else 16f).apply {
                             setTextIsSelectable(true)
                             setPadding(pad, pad, pad, 0)
                         },
                     )
                 },
             )
-            .setPositiveButton(R.string.copy_all) { _, _ ->
-                getSystemService(android.content.ClipboardManager::class.java)
-                    ?.setPrimaryClip(android.content.ClipData.newPlainText(getString(R.string.message), text))
-                Toast.makeText(this, R.string.copied, Toast.LENGTH_SHORT).show()
-            }
-            .setNeutralButton(R.string.forward) { _, _ ->
-                startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text), null))
-            }
-            .setNegativeButton(R.string.close, null)
+            .setPositiveButton(R.string.close, null)
             .show()
     }
 
@@ -688,7 +792,10 @@ class ThreadActivity : AskingActivity() {
                     "\n•  🔑 " + (card.key ?: Fingerprint.address(whose.fingerprint))
                 AlertDialog.Builder(this)
                     .setTitle(getString(R.string.tie_ask, number, whose.name))
-                    .setMessage(getString(R.string.tie_ask_about, standing(whose.validity)) + "\n\n" + told)
+                    .setMessage(
+                        android.text.SpannableStringBuilder(getString(R.string.tie_ask_before)).append(" ")
+                            .append(Look.standing(this, whose.validity)).append(getString(R.string.tie_ask_after)).append("\n\n").append(told),
+                    )
                     .setPositiveButton(R.string.tie_write) { _, _ -> write(whose, card) }
                     .setNegativeButton(android.R.string.cancel, null)
                     .show()
@@ -722,17 +829,6 @@ class ThreadActivity : AskingActivity() {
         if (request == 2 && results.isNotEmpty() && results.all { it == PackageManager.PERMISSION_GRANTED }) then?.invoke()
     }
 
-    /** A certificate's standing, as foodjis words it, in the person's language. */
-    private fun standing(validity: String): String = getString(
-        when (validity) {
-            "certified" -> R.string.standing_certified
-            "uncertified" -> R.string.standing_uncertified
-            "expired" -> R.string.standing_expired
-            "revoked" -> R.string.standing_revoked
-            else -> R.string.standing_broken
-        },
-    )
-
     private fun say(words: String) {
         AlertDialog.Builder(this).setMessage(words).setPositiveButton(R.string.close, null).show()
     }
@@ -742,6 +838,9 @@ class ThreadActivity : AskingActivity() {
 
         /** The conversation, when the page is opened from the list of them. */
         const val EXTRA_THREAD = "thread"
+
+        /** Opened to say whose certificate the number means. */
+        const val EXTRA_TIE = "tie"
 
         /** The date of the message to show first. */
         const val EXTRA_AT = "at"

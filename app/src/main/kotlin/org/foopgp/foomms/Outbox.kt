@@ -81,6 +81,26 @@ object Outbox {
 
     private fun journal(context: Context) = context.getSharedPreferences("sent", Context.MODE_PRIVATE)
 
+    private const val OPENED = "open"
+    private val types = HashMap<String, String>()
+
+    private fun opened(context: Context, name: String) = File(File(context.cacheDir, OPENED), name.filter { it.isLetterOrDigit() || it in "._-" })
+
+    /**
+     * What a message carries, laid where another application can be let in
+     * to read it, under what its bytes say it is: the address to hand over,
+     * and the type.
+     */
+    fun toOpen(context: Context, name: String, bytes: ByteArray, labelled: String?): Pair<Uri, String> {
+        val told = Kind.of(bytes.copyOf(minOf(bytes.size, 32)), labelled)
+        val safe = name.filter { it.isLetterOrDigit() || it in "._-" }.ifEmpty { "file" }
+        val called = if (safe.substringAfterLast('.', "").equals(told.extension, true)) safe else "$safe.${told.extension}"
+        File(context.cacheDir, OPENED).apply { mkdirs() ; listFiles()?.forEach { it.delete() } }
+        opened(context, called).writeBytes(bytes)
+        types[called] = told.type
+        return Uri.parse("content://${context.packageName}.pdu/$OPENED/$called") to told.type
+    }
+
     /** The file a message waits in, on its way out or on its way in. */
     fun file(context: Context, transaction: String) =
         File(File(context.cacheDir, DIR), transaction.filter { it.isLetterOrDigit() } + ".pdu")
@@ -108,6 +128,10 @@ object Outbox {
 
         override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
             val context = context ?: return null
+            // A file being opened by another application: read, by whoever Android was told to let in.
+            if (uri.pathSegments.firstOrNull() == OPENED) {
+                return ParcelFileDescriptor.open(opened(context, uri.lastPathSegment ?: return null), ParcelFileDescriptor.MODE_READ_ONLY)
+            }
             val transaction = uri.lastPathSegment ?: return null
             // Read by the service for a message that leaves, written by it for one it fetched.
             val how = if ('w' in mode) ParcelFileDescriptor.MODE_WRITE_ONLY or ParcelFileDescriptor.MODE_CREATE or ParcelFileDescriptor.MODE_TRUNCATE
@@ -115,7 +139,9 @@ object Outbox {
             return ParcelFileDescriptor.open(file(context, transaction), how)
         }
 
-        override fun getType(uri: Uri) = "application/vnd.wap.mms-message"
+        override fun getType(uri: Uri): String =
+            if (uri.pathSegments.firstOrNull() == OPENED) types[uri.lastPathSegment].orEmpty().ifEmpty { "application/octet-stream" }
+            else "application/vnd.wap.mms-message"
         override fun query(uri: Uri, p: Array<String>?, s: String?, a: Array<String>?, o: String?): Cursor? = null
         override fun insert(uri: Uri, values: ContentValues?): Uri? = null
         override fun delete(uri: Uri, s: String?, a: Array<String>?) = 0

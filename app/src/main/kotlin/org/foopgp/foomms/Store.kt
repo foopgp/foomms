@@ -17,8 +17,15 @@ object Store {
         val uri: Uri get() = Uri.withAppendedPath(PARTS, id.toString())
     }
 
-    class Line(val at: Long, val incoming: Boolean, val body: String, val pieces: List<Piece> = emptyList()) {
+    class Line(
+        val at: Long, val incoming: Boolean, val body: String, val pieces: List<Piece> = emptyList(),
+        /** Where the phone keeps it: its number there, and in which of the two stores. */
+        val id: Long = -1, val mms: Boolean = false,
+        /** When it left its sender, when the phone knows; who that was, as the network wrote it. */
+        val sentAt: Long = 0, val address: String? = null,
+    ) {
         val attachments: Int get() = pieces.size
+        val uri: Uri get() = Uri.parse(if (mms) "content://mms/$id" else "content://sms/$id")
     }
 
     /** How many messages the phone holds, and how many of them are PGP; the same among those not read yet. */
@@ -105,16 +112,25 @@ object Store {
     fun lines(context: Context, thread: Long): List<Line> {
         val lines = ArrayList<Line>()
         context.contentResolver.query(
-            SMS, arrayOf("date", "body", "type"), "thread_id = ?", arrayOf(thread.toString()), null,
+            SMS, arrayOf("date", "body", "type", "_id", "date_sent", "address"), "thread_id = ?", arrayOf(thread.toString()), null,
         )?.use { rows ->
-            while (rows.moveToNext()) lines += Line(rows.getLong(0), rows.getInt(2) == SMS_INBOX, rows.getString(1).orEmpty())
+            while (rows.moveToNext()) {
+                lines += Line(
+                    rows.getLong(0), rows.getInt(2) == SMS_INBOX, rows.getString(1).orEmpty(),
+                    id = rows.getLong(3), sentAt = rows.getLong(4), address = rows.getString(5),
+                )
+            }
         }
         context.contentResolver.query(
-            MMS, arrayOf("_id", "date", "msg_box"), "thread_id = ?", arrayOf(thread.toString()), null,
+            MMS, arrayOf("_id", "date", "msg_box", "date_sent"), "thread_id = ?", arrayOf(thread.toString()), null,
         )?.use { rows ->
             while (rows.moveToNext()) {
                 val (words, pieces) = parts(context, rows.getLong(0))
-                lines += Line(rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, words, pieces)
+                val incoming = rows.getInt(2) == MMS_INBOX
+                lines += Line(
+                    rows.getLong(1) * 1000, incoming, words, pieces,
+                    id = rows.getLong(0), mms = true, sentAt = rows.getLong(3) * 1000, address = number(context, rows.getLong(0), incoming),
+                )
             }
         }
         return lines.sortedBy { it.at }

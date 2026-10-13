@@ -20,7 +20,18 @@ object Menus {
     private const val SEARCH = 0x7004
 
     fun build(activity: Activity, menu: Menu) {
-        if (activity !is MainActivity) menu.add(0, TALKS, 10, R.string.talks)
+        if (activity !is MainActivity) {
+            // The application's mark in front of the way back to its first page, in the menu's own ink.
+            val words = android.text.SpannableString("\u00A0 " + activity.getString(R.string.talks))
+            activity.getDrawable(R.drawable.mark)?.mutate()?.let { mark ->
+                val side = Look.dp(activity, 22)
+                mark.setBounds(0, 0, side, side)
+                mark.setTint(Look.INK)
+                val how = if (android.os.Build.VERSION.SDK_INT >= 29) android.text.style.ImageSpan.ALIGN_CENTER else android.text.style.ImageSpan.ALIGN_BOTTOM
+                words.setSpan(android.text.style.ImageSpan(mark, how), 0, 1, 0)
+            }
+            menu.add(0, TALKS, 10, words)
+        }
         // In a conversation, what is looked through is that conversation.
         if (activity !is SearchActivity) menu.add(0, SEARCH, 9, if (activity is ThreadActivity) R.string.search_here else R.string.search_all)
         menu.add(0, WRITE, 11, R.string.write)

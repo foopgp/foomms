@@ -25,8 +25,9 @@ object Keep {
                 put(Telephony.Sms.BODY, body)
                 put(Telephony.Sms.DATE, System.currentTimeMillis())
                 put(Telephony.Sms.DATE_SENT, sentAt)
-                put(Telephony.Sms.READ, 0)
-                put(Telephony.Sms.SEEN, 0)
+                // From a blocked sender, a message arrives as if read: it is kept, and asks for nobody's eye.
+                put(Telephony.Sms.READ, if (Marks.blocked(context, from)) 1 else 0)
+                put(Telephony.Sms.SEEN, if (Marks.blocked(context, from)) 1 else 0)
                 if (subscription >= 0) put(Telephony.Sms.SUBSCRIPTION_ID, subscription)
             },
         )
@@ -112,6 +113,18 @@ object Keep {
         }
         return written
     }
+
+    /**
+     * Take a message, or a whole conversation, out of the phone's store: for
+     * good, and only the phone's messaging application can. Says whether
+     * anything went.
+     */
+    fun forget(context: Context, line: Store.Line): Boolean =
+        ours(context) && runCatching { context.contentResolver.delete(line.uri, null, null) > 0 }.getOrDefault(false)
+
+    fun forgetAll(context: Context, thread: Long): Boolean = ours(context) && runCatching {
+        context.contentResolver.delete(Uri.parse("content://mms-sms/conversations/$thread"), null, null) > 0
+    }.getOrDefault(false)
 
     /** Opening a conversation reads it. */
     fun read(context: Context, thread: Long) {

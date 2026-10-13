@@ -2,6 +2,7 @@ package org.foopgp.foomms
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -64,14 +65,8 @@ class MainActivity : Activity() {
         list = ListView(this).apply {
             divider = null
             adapter = talks
-            setOnItemClickListener { _, _, at, _ ->
-                val talk = rows[at].talk
-                startActivity(
-                    Intent(context, ThreadActivity::class.java)
-                        .putExtra(ThreadActivity.EXTRA_NUMBER, talk.number ?: getString(R.string.unknown_number))
-                        .putExtra(ThreadActivity.EXTRA_THREAD, talk.thread),
-                )
-            }
+            setOnItemLongClickListener { _, _, at, _ -> about(rows[at]) ; true }
+            setOnItemClickListener { _, _, at, _ -> open(rows[at].talk) }
         }
         column.addView(asking)
         column.addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
@@ -173,6 +168,70 @@ class MainActivity : Activity() {
     /** Which filling is the latest asked for: an older one that finishes late shows nothing. */
     private var turns = 0
 
+    /** A conversation's name, and after it what the person said of its sender: blocked, not announced. */
+    private fun marked(row: Row): String = buildString {
+        append(row.name)
+        if (Marks.blocked(this@MainActivity, row.talk.number)) append("  ⊘")
+        if (Marks.muted(this@MainActivity, row.talk.number)) append("  🔕")
+    }
+
+    /** Pressed long, a conversation says what can be done about it and about who it is with. */
+    private fun about(row: Row) {
+        val sender = row.talk.number ?: return
+        val number = Phone.plain(sender)
+        val blocked = Marks.blocked(this, sender)
+        val muted = Marks.muted(this, sender)
+        val choices = ArrayList<Pair<Int, () -> Unit>>()
+        if (row.person != null) {
+            choices += R.string.contact_show to {
+                startActivity(
+                    Intent(Intent.ACTION_VIEW, android.content.ContentUris.withAppendedId(android.provider.ContactsContract.Contacts.CONTENT_URI, row.person.contact)),
+                )
+            }
+        } else if (number != null) {
+            choices += R.string.contact_add to {
+                startActivity(
+                    Intent(Intent.ACTION_INSERT, android.provider.ContactsContract.Contacts.CONTENT_URI)
+                        .putExtra(android.provider.ContactsContract.Intents.Insert.PHONE, sender),
+                )
+            }
+        }
+        // Tying is done from the conversation, which is where foodjis shows its list over.
+        if (number != null) choices += R.string.tie to { open(row.talk, tie = true) }
+        choices += (if (blocked) R.string.unblock else R.string.block) to { Marks.block(this, sender, !blocked) ; talks.notifyDataSetChanged() }
+        choices += (if (muted) R.string.unmute else R.string.mute) to { Marks.mute(this, sender, !muted) ; talks.notifyDataSetChanged() }
+        choices += R.string.forget_talk to {
+            AlertDialog.Builder(this)
+                .setMessage(getString(R.string.forget_talk_ask, row.name))
+                .setPositiveButton(R.string.forget_yes) { _, _ ->
+                    thread {
+                        val gone = Keep.forgetAll(this, row.talk.thread)
+                        runOnUiThread {
+                            if (isFinishing || isDestroyed) return@runOnUiThread
+                            if (gone) fill() else say(getString(if (Keep.ours(this)) R.string.forget_failed else R.string.forget_not_ours))
+                        }
+                    }
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
+        AlertDialog.Builder(this)
+            .setTitle(row.name)
+            .setItems(choices.map { getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }
+            .show()
+    }
+
+    private fun say(words: String) {
+        AlertDialog.Builder(this).setMessage(words).setPositiveButton(R.string.close, null).show()
+    }
+
+    private fun open(talk: Store.Talk, tie: Boolean = false) = startActivity(
+        Intent(this, ThreadActivity::class.java)
+            .putExtra(ThreadActivity.EXTRA_NUMBER, talk.number ?: getString(R.string.unknown_number))
+            .putExtra(ThreadActivity.EXTRA_THREAD, talk.thread)
+            .putExtra(ThreadActivity.EXTRA_TIE, tie),
+    )
+
     private val talks = object : BaseAdapter() {
         override fun getCount() = rows.size
         override fun getItem(at: Int) = rows[at]
@@ -184,7 +243,7 @@ class MainActivity : Activity() {
             val pad = Look.dp(context, 12)
             val names = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
             names.addView(
-                Look.words(context, row.name, size = 17f).apply {
+                Look.words(context, marked(row), size = 17f).apply {
                     setTypeface(typeface, if (row.talk.unread) Typeface.BOLD else Typeface.NORMAL)
                     maxLines = 1 ; ellipsize = TextUtils.TruncateAt.END
                 },
