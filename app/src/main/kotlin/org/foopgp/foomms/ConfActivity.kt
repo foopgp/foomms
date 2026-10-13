@@ -128,6 +128,10 @@ class ConfActivity : Activity() {
             )
         }
 
+        heading(R.string.conf_myself)
+        column.addView(flip(R.string.conf_to_myself, Conf.toMyself(this)) { Conf.toMyself(this, it) })
+        note(R.string.conf_to_myself_note)
+
         heading(R.string.conf_mms)
         column.addView(flip(R.string.conf_prefer_mms, Conf.preferMms(this)) { Conf.preferMms(this, it) ; draw() })
         note(R.string.conf_prefer_mms_note)

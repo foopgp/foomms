@@ -51,6 +51,8 @@ then one of them in bubbles, a field at the bottom.
   `.pgp`, which foodjis opens as it opens any file; the words stay a text in
   armor beside it, and signing both asks for the security key once. Received in clear, a picture is shown small and a sound
   plays where it stands.
+- **Read again what you sent**: a locked message is locked for you too,
+  unless you set it not to be.
 - **How the next message leaves** is said by the button beside the field, in
   the colour it will have: ✍⚿ signed and encrypted, ⚿ encrypted, ✍ signed, ✉
   as it is. With a certificate tied to the number, signed and encrypted is how
@@ -155,10 +157,6 @@ A JDK 17 or newer and the Android SDK (platform 36).
 - **Several people at once.** An MMS goes to several numbers, and a PGP
   message is locked for several keys: a group needs no more than that, and no
   group server.
-- **Reading back what one sent.** A message is locked for its recipient only.
-  Locking it for oneself as well would let the sender reopen it — from the
-  phone's store if the phone kept it, which it does not for an application
-  that is not the messaging application.
 - **Being the messaging application.** Android lets one application receive
   MMS, keep them and announce them; the others read what it kept. Being that
   one would mean: a notification when a PGP message arrives, sent messages

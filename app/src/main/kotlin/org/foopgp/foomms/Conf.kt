@@ -34,6 +34,11 @@ object Conf {
 
     fun hold(context: Context, hold: Hold) = kept(context).edit().putString("hold", hold.name).apply()
 
+    /** A locked message is locked for its sender too, who can then read it again. */
+    fun toMyself(context: Context): Boolean = kept(context).getBoolean("to_myself", true)
+
+    fun toMyself(context: Context, on: Boolean) = kept(context).edit().putBoolean("to_myself", on).apply()
+
     /** A text that takes more than one SMS leaves as an MMS; otherwise only one that takes more than [MOST_SMS]. */
     fun preferMms(context: Context): Boolean = kept(context).getBoolean("prefer_mms", false)
 

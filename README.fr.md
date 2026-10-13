@@ -57,6 +57,8 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   reste un texte sous armure à côté, et signer les deux ne demande la clé de
   sécurité qu'une fois. Reçue en clair, une image s'affiche en
   petit et un son se joue sur place.
+- **Relire ce qu'on a envoyé** : un message chiffré l'est aussi pour vous,
+  sauf si vous réglez que non.
 - **Comment part le prochain message** se lit sur le bouton à côté du champ,
   dans la couleur qu'il aura : ✍⚿ signé et chiffré, ⚿ chiffré, ✍ signé, ✉ tel
   quel. Avec un certificat relié au numéro, on commence par signé et chiffré.
@@ -165,10 +167,6 @@ Un JDK 17 ou plus récent et le SDK Android (plateforme 36).
 - **Plusieurs personnes à la fois.** Un MMS part vers plusieurs numéros, et
   un message PGP se chiffre pour plusieurs clés : un groupe ne demande rien
   de plus, et pas de serveur de groupe.
-- **Relire ce qu'on a envoyé.** Un message n'est chiffré que pour son
-  destinataire. Le chiffrer aussi pour soi permettrait de le rouvrir — depuis
-  la mémoire du téléphone s'il l'a gardé, ce qu'il ne fait pas pour une
-  application qui n'est pas l'application de messagerie.
 - **Être l'application de messagerie.** Android laisse une seule application
   recevoir les MMS, les garder et les annoncer ; les autres lisent ce qu'elle
   a gardé. Être celle-là voudrait dire : une notification à l'arrivée d'un

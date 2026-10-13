@@ -126,6 +126,7 @@ class Provider(private val context: Context) {
         const val EXTRA_API_VERSION = "api_version"
         const val EXTRA_USER_IDS = "user_ids"
         const val EXTRA_KEY_IDS = "key_ids"
+        const val EXTRA_SIGN_KEY_ID = "sign_key_id"
 
         /** foodjis's own: one contact is wanted from its list, not several. */
         const val EXTRA_SINGLE = "org.foopgp.foodjis.extra.SINGLE"

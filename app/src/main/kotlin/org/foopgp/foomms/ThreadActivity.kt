@@ -135,6 +135,7 @@ class ThreadActivity : AskingActivity() {
         if (Look.wantsDark(this) != dressed) return recreate()
         Look.dress(this)
         shown = true
+        whoAmI()
         contentResolver.registerContentObserver(MESSAGES, true, arrivals)
         load(first = card == null && person == null)
     }
@@ -190,6 +191,17 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
+    /** The key of the identity foodjis holds, by the id the interface names it with; none until foodjis has said. */
+    private var mine: Long? = null
+
+    /** Asked once: whose identity this phone carries, to lock for it what is sent. */
+    private fun whoAmI() {
+        if (mine != null) return
+        provider.ask(Intent(Provider.GET_SIGN_KEY_ID), null) { answer ->
+            if (answer is Provider.Answer.Done) mine = answer.says.getLongExtra(Provider.EXTRA_SIGN_KEY_ID, 0L).takeIf { it != 0L }
+        }
+    }
+
     /** What the next message will be worth to who receives it. */
     private fun worth(mode: Mode): Verdict = Verdict.of(mode.locks, (mode.locks || mode.signs) && card?.certified == true)
 
@@ -239,8 +251,10 @@ class ThreadActivity : AskingActivity() {
         if (mode.locks) {
             // The certificate the address book ties to this number; with none, whoever foodjis knows by the number.
             val whose = person?.fingerprint
-            if (whose != null) request.putExtra(Provider.EXTRA_KEY_IDS, longArrayOf(Fingerprint.keyId(whose)))
-            else request.putExtra(Provider.EXTRA_USER_IDS, arrayOf("tel:$number"))
+            // And for oneself, unless the person said not: what is locked for another alone cannot be read again.
+            val keys = listOfNotNull(whose?.let { Fingerprint.keyId(it) }, mine.takeIf { Conf.toMyself(this) }).distinct()
+            if (keys.isNotEmpty()) request.putExtra(Provider.EXTRA_KEY_IDS, keys.toLongArray())
+            if (whose == null) request.putExtra(Provider.EXTRA_USER_IDS, arrayOf("tel:$number"))
         }
         return request
     }

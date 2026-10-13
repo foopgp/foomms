@@ -95,4 +95,7 @@
     <string name="carrying">📎 %1$s — %2$d ko   ✕</string>
     <string name="too_heavy">Trop lourd pour un MMS sur ce réseau (%1$d ko au plus), ou illisible.</string>
     <string name="handed_mms">MMS confié au téléphone : %1$s</string>
+    <string name="conf_myself">Messages chiffrés</string>
+    <string name="conf_to_myself">Chiffrer également à moi-même</string>
+    <string name="conf_to_myself_note">Lors de l\'envoi de messages chiffrés, m\'inclure dans les destinataires, afin de me permettre de les relire.</string>
 </resources>
