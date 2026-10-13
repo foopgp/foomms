@@ -54,7 +54,8 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   image étant réduite avant le départ pour tenir dans ce que prend le réseau.
   Chiffré ou signé, le fichier devient un message PGP à lui, sous son nom
   suivi de `.pgp`, que foodjis ouvre comme n'importe quel fichier ; le texte
-  reste un texte sous armure à côté. Reçue en clair, une image s'affiche en
+  reste un texte sous armure à côté, et signer les deux ne demande la clé de
+  sécurité qu'une fois. Reçue en clair, une image s'affiche en
   petit et un son se joue sur place.
 - **Comment part le prochain message** se lit sur le bouton à côté du champ,
   dans la couleur qu'il aura : ✍⚿ signé et chiffré, ⚿ chiffré, ✍ signé, ✉ tel
@@ -133,8 +134,9 @@ Il faut un foodjis avec quatre ajouts (branche `api-by-phone` de
 foodjis-android, dans aucune version publiée) : un numéro de téléphone pris
 pour une adresse ; sa liste de contacts montrée pour y choisir ; une porte qui
 répond, pour une empreinte, le nom du certificat, son statut, son visage et
-sa vCard ; et un seul passage de la clé qui répond pour tous les messages
-que la même application attend de lire.
+sa vCard ; et un seul passage de la clé qui répond pour tout ce que la même
+application attend — des messages à lire, ou un texte et sa pièce jointe à
+signer.
 
 ## Construire
 

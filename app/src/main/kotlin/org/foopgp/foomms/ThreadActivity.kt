@@ -250,6 +250,7 @@ class ThreadActivity : AskingActivity() {
      * signed, what it carries becomes a PGP message of its own -- the file
      * itself, which foodjis opens as it opens any -- under its name and
      * `.pgp`; the words, if there are any, stay a text in armor beside it.
+     * Signing both asks for the security key once.
      */
     private fun sendWith(with: Media.Attachment, written: String, mode: Mode) {
         fun post(words: String?, piece: Pdu.Part, verdict: Verdict?) = confirmMms {
@@ -264,13 +265,19 @@ class ThreadActivity : AskingActivity() {
             list.postDelayed({ if (shown) load() }, 1500)
         }
         if (mode == Mode.PLAIN) return post(written.takeIf { it.isNotBlank() }, Pdu.Part(with.type, with.name, with.bytes), null)
-        ask(request(mode, armored = false), with.bytes, ::say) { sealed ->
-            val piece = Pdu.Part(Pgp.TYPE, with.name + ".pgp", sealed.bytes)
-            if (written.isBlank()) return@ask post(null, piece, worth(mode))
+        fun piece(sealed: Provider.Answer.Done) = Pdu.Part(Pgp.TYPE, with.name + ".pgp", sealed.bytes)
+        if (written.isBlank()) return ask(request(mode, armored = false), with.bytes, ::say) { post(null, piece(it), worth(mode)) }
+        // Two things for foodjis to do, and one presentation of the key for
+        // both: it is told of the file first, so that it knows what waits;
+        // then asked for the words, which is when it asks for the key; and
+        // what the key did for the file is then there to collect.
+        provider.ask(request(mode, armored = false), with.bytes) { first ->
+            if (isFinishing || isDestroyed) return@ask
             ask(request(mode, armored = true), written.toByteArray(), ::say) { answer ->
                 val armor = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
                     ?: return@ask say(getString(R.string.failed, "what came back is not a PGP message"))
-                post(armor, piece, worth(mode))
+                if (first is Provider.Answer.Done) return@ask post(armor, piece(first), worth(mode))
+                ask(request(mode, armored = false), with.bytes, ::say) { post(armor, piece(it), worth(mode)) }
             }
         }
     }

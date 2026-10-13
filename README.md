@@ -49,7 +49,7 @@ then one of them in bubbles, a field at the bottom.
   picture made small enough for the network before it leaves. Locked or
   signed, the file becomes a PGP message of its own, under its name and
   `.pgp`, which foodjis opens as it opens any file; the words stay a text in
-  armor beside it. Received in clear, a picture is shown small and a sound
+  armor beside it, and signing both asks for the security key once. Received in clear, a picture is shown small and a sound
   plays where it stands.
 - **How the next message leaves** is said by the button beside the field, in
   the colour it will have: ✍⚿ signed and encrypted, ⚿ encrypted, ✍ signed, ✉
@@ -126,8 +126,8 @@ It needs a foodjis with four additions (branch `api-by-phone` of
 foodjis-android, not in a published version): a phone number taken for an
 address; its list of contacts shown to choose from; a door that answers, for
 one fingerprint, the certificate's name, standing, face and vCard; and one
-presentation of the key answering for every message the same application
-waits to read.
+presentation of the key answering for everything the same application waits
+for — messages to read, or a text and what it carries to sign.
 
 ## Building
 
