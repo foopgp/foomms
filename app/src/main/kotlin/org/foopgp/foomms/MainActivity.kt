@@ -32,6 +32,8 @@ class MainActivity : Activity() {
     private var rows: List<Row> = emptyList()
 
     override fun onCreate(state: Bundle?) {
+        Look.dress(this)
+        dressed = Look.dark
         super.onCreate(state)
         title = getString(R.string.app_title)
         val column = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
@@ -46,8 +48,13 @@ class MainActivity : Activity() {
         setContentView(column)
     }
 
+    private var dressed = false
+
     override fun onResume() {
         super.onResume()
+        // The theme was changed while this page was behind another: it is built again in the new one.
+        if (Look.wantsDark(this) != dressed) return recreate()
+        Look.dress(this)
         synchronized(people) { people.clear() }
         asking.removeAllViews()
         val missing = NEEDED.filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }

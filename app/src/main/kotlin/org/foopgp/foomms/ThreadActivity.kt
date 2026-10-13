@@ -54,14 +54,14 @@ class ThreadActivity : AskingActivity() {
     private var meant: Map<Long, For?> = emptyMap()
 
     /** The message whose text can be selected, and so copied: the one pressed long, or none. */
-    private var selecting = -1
-    private var starting = false
 
     private lateinit var list: ListView
     private lateinit var field: EditText
     private lateinit var how: android.widget.Button
 
     override fun onCreate(state: Bundle?) {
+        Look.dress(this)
+        dressed = Look.dark
         super.onCreate(state)
         if (Phone.plain(number) == null) return finish()
         title = number
@@ -70,7 +70,7 @@ class ThreadActivity : AskingActivity() {
             transcriptMode = ListView.TRANSCRIPT_MODE_NORMAL
             isStackFromBottom = true
             adapter = bubbles
-            setOnItemClickListener { _, _, at, _ -> if (selecting >= 0) select(-1) else pressed(at) }
+            setOnItemClickListener { _, _, at, _ -> pressed(at) }
             setOnItemLongClickListener { _, _, at, _ -> select(at) ; true }
         }
         field = EditText(this).apply {
@@ -105,8 +105,12 @@ class ThreadActivity : AskingActivity() {
         override fun onChange(self: Boolean) { if (shown) load() }
     }
 
+    private var dressed = false
+
     override fun onResume() {
         super.onResume()
+        if (Look.wantsDark(this) != dressed) return recreate()
+        Look.dress(this)
         shown = true
         contentResolver.registerContentObserver(MESSAGES, true, arrivals)
         load(first = card == null && person == null)
@@ -114,6 +118,8 @@ class ThreadActivity : AskingActivity() {
 
     override fun onPause() {
         shown = false
+        // Set never to be remembered, what was opened here is gone with the page.
+        if (Opened.holdFor == 0L) Opened.forget()
         contentResolver.unregisterContentObserver(arrivals)
         super.onPause()
     }
@@ -229,10 +235,9 @@ class ThreadActivity : AskingActivity() {
     private fun pressed(at: Int) {
         val chosen = lines.getOrNull(at)?.let { Pgp.armorIn(it.body) } ?: return
         if (Opened.words(chosen) != null) return
-        val others = Around.others(lines.size, at, Around.reach(this))
-            .mapNotNull { Pgp.armorIn(lines[it].body) }
-            .filter { it != chosen && Opened.words(it) == null }
-            .distinct()
+        val others = Around.others(lines.size, at, Conf.around(this)) { other ->
+            Pgp.armorIn(lines[other].body)?.let { it != chosen && Opened.words(it) == null } == true
+        }.mapNotNull { Pgp.armorIn(lines[it].body) }.distinct()
         var left = others.size
         fun theChosen() {
             ask(Intent(Provider.DECRYPT_VERIFY), chosen.toByteArray(), { closed(chosen, it) }) { answer ->
@@ -294,11 +299,40 @@ class ThreadActivity : AskingActivity() {
             .onFailure { say(getString(R.string.failed, it.message)) }
     }
 
-    /** Pressed long, a message lets its text be selected; pressed anywhere, the page is as it was. */
+    /**
+     * Pressed long, a message is shown alone, its text to select from -- a
+     * word, a line, all of it -- and to copy. A message still closed shows
+     * what travelled: its armor, to be opened elsewhere.
+     *
+     * In a window of its own: a list redraws its lines as it scrolls, and a
+     * selection does not survive that.
+     */
     private fun select(at: Int) {
-        selecting = at
-        starting = at >= 0
-        bubbles.notifyDataSetChanged()
+        val line = lines.getOrNull(at) ?: return
+        val armor = Pgp.armorIn(line.body)
+        val text = armor?.let { Opened.words(it)?.words } ?: armor ?: line.body
+        val pad = Look.dp(this, 20)
+        AlertDialog.Builder(this)
+            .setView(
+                android.widget.ScrollView(this).apply {
+                    addView(
+                        Look.words(context, text, size = if (text === armor) 12f else 16f).apply {
+                            setTextIsSelectable(true)
+                            setPadding(pad, pad, pad, 0)
+                        },
+                    )
+                },
+            )
+            .setPositiveButton(R.string.copy_all) { _, _ ->
+                getSystemService(android.content.ClipboardManager::class.java)
+                    ?.setPrimaryClip(android.content.ClipData.newPlainText(getString(R.string.message), text))
+                Toast.makeText(this, R.string.copied, Toast.LENGTH_SHORT).show()
+            }
+            .setNeutralButton(R.string.forward) { _, _ ->
+                startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text), null))
+            }
+            .setNegativeButton(R.string.close, null)
+            .show()
     }
 
     private fun opened(armor: String, answer: Provider.Answer.Done, offer: Boolean) {
@@ -346,10 +380,7 @@ class ThreadActivity : AskingActivity() {
             }
             val closed = armor != null && read == null
             val locked = closed && Pgp.isLocked(armor!!)
-            val chosen = at == selecting
             val words = when {
-                // What is selected is what travelled: a closed message is copied as its armor, to be opened elsewhere.
-                chosen && closed -> armor!!
                 armor == null -> line.body
                 read != null -> read.words
                 locked -> getString(R.string.locked_for)
@@ -362,21 +393,12 @@ class ThreadActivity : AskingActivity() {
                 if (line.attachments > 0) append("  ").append("📎".repeat(minOf(line.attachments, 3)))
             }
             val pad = Look.dp(context, 10)
-            val text = Look.words(context, words, size = if (chosen && closed) 11f else 16f, muted = closed && !chosen)
-            if (chosen) {
-                text.setTextIsSelectable(true)
-                // All of it selected to begin with, the handles there to take less: asked once,
-                // or each redrawing would select again.
-                if (starting) {
-                    starting = false
-                    text.post { text.requestFocus() ; text.onTextContextMenuItem(android.R.id.selectAll) }
-                }
-            }
+            val text = Look.words(context, words, size = 16f, muted = closed)
             val bubble = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 background = Look.rounded(Look.pale(verdict), Look.dp(context, 14))
                 setPadding(pad, pad * 3 / 4, pad, pad * 3 / 4)
-                if (locked && !chosen) {
+                if (locked) {
                     // "Encrypted message for" and whom: a small face for each key the message names.
                     addView(
                         LinearLayout(context).apply {
@@ -414,7 +436,8 @@ class ThreadActivity : AskingActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menu.add(0, TIE, 0, R.string.tie)
-        menu.add(0, LET_IN, 1, R.string.let_in)
+        // Only while foodjis keeps its door shut: once let in, there is nothing to ask.
+        if (foodjis.shut) menu.add(0, LET_IN, 1, R.string.let_in)
         Menus.build(this, menu)
         return true
     }

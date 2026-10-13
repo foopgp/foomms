@@ -49,14 +49,14 @@ then one of them in bubbles, a field at the bottom.
   it starts.
 - **Reading.** A received PGP message says what it is until it is pressed:
   foodjis opens it, with the security key if it is encrypted — and with it,
-  for that one presentation of the key, the messages around it: five before
-  and three after unless you set another number, from one to ten, in the
-  configuration. A message still locked says whom it is for, by a small face
-  for each key it names. One that does not open — locked for somebody else —
-  can be forwarded or saved as it is. Pressed long, a message lets its text
-  be selected and copied: the armor itself, for one still closed. Its words are
-  held while the application runs and written nowhere; its colour is
-  remembered.
+  for that one use of the key, the closed messages nearest to it: two of them
+  unless you set another number, from none to five, in the configuration. A
+  message still locked says whom it is for, by a small face for each key it
+  names. One that does not open — locked for somebody else — can be forwarded
+  or saved as it is. Pressed long, a message is shown alone, its text to
+  select from and copy: the armor itself, for one still closed. The words of
+  an opened message are held in memory for the time you set — fifteen minutes
+  unless said otherwise — and never written down; its colour is remembered.
 - **The address book says whose key a number means.** *Tie a certificate to
   this number* shows foodjis's own list of contacts, over the conversation:
   a line to filter by, then each contact as a face and a name on the colour
@@ -70,7 +70,8 @@ then one of them in bubbles, a field at the bottom.
   means no certificate yet offers to tie it to the signer's. With no
   certificate tied, foodjis is asked for the certificate that carries the
   number itself.
-- **The look of foodjis**: its colours and glyphs, and beside a name the
+- **The look of foodjis**, light or dark as the phone is or as you set it:
+  its colours and glyphs, and beside a name the
   contact's picture, or the face their certificate carries.
 
 **The phone's messaging application**, when you make it so: it receives SMS

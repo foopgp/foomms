@@ -20,25 +20,56 @@ import android.widget.TextView
 /** The few views these pages are made of, built by hand, in the colours of foodjis. */
 object Look {
 
-    val INK = Color.rgb(0x18, 0x18, 0x1B)
-    val MUTED = Color.argb(0x99, 0x18, 0x18, 0x1B)
+    /** Whether the pages are dark, as the person set it or as the phone is. */
+    var dark = false
+        private set
+
+    /** What the person wants now: asked before a page is built, and again when it comes back. */
+    fun wantsDark(context: Context): Boolean = when (Conf.theme(context)) {
+        Conf.Theme.DARK -> true
+        Conf.Theme.LIGHT -> false
+        Conf.Theme.SYSTEM ->
+            context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK ==
+                android.content.res.Configuration.UI_MODE_NIGHT_YES
+    }
+
+    /** Called by each page before it is built: its theme, and what the settings mean for the rest. */
+    fun dress(activity: Activity) {
+        dark = wantsDark(activity)
+        activity.setTheme(if (dark) R.style.Pages_Dark else R.style.Pages)
+        Opened.holdFor = Conf.hold(activity).minutes * 60_000L
+    }
+
+    val INK: Int get() = if (dark) Color.rgb(0xF4, 0xF4, 0xF5) else Color.rgb(0x18, 0x18, 0x1B)
+    val MUTED: Int get() = if (dark) Color.argb(0x99, 0xF4, 0xF4, 0xF5) else Color.argb(0x99, 0x18, 0x18, 0x1B)
     val INDIGO = Color.rgb(0x31, 0x26, 0x4B)
     val ORANGE = Color.rgb(0xFF, 0x80, 0x12)
-    val FACE = Color.rgb(0xD6, 0xCF, 0xEC)
+    val FACE: Int get() = if (dark) Color.rgb(0x46, 0x3A, 0x63) else Color.rgb(0xD6, 0xCF, 0xEC)
+    private val HOLLOW: Int get() = if (dark) Color.rgb(0x2E, 0x2E, 0x33) else Color.rgb(0xEE, 0xEE, 0xEE)
 
     /** A verdict's colour, as foodjis paints its own: full for a mark, pale under a text. */
     fun colour(verdict: Verdict): Int = when (verdict) {
         Verdict.RED -> Color.rgb(0xFF, 0x62, 0x7D)
         Verdict.YELLOW -> Color.rgb(0xFA, 0xCC, 0x15)
-        Verdict.BLUE -> Color.rgb(0x00, 0x68, 0xB2)
+        Verdict.BLUE -> if (dark) Color.rgb(0x71, 0xBF, 0xFF) else Color.rgb(0x00, 0x68, 0xB2)
         Verdict.GREEN -> Color.rgb(0x00, 0xD3, 0x90)
     }
 
-    fun pale(verdict: Verdict): Int = when (verdict) {
-        Verdict.RED -> Color.rgb(0xFF, 0xE3, 0xE8)
-        Verdict.YELLOW -> Color.rgb(0xFE, 0xF4, 0xC4)
-        Verdict.BLUE -> Color.rgb(0xD6, 0xEC, 0xFF)
-        Verdict.GREEN -> Color.rgb(0xCD, 0xF6, 0xE8)
+    /** The same colour under a text: pale on a light page, deep on a dark one, the text legible on both. */
+    fun pale(verdict: Verdict): Int = if (dark) {
+        when (verdict) {
+            Verdict.RED -> Color.rgb(0x5A, 0x1F, 0x2B)
+            Verdict.YELLOW -> Color.rgb(0x57, 0x47, 0x08)
+            Verdict.BLUE -> Color.rgb(0x0B, 0x3A, 0x5E)
+            Verdict.GREEN -> Color.rgb(0x0A, 0x4A, 0x38)
+        }
+    } else {
+        when (verdict) {
+            Verdict.RED -> Color.rgb(0xFF, 0xE3, 0xE8)
+            Verdict.YELLOW -> Color.rgb(0xFE, 0xF4, 0xC4)
+            Verdict.BLUE -> Color.rgb(0xD6, 0xEC, 0xFF)
+            Verdict.GREEN -> Color.rgb(0xCD, 0xF6, 0xE8)
+        }
     }
 
     fun dp(context: Context, value: Int): Int =
@@ -88,7 +119,7 @@ object Look {
         }
         return FrameLayout(context).apply {
             layoutParams = LinearLayout.LayoutParams(px, px)
-            background = rounded(Color.rgb(0xEE, 0xEE, 0xEE), px / 5)
+            background = rounded(HOLLOW, px / 5)
             outlineProvider = object : ViewOutlineProvider() {
                 override fun getOutline(view: View, outline: Outline) = outline.setRoundRect(0, 0, view.width, view.height, px / 5f)
             }

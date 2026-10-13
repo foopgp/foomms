@@ -52,15 +52,14 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   quel. Avec un certificat relié au numéro, on commence par signé et chiffré.
 - **Lire.** Un message PGP reçu dit ce qu'il est jusqu'à ce qu'on appuie
   dessus : foodjis l'ouvre, avec la clé de sécurité s'il est chiffré — et avec
-  lui, pour ce seul passage de la clé, les messages qui l'entourent : trois
-  avant et trois après, sauf autre nombre, de un à dix, réglé dans la
-  configuration. Un message encore chiffré dit pour qui il est, par un petit
+  lui, pour ce seul passage de la clé, les messages fermés les plus proches : deux, sauf autre nombre, de zéro à
+  cinq, réglé dans la configuration. Un message encore chiffré dit pour qui il est, par un petit
   visage pour chaque clé qu'il désigne. Celui qui ne s'ouvre pas — chiffré
   pour quelqu'un d'autre — peut être transféré ou enregistré tel quel. Par un
-  appui long, un message laisse sélectionner et copier son texte : l'armure
-  elle-même, pour un message encore fermé. Son
-  texte est gardé tant que l'application tourne et n'est écrit nulle part ; sa
-  couleur est retenue.
+  appui long, un message s'affiche seul, son texte à sélectionner et copier :
+  l'armure elle-même, pour un message encore fermé. Le texte d'un message
+  ouvert est gardé en mémoire vive le temps que vous réglez — quinze minutes
+  sauf autre choix — et n'est jamais écrit ; sa couleur est retenue.
 - **Le carnet d'adresses dit quelle clé désigne un numéro.** *Relier un
   certificat à ce numéro* montre la liste de contacts de foodjis, par-dessus
   la conversation : une ligne pour filtrer, puis chaque contact en un visage
@@ -74,7 +73,8 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   telle. Ouvrir un message signé venu d'un numéro qui ne désigne encore aucun
   certificat propose de le relier à celui du signataire. Sans certificat
   relié, on demande à foodjis le certificat qui porte lui-même le numéro.
-- **L'allure de foodjis** : ses couleurs et ses glyphes, et à côté d'un nom
+- **L'allure de foodjis**, claire ou sombre comme le téléphone ou comme vous
+  le réglez : ses couleurs et ses glyphes, et à côté d'un nom
   la photo du contact, ou le visage que porte son certificat.
 
 **L'application de messagerie du téléphone**, quand vous en décidez : elle

@@ -3,6 +3,7 @@
     <color name="indigo">#FF31264B</color>
     <color name="orange">#FFFF8012</color>
     <color name="ground">#FFF8F8F8</color>
+    <color name="ground_dark">#FF18181B</color>
 
     <!-- The pages of foodjis: its indigo above, its orange for what is pressed. -->
     <style name="Pages" parent="@android:style/Theme.Material.Light.DarkActionBar">
@@ -12,6 +13,17 @@
         <item name="android:statusBarColor">@color/indigo</item>
         <item name="android:navigationBarColor">@color/indigo</item>
         <item name="android:windowBackground">@color/ground</item>
+        <item name="android:actionBarStyle">@style/Bar</item>
+    </style>
+
+    <!-- The same pages at night: the bar keeps its indigo, the ground and the text change places. -->
+    <style name="Pages.Dark" parent="@android:style/Theme.Material">
+        <item name="android:colorPrimary">@color/indigo</item>
+        <item name="android:colorPrimaryDark">@color/indigo</item>
+        <item name="android:colorAccent">@color/orange</item>
+        <item name="android:statusBarColor">@color/indigo</item>
+        <item name="android:navigationBarColor">@color/indigo</item>
+        <item name="android:windowBackground">@color/ground_dark</item>
         <item name="android:actionBarStyle">@style/Bar</item>
     </style>
 

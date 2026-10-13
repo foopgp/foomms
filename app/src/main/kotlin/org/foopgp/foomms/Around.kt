@@ -1,25 +1,25 @@
 package org.foopgp.foomms
 
-import android.content.Context
-
 /**
- * How much of a conversation one presentation of the key opens: the message
- * chosen -- the last one when none is --, and as many before and after it as
- * the person set.
+ * Which messages one use of the security key opens with the one pressed: the
+ * nearest that are still closed, before it and after it in turn, up to as
+ * many as the person set.
  */
 object Around {
 
-    const val LEAST = 1
-    const val USUAL = 3
-    const val MOST = 10
-
-    /** The places of [count] messages within [reach] of the one at [chosen], that one left out. */
-    fun others(count: Int, chosen: Int, reach: Int): List<Int> =
-        (maxOf(0, chosen - reach)..minOf(count - 1, chosen + reach)).filter { it != chosen }
-
-    fun reach(context: Context): Int = kept(context).getInt("around", USUAL).coerceIn(LEAST, MOST)
-
-    fun set(context: Context, reach: Int) = kept(context).edit().putInt("around", reach.coerceIn(LEAST, MOST)).apply()
-
-    private fun kept(context: Context) = context.getSharedPreferences("configuration", Context.MODE_PRIVATE)
+    /**
+     * The places, among [count] messages, of at most [most] [closed] ones
+     * nearest to [chosen], that one left out; of two as near, the earlier first.
+     */
+    fun others(count: Int, chosen: Int, most: Int, closed: (Int) -> Boolean): List<Int> {
+        val found = ArrayList<Int>()
+        var step = 1
+        while (found.size < most && (chosen - step >= 0 || chosen + step < count)) {
+            for (at in listOf(chosen - step, chosen + step)) {
+                if (found.size < most && at in 0 until count && closed(at)) found += at
+            }
+            step++
+        }
+        return found
+    }
 }
