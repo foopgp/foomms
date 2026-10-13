@@ -74,4 +74,11 @@
     <string name="copied">Copied.</string>
     <string name="message">Message</string>
     <string name="let_in">Ask foodjis to let foomms in</string>
+    <string name="conf_mms">MMS</string>
+    <string name="conf_prefer_mms">Prefer MMS</string>
+    <string name="conf_prefer_mms_note">Any text longer than one SMS is sent as an MMS: useful when long messages arrive in pieces or out of order. An MMS uses mobile data, and your operator may charge for it.</string>
+    <string name="conf_warn_mms">Warn me before sending any MMS</string>
+    <string name="conf_warn_mms_note">A text longer than five SMS is sent as an MMS. Being asked first spares you a charge your operator might apply.</string>
+    <string name="mms_ask">This message is long: it will be sent as an MMS, which your operator may charge for.</string>
+    <string name="mms_send">Send</string>
 </resources>

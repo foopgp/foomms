@@ -43,8 +43,11 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   par quelqu'un que vous avez certifié ; envoyé, qu'il est parti vers
   quelqu'un que vous avez certifié. Non signé, c'est non certifié. Un SMS
   ordinaire est rouge.
-- **Un texte reste un texte.** Un message PGP part sous armure : en SMS tant
-  qu'il en faut cinq ou moins, en un MMS au-delà, en texte dans les deux cas.
+- **Un texte reste un texte.** Un message part en SMS tant qu'il en faut
+  cinq ou moins, en un MMS au-delà — ou dès qu'il dépasse un SMS, si vous
+  réglez de privilégier les MMS ; et vous pouvez demander à être prévenu
+  avant qu'un MMS parte, qu'un opérateur peut facturer. Dans les deux cas
+  c'est du texte, un message PGP sous son armure.
   Qui le reçoit sans cette application voit qu'il est codé, et peut le copier
   dans foodjis.
 - **Comment part le prochain message** se lit sur le bouton à côté du champ,

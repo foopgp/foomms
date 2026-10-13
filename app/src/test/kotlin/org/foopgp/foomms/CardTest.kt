@@ -47,4 +47,26 @@ class CardTest {
             card.told(),
         )
     }
+
+    @Test fun `the same card in the words of 3_0 gives the same`() {
+        val old = Card.of(
+            listOf(
+                "BEGIN:VCARD",
+                "VERSION:3.0",
+                "N:Aline Example;;;;",
+                "FN:Aline Example",
+                "TEL:+33600000000",
+                "EMAIL;TYPE=INTERNET,PREF:aline@example.org",
+                "EMAIL;TYPE=INTERNET:aline@example.net",
+                "KEY;TYPE=PGP;VALUE=uri:https://keys.example.org/pks/lookup?op=get&search=0x0123456789ABCDEF0123456789ABCDEF01234567",
+                "KEY;TYPE=PGP;ENCODING=b:mDMEAAAA",
+                "PHOTO;TYPE=JPEG;ENCODING=b:/9j/4AAQ",
+                "END:VCARD",
+            ).joinToString("\r\n"),
+        )
+        assertEquals("Aline Example", old.name)
+        assertEquals(listOf("aline@example.org", "aline@example.net"), old.emails)
+        assertEquals("0123456789ABCDEF0123456789ABCDEF01234567", Fingerprint.of(old.key!!))
+        assertArrayEquals(card.photo, old.photo)
+    }
 }

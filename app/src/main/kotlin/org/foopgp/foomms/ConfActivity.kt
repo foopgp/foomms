@@ -83,6 +83,15 @@ class ConfActivity : Activity() {
             },
         )
 
+        heading(R.string.conf_mms)
+        column.addView(flip(R.string.conf_prefer_mms, Conf.preferMms(this)) { Conf.preferMms(this, it) ; draw() })
+        note(R.string.conf_prefer_mms_note)
+        // Left to itself, a long text still becomes an MMS: then one can ask to be told first.
+        if (!Conf.preferMms(this)) {
+            column.addView(flip(R.string.conf_warn_mms, Conf.warnMms(this)) { Conf.warnMms(this, it) })
+            note(R.string.conf_warn_mms_note)
+        }
+
         heading(R.string.conf_hold)
         note(R.string.conf_hold_note)
         val choices = Conf.Hold.entries
@@ -109,6 +118,14 @@ class ConfActivity : Activity() {
                 }.apply { (layoutParams as? LinearLayout.LayoutParams)?.topMargin = Look.dp(context, 6) },
             )
         }
+    }
+
+    private fun flip(words: Int, on: Boolean, then: (Boolean) -> Unit) = android.widget.Switch(this).apply {
+        text = getString(words)
+        textSize = 17f
+        setTextColor(Look.INK)
+        isChecked = on
+        setOnCheckedChangeListener { _, now -> then(now) }
     }
 
     private fun label(hold: Conf.Hold): String = getString(

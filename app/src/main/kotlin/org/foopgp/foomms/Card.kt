@@ -1,14 +1,18 @@
 package org.foopgp.foomms
 
 /**
- * A vCard as foodjis writes one for a certificate (RFC 6350; the KEY field as
- * draft-foopgp-openpgp-vcard gives it), read for what a contact can take: the
+ * A vCard as foodjis writes one for a certificate -- 4.0 (RFC 6350; the KEY
+ * field as draft-foopgp-openpgp-vcard gives it) or, on an older phone, 3.0
+ * (RFC 2426) --, read for what a contact can take: the
  * name, the addresses and numbers, the notes, the face, and where the
  * certificate is fetched.
  */
 class Card(val lines: List<Line>) {
 
-    class Line(val name: String, val parameters: String, val value: String)
+    class Line(val name: String, val parameters: String, val value: String) {
+        /** 3.0's way of carrying bytes: `ENCODING=b` among the parameters, the value in base64. */
+        val encoded: Boolean get() = parameters.split(';').any { it.equals("ENCODING=b", true) || it.equals("ENCODING=BASE64", true) }
+    }
 
     val name: String? get() = first("FN")
     val emails: List<String> get() = all("EMAIL")
@@ -22,11 +26,16 @@ class Card(val lines: List<Line>) {
             .map { line -> fields(line.value).map { plain(it).trim() }.filter { it.isNotEmpty() }.joinToString("\n") }
             .filter { it.isNotEmpty() }
 
-    /** Where the certificate is fetched: the KEY field that is an address, not the one that is the key itself. */
-    val key: String? get() = lines.firstOrNull { it.name == "KEY" && !it.value.startsWith("data:") }?.value
+    /**
+     * Where the certificate is fetched: the KEY field that is an address,
+     * not the one that is the key itself -- a data address in 4.0, an
+     * encoded value in 3.0.
+     */
+    val key: String?
+        get() = lines.firstOrNull { it.name == "KEY" && !it.value.startsWith("data:") && !it.encoded }?.value
 
     val photo: ByteArray?
-        get() = lines.firstOrNull { it.name == "PHOTO" && it.value.startsWith("data:") }
+        get() = lines.firstOrNull { it.name == "PHOTO" && (it.value.startsWith("data:") || it.encoded) }
             ?.let { runCatching { java.util.Base64.getDecoder().decode(it.value.substringAfter("base64,")) }.getOrNull() }
 
     /** What would be written, as a person reads it: a line each, the key and the face only named. */

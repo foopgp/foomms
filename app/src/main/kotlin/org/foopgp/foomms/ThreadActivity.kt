@@ -208,21 +208,35 @@ class ThreadActivity : AskingActivity() {
     }
 
     /**
-     * A text leaves as SMS while it takes few of them, as an MMS beyond: in
-     * both it is text, which whoever receives it can read or copy.
+     * A text leaves as SMS while it takes few of them, as an MMS beyond --
+     * beyond one when the person prefers MMS, beyond five otherwise: in both
+     * it is text, which whoever receives it can read or copy. An operator may
+     * charge for an MMS, and the person can ask to be told before one leaves.
      */
     private fun leave(text: String, written: String, verdict: Verdict?) {
-        runCatching {
-            if (Outbox.pieces(this, text) <= MOST_SMS) Outbox.text(this, number, text)
-            else {
-                val transaction = "T" + java.lang.Long.toHexString(System.currentTimeMillis())
-                Outbox.send(this, number, Pdu.send(transaction, listOf(number), listOf(Pdu.Part.text(text))), transaction)
-            }
-        }.onFailure { return say(getString(R.string.failed, it.message)) }
-        if (verdict != null) Opened.keep(this, text, written, null, verdict)
-        field.setText("")
-        // The phone writes what was sent a moment after taking it.
-        list.postDelayed({ if (shown) load() }, 1500)
+        val mms = runCatching { Conf.asMms(Outbox.pieces(this, text), Conf.preferMms(this)) }.getOrDefault(false)
+        fun go() {
+            runCatching {
+                if (!mms) Outbox.text(this, number, text)
+                else {
+                    val transaction = "T" + java.lang.Long.toHexString(System.currentTimeMillis())
+                    Outbox.send(this, number, Pdu.send(transaction, listOf(number), listOf(Pdu.Part.text(text))), transaction)
+                }
+            }.onFailure { return say(getString(R.string.failed, it.message)) }
+            if (verdict != null) Opened.keep(this, text, written, null, verdict)
+            field.setText("")
+            // The phone writes what was sent a moment after taking it.
+            list.postDelayed({ if (shown) load() }, 1500)
+        }
+        if (mms && !Conf.preferMms(this) && Conf.warnMms(this)) {
+            AlertDialog.Builder(this)
+                .setMessage(R.string.mms_ask)
+                .setPositiveButton(R.string.mms_send) { _, _ -> go() }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        } else {
+            go()
+        }
     }
 
     /**
@@ -561,7 +575,5 @@ class ThreadActivity : AskingActivity() {
             OpenPgpSignatureResult.RESULT_VALID_KEY_UNCONFIRMED,
         )
 
-        /** Beyond this many SMS, a text leaves as one MMS. */
-        private const val MOST_SMS = 5
     }
 }

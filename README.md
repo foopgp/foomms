@@ -39,8 +39,10 @@ then one of them in bubbles, a field at the bottom.
   certified and not encrypted; green, both. Received, *certified* means signed
   by somebody you certified; sent, that it went to somebody you certified. Not
   signed is not certified. An ordinary SMS is red.
-- **A text stays a text.** A PGP message leaves in armor: as SMS while it
-  takes five of them or fewer, as one MMS beyond, in both as text. Whoever
+- **A text stays a text.** A message leaves as SMS while it takes five of
+  them or fewer, as one MMS beyond — or beyond a single SMS, if you set MMS
+  to be preferred; and you can ask to be told before an MMS leaves, which an
+  operator may charge for. In both it is text, a PGP message in its armor. Whoever
   receives it without this application sees that it is coded, and can copy it
   into foodjis.
 - **How the next message leaves** is said by the button beside the field, in

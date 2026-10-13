@@ -72,4 +72,11 @@
     <string name="copied">Copié.</string>
     <string name="message">Message</string>
     <string name="let_in">Autoriser foomms dans foodjis</string>
+    <string name="conf_mms">MMS</string>
+    <string name="conf_prefer_mms">Privilégier les MMS</string>
+    <string name="conf_prefer_mms_note">Tout texte plus long qu\'un SMS part en MMS : utile si les longs messages arrivent en morceaux ou dans le désordre. Un MMS utilise les données mobiles, et selon votre opérateur des frais supplémentaires peuvent s\'appliquer.</string>
+    <string name="conf_warn_mms">M\'avertir avant tout envoi de MMS</string>
+    <string name="conf_warn_mms_note">Un texte plus long que cinq SMS part en MMS. Être prévenu avant évite des frais supplémentaires que votre opérateur pourrait appliquer.</string>
+    <string name="mms_ask">Ce message est long : il partira en MMS, que votre opérateur peut facturer.</string>
+    <string name="mms_send">Envoyer</string>
 </resources>

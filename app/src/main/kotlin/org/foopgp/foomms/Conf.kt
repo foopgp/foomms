@@ -34,6 +34,22 @@ object Conf {
 
     fun hold(context: Context, hold: Hold) = kept(context).edit().putString("hold", hold.name).apply()
 
+    /** A text that takes more than one SMS leaves as an MMS; otherwise only one that takes more than [MOST_SMS]. */
+    fun preferMms(context: Context): Boolean = kept(context).getBoolean("prefer_mms", false)
+
+    fun preferMms(context: Context, on: Boolean) = kept(context).edit().putBoolean("prefer_mms", on).apply()
+
+    /** Ask before a message leaves as an MMS, which an operator may charge for. */
+    fun warnMms(context: Context): Boolean = kept(context).getBoolean("warn_mms", false)
+
+    fun warnMms(context: Context, on: Boolean) = kept(context).edit().putBoolean("warn_mms", on).apply()
+
+    /** Beyond this many SMS, a text leaves as one MMS whatever was set. */
+    const val MOST_SMS = 5
+
+    /** Whether a text that would take [pieces] SMS leaves as an MMS. */
+    fun asMms(pieces: Int, prefer: Boolean): Boolean = pieces > if (prefer) 1 else MOST_SMS
+
     private inline fun <reified T : Enum<T>> named(name: String?, otherwise: T): T =
         enumValues<T>().firstOrNull { it.name == name } ?: otherwise
 
