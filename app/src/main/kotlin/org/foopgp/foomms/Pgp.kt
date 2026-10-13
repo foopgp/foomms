@@ -77,6 +77,63 @@ object Pgp {
         return bytes.isNotEmpty() && bytes[0].toInt() and 0x80 != 0 && isMessage(bytes)
     }
 
+    /** The bytes an armor wraps: what stands between its headers and its checksum. */
+    private fun unarmored(armor: String): ByteArray? {
+        val lines = armor.lines().map { it.trim() }
+        val blank = lines.indexOf("")
+        if (blank < 0) return null
+        val body = lines.drop(blank + 1).takeWhile { it.isNotEmpty() && !it.startsWith("=") && !it.startsWith("-----") }
+        return runCatching { java.util.Base64.getDecoder().decode(body.joinToString("")) }.getOrNull()
+    }
+
+    /**
+     * The keys a locked message says it is for, by key id: one session key
+     * packet each, at the head of the message (RFC 9580, section 5.1.1 for
+     * the version these carry an id in). A key that asked not to be named is
+     * a zero, and is left out, as is a packet of a version that names a key
+     * otherwise.
+     */
+    fun recipients(armor: String): List<Long> {
+        val bytes = unarmored(armor) ?: return emptyList()
+        val found = ArrayList<Long>()
+        var at = 0
+        while (at < bytes.size) {
+            val first = bytes[at].toInt() and 0xFF
+            if (first and 0x80 == 0) break
+            val tag: Int
+            val length: Int
+            var body = at + 1
+            fun byte(): Int = bytes.getOrNull(body++)?.toInt()?.and(0xFF) ?: -1
+            if (first and 0x40 != 0) {
+                tag = first and 0x3F
+                val one = byte()
+                length = when {
+                    one < 0 -> return found
+                    one < 192 -> one
+                    one < 224 -> ((one - 192) shl 8) + byte() + 192
+                    one == 255 -> (byte() shl 24) or (byte() shl 16) or (byte() shl 8) or byte()
+                    else -> return found
+                }
+            } else {
+                tag = first and 0x3C shr 2
+                length = when (first and 0x03) {
+                    0 -> byte()
+                    1 -> (byte() shl 8) or byte()
+                    2 -> (byte() shl 24) or (byte() shl 16) or (byte() shl 8) or byte()
+                    else -> return found
+                }
+            }
+            if (length < 0 || (tag != PUBLIC_KEY_SESSION && tag != SYMMETRIC_KEY_SESSION)) break
+            if (tag == PUBLIC_KEY_SESSION && bytes.getOrNull(body)?.toInt() == 3 && body + 9 <= bytes.size) {
+                var id = 0L
+                for (i in 1..8) id = (id shl 8) or (bytes[body + i].toLong() and 0xFF)
+                if (id != 0L) found += id
+            }
+            at = body + length
+        }
+        return found.distinct()
+    }
+
     private fun isArmor(start: ByteArray): Boolean =
         String(start, 0, minOf(start.size, 64), Charsets.US_ASCII).trimStart().startsWith(BANNER)
 

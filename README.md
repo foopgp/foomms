@@ -51,8 +51,10 @@ then one of them in bubbles, a field at the bottom.
   foodjis opens it, with the security key if it is encrypted — and with it,
   for that one presentation of the key, the messages around it: five before
   and three after unless you set another number, from one to ten, in the
-  configuration. ⚷, at the top, does the same
-  from the last message still closed. Its words are
+  configuration. A message still locked says whom it is for, by a small face
+  for each key it names. One that does not open — locked for somebody else —
+  can be forwarded or saved as it is. Pressed long, a message lets its text
+  be selected and copied: the armor itself, for one still closed. Its words are
   held while the application runs and written nowhere; its colour is
   remembered.
 - **The address book says whose key a number means.** *Tie a certificate to

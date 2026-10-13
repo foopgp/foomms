@@ -31,4 +31,12 @@ class ConfActivity : Activity() {
         )
         setContentView(ScrollView(this).apply { addView(column) })
     }
+
+    override fun onCreateOptionsMenu(menu: android.view.Menu): Boolean {
+        Menus.build(this, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean =
+        Menus.select(this, item) || super.onOptionsItemSelected(item)
 }

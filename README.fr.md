@@ -54,8 +54,11 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   dessus : foodjis l'ouvre, avec la clé de sécurité s'il est chiffré — et avec
   lui, pour ce seul passage de la clé, les messages qui l'entourent : trois
   avant et trois après, sauf autre nombre, de un à dix, réglé dans la
-  configuration. ⚷, en haut, fait de
-  même depuis le dernier message encore fermé. Son
+  configuration. Un message encore chiffré dit pour qui il est, par un petit
+  visage pour chaque clé qu'il désigne. Celui qui ne s'ouvre pas — chiffré
+  pour quelqu'un d'autre — peut être transféré ou enregistré tel quel. Par un
+  appui long, un message laisse sélectionner et copier son texte : l'armure
+  elle-même, pour un message encore fermé. Son
   texte est gardé tant que l'application tourne et n'est écrit nulle part ; sa
   couleur est retenue.
 - **Le carnet d'adresses dit quelle clé désigne un numéro.** *Relier un

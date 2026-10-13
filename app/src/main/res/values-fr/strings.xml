@@ -42,15 +42,18 @@
     <string name="channel_messages">Messages</string>
     <string name="not_default">L\'application de messagerie du téléphone reçoit et garde encore les messages. foomms peut prendre sa place : Android vous le demandera.</string>
     <string name="become_default">Faire de foomms l\'application de messagerie</string>
-    <string name="open_last">⚷</string>
-    <string name="nothing_to_open">Tous les messages sont ouverts ici.</string>
     <string name="configure">⚙️ Configuration</string>
     <string name="standing_certified">certifié</string>
     <string name="standing_uncertified">non certifié</string>
     <string name="standing_expired">expiré</string>
     <string name="standing_revoked">révoqué</string>
     <string name="standing_broken">cassé</string>
-    <string name="locked_press">⚿ Message chiffré — appuyez pour le lire, avec ses voisins, grâce à votre clé de sécurité</string>
     <string name="configure_around">Messages ouverts par un passage de la clé</string>
-    <string name="configure_around_about">Avec le message sur lequel vous appuyez — le dernier si vous appuyez sur ⚷ —, ce nombre de messages avant lui et autant après lui sont ouverts aussi.</string>
+    <string name="talks">Conversations</string>
+    <string name="locked_for">⚿ Message chiffré pour</string>
+    <string name="locked_help">Appuyez dessus pour le lire, avec ses voisins, grâce à votre clé de sécurité.</string>
+    <string name="forward">⧉ Transférer</string>
+    <string name="save">↧ Enregistrer</string>
+    <string name="saved">Enregistré.</string>
+    <string name="configure_around_about">Avec le message sur lequel vous appuyez, ce nombre de messages avant lui et autant après lui sont ouverts aussi.</string>
 </resources>

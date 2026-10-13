@@ -2,13 +2,11 @@ package org.foopgp.foomms
 
 import android.Manifest
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Typeface
 import android.os.Bundle
-import android.text.InputType
 import android.text.TextUtils
 import android.text.format.DateUtils
 import android.view.Gravity
@@ -17,7 +15,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ListView
 import kotlin.concurrent.thread
@@ -174,23 +171,11 @@ class MainActivity : Activity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menu.add(0, WRITE, 0, R.string.write).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        menu.add(0, CONFIGURE, 1, R.string.configure)
+        Menus.build(this, menu)
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == CONFIGURE) return startActivity(Intent(this, ConfActivity::class.java)).let { true }
-        if (item.itemId != WRITE) return super.onOptionsItemSelected(item)
-        val number = EditText(this).apply { inputType = InputType.TYPE_CLASS_PHONE ; setHint(R.string.number_hint) }
-        AlertDialog.Builder(this)
-            .setTitle(R.string.write)
-            .setView(number)
-            .setPositiveButton(android.R.string.ok) { _, _ -> Phone.plain(number.text.toString())?.let { open(it) } }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-        return true
-    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = Menus.select(this, item) || super.onOptionsItemSelected(item)
 
     /** Android asks the person; nothing changes unless they say so. */
     private fun becomeDefault() {
@@ -211,9 +196,6 @@ class MainActivity : Activity() {
         DateUtils.getRelativeTimeSpanString(at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL)
 
     private companion object {
-        const val WRITE = 1
-        const val CONFIGURE = 2
-
         /** How many conversations are shown before the rest is read. */
         const val FIRST = 20
         val NEEDED = listOf(Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS, Manifest.permission.READ_CONTACTS)

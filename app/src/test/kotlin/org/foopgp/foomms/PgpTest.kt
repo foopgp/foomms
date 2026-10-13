@@ -47,4 +47,20 @@ class PgpTest {
         assertFalse(Pgp.isLocked(signed))
         assertFalse(Pgp.isLocked("-----BEGIN PGP MESSAGE-----\nhF4DAAAAAAAAAAAS\n-----END PGP MESSAGE-----"))
     }
+
+    @Test fun `a locked message names the keys it is for`() {
+        fun session(old: Boolean, id: Long): ByteArray {
+            val body = byteArrayOf(3) + ByteArray(8) { (id ushr (56 - 8 * it)).toByte() } + byteArrayOf(18, 0, 0)
+            return byteArrayOf((if (old) 0x84 else 0xC1).toByte(), body.size.toByte()) + body
+        }
+        val message = session(true, 0x0123456789ABCDEFL) + session(false, -0x0123456789ABCDF0L) +
+            session(true, 0L) + session(false, 0x0123456789ABCDEFL) + byteArrayOf(0xD2.toByte(), 2, 1, 0)
+        val armor = "-----BEGIN PGP MESSAGE-----\n\n" +
+            java.util.Base64.getEncoder().encodeToString(message).chunked(64).joinToString("\n") +
+            "\n=AAAA\n-----END PGP MESSAGE-----"
+        // Each key once, in the order written; the one that asked not to be named is not.
+        assertEquals(listOf(0x0123456789ABCDEFL, -0x0123456789ABCDF0L), Pgp.recipients(armor))
+        assertEquals(emptyList<Long>(), Pgp.recipients("-----BEGIN PGP MESSAGE-----\n\nkA0DAAoWAAAAAAAAAAAB\n-----END PGP MESSAGE-----"))
+        assertEquals(emptyList<Long>(), Pgp.recipients("not armor"))
+    }
 }

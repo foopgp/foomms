@@ -48,6 +48,15 @@ class ThreadActivity : AskingActivity() {
     private var lines: List<Store.Line> = emptyList()
     private var mode = Mode.PLAIN
 
+    /** Who a key a message names belongs to, as far as foodjis knows. */
+    private class For(val name: String, val face: Bitmap?)
+
+    private var meant: Map<Long, For?> = emptyMap()
+
+    /** The message whose text can be selected, and so copied: the one pressed long, or none. */
+    private var selecting = -1
+    private var starting = false
+
     private lateinit var list: ListView
     private lateinit var field: EditText
     private lateinit var how: android.widget.Button
@@ -61,7 +70,8 @@ class ThreadActivity : AskingActivity() {
             transcriptMode = ListView.TRANSCRIPT_MODE_NORMAL
             isStackFromBottom = true
             adapter = bubbles
-            setOnItemClickListener { _, _, at, _ -> pressed(at) }
+            setOnItemClickListener { _, _, at, _ -> if (selecting >= 0) select(-1) else pressed(at) }
+            setOnItemLongClickListener { _, _, at, _ -> select(at) ; true }
         }
         field = EditText(this).apply {
             setHint(R.string.words_hint)
@@ -117,13 +127,16 @@ class ThreadActivity : AskingActivity() {
             val theirs = who?.fingerprint?.takeIf { who.photo == null }?.let { foodjis.face(it) }
             val thread = runCatching { Store.thread(this, number) }.getOrNull()
             val found = runCatching { thread?.let { Store.lines(this, it) } }.getOrNull().orEmpty()
+            // Whom each locked message is for, by the keys it names: a face each, asked of foodjis once.
+            val named = found.mapNotNull { Pgp.armorIn(it.body) }.filter { Pgp.isLocked(it) }.flatMap { Pgp.recipients(it) }.distinct()
+            val theirFaces = named.associateWith { id -> foodjis.signer(id)?.let { whose -> For(whose.name, foodjis.face(whose.fingerprint)) } }
             if (shown) {
                 thread?.let { Keep.read(this, it) }
                 Notify.seen(this, number)
             }
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
-                person = who ; card = whose ; face = theirs ; lines = found
+                person = who ; card = whose ; face = theirs ; lines = found ; meant = theirFaces
                 title = who?.name ?: number
                 actionBar?.subtitle = when {
                     who?.fingerprint == null -> getString(R.string.no_certificate)
@@ -222,7 +235,7 @@ class ThreadActivity : AskingActivity() {
             .distinct()
         var left = others.size
         fun theChosen() {
-            ask(Intent(Provider.DECRYPT_VERIFY), chosen.toByteArray(), ::say) { answer ->
+            ask(Intent(Provider.DECRYPT_VERIFY), chosen.toByteArray(), { closed(chosen, it) }) { answer ->
                 opened(chosen, answer, offer = lines.getOrNull(at)?.incoming == true)
                 // What the key answered for the others is waiting: each is asked for again, and says nothing if it is not.
                 others.filter { Opened.words(it) == null }.forEach { quietly(it) }
@@ -244,10 +257,48 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
-    /** The last message that is still closed, when the person names none. */
-    private fun pressLast() {
-        val at = lines.indexOfLast { line -> Pgp.armorIn(line.body)?.let { Opened.words(it) == null } == true }
-        if (at < 0) Toast.makeText(this, R.string.nothing_to_open, Toast.LENGTH_SHORT).show() else pressed(at)
+    /**
+     * A message that did not open -- locked for somebody else, most often --
+     * is still a message: it can be handed on to whoever it is for, or kept.
+     */
+    private fun closed(armor: String, why: String) {
+        AlertDialog.Builder(this)
+            .setMessage(why)
+            .setPositiveButton(R.string.forward) { _, _ ->
+                startActivity(
+                    Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, armor), null),
+                )
+            }
+            .setNeutralButton(R.string.save) { _, _ ->
+                saving = armor
+                @Suppress("DEPRECATION")
+                startActivityForResult(
+                    Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
+                        .setType("application/pgp-encrypted").putExtra(Intent.EXTRA_TITLE, "message.asc"),
+                    SAVE,
+                )
+            }
+            .setNegativeButton(R.string.close, null)
+            .show()
+    }
+
+    private var saving: String? = null
+
+    override fun onActivityResult(request: Int, outcome: Int, data: Intent?) {
+        super.onActivityResult(request, outcome, data)
+        if (request != SAVE) return
+        val armor = saving.also { saving = null } ?: return
+        val where = data?.data?.takeIf { outcome == RESULT_OK } ?: return
+        runCatching { contentResolver.openOutputStream(where)?.use { it.write((armor + "\n").toByteArray()) } }
+            .onSuccess { Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show() }
+            .onFailure { say(getString(R.string.failed, it.message)) }
+    }
+
+    /** Pressed long, a message lets its text be selected; pressed anywhere, the page is as it was. */
+    private fun select(at: Int) {
+        selecting = at
+        starting = at >= 0
+        bubbles.notifyDataSetChanged()
     }
 
     private fun opened(armor: String, answer: Provider.Answer.Done, offer: Boolean) {
@@ -275,6 +326,10 @@ class ThreadActivity : AskingActivity() {
         else -> getString(R.string.signed_broken)
     }
 
+    /** The last message still locked, which is the one that says how they open. */
+    private fun lastLocked(): Int =
+        lines.indexOfLast { line -> Pgp.armorIn(line.body)?.let { Pgp.isLocked(it) && Opened.words(it) == null } == true }
+
     private val bubbles = object : BaseAdapter() {
         override fun getCount() = lines.size
         override fun getItem(at: Int) = lines[at]
@@ -289,10 +344,15 @@ class ThreadActivity : AskingActivity() {
                 armor == null -> Verdict.RED
                 else -> Opened.verdict(context, armor) ?: Verdict.of(Pgp.isLocked(armor), false)
             }
+            val closed = armor != null && read == null
+            val locked = closed && Pgp.isLocked(armor!!)
+            val chosen = at == selecting
             val words = when {
+                // What is selected is what travelled: a closed message is copied as its armor, to be opened elsewhere.
+                chosen && closed -> armor!!
                 armor == null -> line.body
                 read != null -> read.words
-                Pgp.isLocked(armor) -> getString(if (line.incoming) R.string.locked_press else R.string.locked_message)
+                locked -> getString(R.string.locked_for)
                 else -> getString(R.string.signed_press)
             }
             val under = buildString {
@@ -302,11 +362,38 @@ class ThreadActivity : AskingActivity() {
                 if (line.attachments > 0) append("  ").append("📎".repeat(minOf(line.attachments, 3)))
             }
             val pad = Look.dp(context, 10)
+            val text = Look.words(context, words, size = if (chosen && closed) 11f else 16f, muted = closed && !chosen)
+            if (chosen) {
+                text.setTextIsSelectable(true)
+                // All of it selected to begin with, the handles there to take less: asked once,
+                // or each redrawing would select again.
+                if (starting) {
+                    starting = false
+                    text.post { text.requestFocus() ; text.onTextContextMenuItem(android.R.id.selectAll) }
+                }
+            }
             val bubble = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 background = Look.rounded(Look.pale(verdict), Look.dp(context, 14))
                 setPadding(pad, pad * 3 / 4, pad, pad * 3 / 4)
-                addView(Look.words(context, words, size = 16f, muted = armor != null && read == null))
+                if (locked && !chosen) {
+                    // "Encrypted message for" and whom: a small face for each key the message names.
+                    addView(
+                        LinearLayout(context).apply {
+                            orientation = LinearLayout.HORIZONTAL
+                            gravity = Gravity.CENTER_VERTICAL
+                            addView(text)
+                            for (id in Pgp.recipients(armor!!)) {
+                                addView(View(context), LinearLayout.LayoutParams(Look.dp(context, 4), 1))
+                                addView(Look.face(context, 22, null, meant[id]?.face))
+                            }
+                        },
+                    )
+                    // Said once, on the last of them: every closed message opens the same way.
+                    if (at == lastLocked()) addView(Look.words(context, getString(R.string.locked_help), size = 13f, muted = true))
+                } else {
+                    addView(text)
+                }
                 addView(Look.words(context, under, size = 11f, muted = true))
             }
             // A mark of the full colour on the side the message came from, the bubble itself on that side.
@@ -326,17 +413,16 @@ class ThreadActivity : AskingActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menu.add(0, OPEN, 0, R.string.open_last).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         menu.add(0, TIE, 0, R.string.tie)
         menu.add(0, LET_IN, 1, R.string.let_in)
+        Menus.build(this, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        OPEN -> { pressLast() ; true }
         TIE -> { tie() ; true }
         LET_IN -> { letIn() ; true }
-        else -> super.onOptionsItemSelected(item)
+        else -> Menus.select(this, item) || super.onOptionsItemSelected(item)
     }
 
     /** foodjis asks the person whether this application may use the identity; its door opens with the answer. */
@@ -444,7 +530,7 @@ class ThreadActivity : AskingActivity() {
         const val EXTRA_NUMBER = "number"
         private const val TIE = 1
         private const val LET_IN = 2
-        private const val OPEN = 3
+        private const val SAVE = 4
         private val MESSAGES = android.net.Uri.parse("content://mms-sms/")
         private val NEEDED_TO_WRITE = arrayOf(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
         private val VALID = setOf(

@@ -44,15 +44,18 @@
     <string name="channel_messages">Messages</string>
     <string name="not_default">The phone\'s messaging application still receives and keeps the messages. foomms can take its place: Android will ask you.</string>
     <string name="become_default">Make foomms the messaging application</string>
-    <string name="open_last">⚷</string>
-    <string name="nothing_to_open">Every message here is open.</string>
     <string name="configure">⚙️ Configuration</string>
     <string name="standing_certified">certified</string>
     <string name="standing_uncertified">not certified</string>
     <string name="standing_expired">expired</string>
     <string name="standing_revoked">revoked</string>
     <string name="standing_broken">broken</string>
-    <string name="locked_press">⚿ Encrypted message — press to read it, and those around it, with your security key</string>
     <string name="configure_around">Messages opened by one presentation of the key</string>
-    <string name="configure_around_about">With the message you press — the last one when you press ⚷ —, this many before it and this many after it are opened too.</string>
+    <string name="talks">Conversations</string>
+    <string name="locked_for">⚿ Encrypted message for</string>
+    <string name="locked_help">Press it to read it, and those around it, with your security key.</string>
+    <string name="forward">⧉ Forward</string>
+    <string name="save">↧ Save</string>
+    <string name="saved">Saved.</string>
+    <string name="configure_around_about">With the message you press, this many before it and this many after it are opened too.</string>
 </resources>
