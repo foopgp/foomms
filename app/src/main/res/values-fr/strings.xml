@@ -112,6 +112,9 @@
     <string name="detail_size">Taille : %1$d octets</string>
     <string name="detail_locked">Message PGP, chiffré pour :</string>
     <string name="detail_signed">Message PGP, signé, non chiffré</string>
+    <string name="detail_signer_key">Clé du signataire : 0x%1$s</string>
+    <string name="detail_signer_fpr">Empreinte : %1$s</string>
+    <string name="detail_signer_eid">EID : %1$s</string>
     <string name="detail_unknown_key">une clé que foodjis ne détient pas</string>
     <string name="tie_ask_before">Son certificat est</string>
     <string name="tie_ask_after">. Ceci sera inscrit dans votre carnet d\'adresses, là où le contact ne le dit pas déjà :</string>
@@ -129,7 +132,6 @@
     <string name="many_failed">Non envoyé à : %1$s</string>
     <string name="attach_photo">📷 Prendre une photo</string>
     <string name="attach_picture">🖼 Une image</string>
-    <string name="attach_sound">🎙 Un enregistrement audio</string>
     <string name="attach_contact">👤 Un contact</string>
     <string name="attach_place">📍 Ma position</string>
     <string name="attach_file">📎 Un fichier</string>

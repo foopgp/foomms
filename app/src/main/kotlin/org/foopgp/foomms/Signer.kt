@@ -30,6 +30,10 @@ object Signer {
     fun named(signature: OpenPgpSignatureResult): String =
         named(signature.userIds.orEmpty() + listOfNotNull(signature.primaryUserId), signature.keyId)
 
+    /** The identifier a signature's certificate carries, in full. */
+    fun eid(signature: OpenPgpSignatureResult): String? =
+        (signature.userIds.orEmpty() + listOfNotNull(signature.primaryUserId)).firstOrNull { it.startsWith(EID) }?.substringAfter(EID)?.trim()
+
     private const val EID = "UID:urn:eid:"
     private val PROPERTY = Regex("^[A-Z]+[:;]")
 }

@@ -71,7 +71,7 @@ class ConfActivity : Activity() {
                             Conf.theme(context, theme)
                             recreate()
                         }.apply {
-                            if (theme == now) { background = Look.rounded(Look.ORANGE, Look.dp(context, 10)) ; setTextColor(Look.INDIGO) }
+                            if (theme == now) { background = Look.buttonFace(context, Look.ORANGE) ; setTextColor(Look.INDIGO) }
                         },
                         LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = Look.dp(context, 6) },
                     )

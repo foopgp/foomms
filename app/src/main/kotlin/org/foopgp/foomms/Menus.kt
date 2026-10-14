@@ -35,7 +35,8 @@ object Menus {
         }
         // In a conversation, what is looked through is that conversation.
         if (activity !is SearchActivity) menu.add(0, SEARCH, 9, if (activity is ThreadActivity) R.string.search_here else R.string.search_all)
-        menu.add(0, WRITE, 11, R.string.write)
+        // The list of conversations has its own button for it, at the bottom.
+        if (activity !is MainActivity) menu.add(0, WRITE, 11, R.string.write)
         if (activity !is BackupActivity) menu.add(0, BACKUP, 11, if (activity is ThreadActivity) R.string.backup_one else R.string.backup_all)
         if (activity !is ConfActivity) menu.add(0, CONFIGURE, 12, R.string.configure)
     }
@@ -68,7 +69,7 @@ object Menus {
      * found in the address book by a few letters of their name -- one, and
      * their conversation opens; several, and the same message goes to each.
      */
-    private fun write(activity: Activity) {
+    fun write(activity: Activity) {
         val contacts = activity.checkSelfPermission(android.Manifest.permission.READ_CONTACTS) == android.content.pm.PackageManager.PERMISSION_GRANTED
         val chosen = LinkedHashMap<String, String>()
         val asked = EditText(activity).apply {

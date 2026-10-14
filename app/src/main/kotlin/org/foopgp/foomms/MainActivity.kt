@@ -57,6 +57,7 @@ class MainActivity : Activity() {
         }
         // A new start reads the address book again: a name may have changed since the application last ran.
         if (state == null) { synchronized(people) { people.clear() } ; synchronized(lines) { lines.clear() } }
+        onlyUnread = state?.getBoolean(ONLY_UNREAD) ?: false
         // In the bar: the application's mark, then how much of what the phone holds is PGP.
         all = Look.words(this, "", size = 15f).apply { setTextColor(Look.ORANGE) ; setTypeface(typeface, Typeface.BOLD) }
         unread = Look.words(this, "", size = 13f).apply { setTextColor(android.graphics.Color.rgb(0xE0, 0xE7, 0xFF)) }
@@ -67,15 +68,7 @@ class MainActivity : Activity() {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 // Pressed: the counts in more detail, and only the conversations that hold something unread; pressed again, all of them.
-                setOnClickListener {
-                    onlyUnread = !onlyUnread
-                    unreadRows = null
-                    // Called by its own name: inside the bar's code, "show()" was the bar's, which shows the bar.
-                    redraw()
-                    // In: the unread are read for themselves. Out: what was read of the rest is shown at once,
-                    // and read to its end if being in had cut that short.
-                    if (onlyUnread || !everyWhole) fill()
-                }
+                setOnClickListener { filter(!onlyUnread) }
                 val side = Look.dp(context, 36)
                 addView(android.widget.ImageView(context).apply { setImageResource(R.drawable.launcher) }, LinearLayout.LayoutParams(side, side))
                 addView(
@@ -105,14 +98,38 @@ class MainActivity : Activity() {
             val pad = Look.dp(context, 16)
             setPadding(pad, pad / 2, pad, pad / 2)
             visibility = View.GONE
+            // Pressed, the counts give the whole list back, as the bar does.
+            setOnClickListener { filter(false) }
         }
         column.addView(detail)
         column.addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+        val pad = Look.dp(this, 8)
+        column.addView(
+            Look.button(this, getString(R.string.write)) { Menus.write(this) }.apply { textSize = 16f },
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { setMargins(pad, 0, pad, pad) },
+        )
         setContentView(column)
         Edges.fit(this)
     }
 
     private var dressed = false
+
+    /** Only the conversations with something unread and the counts in detail, or everything. */
+    private fun filter(only: Boolean) {
+        if (only == onlyUnread) return
+        onlyUnread = only
+        unreadRows = null
+        // Called by its own name: inside the bar's code, "show()" was the bar's, which shows the bar.
+        redraw()
+        // In: the unread are read for themselves. Out: what was read of the rest is shown at once,
+        // and read to its end if being in had cut that short.
+        if (onlyUnread || !everyWhole) fill()
+    }
+
+    override fun onSaveInstanceState(state: Bundle) {
+        super.onSaveInstanceState(state)
+        state.putBoolean(ONLY_UNREAD, onlyUnread)
+    }
 
     override fun onResume() {
         super.onResume()
@@ -336,6 +353,7 @@ class MainActivity : Activity() {
         DateUtils.getRelativeTimeSpanString(at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL)
 
     private companion object {
+        const val ONLY_UNREAD = "onlyUnread"
         /** Kept for as long as the application runs: who a number is, the line of each conversation, the last counts. */
         val people = HashMap<String, Book.Person?>()
         val lines = HashMap<Long, Row>()

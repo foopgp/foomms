@@ -114,6 +114,9 @@
     <string name="detail_size">Size: %1$d bytes</string>
     <string name="detail_locked">PGP message, encrypted for:</string>
     <string name="detail_signed">PGP message, signed, not encrypted</string>
+    <string name="detail_signer_key">Signing key: 0x%1$s</string>
+    <string name="detail_signer_fpr">Fingerprint: %1$s</string>
+    <string name="detail_signer_eid">EID: %1$s</string>
     <string name="detail_unknown_key">a key foodjis does not hold</string>
     <string name="tie_ask_before">Their certificate is</string>
     <string name="tie_ask_after">. This will be written in your address book, where the contact does not say it already:</string>
@@ -131,7 +134,6 @@
     <string name="many_failed">Not sent to: %1$s</string>
     <string name="attach_photo">📷 Take a photo</string>
     <string name="attach_picture">🖼 A picture</string>
-    <string name="attach_sound">🎙 A sound recording</string>
     <string name="attach_contact">👤 A contact</string>
     <string name="attach_place">📍 Where I am</string>
     <string name="attach_file">📎 A file</string>

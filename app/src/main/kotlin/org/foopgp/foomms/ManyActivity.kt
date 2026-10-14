@@ -130,7 +130,7 @@ class ManyActivity : AskingActivity() {
         signs.isEnabled = mine != null
         val worth = worth()
         options.setBackgroundColor(Look.pale(worth))
-        sender.background = Look.rounded(Look.colour(worth), Look.dp(this, 10))
+        sender.background = Look.buttonFace(this, Look.colour(worth))
         sender.setTextColor(if (worth == Verdict.BLUE && !Look.dark) android.graphics.Color.WHITE else Look.INDIGO)
     }
 

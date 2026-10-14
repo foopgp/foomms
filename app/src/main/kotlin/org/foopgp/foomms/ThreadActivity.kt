@@ -216,9 +216,16 @@ class ThreadActivity : AskingActivity() {
             // Aligned on their baselines, the two buttons would follow the field's first line up as it grows.
             isBaselineAligned = false
             setPadding(pad, pad, pad, pad)
-            addView(add, LinearLayout.LayoutParams(Look.dp(context, 44), ViewGroup.LayoutParams.WRAP_CONTENT))
-            addView(field, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = pad ; marginEnd = pad })
-            addView(send, LinearLayout.LayoutParams(Look.dp(context, 56), ViewGroup.LayoutParams.WRAP_CONTENT))
+            addView(field, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = pad })
+            // The two buttons one above the other: the field keeps the width.
+            addView(
+                LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    addView(add, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+                    addView(send, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+                },
+                LinearLayout.LayoutParams(Look.dp(context, 56), ViewGroup.LayoutParams.WRAP_CONTENT),
+            )
         }
         setContentView(
             LinearLayout(this).apply {
@@ -355,7 +362,7 @@ class ThreadActivity : AskingActivity() {
         signs.isEnabled = mine != null
         val worth = worth(mode)
         options.setBackgroundColor(Look.pale(worth))
-        sender.background = Look.rounded(Look.colour(worth), Look.dp(this, 10))
+        sender.background = Look.buttonFace(this, Look.colour(worth))
         sender.setTextColor(if (worth == Verdict.BLUE && !Look.dark) android.graphics.Color.WHITE else Look.INDIGO)
     }
 
@@ -454,8 +461,8 @@ class ThreadActivity : AskingActivity() {
     }
 
     /**
-     * What a message can carry: a photograph taken now, a picture, a sound
-     * recorded, a contact, where one is, any file. What the phone has no
+     * What a message can carry: a photograph taken now, a picture, a
+     * contact, where one is, any file. What the phone has no
      * application for is not offered.
      */
     private fun attach() {
@@ -478,11 +485,6 @@ class ThreadActivity : AskingActivity() {
             }
         }
         choices += R.string.attach_picture to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*"), PICTURE) }
-        val record = Intent(android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION)
-        // A phone with no recorder of its own still has sounds to choose among.
-        choices += R.string.attach_sound to {
-            launch(if (offered(record)) record else Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("audio/*"), SOUND)
-        }
         choices += R.string.attach_contact to { launch(Intent(Intent.ACTION_PICK, android.provider.ContactsContract.Contacts.CONTENT_URI), CONTACT) }
         choices += R.string.attach_place to { place() }
         choices += R.string.attach_file to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), FILE) }
@@ -714,7 +716,7 @@ class ThreadActivity : AskingActivity() {
             if (outcome == RESULT_OK) attached(SHOT, android.net.Uri.parse("content://$packageName.pdu/shot/photo.jpg"))
             return
         }
-        if (request == PICTURE || request == SOUND || request == CONTACT || request == FILE) {
+        if (request == PICTURE || request == CONTACT || request == FILE) {
             data?.data?.takeIf { outcome == RESULT_OK }?.let { attached(request, it) }
             return
         }
@@ -814,11 +816,13 @@ class ThreadActivity : AskingActivity() {
         // The parts are weighed off the page: a message of the phone's store says nothing of their size.
         thread {
             val weights = line.pieces.associate { it.id to Media.weight(this, it.uri) }
-            runOnUiThread { if (!isFinishing && !isDestroyed) details(line, weights) }
+            // Who signed, as foodjis knows them: the key named by the signature is all the message says.
+            val signer = Pgp.armorIn(line.body)?.let { Opened.words(it) }?.signer?.let { foodjis.signer(it) }
+            runOnUiThread { if (!isFinishing && !isDestroyed) details(line, weights, signer) }
         }
     }
 
-    private fun details(line: Store.Line, weights: Map<Long, Long>) {
+    private fun details(line: Store.Line, weights: Map<Long, Long>, signer: Foodjis.Cert?) {
         val armor = Pgp.armorIn(line.body)
         val precise = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM)
         val told = buildString {
@@ -840,7 +844,12 @@ class ThreadActivity : AskingActivity() {
                 for (id in Pgp.recipients(armor)) {
                     append("•  ").append(meant[id]?.name ?: getString(R.string.detail_unknown_key)).append("  0x%016X".format(id)).append('\n')
                 }
-                Opened.words(armor)?.signed?.let { append(it).append('\n') }
+                Opened.words(armor)?.let { read ->
+                    read.signed?.let { append(it).append('\n') }
+                    read.signer?.let { append(getString(R.string.detail_signer_key, "%016X".format(it))).append('\n') }
+                    signer?.let { append(getString(R.string.detail_signer_fpr, it.fingerprint.chunked(4).joinToString(" "))).append('\n') }
+                    (signer?.eid ?: read.eid)?.let { append(getString(R.string.detail_signer_eid, it)).append('\n') }
+                }
             }
         }
         AlertDialog.Builder(this)
@@ -882,7 +891,11 @@ class ThreadActivity : AskingActivity() {
         @Suppress("DEPRECATION")
         val signature = answer.says.getParcelableExtra<OpenPgpSignatureResult>(Provider.RESULT_SIGNATURE)
         val certified = signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED
-        Opened.keep(this, armor, String(answer.bytes, Charsets.UTF_8), signed(signature), Verdict.of(Pgp.isLocked(armor), certified))
+        val signer = signature?.takeIf { it.result != OpenPgpSignatureResult.RESULT_NO_SIGNATURE }
+        Opened.keep(
+            this, armor, String(answer.bytes, Charsets.UTF_8), signed(signature), Verdict.of(Pgp.isLocked(armor), certified),
+            signer = signer?.keyId, eid = signer?.let { Signer.eid(it) },
+        )
         bubbles.notifyDataSetChanged()
         // Signed, from a number that means no certificate yet: it may well mean the signer's.
         if (offer && person?.fingerprint == null && signature?.result in VALID) {
@@ -1171,7 +1184,6 @@ class ThreadActivity : AskingActivity() {
         private const val LET_IN = 2
         private const val SAVE = 4
         private const val PICTURE = 5
-        private const val SOUND = 6
         private const val SHOT = 7
         private const val CONTACT = 8
         private const val FILE = 9

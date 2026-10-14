@@ -174,10 +174,14 @@ object Look {
     fun button(context: Context, label: CharSequence, then: (View) -> Unit): Button = Button(context).apply {
         text = label
         isAllCaps = false
-        background = rounded(FACE, dp(context, 10))
+        background = buttonFace(context, FACE)
         setTextColor(INK)
         setOnClickListener(then)
     }
+
+    /** A button's face, with a margin drawn in: two buttons one after the other stay apart, wherever they are put. */
+    fun buttonFace(context: Context, colour: Int): android.graphics.drawable.Drawable =
+        android.graphics.drawable.InsetDrawable(rounded(colour, dp(context, 10)), dp(context, 2), dp(context, 3), dp(context, 2), dp(context, 3))
 
     fun rounded(colour: Int, radius: Int): GradientDrawable = GradientDrawable().apply {
         setColor(colour)

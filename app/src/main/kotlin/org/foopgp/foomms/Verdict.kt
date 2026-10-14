@@ -37,7 +37,8 @@ enum class Verdict(val encrypted: Boolean, val certified: Boolean) {
  */
 object Opened {
 
-    class Read(val words: String, val signed: String?, val at: Long, val verdict: Verdict)
+    /** [signer]: the key that signed, and [eid] the identifier its certificate carries, when it said so. */
+    class Read(val words: String, val signed: String?, val at: Long, val verdict: Verdict, val signer: Long? = null, val eid: String? = null)
 
     private val read = HashMap<String, Read>()
 
@@ -56,8 +57,11 @@ object Opened {
         held
     }
 
-    fun keep(context: Context, armor: String, words: String, signed: String?, verdict: Verdict, now: Long = System.currentTimeMillis()) {
-        synchronized(read) { read[key(armor)] = Read(words, signed, now, verdict) }
+    fun keep(
+        context: Context, armor: String, words: String, signed: String?, verdict: Verdict,
+        signer: Long? = null, eid: String? = null, now: Long = System.currentTimeMillis(),
+    ) {
+        synchronized(read) { read[key(armor)] = Read(words, signed, now, verdict, signer, eid) }
         forgetOld(context)
     }
 
