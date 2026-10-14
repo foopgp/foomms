@@ -85,7 +85,10 @@ class Provider(private val context: Context) {
         }
         val sent = input?.let { bytes ->
             val pipe = ParcelFileDescriptor.createPipe()
-            thread { ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]).use { it.write(bytes) } }
+            // foodjis stops reading once it has what it needs -- the head of a locked message, to find
+            // that the card is wanted -- and what is left unwritten then has nowhere to go. That is an
+            // answer on its way, not a failure; uncaught, it took the whole application down.
+            thread { runCatching { ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]).use { it.write(bytes) } } }
             pipe[0]
         }
         val says = door.execute(request, sent, id)
