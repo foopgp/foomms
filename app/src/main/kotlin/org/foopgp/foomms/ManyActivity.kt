@@ -86,6 +86,7 @@ class ManyActivity : AskingActivity() {
                 )
             },
         )
+        Edges.fit(this)
         provider.ask(Intent(Provider.GET_SIGN_KEY_ID), null) { answer ->
             if (answer is Provider.Answer.Done) mine = answer.says.getLongExtra(Provider.EXTRA_SIGN_KEY_ID, 0L).takeIf { it != 0L }
             if (!isFinishing && !isDestroyed) paint()

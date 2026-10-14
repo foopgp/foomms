@@ -68,6 +68,7 @@ class SearchActivity : Activity() {
                 addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
             },
         )
+        Edges.fit(this)
         asked.requestFocus()
     }
 

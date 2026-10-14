@@ -70,7 +70,8 @@ class MainActivity : Activity() {
                 setOnClickListener {
                     onlyUnread = !onlyUnread
                     unreadRows = null
-                    show()
+                    // Called by its own name: inside the bar's code, "show()" was the bar's, which shows the bar.
+                    redraw()
                     // In: the unread are read for themselves. Out: what was read of the rest is shown at once,
                     // and read to its end if being in had cut that short.
                     if (onlyUnread || !everyWhole) fill()
@@ -108,6 +109,7 @@ class MainActivity : Activity() {
         column.addView(detail)
         column.addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         setContentView(column)
+        Edges.fit(this)
     }
 
     private var dressed = false
@@ -172,7 +174,8 @@ class MainActivity : Activity() {
                     synchronized(people) { if (people.containsKey(number)) return@let people[number] }
                     Book.who(this, number).also { synchronized(people) { people[number] = it } }
                 }
-                val face = person?.fingerprint?.takeIf { person.photo == null }?.let { foodjis.face(it) }
+                // The face read here, off the page: drawn where it is shown, a contact's picture held the list still.
+                val face = person?.let { Book.face(this, it) } ?: person?.fingerprint?.let { foodjis.face(it) }
                 val armor = Pgp.armorIn(talk.last)
                 val verdict = when {
                     armor == null -> Verdict.RED
@@ -191,7 +194,7 @@ class MainActivity : Activity() {
             fun show(found: List<Row>, whole: Boolean = false) = runOnUiThread {
                 if (isFinishing || isDestroyed || turn != turns) return@runOnUiThread
                 if (unreadOnly) unreadRows = found else { every = found ; everyWhole = whole }
-                show()
+                redraw()
             }
             val stale = { turn != turns }
             // The counts as soon as there is something to look at: they are what a press on them shows, and
@@ -201,7 +204,7 @@ class MainActivity : Activity() {
                 getSharedPreferences("counts", MODE_PRIVATE).edit()
                     .putString("last", listOf(fresh.pgp, fresh.all, fresh.unreadPgp, fresh.unread, fresh.sms, fresh.mms, fresh.talks, fresh.unreadTalks).joinToString(","))
                     .apply()
-                runOnUiThread { if (!isFinishing && !isDestroyed) show() }
+                runOnUiThread { if (!isFinishing && !isDestroyed) redraw() }
             }
             if (unreadOnly) {
                 show(runCatching { Store.talks(this, Int.MAX_VALUE, unreadOnly = true, given = stale) }.getOrDefault(emptyList()).map(::row))
@@ -223,7 +226,7 @@ class MainActivity : Activity() {
      * something unread -- at once from what is at hand, then from those
      * conversations read for themselves --, with the counts spelled out above.
      */
-    private fun show() {
+    private fun redraw() {
         rows = if (!onlyUnread) every else unreadRows ?: every.filter { it.talk.unread }
         talks.notifyDataSetChanged()
         val known = counts
@@ -303,7 +306,7 @@ class MainActivity : Activity() {
                 // The colour of the last message, down the edge of the conversation.
                 addView(View(context).apply { background = Look.rounded(Look.colour(row.verdict), Look.dp(context, 3)) }, LinearLayout.LayoutParams(Look.dp(context, 6), Look.dp(context, 44)))
                 addView(View(context), LinearLayout.LayoutParams(pad, 1))
-                addView(Look.face(context, 44, row.person?.photo, row.face))
+                addView(Look.face(context, 44, null, row.face))
                 addView(text, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
                 setPadding(Look.dp(context, 4), pad, pad, pad)
             }

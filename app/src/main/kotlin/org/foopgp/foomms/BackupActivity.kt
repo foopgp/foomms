@@ -44,6 +44,7 @@ class BackupActivity : Activity() {
         said = Look.words(this, "", size = 15f)
         column.addView(said)
         setContentView(ScrollView(this).apply { addView(column) })
+        Edges.fit(this)
     }
 
     private fun say(words: String) { said.text = words }

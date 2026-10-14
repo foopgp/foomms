@@ -22,6 +22,7 @@ class ConfActivity : Activity() {
         title = getString(R.string.configure)
         column = Look.column(this)
         setContentView(ScrollView(this).apply { addView(column) })
+        Edges.fit(this)
         draw()
     }
 

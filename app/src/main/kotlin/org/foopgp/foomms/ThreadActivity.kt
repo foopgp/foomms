@@ -233,6 +233,7 @@ class ThreadActivity : AskingActivity() {
                 addView(bar)
             },
         )
+        Edges.fit(this)
     }
 
     /** Shown, and so read by the person: a conversation open behind another screen reads nothing. */
@@ -271,7 +272,7 @@ class ThreadActivity : AskingActivity() {
         thread {
             val who = if (contacts) Book.who(this, number) else null
             val whose = who?.fingerprint?.let { foodjis.card(it) }
-            val theirs = who?.fingerprint?.takeIf { who.photo == null }?.let { foodjis.face(it) }
+            val theirs = who?.let { Book.face(this, it) } ?: who?.fingerprint?.let { foodjis.face(it) }
             // The conversation it was opened from, when it was opened from one: a sender that is a name and not a
             // number -- a bank, a shop -- has a conversation all the same.
             val thread: Long? = intent.getLongExtra(EXTRA_THREAD, -1L).takeIf { it >= 0 } ?: runCatching { Store.thread(this, number) }.getOrNull()
@@ -294,7 +295,7 @@ class ThreadActivity : AskingActivity() {
                 title = who?.name ?: number
                 whoIs.text = who?.name ?: number
                 portrait.removeAllViews()
-                portrait.addView(Look.face(this, 38, who?.photo, theirs))
+                portrait.addView(Look.face(this, 38, null, theirs))
                 val standing: CharSequence = when {
                     who?.fingerprint == null -> getString(R.string.no_certificate)
                     foodjis.shut -> getString(R.string.foodjis_shut)
@@ -882,7 +883,7 @@ class ThreadActivity : AskingActivity() {
     }
 
     /** One thing a message carries: a picture shown small, a sound to play, or what it is called. */
-    private fun shownPiece(piece: Store.Piece): View {
+    private fun shownPiece(piece: Store.Piece, at: Int): View {
         val opened = Opened.piece(piece.id)
         if (opened != null) {
             // Opened: shown as if it had travelled in clear, under its own name.
@@ -894,7 +895,8 @@ class ThreadActivity : AskingActivity() {
                     maxWidth = Look.dp(context, 220) ; maxHeight = Look.dp(context, 220)
                     setPadding(0, Look.dp(context, 4), 0, Look.dp(context, 4))
                 }
-                opened.type.startsWith("audio/") -> Look.button(this, "▶ ${opened.name}") { handOver(piece, Intent.ACTION_VIEW) }
+                opened.type.startsWith("audio/") || opened.type == "video/3gpp" ->
+                    Look.button(this, "▶ ${opened.name}") { play(piece) }.apply { setOnLongClickListener { about(at) ; true } }
                 else -> Look.words(this, "📎 ${opened.name}", size = 15f)
             }
         }
@@ -907,7 +909,8 @@ class ThreadActivity : AskingActivity() {
                 maxWidth = Look.dp(context, 220) ; maxHeight = Look.dp(context, 220)
                 setPadding(0, Look.dp(context, 4), 0, Look.dp(context, 4))
             }
-            piece.type.startsWith("audio/") -> Look.button(this, "▶ $name") { play(piece) }
+            // The button takes the press, long ones too: a long one is handed to the message, whose menu it opens.
+            piece.type.startsWith("audio/") -> Look.button(this, "▶ $name") { play(piece) }.apply { setOnLongClickListener { about(at) ; true } }
             piece.type == Pgp.TYPE || name.endsWith(".pgp") || name.endsWith(".gpg") -> Look.words(this, "⚿ $name", size = 15f, muted = true)
             else -> Look.words(this, "📎 $name", size = 15f, muted = true)
         }
@@ -915,14 +918,22 @@ class ThreadActivity : AskingActivity() {
 
     private var player: android.media.MediaPlayer? = null
 
-    /** Play a sound, or stop the one that plays. */
+    /** Play a sound, or stop the one that plays: as it came, or as it was opened from its lock. */
     private fun play(piece: Store.Piece) {
         val playing = player
         player = null
         if (playing != null) { runCatching { playing.stop() ; playing.release() } ; return }
         runCatching {
             player = android.media.MediaPlayer().apply {
-                setDataSource(this@ThreadActivity, piece.uri)
+                val opened = Opened.piece(piece.id)
+                if (opened != null) {
+                    // What was locked is in memory only: a file of the cache, dropped as soon as it has been read.
+                    val sound = java.io.File(cacheDir, "playing").apply { writeBytes(opened.bytes) }
+                    sound.inputStream().use { setDataSource(it.fd) }
+                    sound.delete()
+                } else {
+                    setDataSource(this@ThreadActivity, piece.uri)
+                }
                 setOnCompletionListener { release() ; if (player === it) player = null }
                 prepare()
                 start()
@@ -988,7 +999,7 @@ class ThreadActivity : AskingActivity() {
                 } else if (words.isNotEmpty() || line.pieces.isEmpty()) {
                     addView(text)
                 }
-                for (piece in line.pieces) addView(shownPiece(piece))
+                for (piece in line.pieces) addView(shownPiece(piece, at))
                 addView(Look.words(context, under, size = 11f, muted = true))
             }
             // A mark of the full colour on the side the message came from, the bubble itself on that side.

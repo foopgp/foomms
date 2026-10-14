@@ -25,12 +25,18 @@ import android.provider.ContactsContract.RawContacts
  */
 object Book {
 
+    /** [photo]: the contact's picture, small -- what a list shows of it, and cheap to draw. */
     class Person(val contact: Long, val name: String, val photo: Uri?, val fingerprint: String?)
+
+    /** The contact's picture, small, read here rather than where it is drawn. */
+    fun face(context: Context, person: Person): android.graphics.Bitmap? = person.photo?.let { uri ->
+        runCatching { context.contentResolver.openInputStream(uri)?.use { android.graphics.BitmapFactory.decodeStream(it) } }.getOrNull()
+    }
 
     fun who(context: Context, number: String): Person? = runCatching {
         val asked = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number))
         val columns = arrayOf(
-            ContactsContract.PhoneLookup._ID, ContactsContract.PhoneLookup.DISPLAY_NAME, ContactsContract.PhoneLookup.PHOTO_URI,
+            ContactsContract.PhoneLookup._ID, ContactsContract.PhoneLookup.DISPLAY_NAME, ContactsContract.PhoneLookup.PHOTO_THUMBNAIL_URI,
         )
         // A number may be in more than one contact -- written once with its country, once without, or
         // synchronised from two accounts: the one that names a certificate is the one meant.
