@@ -513,33 +513,77 @@ class ThreadActivity : AskingActivity() {
      */
     private fun pressed(at: Int) {
         val line = lines.getOrNull(at) ?: return
-        val chosen = Pgp.armorIn(line.body)
-        val closedPieces = line.pieces.filter { isSealed(it) && Opened.piece(it.id) == null }
-        // What it carries, locked: opened with the words, by the same use of the key.
-        if (closedPieces.isNotEmpty() && (chosen == null || Opened.words(chosen) != null)) return openPieces(line, closedPieces, null)
         // Nothing to unlock: what a message carries is opened, and failing that its text is shown to select from.
-        if (chosen == null || Opened.words(chosen) != null) {
+        if (!closed(line)) {
             return if (line.pieces.isNotEmpty()) pick(line) { handOver(it, Intent.ACTION_VIEW) }
             else textOf(line).takeIf { it.isNotEmpty() }?.let { select(it, armored = false) } ?: Unit
         }
-        if (closedPieces.isNotEmpty()) return openPieces(line, closedPieces, chosen)
-        val others = Around.others(lines.size, at, Conf.around(this)) { other ->
-            Pgp.armorIn(lines[other].body)?.let { it != chosen && Opened.words(it) == null } == true
-        }.mapNotNull { Pgp.armorIn(lines[it].body) }.distinct()
-        var left = others.size
-        fun theChosen() {
-            ask(Intent(Provider.DECRYPT_VERIFY), chosen.toByteArray(), { closed(chosen, it) }) { answer ->
-                opened(chosen, answer, offer = lines.getOrNull(at)?.incoming == true)
-                // What the key answered for the others is waiting: each is asked for again, and says nothing if it is not.
-                others.filter { Opened.words(it) == null }.forEach { quietly(it) }
+        val near = Around.others(lines.size, at, Conf.around(this)) { closed(lines[it]) }.map { lines[it] }
+        openAll(line, near)
+    }
+
+    /** Something a message holds that the key is to open: its words, or one of the parts it carries. */
+    private sealed class Job {
+        abstract val line: Store.Line
+        class Words(override val line: Store.Line, val armor: String) : Job()
+        class Part(override val line: Store.Line, val piece: Store.Piece, val bytes: ByteArray) : Job()
+    }
+
+    /** Whether a message holds something still closed: its words, or a locked part. */
+    private fun closed(line: Store.Line): Boolean =
+        Pgp.armorIn(line.body)?.let { Opened.words(it) == null } == true ||
+            line.pieces.any { isSealed(it) && Opened.piece(it.id) == null }
+
+    /**
+     * A message pressed, and the closed ones near it, opened by one use of the
+     * key: foodjis is told of everything first -- the words and every locked
+     * part of each --, so that it knows what waits; then asked for the first
+     * thing of the message pressed, which is when it asks for the key; and
+     * what the key did for the rest is collected after. A signed message
+     * needs no key and is read as soon as it is told of.
+     */
+    private fun openAll(chosen: Store.Line, near: List<Store.Line>) {
+        thread {
+            fun jobs(line: Store.Line): List<Job> {
+                val found = ArrayList<Job>()
+                Pgp.armorIn(line.body)?.takeIf { Opened.words(it) == null }?.let { found += Job.Words(line, it) }
+                for (piece in line.pieces.filter { isSealed(it) && Opened.piece(it.id) == null }) {
+                    runCatching { contentResolver.openInputStream(piece.uri)?.use { it.readBytes() } }.getOrNull()
+                        ?.let { found += Job.Part(line, piece, it) }
+                }
+                return found
             }
-        }
-        if (left == 0) return theChosen()
-        for (other in others) {
-            provider.ask(Intent(Provider.DECRYPT_VERIFY), other.toByteArray()) { answer ->
-                // A signed message needs no key and is read at once.
-                if (answer is Provider.Answer.Done && !isFinishing && !isDestroyed) opened(other, answer, offer = false)
-                if (--left == 0 && !isFinishing && !isDestroyed) theChosen()
+            val mine = jobs(chosen)
+            val rest = mine.drop(1) + near.flatMap(::jobs)
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                val first = mine.firstOrNull() ?: return@runOnUiThread
+                fun input(job: Job) = when (job) { is Job.Words -> job.armor.toByteArray() ; is Job.Part -> job.bytes }
+                fun done(job: Job, answer: Provider.Answer.Done) = when (job) {
+                    is Job.Words -> opened(job.armor, answer, offer = job.line === chosen && job.line.incoming)
+                    is Job.Part -> got(job.piece, answer)
+                }
+                val waiting = rest.toMutableList()
+                fun theFirst() {
+                    val why: (String) -> Unit = { words -> if (first is Job.Words) closed(first.armor, words) else say(words) }
+                    ask(Intent(Provider.DECRYPT_VERIFY), input(first), why) { answer ->
+                        done(first, answer)
+                        // What the key answered for the others is waiting: each is asked for again, and says nothing if it is not.
+                        for (job in waiting) {
+                            provider.ask(Intent(Provider.DECRYPT_VERIFY), input(job)) { again ->
+                                if (again is Provider.Answer.Done && !isFinishing && !isDestroyed) done(job, again)
+                            }
+                        }
+                    }
+                }
+                var left = rest.size
+                if (left == 0) return@runOnUiThread theFirst()
+                for (job in rest) {
+                    provider.ask(Intent(Provider.DECRYPT_VERIFY), input(job)) { answer ->
+                        if (answer is Provider.Answer.Done && !isFinishing && !isDestroyed) { done(job, answer) ; waiting.remove(job) }
+                        if (--left == 0 && !isFinishing && !isDestroyed) theFirst()
+                    }
+                }
             }
         }
     }
@@ -550,67 +594,30 @@ class ThreadActivity : AskingActivity() {
         return piece.type == Pgp.TYPE || name.endsWith(".pgp") || name.endsWith(".gpg") || name.endsWith(".asc")
     }
 
-    /**
-     * What a message carries, locked, opened with its words: foodjis is told
-     * of every part first, so that it knows what waits; then asked for the
-     * first, which is when it asks for the security key; and what the key did
-     * for the others is collected after.
-     */
-    private fun openPieces(line: Store.Line, closed: List<Store.Piece>, armor: String?) {
-        thread {
-            val read = closed.mapNotNull { piece -> runCatching { contentResolver.openInputStream(piece.uri)?.use { it.readBytes() } }.getOrNull()?.let { piece to it } }
-            runOnUiThread {
-                if (isFinishing || isDestroyed || read.isEmpty() && armor == null) return@runOnUiThread
-                fun got(piece: Store.Piece, answer: Provider.Answer.Done) {
-                    answer.says.setExtrasClassLoader(OpenPgpSignatureResult::class.java.classLoader)
-                    @Suppress("DEPRECATION")
-                    val signature = answer.says.getParcelableExtra<OpenPgpSignatureResult>(Provider.RESULT_SIGNATURE)
-                    val certified = signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED
-                    val told = Kind.of(answer.bytes.copyOf(minOf(answer.bytes.size, 32)), null)
-                    val name = piece.name.orEmpty().removeSuffix(".pgp").removeSuffix(".gpg").removeSuffix(".asc").ifEmpty { "file.${told.extension}" }
-                    Opened.keepPiece(this, piece.id, told.type, name, answer.bytes, Verdict.of(true, certified))
-                    if (told.type.startsWith("image/")) {
-                        openedThumbs[piece.id] = runCatching {
-                            val side = Look.dp(this, 200)
-                            val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                            android.graphics.BitmapFactory.decodeByteArray(answer.bytes, 0, answer.bytes.size, bounds)
-                            var sample = 1
-                            while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 2 * side) sample *= 2
-                            android.graphics.BitmapFactory.decodeByteArray(answer.bytes, 0, answer.bytes.size, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample })
-                        }.getOrNull()
-                    }
-                    bubbles.notifyDataSetChanged()
-                }
-                val first: Pair<Store.Piece?, ByteArray> = if (armor != null) null to armor.toByteArray() else read.first().first to read.first().second
-                val rest = if (armor != null) read else read.drop(1)
-                var left = rest.size
-                fun theFirst() {
-                    ask(Intent(Provider.DECRYPT_VERIFY), first.second, { why -> if (armor != null) closed(armor, why) else say(why) }) { answer ->
-                        val piece = first.first
-                        if (piece == null) opened(armor!!, answer, offer = line.incoming) else got(piece, answer)
-                        for ((other, bytes) in rest) {
-                            provider.ask(Intent(Provider.DECRYPT_VERIFY), bytes) { again ->
-                                if (again is Provider.Answer.Done && !isFinishing && !isDestroyed) got(other, again)
-                            }
-                        }
-                    }
-                }
-                if (left == 0) return@runOnUiThread theFirst()
-                for ((_, bytes) in rest) {
-                    provider.ask(Intent(Provider.DECRYPT_VERIFY), bytes) { if (--left == 0 && !isFinishing && !isDestroyed) theFirst() }
-                }
-            }
+    /** A locked part, opened: kept with what it is, and a picture made small to sit in its bubble. */
+    private fun got(piece: Store.Piece, answer: Provider.Answer.Done) {
+        answer.says.setExtrasClassLoader(OpenPgpSignatureResult::class.java.classLoader)
+        @Suppress("DEPRECATION")
+        val signature = answer.says.getParcelableExtra<OpenPgpSignatureResult>(Provider.RESULT_SIGNATURE)
+        val certified = signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED
+        val told = Kind.of(answer.bytes.copyOf(minOf(answer.bytes.size, 32)), null)
+        val name = piece.name.orEmpty().removeSuffix(".pgp").removeSuffix(".gpg").removeSuffix(".asc").ifEmpty { "file.${told.extension}" }
+        Opened.keepPiece(this, piece.id, told.type, name, answer.bytes, Verdict.of(true, certified))
+        if (told.type.startsWith("image/")) {
+            openedThumbs[piece.id] = runCatching {
+                val side = Look.dp(this, 200)
+                val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                android.graphics.BitmapFactory.decodeByteArray(answer.bytes, 0, answer.bytes.size, bounds)
+                var sample = 1
+                while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 2 * side) sample *= 2
+                android.graphics.BitmapFactory.decodeByteArray(answer.bytes, 0, answer.bytes.size, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample })
+            }.getOrNull()
         }
+        bubbles.notifyDataSetChanged()
     }
 
     /** The pictures opened from locked parts, small, by the part they were. */
     private val openedThumbs = HashMap<Long, Bitmap?>()
-
-    private fun quietly(armor: String) {
-        provider.ask(Intent(Provider.DECRYPT_VERIFY), armor.toByteArray()) { answer ->
-            if (answer is Provider.Answer.Done && !isFinishing && !isDestroyed) opened(armor, answer, offer = false)
-        }
-    }
 
     /**
      * A message that did not open -- locked for somebody else, most often --
