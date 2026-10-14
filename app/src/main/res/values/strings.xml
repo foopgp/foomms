@@ -140,4 +140,13 @@
     <string name="place_off">The phone\'s location is turned off.</string>
     <string name="place_seeking">Finding where you are…</string>
     <string name="place_none">The phone does not know where it is just now.</string>
+    <string name="backup_all">💾 Back up or restore</string>
+    <string name="backup_one">💾 Back up or restore this conversation</string>
+    <string name="backup_about">Every message of the phone, saved to a file — or put back from one — in the form of \"SMS Backup &amp; Restore\", which most messaging applications read. PGP messages are saved as they travelled: locked.</string>
+    <string name="backup_about_one">The messages of the conversation with %1$s, saved to a file — or put back from one — in the form of \"SMS Backup &amp; Restore\", which most messaging applications read. PGP messages are saved as they travelled: locked.</string>
+    <string name="backup_save">↧ Save to a file</string>
+    <string name="backup_restore">⤒ Restore from a file</string>
+    <string name="backup_working">Working…</string>
+    <string name="backup_saved">Saved: %1$d SMS and %2$d MMS.</string>
+    <string name="backup_restored">Restored: %1$d SMS and %2$d MMS; %3$d already on the phone.</string>
 </resources>

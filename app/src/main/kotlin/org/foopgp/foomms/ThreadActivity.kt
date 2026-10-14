@@ -43,6 +43,9 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
+    /** The conversation in the phone's store, for a page opened from this one; none yet, -1. */
+    val threadId: Long get() = thread ?: -1L
+
     /** Whom this conversation is with, for a page opened from this one. */
     val talkingTo: String get() = number
 
@@ -511,11 +514,15 @@ class ThreadActivity : AskingActivity() {
     private fun pressed(at: Int) {
         val line = lines.getOrNull(at) ?: return
         val chosen = Pgp.armorIn(line.body)
+        val closedPieces = line.pieces.filter { isSealed(it) && Opened.piece(it.id) == null }
+        // What it carries, locked: opened with the words, by the same use of the key.
+        if (closedPieces.isNotEmpty() && (chosen == null || Opened.words(chosen) != null)) return openPieces(line, closedPieces, null)
         // Nothing to unlock: what a message carries is opened, and failing that its text is shown to select from.
         if (chosen == null || Opened.words(chosen) != null) {
             return if (line.pieces.isNotEmpty()) pick(line) { handOver(it, Intent.ACTION_VIEW) }
             else textOf(line).takeIf { it.isNotEmpty() }?.let { select(it, armored = false) } ?: Unit
         }
+        if (closedPieces.isNotEmpty()) return openPieces(line, closedPieces, chosen)
         val others = Around.others(lines.size, at, Conf.around(this)) { other ->
             Pgp.armorIn(lines[other].body)?.let { it != chosen && Opened.words(it) == null } == true
         }.mapNotNull { Pgp.armorIn(lines[it].body) }.distinct()
@@ -536,6 +543,68 @@ class ThreadActivity : AskingActivity() {
             }
         }
     }
+
+    /** A part of an MMS that is itself a PGP message: by its label, or by the name given to what was locked. */
+    private fun isSealed(piece: Store.Piece): Boolean {
+        val name = piece.name.orEmpty().lowercase()
+        return piece.type == Pgp.TYPE || name.endsWith(".pgp") || name.endsWith(".gpg") || name.endsWith(".asc")
+    }
+
+    /**
+     * What a message carries, locked, opened with its words: foodjis is told
+     * of every part first, so that it knows what waits; then asked for the
+     * first, which is when it asks for the security key; and what the key did
+     * for the others is collected after.
+     */
+    private fun openPieces(line: Store.Line, closed: List<Store.Piece>, armor: String?) {
+        thread {
+            val read = closed.mapNotNull { piece -> runCatching { contentResolver.openInputStream(piece.uri)?.use { it.readBytes() } }.getOrNull()?.let { piece to it } }
+            runOnUiThread {
+                if (isFinishing || isDestroyed || read.isEmpty() && armor == null) return@runOnUiThread
+                fun got(piece: Store.Piece, answer: Provider.Answer.Done) {
+                    answer.says.setExtrasClassLoader(OpenPgpSignatureResult::class.java.classLoader)
+                    @Suppress("DEPRECATION")
+                    val signature = answer.says.getParcelableExtra<OpenPgpSignatureResult>(Provider.RESULT_SIGNATURE)
+                    val certified = signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED
+                    val told = Kind.of(answer.bytes.copyOf(minOf(answer.bytes.size, 32)), null)
+                    val name = piece.name.orEmpty().removeSuffix(".pgp").removeSuffix(".gpg").removeSuffix(".asc").ifEmpty { "file.${told.extension}" }
+                    Opened.keepPiece(this, piece.id, told.type, name, answer.bytes, Verdict.of(true, certified))
+                    if (told.type.startsWith("image/")) {
+                        openedThumbs[piece.id] = runCatching {
+                            val side = Look.dp(this, 200)
+                            val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                            android.graphics.BitmapFactory.decodeByteArray(answer.bytes, 0, answer.bytes.size, bounds)
+                            var sample = 1
+                            while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 2 * side) sample *= 2
+                            android.graphics.BitmapFactory.decodeByteArray(answer.bytes, 0, answer.bytes.size, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample })
+                        }.getOrNull()
+                    }
+                    bubbles.notifyDataSetChanged()
+                }
+                val first: Pair<Store.Piece?, ByteArray> = if (armor != null) null to armor.toByteArray() else read.first().first to read.first().second
+                val rest = if (armor != null) read else read.drop(1)
+                var left = rest.size
+                fun theFirst() {
+                    ask(Intent(Provider.DECRYPT_VERIFY), first.second, { why -> if (armor != null) closed(armor, why) else say(why) }) { answer ->
+                        val piece = first.first
+                        if (piece == null) opened(armor!!, answer, offer = line.incoming) else got(piece, answer)
+                        for ((other, bytes) in rest) {
+                            provider.ask(Intent(Provider.DECRYPT_VERIFY), bytes) { again ->
+                                if (again is Provider.Answer.Done && !isFinishing && !isDestroyed) got(other, again)
+                            }
+                        }
+                    }
+                }
+                if (left == 0) return@runOnUiThread theFirst()
+                for ((_, bytes) in rest) {
+                    provider.ask(Intent(Provider.DECRYPT_VERIFY), bytes) { if (--left == 0 && !isFinishing && !isDestroyed) theFirst() }
+                }
+            }
+        }
+    }
+
+    /** The pictures opened from locked parts, small, by the part they were. */
+    private val openedThumbs = HashMap<Long, Bitmap?>()
 
     private fun quietly(armor: String) {
         provider.ask(Intent(Provider.DECRYPT_VERIFY), armor.toByteArray()) { answer ->
@@ -653,8 +722,12 @@ class ThreadActivity : AskingActivity() {
     private fun handOver(piece: Store.Piece, how: String) {
         thread {
             val handed = runCatching {
-                val bytes = contentResolver.openInputStream(piece.uri)?.use { it.readBytes() } ?: error("nothing to read")
-                Outbox.toOpen(this, piece.name ?: "file", bytes, piece.type)
+                val opened = Opened.piece(piece.id)
+                if (opened != null) Outbox.toOpen(this, opened.name, opened.bytes, opened.type)
+                else {
+                    val bytes = contentResolver.openInputStream(piece.uri)?.use { it.readBytes() } ?: error("nothing to read")
+                    Outbox.toOpen(this, piece.name ?: "file", bytes, piece.type)
+                }
             }
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
@@ -750,6 +823,21 @@ class ThreadActivity : AskingActivity() {
 
     /** One thing a message carries: a picture shown small, a sound to play, or what it is called. */
     private fun shownPiece(piece: Store.Piece): View {
+        val opened = Opened.piece(piece.id)
+        if (opened != null) {
+            // Opened: shown as if it had travelled in clear, under its own name.
+            val small = openedThumbs[piece.id]
+            return when {
+                small != null -> android.widget.ImageView(this).apply {
+                    setImageBitmap(small)
+                    adjustViewBounds = true
+                    maxWidth = Look.dp(context, 220) ; maxHeight = Look.dp(context, 220)
+                    setPadding(0, Look.dp(context, 4), 0, Look.dp(context, 4))
+                }
+                opened.type.startsWith("audio/") -> Look.button(this, "▶ ${opened.name}") { handOver(piece, Intent.ACTION_VIEW) }
+                else -> Look.words(this, "📎 ${opened.name}", size = 15f)
+            }
+        }
         val small = thumbs[piece.id]
         val name = piece.name ?: piece.type
         return when {
@@ -796,9 +884,12 @@ class ThreadActivity : AskingActivity() {
             val context = this@ThreadActivity
             val armor = Pgp.armorIn(line.body)
             val read = armor?.let { Opened.words(it) }
+            val sealed = line.pieces.filter(::isSealed)
+            // Not opened yet: nothing tells what a PGP message is worth, signed or not, before the key does.
             val verdict = when {
-                armor == null -> Verdict.RED
-                else -> Opened.verdict(context, armor) ?: Verdict.of(Pgp.isLocked(armor), false)
+                armor != null -> Opened.verdict(context, armor) ?: Verdict.GREY
+                sealed.isNotEmpty() -> sealed.firstNotNullOfOrNull { Opened.pieceVerdict(context, it.id) } ?: Verdict.GREY
+                else -> Verdict.RED
             }
             val closed = armor != null && read == null
             val locked = closed && Pgp.isLocked(armor!!)

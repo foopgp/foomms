@@ -172,7 +172,8 @@ class MainActivity : Activity() {
                 val armor = Pgp.armorIn(talk.last)
                 val verdict = when {
                     armor == null -> Verdict.RED
-                    else -> Opened.verdict(this, armor) ?: Verdict.of(Pgp.isLocked(armor), false)
+                    // Not opened yet: nothing tells what it is worth, signed or not, before the key does.
+                    else -> Opened.verdict(this, armor) ?: Verdict.GREY
                 }
                 val last = when {
                     armor == null -> talk.last

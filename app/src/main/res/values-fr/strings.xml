@@ -138,4 +138,13 @@
     <string name="place_off">La localisation du téléphone est désactivée.</string>
     <string name="place_seeking">Recherche de votre position…</string>
     <string name="place_none">Le téléphone ne sait pas où il est pour l\'instant.</string>
+    <string name="backup_all">💾 Sauvegarder ou restaurer</string>
+    <string name="backup_one">💾 Sauvegarder/restaurer ce fil</string>
+    <string name="backup_about">Tous les messages du téléphone, enregistrés dans un fichier — ou remis depuis un fichier — au format de « SMS Backup &amp; Restore », que lisent la plupart des applications de messagerie. Les messages PGP sont enregistrés tels qu\'ils ont voyagé : chiffrés.</string>
+    <string name="backup_about_one">Les messages de la conversation avec %1$s, enregistrés dans un fichier — ou remis depuis un fichier — au format de « SMS Backup &amp; Restore », que lisent la plupart des applications de messagerie. Les messages PGP sont enregistrés tels qu\'ils ont voyagé : chiffrés.</string>
+    <string name="backup_save">↧ Enregistrer dans un fichier</string>
+    <string name="backup_restore">⤒ Restaurer depuis un fichier</string>
+    <string name="backup_working">En cours…</string>
+    <string name="backup_saved">Enregistré : %1$d SMS et %2$d MMS.</string>
+    <string name="backup_restored">Restauré : %1$d SMS et %2$d MMS ; %3$d déjà sur le téléphone.</string>
 </resources>

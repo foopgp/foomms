@@ -53,6 +53,7 @@ object Look {
         Verdict.YELLOW -> Color.rgb(0xFA, 0xCC, 0x15)
         Verdict.BLUE -> if (dark) Color.rgb(0x71, 0xBF, 0xFF) else Color.rgb(0x00, 0x68, 0xB2)
         Verdict.GREEN -> Color.rgb(0x00, 0xD3, 0x90)
+        Verdict.GREY -> Color.rgb(0xA1, 0xA1, 0xAA)
     }
 
     /** The same colour under a text: pale on a light page, deep on a dark one, the text legible on both. */
@@ -62,6 +63,7 @@ object Look {
             Verdict.YELLOW -> Color.rgb(0x57, 0x47, 0x08)
             Verdict.BLUE -> Color.rgb(0x0B, 0x3A, 0x5E)
             Verdict.GREEN -> Color.rgb(0x0A, 0x4A, 0x38)
+            Verdict.GREY -> Color.rgb(0x3F, 0x3F, 0x46)
         }
     } else {
         when (verdict) {
@@ -69,6 +71,7 @@ object Look {
             Verdict.YELLOW -> Color.rgb(0xFE, 0xF4, 0xC4)
             Verdict.BLUE -> Color.rgb(0xD6, 0xEC, 0xFF)
             Verdict.GREEN -> Color.rgb(0xCD, 0xF6, 0xE8)
+            Verdict.GREY -> Color.rgb(0xE4, 0xE4, 0xE7)
         }
     }
 

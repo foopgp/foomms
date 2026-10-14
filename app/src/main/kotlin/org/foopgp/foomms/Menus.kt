@@ -18,6 +18,7 @@ object Menus {
     private const val WRITE = 0x7002
     private const val CONFIGURE = 0x7003
     private const val SEARCH = 0x7004
+    private const val BACKUP = 0x7005
 
     fun build(activity: Activity, menu: Menu) {
         if (activity !is MainActivity) {
@@ -35,6 +36,7 @@ object Menus {
         // In a conversation, what is looked through is that conversation.
         if (activity !is SearchActivity) menu.add(0, SEARCH, 9, if (activity is ThreadActivity) R.string.search_here else R.string.search_all)
         menu.add(0, WRITE, 11, R.string.write)
+        if (activity !is BackupActivity) menu.add(0, BACKUP, 11, if (activity is ThreadActivity) R.string.backup_one else R.string.backup_all)
         if (activity !is ConfActivity) menu.add(0, CONFIGURE, 12, R.string.configure)
     }
 
@@ -50,6 +52,12 @@ object Menus {
                     .putExtra(SearchActivity.EXTRA_NUMBER, (activity as? ThreadActivity)?.talkingTo),
             )
             CONFIGURE -> activity.startActivity(Intent(activity, ConfActivity::class.java))
+            // In a conversation, what is saved or put back is that conversation.
+            BACKUP -> activity.startActivity(
+                Intent(activity, BackupActivity::class.java)
+                    .putExtra(BackupActivity.EXTRA_THREAD, (activity as? ThreadActivity)?.threadId ?: -1L)
+                    .putExtra(BackupActivity.EXTRA_NAME, (activity as? ThreadActivity)?.title?.toString()),
+            )
             else -> return false
         }
         return true

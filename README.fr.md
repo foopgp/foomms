@@ -42,7 +42,8 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   certifié et non chiffré ; vert, les deux. *Certifié* veut dire signé — par
   quelqu'un que vous avez certifié, pour un message reçu ; par vous, vers
   quelqu'un que vous avez certifié, pour un message envoyé. Non signé, c'est non certifié. Un SMS
-  ordinaire est rouge.
+  ordinaire est rouge ; un message PGP pas encore ouvert est gris, puisque
+  ce qu'il vaut — signé ou non — ne se sait qu'une fois la clé passée.
 - **Un texte reste un texte.** Un message part en SMS tant qu'il en faut
   cinq ou moins, en un MMS au-delà — ou dès qu'il dépasse un SMS, si vous
   réglez de privilégier les MMS ; et vous pouvez demander à être prévenu
@@ -57,7 +58,9 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   Chiffré ou signé, le fichier devient un message PGP à lui, sous son nom
   suivi de `.pgp`, que foodjis ouvre comme n'importe quel fichier ; le texte
   reste un texte sous armure à côté, et signer les deux ne demande la clé de
-  sécurité qu'une fois. Reçue en clair, une image s'affiche en
+  sécurité qu'une fois. Reçu chiffré, ce que porte un message s'ouvre avec son texte par le même
+  passage de la clé, et s'affiche comme s'il était arrivé en clair. Reçue en
+  clair, une image s'affiche en
   petit et un son se joue sur place.
 - **Relire ce qu'on a envoyé** : un message chiffré l'est aussi pour vous,
   sauf si vous réglez que non.
@@ -109,6 +112,11 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   garde que les conversations qui contiennent un message non lu.
 - **Un nouveau message** commence par un numéro, ou quelques lettres d'un
   nom du carnet d'adresses.
+- **Sauvegarder et restaurer**, depuis le menu : tous les messages, ou ceux
+  de la conversation ouverte, enregistrés dans un fichier — ou remis depuis
+  un fichier — dans le XML de « SMS Backup & Restore », que lisent la plupart
+  des applications de messagerie. Les messages PGP sont enregistrés tels
+  qu'ils ont voyagé : chiffrés.
 - **L'allure de foodjis**, claire ou sombre comme le téléphone ou comme vous
   le réglez : ses couleurs et ses glyphes, et à côté d'un nom
   la photo du contact, ou le visage que porte son certificat.

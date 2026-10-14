@@ -39,7 +39,9 @@ then one of them in bubbles, a field at the bottom.
   certified and not encrypted; green, both. *Certified* means signed — by
   somebody you certified, for a message received; by you, to somebody you
   certified, for one sent. Not
-  signed is not certified. An ordinary SMS is red.
+  signed is not certified. An ordinary SMS is red; a PGP message
+  not yet opened is grey, since what it is worth — signed or not — is known
+  only once the key has opened it.
 - **A text stays a text.** A message leaves as SMS while it takes five of
   them or fewer, as one MMS beyond — or beyond a single SMS, if you set MMS
   to be preferred; and you can ask to be told before an MMS leaves, which an
@@ -52,7 +54,8 @@ then one of them in bubbles, a field at the bottom.
   picture made small enough for the network before it leaves. Locked or
   signed, the file becomes a PGP message of its own, under its name and
   `.pgp`, which foodjis opens as it opens any file; the words stay a text in
-  armor beside it, and signing both asks for the security key once. Received in clear, a picture is shown small and a sound
+  armor beside it, and signing both asks for the security key once. Received locked, what a message carries is opened with its words by the same
+  use of the key, and shown as if it had come in clear. Received in clear, a picture is shown small and a sound
   plays where it stands.
 - **Read again what you sent**: a locked message is locked for you too,
   unless you set it not to be.
@@ -103,6 +106,10 @@ then one of them in bubbles, a field at the bottom.
   only the conversations that hold something unread.
 - **A new message** begins with a number, or a few letters of a name in the
   address book.
+- **Back up and restore**, from the menu: every message, or those of the
+  conversation at hand, saved to a file — or put back from one — in the XML
+  of "SMS Backup & Restore", which most messaging applications read. PGP
+  messages are saved as they travelled: locked.
 - **The look of foodjis**, light or dark as the phone is or as you set it:
   its colours and glyphs, and beside a name the
   contact's picture, or the face their certificate carries.

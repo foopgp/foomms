@@ -13,7 +13,10 @@ enum class Verdict(val encrypted: Boolean, val certified: Boolean) {
     RED(false, false),
     YELLOW(true, false),
     BLUE(false, true),
-    GREEN(true, true);
+    GREEN(true, true),
+
+    /** A PGP message not yet opened: what it is worth is in what the key will say. */
+    GREY(true, false);
 
     companion object {
         fun of(encrypted: Boolean, certified: Boolean): Verdict = when {
@@ -59,10 +62,33 @@ object Opened {
         kept(context).edit().putString(key(armor), verdict.name).apply()
     }
 
-    fun holdsAnything(): Boolean = synchronized(read) { read.isNotEmpty() }
+    /** What a part of an MMS held once it was opened: the file, and what it is. */
+    class Piece(val type: String, val name: String, val bytes: ByteArray, val at: Long)
 
-    /** The words of every message, dropped; what each was worth stays known. */
-    fun forget() = synchronized(read) { read.clear() }
+    private val pieces = HashMap<Long, Piece>()
+
+    /** A part opened not too long ago, by its number in the phone's store. */
+    fun piece(part: Long, now: Long = System.currentTimeMillis()): Piece? = synchronized(pieces) {
+        val held = pieces[part] ?: return null
+        if (holdFor > 0 && now - held.at > holdFor) { pieces.remove(part) ; return null }
+        held
+    }
+
+    fun keepPiece(context: Context, part: Long, type: String, name: String, bytes: ByteArray, verdict: Verdict, now: Long = System.currentTimeMillis()) {
+        synchronized(pieces) { pieces[part] = Piece(type, name, bytes, now) }
+        kept(context).edit().putString("part:$part", verdict.name).apply()
+    }
+
+    fun pieceVerdict(context: Context, part: Long): Verdict? =
+        kept(context).getString("part:$part", null)?.let { name -> Verdict.entries.firstOrNull { it.name == name } }
+
+    fun holdsAnything(): Boolean = synchronized(read) { read.isNotEmpty() } || synchronized(pieces) { pieces.isNotEmpty() }
+
+    /** The words of every message and what they carried, dropped; what each was worth stays known. */
+    fun forget() {
+        synchronized(read) { read.clear() }
+        synchronized(pieces) { pieces.clear() }
+    }
 
     fun verdict(context: Context, armor: String): Verdict? =
         kept(context).getString(key(armor), null)?.let { name -> Verdict.entries.firstOrNull { it.name == name } }
