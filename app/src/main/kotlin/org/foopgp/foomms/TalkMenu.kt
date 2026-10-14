@@ -31,11 +31,17 @@ object TalkMenu {
     ) {
         val number = Phone.plain(sender)
         val muted = Marks.muted(activity, sender)
-        val choices = ArrayList<Pair<Int, () -> Unit>>()
+        val choices = ArrayList<Pair<String, () -> Unit>>()
+        fun add(words: Int, then: () -> Unit) { choices += activity.getString(words) to then }
+        // Calling, where the phone can: the dialler opens with the number, and nothing is dialled without the person.
+        val dial = Intent(Intent.ACTION_DIAL, android.net.Uri.fromParts("tel", sender, null))
+        if (number != null && dial.resolveActivity(activity.packageManager) != null) {
+            choices += activity.getString(R.string.call, sender) to { runCatching { activity.startActivity(dial) } }
+        }
         if (person != null) {
             // The phone's own card for the contact, shown at once: asking "open with" brought up
             // applications that take any address and do nothing with a contact's.
-            choices += R.string.contact_show to {
+            add(R.string.contact_show) {
                 runCatching {
                     ContactsContract.QuickContact.showQuickContact(
                         activity, activity.window.decorView,
@@ -45,7 +51,7 @@ object TalkMenu {
                 }
             }
         } else if (number != null) {
-            choices += R.string.contact_add to {
+            add(R.string.contact_add) {
                 runCatching {
                     activity.startActivity(
                         Intent(ContactsContract.Intents.Insert.ACTION).setType(ContactsContract.RawContacts.CONTENT_TYPE)
@@ -57,7 +63,7 @@ object TalkMenu {
         val tied = person?.fingerprint
         if (tied != null) {
             // A number that already means a certificate: see it, read it again, or let go of it.
-            choices += R.string.cert_show to {
+            add(R.string.cert_show) {
                 val foodjis = if (activity.packageName.endsWith(".dev")) Provider.FOODJIS_DEV else Provider.FOODJIS
                 runCatching {
                     activity.startActivity(
@@ -67,19 +73,19 @@ object TalkMenu {
                     AlertDialog.Builder(activity).setMessage(R.string.no_provider).setPositiveButton(R.string.close, null).show()
                 }
             }
-            choices += R.string.cert_refresh to refresh
-            choices += R.string.cert_forget to {
+            add(R.string.cert_refresh, refresh)
+            add(R.string.cert_forget) {
                 thread {
                     runCatching { Book.untie(activity, person.contact) }
                     activity.runOnUiThread { if (!activity.isFinishing && !activity.isDestroyed) changed() }
                 }
             }
         } else if (number != null) {
-            choices += R.string.tie to tie
+            add(R.string.tie, tie)
         }
-        choices += (if (muted) R.string.unmute else R.string.mute) to { Marks.mute(activity, sender, !muted) ; changed() }
+        add(if (muted) R.string.unmute else R.string.mute) { Marks.mute(activity, sender, !muted) ; changed() }
         if (thread != null) {
-            choices += R.string.forget_talk to {
+            add(R.string.forget_talk) {
                 AlertDialog.Builder(activity)
                     .setMessage(activity.getString(R.string.forget_talk_ask, name))
                     .setPositiveButton(R.string.forget_yes) { _, _ ->
@@ -100,7 +106,7 @@ object TalkMenu {
         }
         AlertDialog.Builder(activity)
             .setTitle(name)
-            .setItems(choices.map { activity.getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }
+            .setItems(choices.map { it.first }.toTypedArray()) { _, which -> choices[which].second() }
             .show()
     }
 }

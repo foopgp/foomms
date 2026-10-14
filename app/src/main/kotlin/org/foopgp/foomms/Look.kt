@@ -134,6 +134,26 @@ object Look {
         }
     }
 
+    /**
+     * Three dots at the end of a line of a bar, saying that the bar can be
+     * pressed: the line takes the room left, the dots stand at its right.
+     */
+    fun pressable(context: Context, line: android.widget.TextView): LinearLayout = LinearLayout(context).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        addView(line, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        addView(
+            TextView(context).apply {
+                text = "•••"
+                setTextColor(ORANGE)
+                setTypeface(typeface, android.graphics.Typeface.BOLD)
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+                letterSpacing = 0.15f
+                setPadding(dp(context, 10), 0, dp(context, 4), 0)
+            },
+        )
+    }
+
     fun dp(context: Context, value: Int): Int =
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value.toFloat(), context.resources.displayMetrics).toInt()
 

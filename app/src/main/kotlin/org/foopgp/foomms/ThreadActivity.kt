@@ -140,9 +140,11 @@ class ThreadActivity : AskingActivity() {
                     LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
                         setPadding(Look.dp(context, 10), 0, 0, 0)
-                        addView(whoIs)
+                        // The dots that say the bar can be pressed, on its first line.
+                        addView(Look.pressable(context, whoIs), LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
                         addView(under)
                     },
+                    LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f),
                 )
                 setOnClickListener {
                     TalkMenu.show(
@@ -152,6 +154,7 @@ class ThreadActivity : AskingActivity() {
                     )
                 }
             }
+            customView.layoutParams = android.app.ActionBar.LayoutParams(android.app.ActionBar.LayoutParams.MATCH_PARENT, android.app.ActionBar.LayoutParams.WRAP_CONTENT)
         }
         list = ListView(this).apply {
             divider = null

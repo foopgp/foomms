@@ -82,10 +82,14 @@ class MainActivity : Activity() {
                         orientation = LinearLayout.VERTICAL
                         setPadding(Look.dp(context, 12), 0, 0, 0)
                         addView(all)
-                        addView(unread)
+                        // The dots that say the bar can be pressed, on its second line.
+                        addView(Look.pressable(context, unread), LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
                     },
+                    LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f),
                 )
             }
+            // The whole width, up to the menu's own button: the dots stand at the right of it.
+            customView.layoutParams = android.app.ActionBar.LayoutParams(android.app.ActionBar.LayoutParams.MATCH_PARENT, android.app.ActionBar.LayoutParams.WRAP_CONTENT)
         }
         val column = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         asking = Look.column(this)

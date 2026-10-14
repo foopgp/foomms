@@ -91,8 +91,6 @@
     <string name="no_answer">This sender cannot be answered</string>
     <string name="no_certificate">No certificate</string>
     <string name="tie">🔑 Tie to a certificate</string>
-    <string name="contact_show">Show the contact</string>
-    <string name="contact_add">Add to contacts</string>
     <string name="mute">🔕 Turn notifications off</string>
     <string name="unmute">🔔 Turn notifications on</string>
     <string name="forget_talk">⌫ Delete the conversation</string>
@@ -154,4 +152,7 @@
     <string name="voice_too_short">Too short: nothing was recorded.</string>
     <string name="voice_failed">The phone would not record.</string>
     <string name="voice_ready">Hold the field again to speak.</string>
+    <string name="call">📞 Call %1$s</string>
+    <string name="contact_show">👤 Show the contact</string>
+    <string name="contact_add">👤 Add to contacts</string>
 </resources>
