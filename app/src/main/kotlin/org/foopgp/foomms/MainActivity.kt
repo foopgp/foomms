@@ -26,7 +26,7 @@ import kotlin.concurrent.thread
  */
 class MainActivity : Activity() {
 
-    class Row(val talk: Store.Talk, val person: Book.Person?, val face: Bitmap?, val name: String, val verdict: Verdict, val last: String)
+    class Row(val talk: Store.Talk, val person: Book.Person?, val face: Bitmap?, val name: String, val verdict: Verdict, val last: String, val standing: String? = null)
 
     private lateinit var list: ListView
     private lateinit var asking: LinearLayout
@@ -35,6 +35,9 @@ class MainActivity : Activity() {
     /** Every conversation read so far, and whether only those with something unread are shown. */
     private var every: List<Row> = emptyList()
     private var onlyUnread = false
+
+    /** Whether [every] holds every conversation, rather than the first ones of a reading cut short. */
+    private var everyWhole = false
 
     /** The conversations with something unread, read for themselves; none yet, and they are picked out of [every]. */
     private var unreadRows: List<Row>? = null
@@ -68,7 +71,9 @@ class MainActivity : Activity() {
                     onlyUnread = !onlyUnread
                     unreadRows = null
                     show()
-                    if (onlyUnread) fill()
+                    // In: the unread are read for themselves. Out: what was read of the rest is shown at once,
+                    // and read to its end if being in had cut that short.
+                    if (onlyUnread || !everyWhole) fill()
                 }
                 val side = Look.dp(context, 36)
                 addView(android.widget.ImageView(context).apply { setImageResource(R.drawable.launcher) }, LinearLayout.LayoutParams(side, side))
@@ -173,13 +178,14 @@ class MainActivity : Activity() {
                     armor == null -> talk.last
                     else -> Opened.words(armor)?.words ?: getString(if (Pgp.isLocked(armor)) R.string.locked_message else R.string.signed_message)
                 }
-                return Row(talk, person, face, person?.name ?: talk.number ?: getString(R.string.unknown_number), verdict, last)
+                val standing = person?.fingerprint?.let { foodjis.card(it)?.validity }
+                return Row(talk, person, face, person?.name ?: talk.number ?: getString(R.string.unknown_number), verdict, last, standing)
                     // A closed PGP message may be opened at any moment: its line is worked out each time.
                     .also { if (armor == null) synchronized(lines) { lines[talk.thread] = it } }
             }
-            fun show(found: List<Row>) = runOnUiThread {
+            fun show(found: List<Row>, whole: Boolean = false) = runOnUiThread {
                 if (isFinishing || isDestroyed || turn != turns) return@runOnUiThread
-                if (unreadOnly) unreadRows = found else every = found
+                if (unreadOnly) unreadRows = found else { every = found ; everyWhole = whole }
                 show()
             }
             val stale = { turn != turns }
@@ -197,11 +203,11 @@ class MainActivity : Activity() {
                 if (!stale()) count()
             } else {
                 val first = runCatching { Store.talks(this, FIRST) }.getOrDefault(emptyList()).map(::row)
-                show(first)
+                show(first, whole = first.size < FIRST)
                 if (!stale()) count()
                 if (first.size >= FIRST && !stale()) {
                     val all = runCatching { Store.talks(this, Int.MAX_VALUE, given = stale) }.getOrDefault(emptyList())
-                    if (!stale()) show(all.map(::row))
+                    if (!stale()) show(all.map(::row), whole = true)
                 }
             }
         }
@@ -231,8 +237,11 @@ class MainActivity : Activity() {
     private var turns = 0
 
     /** A conversation's name, and after it what the person said of its sender: not to be announced. */
-    private fun marked(row: Row): String =
-        if (Marks.muted(this, row.talk.number)) row.name + "  🔕" else row.name
+    private fun marked(row: Row): CharSequence = android.text.SpannableStringBuilder(row.name).apply {
+        // The certificate the number is tied to, by the letter and colour foodjis's contacts page gives it.
+        row.standing?.let { append("  ").append(Look.badge(it)) }
+        if (Marks.muted(this@MainActivity, row.talk.number)) append("  🔕")
+    }
 
     /** Pressed long, a conversation says what can be done about it and about who it is with. */
     private fun about(row: Row) {

@@ -39,9 +39,9 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
 
 - **Quatre couleurs.** Chaque message porte la couleur de ce qu'il vaut :
   rouge, ni chiffré ni certifié ; jaune, chiffré et non certifié ; bleu,
-  certifié et non chiffré ; vert, les deux. Reçu, *certifié* veut dire signé
-  par quelqu'un que vous avez certifié ; envoyé, qu'il est parti vers
-  quelqu'un que vous avez certifié. Non signé, c'est non certifié. Un SMS
+  certifié et non chiffré ; vert, les deux. *Certifié* veut dire signé — par
+  quelqu'un que vous avez certifié, pour un message reçu ; par vous, vers
+  quelqu'un que vous avez certifié, pour un message envoyé. Non signé, c'est non certifié. Un SMS
   ordinaire est rouge.
 - **Un texte reste un texte.** Un message part en SMS tant qu'il en faut
   cinq ou moins, en un MMS au-delà — ou dès qu'il dépasse un SMS, si vous
@@ -100,6 +100,8 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   montre ensuite —, la supprimer. Supprimer est réservé à l'application de
   messagerie du téléphone. L'en-tête d'une conversation ouverte montre le
   visage, le nom, et dessous le numéro et ce que vaut son certificat.
+- **Dans la liste**, un numéro relié à un certificat porte la lettre que lui
+  donne la page des contacts de foodjis, sur sa couleur : C, U, E, R, B.
 - **Des compteurs**, dans la barre de la liste : combien de messages sont PGP
   parmi tous, et parmi les non lus. Un appui les détaille, et la liste ne
   garde que les conversations qui contiennent un message non lu.

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The trial build sits on a phone beside the published one, and speaks to foodjis-dev: it says so in its name, as foodjis-dev does. -->
+    <string name="app_name" translatable="false">foomms-dev</string>
+</resources>

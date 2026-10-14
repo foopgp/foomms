@@ -92,6 +92,27 @@ object Look {
         }
     }
 
+    /**
+     * A certificate's standing as the contacts page of foodjis marks it: a
+     * letter on its colour -- C certified, U not certified, E expired, R
+     * revoked, B broken. The letter carries the meaning, for whoever does not
+     * tell the colours apart.
+     */
+    fun badge(validity: String): CharSequence {
+        val (letter, ground, ink) = when (validity) {
+            "certified" -> Triple("C", Color.rgb(0x00, 0xD3, 0x90), Color.rgb(0x00, 0x4C, 0x39))
+            "uncertified" -> Triple("U", Color.rgb(0xFA, 0xCC, 0x15), Color.BLACK)
+            "expired" -> Triple("E", Color.rgb(0xF9, 0x73, 0x16), Color.WHITE)
+            "revoked" -> Triple("R", Color.rgb(0xFF, 0x62, 0x7D), Color.rgb(0x4D, 0x02, 0x18))
+            else -> Triple("B", Color.rgb(0xDB, 0x3A, 0x60), Color.WHITE)
+        }
+        return android.text.SpannableString("\u2009$letter\u2009").apply {
+            setSpan(android.text.style.BackgroundColorSpan(ground), 0, length, 0)
+            setSpan(android.text.style.ForegroundColorSpan(ink), 0, length, 0)
+            setSpan(android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, length, 0)
+        }
+    }
+
     fun dp(context: Context, value: Int): Int =
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value.toFloat(), context.resources.displayMetrics).toInt()
 

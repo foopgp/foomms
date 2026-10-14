@@ -32,10 +32,16 @@ object Book {
         val columns = arrayOf(
             ContactsContract.PhoneLookup._ID, ContactsContract.PhoneLookup.DISPLAY_NAME, ContactsContract.PhoneLookup.PHOTO_URI,
         )
+        // A number may be in more than one contact -- written once with its country, once without, or
+        // synchronised from two accounts: the one that names a certificate is the one meant.
         context.contentResolver.query(asked, columns, null, null, null)?.use { rows ->
-            if (!rows.moveToFirst()) return@use null
-            val contact = rows.getLong(0)
-            Person(contact, rows.getString(1) ?: number, rows.getString(2)?.let(Uri::parse), fingerprint(context, contact))
+            val found = ArrayList<Person>()
+            while (rows.moveToNext()) {
+                val contact = rows.getLong(0)
+                if (found.any { it.contact == contact }) continue
+                found += Person(contact, rows.getString(1) ?: number, rows.getString(2)?.let(Uri::parse), fingerprint(context, contact))
+            }
+            found.firstOrNull { it.fingerprint != null } ?: found.firstOrNull()
         }
     }.getOrNull()
 

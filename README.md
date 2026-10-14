@@ -36,8 +36,9 @@ then one of them in bubbles, a field at the bottom.
 
 - **Four colours.** Each message wears the colour of what it is worth: red,
   neither encrypted nor certified; yellow, encrypted and not certified; blue,
-  certified and not encrypted; green, both. Received, *certified* means signed
-  by somebody you certified; sent, that it went to somebody you certified. Not
+  certified and not encrypted; green, both. *Certified* means signed — by
+  somebody you certified, for a message received; by you, to somebody you
+  certified, for one sent. Not
   signed is not certified. An ordinary SMS is red.
 - **A text stays a text.** A message leaves as SMS while it takes five of
   them or fewer, as one MMS beyond — or beyond a single SMS, if you set MMS
@@ -93,6 +94,8 @@ then one of them in bubbles, a field at the bottom.
   Deleting is for the phone's messaging application. The head of an open
   conversation shows the face, the name, and under it the number and what
   its certificate is worth.
+- **On the list**, a number tied to a certificate carries the letter the
+  contacts page of foodjis gives it, on its colour: C, U, E, R, B.
 - **Counts**, in the bar of the list: how many messages are PGP among all,
   and among those unread. Pressed, they are spelled out, and the list keeps
   only the conversations that hold something unread.

@@ -118,7 +118,7 @@ class ManyActivity : AskingActivity() {
     private fun worth(): Verdict {
         val locked = locks.isChecked && locks.isEnabled
         val signed = signs.isChecked && signs.isEnabled
-        return Verdict.of(locked, (locked || signed) && whom.isNotEmpty() && whom.all { it.cert?.certified == true })
+        return Verdict.of(locked, signed && whom.isNotEmpty() && whom.all { it.cert?.certified == true })
     }
 
     private fun paint() {

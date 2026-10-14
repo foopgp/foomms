@@ -284,7 +284,8 @@ class ThreadActivity : AskingActivity() {
     }
 
     /** What the next message will be worth to who receives it. */
-    private fun worth(mode: Mode): Verdict = Verdict.of(mode.locks, (mode.locks || mode.signs) && card?.certified == true)
+    // Certified only when signed: what is not signed cannot be told from anybody's, whoever it went to.
+    private fun worth(mode: Mode): Verdict = Verdict.of(mode.locks, mode.signs && card?.certified == true)
 
     /** The switches as they can be, and the colour of what they add up to. */
     private fun paint() {
@@ -793,7 +794,6 @@ class ThreadActivity : AskingActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menu.add(0, TIE, 0, R.string.tie)
         // Only while foodjis keeps its door shut: once let in, there is nothing to ask.
         if (foodjis.shut) menu.add(0, LET_IN, 1, R.string.let_in)
         Menus.build(this, menu)
@@ -801,7 +801,6 @@ class ThreadActivity : AskingActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        TIE -> { tie() ; true }
         LET_IN -> { letIn() ; true }
         else -> Menus.select(this, item) || super.onOptionsItemSelected(item)
     }
