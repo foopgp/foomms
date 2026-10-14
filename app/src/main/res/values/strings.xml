@@ -42,7 +42,6 @@
     <string name="standing_broken">broken</string>
     <string name="talks">Conversations</string>
     <string name="locked_for">⚿ Encrypted message for</string>
-    <string name="locked_help">Press it to read it, and those around it, with your security key.</string>
     <string name="forward">⧉ Forward</string>
     <string name="save">↧ Save</string>
     <string name="saved">Saved.</string>

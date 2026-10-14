@@ -18,7 +18,6 @@ class ConfActivity : Activity() {
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
         super.onCreate(state)
-        Look.homeMark(this)
         title = getString(R.string.configure)
         column = Look.column(this)
         setContentView(ScrollView(this).apply { addView(column) })

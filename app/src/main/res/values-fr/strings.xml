@@ -40,7 +40,6 @@
     <string name="standing_broken">cassé</string>
     <string name="talks">Conversations</string>
     <string name="locked_for">⚿ Message chiffré pour</string>
-    <string name="locked_help">Appuyez dessus pour le lire, avec ses voisins, grâce à votre clé de sécurité.</string>
     <string name="forward">⧉ Transférer</string>
     <string name="save">↧ Enregistrer</string>
     <string name="saved">Enregistré.</string>
@@ -120,7 +119,7 @@
     <string name="tie_ask_after">. Ceci sera inscrit dans votre carnet d\'adresses, là où le contact ne le dit pas déjà :</string>
     <string name="whom_hint">Un nom, ou un numéro de téléphone</string>
     <string name="show_unread">Afficher</string>
-    <string name="show_all">Tout afficher</string>
+    <string name="show_all">Afficher tout</string>
     <string name="count_detail">%1$d messages : %2$d SMS + %3$d MMS\ndont %4$d PGP : %5$d SMS + %6$d MMS\n\n%7$d conversations — %8$s octets</string>
     <string name="count_detail_unread">%1$d non lus</string>
     <string name="count_detail_unread_rest">, dont %1$d PGP, dans %2$d conversations</string>

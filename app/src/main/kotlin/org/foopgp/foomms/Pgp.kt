@@ -93,8 +93,11 @@ object Pgp {
      * a zero, and is left out, as is a packet of a version that names a key
      * otherwise.
      */
-    fun recipients(armor: String): List<Long> {
-        val bytes = unarmored(armor) ?: return emptyList()
+    fun recipients(armor: String): List<Long> = unarmored(armor)?.let { recipients(it) }.orEmpty()
+
+    /** The same, of a message as it travels in a part of an MMS: bare, or armored. */
+    fun recipients(bytes: ByteArray): List<Long> {
+        if (isArmor(bytes)) return recipients(String(bytes, Charsets.US_ASCII))
         val found = ArrayList<Long>()
         var at = 0
         while (at < bytes.size) {

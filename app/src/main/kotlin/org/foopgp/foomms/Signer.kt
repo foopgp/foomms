@@ -30,6 +30,29 @@ object Signer {
     fun named(signature: OpenPgpSignatureResult): String =
         named(signature.userIds.orEmpty() + listOfNotNull(signature.primaryUserId), signature.keyId)
 
+    /** What a signature says, in words: by whom, and whether they are certified. */
+    fun said(context: android.content.Context, signature: OpenPgpSignatureResult?): String = when (signature?.result) {
+        null, OpenPgpSignatureResult.RESULT_NO_SIGNATURE -> context.getString(R.string.unsigned)
+        OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED -> context.getString(R.string.signed_certified, named(signature))
+        OpenPgpSignatureResult.RESULT_VALID_KEY_UNCONFIRMED -> context.getString(R.string.signed_other, named(signature))
+        OpenPgpSignatureResult.RESULT_KEY_MISSING -> context.getString(R.string.signed_unknown)
+        else -> context.getString(R.string.signed_broken)
+    }
+
+    /** A message foodjis opened or verified, kept with what its signature says; the signature, for whoever asks more. */
+    fun keep(context: android.content.Context, armor: String, answer: Provider.Answer.Done): OpenPgpSignatureResult? {
+        answer.says.setExtrasClassLoader(OpenPgpSignatureResult::class.java.classLoader)
+        @Suppress("DEPRECATION")
+        val signature = answer.says.getParcelableExtra<OpenPgpSignatureResult>(Provider.RESULT_SIGNATURE)
+        val certified = signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED
+        val signer = signature?.takeIf { it.result != OpenPgpSignatureResult.RESULT_NO_SIGNATURE }
+        Opened.keep(
+            context, armor, String(answer.bytes, Charsets.UTF_8), said(context, signature), Verdict.of(Pgp.isLocked(armor), certified),
+            signer = signer?.keyId, eid = signer?.let { eid(it) },
+        )
+        return signature
+    }
+
     /** The identifier a signature's certificate carries, in full. */
     fun eid(signature: OpenPgpSignatureResult): String? =
         (signature.userIds.orEmpty() + listOfNotNull(signature.primaryUserId)).firstOrNull { it.startsWith(EID) }?.substringAfter(EID)?.trim()

@@ -70,7 +70,10 @@ object Opened {
     fun verdict(context: Context, armor: String): Verdict? = words(armor)?.verdict
 
     /** What a part of an MMS held once it was opened: the file, what it is, what it is worth. */
-    class Piece(val type: String, val name: String, val bytes: ByteArray, val at: Long, val verdict: Verdict)
+    class Piece(
+        val type: String, val name: String, val bytes: ByteArray, val at: Long, val verdict: Verdict,
+        val signed: String? = null, val signer: Long? = null, val eid: String? = null,
+    )
 
     private val pieces = HashMap<Long, Piece>()
 
@@ -81,8 +84,11 @@ object Opened {
         held
     }
 
-    fun keepPiece(context: Context, part: Long, type: String, name: String, bytes: ByteArray, verdict: Verdict, now: Long = System.currentTimeMillis()) {
-        synchronized(pieces) { pieces[part] = Piece(type, name, bytes, now, verdict) }
+    fun keepPiece(
+        context: Context, part: Long, type: String, name: String, bytes: ByteArray, verdict: Verdict,
+        signed: String? = null, signer: Long? = null, eid: String? = null, now: Long = System.currentTimeMillis(),
+    ) {
+        synchronized(pieces) { pieces[part] = Piece(type, name, bytes, now, verdict, signed, signer, eid) }
         forgetOld(context)
     }
 

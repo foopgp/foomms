@@ -56,6 +56,9 @@ class ThreadActivity : AskingActivity() {
 
     private var meant: Map<Long, For?> = emptyMap()
 
+    /** Whom each locked part of an MMS is for, by the keys it names, by the part it is. */
+    private val sealedFor = java.util.concurrent.ConcurrentHashMap<Long, List<Long>>()
+
     /** The message whose text can be selected, and so copied: the one pressed long, or none. */
 
     private lateinit var list: ListView
@@ -122,7 +125,6 @@ class ThreadActivity : AskingActivity() {
         Look.dress(this)
         dressed = Look.dark
         super.onCreate(state)
-        Look.homeMark(this)
         if (number.isBlank()) return finish()
         title = number
         wanted = intent.getLongExtra(EXTRA_AT, 0L)
@@ -134,6 +136,7 @@ class ThreadActivity : AskingActivity() {
         actionBar?.apply {
             setDisplayShowTitleEnabled(false)
             setDisplayShowCustomEnabled(true)
+            setDisplayHomeAsUpEnabled(true)
             customView = LinearLayout(this@ThreadActivity).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
@@ -278,7 +281,14 @@ class ThreadActivity : AskingActivity() {
             val thread: Long? = intent.getLongExtra(EXTRA_THREAD, -1L).takeIf { it >= 0 } ?: runCatching { Store.thread(this, number) }.getOrNull()
             val found = runCatching { thread?.let { Store.lines(this, it) } }.getOrNull().orEmpty()
             // Whom each locked message is for, by the keys it names: a face each, asked of foodjis once.
-            val named = found.mapNotNull { Pgp.armorIn(it.body) }.filter { Pgp.isLocked(it) }.flatMap { Pgp.recipients(it) }.distinct()
+            // A locked part says it too, at the head of its bytes.
+            for (piece in found.flatMap { it.pieces }.filter(::isSealed)) {
+                if (!sealedFor.containsKey(piece.id)) {
+                    sealedFor[piece.id] = runCatching { contentResolver.openInputStream(piece.uri)?.use { Pgp.recipients(it.readBytes()) } }.getOrNull().orEmpty()
+                }
+            }
+            val named = (found.mapNotNull { Pgp.armorIn(it.body) }.filter { Pgp.isLocked(it) }.flatMap { Pgp.recipients(it) } +
+                found.flatMap { it.pieces }.flatMap { sealedFor[it.id].orEmpty() }).distinct()
             val small = found.takeLast(SHOWN_PICTURES).flatMap { it.pieces }.filter { it.type.startsWith("image/") }
                 .associate { piece -> piece.id to (thumbs[piece.id] ?: Media.thumbnail(this, piece.uri, Look.dp(this, 200))) }
             for (piece in found.flatMap { it.pieces }) {
@@ -320,6 +330,7 @@ class ThreadActivity : AskingActivity() {
                 if (first) { locks.isChecked = whose?.usable == true ; signs.isChecked = whose?.usable == true }
                 paint()
                 bubbles.notifyDataSetChanged()
+                verifySigned()
                 if (wanted > 0) {
                     found.indexOfFirst { it.at == wanted }.takeIf { it >= 0 }?.let { list.setSelection(it) }
                     wanted = 0
@@ -654,7 +665,11 @@ class ThreadActivity : AskingActivity() {
         val certified = signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED
         val told = Kind.of(answer.bytes.copyOf(minOf(answer.bytes.size, 32)), null)
         val name = piece.name.orEmpty().removeSuffix(".pgp").removeSuffix(".gpg").removeSuffix(".asc").ifEmpty { "file.${told.extension}" }
-        Opened.keepPiece(this, piece.id, told.type, name, answer.bytes, Verdict.of(true, certified))
+        val signer = signature?.takeIf { it.result != OpenPgpSignatureResult.RESULT_NO_SIGNATURE }
+        Opened.keepPiece(
+            this, piece.id, told.type, name, answer.bytes, Verdict.of(true, certified),
+            signed = Signer.said(this, signature), signer = signer?.keyId, eid = signer?.let { Signer.eid(it) },
+        )
         if (told.type.startsWith("audio/") || told.type == "video/3gpp") Media.lasting(answer.bytes)?.let { lasts[piece.id] = it }
         if (told.type.startsWith("image/")) {
             openedThumbs[piece.id] = runCatching {
@@ -802,13 +817,36 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
+    /** The signed messages being verified, or that could not be: not asked again while the page stands. */
+    private val verifying = HashSet<String>()
+
+    /** Signed only, a message needs no key: it is verified as soon as it is shown, and never stays grey. */
+    private fun verifySigned() {
+        for (line in lines) {
+            val armor = Pgp.armorIn(line.body) ?: continue
+            if (Pgp.isLocked(armor) || Opened.words(armor) != null || !verifying.add(armor)) continue
+            provider.ask(Intent(Provider.DECRYPT_VERIFY), armor.toByteArray()) { answer ->
+                if (answer !is Provider.Answer.Done || isFinishing || isDestroyed) return@ask
+                opened(armor, answer, offer = false)
+                verifying.remove(armor)
+            }
+        }
+    }
+
+    /** What a signature said of an opened message: of its words, or else of the first of its locked parts opened. */
+    private class Seal(val signed: String?, val signer: Long?, val eid: String?)
+
+    private fun sealOf(line: Store.Line): Seal? =
+        Pgp.armorIn(line.body)?.let { Opened.words(it) }?.let { Seal(it.signed, it.signer, it.eid) }
+            ?: line.pieces.filter(::isSealed).firstNotNullOfOrNull { Opened.piece(it.id) }?.let { Seal(it.signed, it.signer, it.eid) }
+
     /** What is known of a message beyond its words: where from, when, how heavy, what it is made of. */
     private fun details(line: Store.Line) {
         // The parts are weighed off the page: a message of the phone's store says nothing of their size.
         thread {
             val weights = line.pieces.associate { it.id to Media.weight(this, it.uri) }
             // Who signed, as foodjis knows them: the key named by the signature is all the message says.
-            val signer = Pgp.armorIn(line.body)?.let { Opened.words(it) }?.signer?.let { foodjis.signer(it) }
+            val signer = sealOf(line)?.signer?.let { foodjis.signer(it) }
             runOnUiThread { if (!isFinishing && !isDestroyed) details(line, weights, signer) }
         }
     }
@@ -830,17 +868,21 @@ class ThreadActivity : AskingActivity() {
                 lasts[piece.id]?.let { append(" — ").append(Media.clock(it)) }
                 append('\n')
             }
-            if (armor != null) {
-                append(getString(if (Pgp.isLocked(armor)) R.string.detail_locked else R.string.detail_signed)).append('\n')
-                for (id in Pgp.recipients(armor)) {
+            val lockedWords = armor != null && Pgp.isLocked(armor)
+            val lockedParts = line.pieces.filter(::isSealed)
+            if (armor != null && !lockedWords) append(getString(R.string.detail_signed)).append('\n')
+            if (lockedWords || lockedParts.isNotEmpty()) {
+                append(getString(R.string.detail_locked)).append('\n')
+                val keys = (armor?.takeIf { lockedWords }?.let { Pgp.recipients(it) }.orEmpty() + lockedParts.flatMap { sealedFor[it.id].orEmpty() }).distinct()
+                for (id in keys) {
                     append("•  ").append(meant[id]?.name ?: getString(R.string.detail_unknown_key)).append("  0x%016X".format(id)).append('\n')
                 }
-                Opened.words(armor)?.let { read ->
-                    read.signed?.let { append(it).append('\n') }
-                    read.signer?.let { append(getString(R.string.detail_signer_key, "%016X".format(it))).append('\n') }
-                    signer?.let { append(getString(R.string.detail_signer_fpr, it.fingerprint.chunked(4).joinToString(" "))).append('\n') }
-                    (signer?.eid ?: read.eid)?.let { append(getString(R.string.detail_signer_eid, it)).append('\n') }
-                }
+            }
+            sealOf(line)?.let { seal ->
+                seal.signed?.let { append(it).append('\n') }
+                seal.signer?.let { append(getString(R.string.detail_signer_key, "%016X".format(it))).append('\n') }
+                signer?.let { append(getString(R.string.detail_signer_fpr, it.fingerprint.chunked(4).joinToString(" "))).append('\n') }
+                (signer?.eid ?: seal.eid)?.let { append(getString(R.string.detail_signer_eid, it)).append('\n') }
             }
         }
         AlertDialog.Builder(this)
@@ -878,15 +920,7 @@ class ThreadActivity : AskingActivity() {
     }
 
     private fun opened(armor: String, answer: Provider.Answer.Done, offer: Boolean) {
-        answer.says.setExtrasClassLoader(OpenPgpSignatureResult::class.java.classLoader)
-        @Suppress("DEPRECATION")
-        val signature = answer.says.getParcelableExtra<OpenPgpSignatureResult>(Provider.RESULT_SIGNATURE)
-        val certified = signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED
-        val signer = signature?.takeIf { it.result != OpenPgpSignatureResult.RESULT_NO_SIGNATURE }
-        Opened.keep(
-            this, armor, String(answer.bytes, Charsets.UTF_8), signed(signature), Verdict.of(Pgp.isLocked(armor), certified),
-            signer = signer?.keyId, eid = signer?.let { Signer.eid(it) },
-        )
+        val signature = Signer.keep(this, armor, answer)
         bubbles.notifyDataSetChanged()
         // Signed, from a number that means no certificate yet: it may well mean the signer's.
         if (offer && person?.fingerprint == null && signature?.result in VALID) {
@@ -896,14 +930,6 @@ class ThreadActivity : AskingActivity() {
                 runOnUiThread { if (!isFinishing && !isDestroyed) offer(whose) }
             }
         }
-    }
-
-    private fun signed(signature: OpenPgpSignatureResult?): String = when (signature?.result) {
-        null, OpenPgpSignatureResult.RESULT_NO_SIGNATURE -> getString(R.string.unsigned)
-        OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED -> getString(R.string.signed_certified, Signer.named(signature))
-        OpenPgpSignatureResult.RESULT_VALID_KEY_UNCONFIRMED -> getString(R.string.signed_other, Signer.named(signature))
-        OpenPgpSignatureResult.RESULT_KEY_MISSING -> getString(R.string.signed_unknown)
-        else -> getString(R.string.signed_broken)
     }
 
     /** One thing a message carries: a picture shown small, a sound to play, or what it is called. */
@@ -935,7 +961,15 @@ class ThreadActivity : AskingActivity() {
             }
             // The button takes the press, long ones too: a long one is handed to the message, whose menu it opens.
             piece.type.startsWith("audio/") -> Look.button(this, "▶ $name" + lasted(piece)) { play(piece) }.apply { setOnLongClickListener { about(at) ; true } }
-            piece.type == Pgp.TYPE || name.endsWith(".pgp") || name.endsWith(".gpg") -> Look.words(this, "⚿ $name", size = 15f, muted = true)
+            isSealed(piece) -> LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                addView(Look.words(context, "⚿ $name", size = 15f, muted = true))
+                for (id in sealedFor[piece.id].orEmpty()) {
+                    addView(View(context), LinearLayout.LayoutParams(Look.dp(context, 4), 1))
+                    addView(Look.face(context, 22, null, meant[id]?.face))
+                }
+            }
             else -> Look.words(this, "📎 $name", size = 15f, muted = true)
         }
     }
@@ -966,10 +1000,6 @@ class ThreadActivity : AskingActivity() {
             }
         }.onFailure { player = null ; say(getString(R.string.failed, it.message)) }
     }
-
-    /** The last message still locked, which is the one that says how they open. */
-    private fun lastLocked(): Int =
-        lines.indexOfLast { line -> Pgp.armorIn(line.body)?.let { Pgp.isLocked(it) && Opened.words(it) == null } == true }
 
     private val bubbles = object : BaseAdapter() {
         override fun getCount() = lines.size
@@ -1020,8 +1050,6 @@ class ThreadActivity : AskingActivity() {
                             }
                         },
                     )
-                    // Said once, on the last of them: every closed message opens the same way.
-                    if (at == lastLocked()) addView(Look.words(context, getString(R.string.locked_help), size = 13f, muted = true))
                 } else if (words.isNotEmpty() || line.pieces.isEmpty()) {
                     addView(text)
                 }

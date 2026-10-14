@@ -42,7 +42,6 @@ class ManyActivity : AskingActivity() {
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
         super.onCreate(state)
-        Look.homeMark(this)
         if (numbers.size < 2) return finish()
         title = getString(R.string.many_title, numbers.size)
         people = Look.column(this)

@@ -40,17 +40,6 @@ object Look {
         Opened.holdFor = Conf.hold(activity).minutes * 60_000L
     }
 
-    /** The application's mark where the bar's arrow back stood: it leads back to the list of conversations. */
-    fun homeMark(activity: Activity) {
-        val bar = activity.actionBar ?: return
-        val side = dp(activity, 34)
-        val drawn = Bitmap.createBitmap(side, side, Bitmap.Config.ARGB_8888)
-        activity.getDrawable(R.drawable.launcher)?.apply { setBounds(0, 0, side, side) ; draw(android.graphics.Canvas(drawn)) }
-        bar.setDisplayHomeAsUpEnabled(true)
-        bar.setHomeAsUpIndicator(android.graphics.drawable.BitmapDrawable(activity.resources, drawn))
-        bar.setHomeActionContentDescription(R.string.talks)
-    }
-
     val INK: Int get() = if (dark) Color.rgb(0xF4, 0xF4, 0xF5) else Color.rgb(0x18, 0x18, 0x1B)
     val MUTED: Int get() = if (dark) Color.argb(0x99, 0xF4, 0xF4, 0xF5) else Color.argb(0x99, 0x18, 0x18, 0x1B)
     val INDIGO = Color.rgb(0x31, 0x26, 0x4B)

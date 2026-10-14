@@ -31,7 +31,6 @@ class SearchActivity : Activity() {
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
         super.onCreate(state)
-        Look.homeMark(this)
         title = getString(if (number == null) R.string.search_all else R.string.search_here)
         val asked = EditText(this).apply {
             setHint(R.string.search_hint)

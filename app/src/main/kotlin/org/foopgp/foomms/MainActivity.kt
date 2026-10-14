@@ -41,8 +41,7 @@ class MainActivity : Activity() {
     private var unreadRows: List<Row>? = null
     private lateinit var all: android.widget.TextView
     private lateinit var unread: android.widget.TextView
-    private lateinit var showing: LinearLayout
-    private lateinit var everything: android.widget.Button
+    private lateinit var shower: android.widget.Button
     private var rows: List<Row> = emptyList()
 
     override fun onCreate(state: Bundle?) {
@@ -77,17 +76,17 @@ class MainActivity : Activity() {
                         orientation = LinearLayout.VERTICAL
                         setPadding(Look.dp(context, 12), 0, 0, 0)
                         addView(all)
-                        // The second line: the unread and a small button that shows them; while they are shown,
-                        // a small button in its place gives everything back.
-                        showing = LinearLayout(context).apply {
-                            orientation = LinearLayout.HORIZONTAL
-                            gravity = Gravity.CENTER_VERTICAL
-                            addView(unread)
-                            addView(Look.small(context, getString(R.string.show_unread)) { filter(true) }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginStart = Look.dp(context, 10) })
-                        }
-                        addView(showing)
-                        everything = Look.small(context, getString(R.string.show_all)) { filter(false) }.apply { visibility = View.GONE }
-                        addView(everything, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+                        // The second line: the unread, and a small button that shows only them -- or, while they are
+                        // shown, everything again.
+                        shower = Look.small(context, getString(R.string.show_unread)) { filter(!onlyUnread) }
+                        addView(
+                            LinearLayout(context).apply {
+                                orientation = LinearLayout.HORIZONTAL
+                                gravity = Gravity.CENTER_VERTICAL
+                                addView(unread)
+                                addView(shower, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginStart = Look.dp(context, 10) })
+                            },
+                        )
                     },
                     LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f),
                 )
@@ -124,6 +123,35 @@ class MainActivity : Activity() {
     }
 
     private var dressed = false
+
+    private val provider by lazy { Provider(this) }
+
+    /** The signed messages being verified, or that could not be: not asked again while the page stands. */
+    private val verifying = HashSet<String>()
+
+    /**
+     * Signed only, a last message needs no key: it is verified as soon as it
+     * is shown, and never stays grey. The list is read again once foodjis has
+     * answered for all of them.
+     */
+    private fun verifySigned(found: List<Row>) {
+        val asked = found.mapNotNull { Pgp.armorIn(it.talk.last) }
+            .filter { !Pgp.isLocked(it) && Opened.words(it) == null && verifying.add(it) }
+        var left = asked.size
+        var any = false
+        for (armor in asked) {
+            provider.ask(android.content.Intent(Provider.DECRYPT_VERIFY), armor.toByteArray()) { answer ->
+                if (isFinishing || isDestroyed) return@ask
+                if (answer is Provider.Answer.Done) { Signer.keep(this, armor, answer) ; verifying.remove(armor) ; any = true }
+                if (--left == 0 && any) fill()
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        provider.close()
+        super.onDestroy()
+    }
 
     /** Only the conversations with something unread and the counts in detail, or everything. */
     private fun filter(only: Boolean) {
@@ -228,6 +256,7 @@ class MainActivity : Activity() {
                 if (isFinishing || isDestroyed || turn != turns) return@runOnUiThread
                 if (unreadOnly) unreadRows = found else { every = found ; everyWhole = whole }
                 redraw()
+                verifySigned(found)
             }
             val stale = { turn != turns }
             // The counts as soon as there is something to look at: they are what a press on them shows, and
@@ -275,8 +304,7 @@ class MainActivity : Activity() {
             ).append(getString(R.string.count_detail_unread_rest, known.unreadPgp, known.unreadTalks))
         }
         detail.visibility = if (onlyUnread && known != null) View.VISIBLE else View.GONE
-        showing.visibility = if (onlyUnread) View.GONE else View.VISIBLE
-        everything.visibility = if (onlyUnread) View.VISIBLE else View.GONE
+        shower.text = getString(if (onlyUnread) R.string.show_all else R.string.show_unread)
     }
 
     /** Which filling is the latest asked for: an older one that finishes late shows nothing. */

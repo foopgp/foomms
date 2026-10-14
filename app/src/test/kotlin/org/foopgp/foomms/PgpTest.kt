@@ -62,5 +62,8 @@ class PgpTest {
         assertEquals(listOf(0x0123456789ABCDEFL, -0x0123456789ABCDF0L), Pgp.recipients(armor))
         assertEquals(emptyList<Long>(), Pgp.recipients("-----BEGIN PGP MESSAGE-----\n\nkA0DAAoWAAAAAAAAAAAB\n-----END PGP MESSAGE-----"))
         assertEquals(emptyList<Long>(), Pgp.recipients("not armor"))
+        // A part of an MMS: the same message bare, and armored.
+        assertEquals(listOf(0x0123456789ABCDEFL, -0x0123456789ABCDF0L), Pgp.recipients(message))
+        assertEquals(listOf(0x0123456789ABCDEFL, -0x0123456789ABCDF0L), Pgp.recipients(armor.toByteArray()))
     }
 }
