@@ -84,7 +84,8 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   son texte — l'armure elle-même, pour un message encore fermé —, ouvrir ce
   qu'il porte, le transférer, voir ses détails, le supprimer. Le texte d'un message
   ouvert est gardé en mémoire vive le temps que vous réglez — quinze minutes
-  sauf autre choix — et n'est jamais écrit ; sa couleur est retenue.
+  sauf autre choix — et n'est jamais écrit ; sa couleur part avec lui, et
+  refermé il redevient gris.
 - **Le carnet d'adresses dit quelle clé désigne un numéro.** *Relier un
   certificat à ce numéro* montre la liste de contacts de foodjis, par-dessus
   la conversation : une ligne pour filtrer, puis chaque contact en un visage

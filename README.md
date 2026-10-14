@@ -78,7 +78,8 @@ then one of them in bubbles, a field at the bottom.
   copy or select its text — the armor itself, for one still closed —, open
   what it carries, forward it, see its details, delete it. The words of
   an opened message are held in memory for the time you set — fifteen minutes
-  unless said otherwise — and never written down; its colour is remembered.
+  unless said otherwise — and never written down; its colour goes with them,
+  and closed again it is grey again.
 - **The address book says whose key a number means.** *Tie a certificate to
   this number* shows foodjis's own list of contacts, over the conversation:
   a line to filter by, then each contact as a face and a name on the colour

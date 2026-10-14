@@ -29,16 +29,15 @@ enum class Verdict(val encrypted: Boolean, val certified: Boolean) {
 }
 
 /**
- * What has been learnt of the PGP messages seen so far, by what they are --
- * the digest of their armor -- and not by where the phone keeps them.
- *
- * The verdict outlasts the application; the words do not: what a message said
- * is held in memory for the time the person set, never written down, and is
- * asked of the security key again after that.
+ * What was learnt of the PGP messages opened: their words, what carried
+ * them, and what they are worth -- known from the key and held with the
+ * words, in memory, for the time the person set. Past it, a message is
+ * closed again, and grey again: what it is worth is in what the key says,
+ * and the key is asked again.
  */
 object Opened {
 
-    class Read(val words: String, val signed: String?, val at: Long)
+    class Read(val words: String, val signed: String?, val at: Long, val verdict: Verdict)
 
     private val read = HashMap<String, Read>()
 
@@ -58,12 +57,16 @@ object Opened {
     }
 
     fun keep(context: Context, armor: String, words: String, signed: String?, verdict: Verdict, now: Long = System.currentTimeMillis()) {
-        synchronized(read) { read[key(armor)] = Read(words, signed, now) }
-        kept(context).edit().putString(key(armor), verdict.name).apply()
+        synchronized(read) { read[key(armor)] = Read(words, signed, now, verdict) }
+        forgetOld(context)
     }
 
-    /** What a part of an MMS held once it was opened: the file, and what it is. */
-    class Piece(val type: String, val name: String, val bytes: ByteArray, val at: Long)
+    /** What a message is worth while it is open; closed, nothing -- and it is shown grey. */
+    @Suppress("UNUSED_PARAMETER")
+    fun verdict(context: Context, armor: String): Verdict? = words(armor)?.verdict
+
+    /** What a part of an MMS held once it was opened: the file, what it is, what it is worth. */
+    class Piece(val type: String, val name: String, val bytes: ByteArray, val at: Long, val verdict: Verdict)
 
     private val pieces = HashMap<Long, Piece>()
 
@@ -75,23 +78,23 @@ object Opened {
     }
 
     fun keepPiece(context: Context, part: Long, type: String, name: String, bytes: ByteArray, verdict: Verdict, now: Long = System.currentTimeMillis()) {
-        synchronized(pieces) { pieces[part] = Piece(type, name, bytes, now) }
-        kept(context).edit().putString("part:$part", verdict.name).apply()
+        synchronized(pieces) { pieces[part] = Piece(type, name, bytes, now, verdict) }
+        forgetOld(context)
     }
 
-    fun pieceVerdict(context: Context, part: Long): Verdict? =
-        kept(context).getString("part:$part", null)?.let { name -> Verdict.entries.firstOrNull { it.name == name } }
+    @Suppress("UNUSED_PARAMETER")
+    fun pieceVerdict(context: Context, part: Long): Verdict? = piece(part)?.verdict
 
     fun holdsAnything(): Boolean = synchronized(read) { read.isNotEmpty() } || synchronized(pieces) { pieces.isNotEmpty() }
 
-    /** The words of every message and what they carried, dropped; what each was worth stays known. */
+    /** The words of every message and what they carried, dropped, and what they were worth with them. */
     fun forget() {
         synchronized(read) { read.clear() }
         synchronized(pieces) { pieces.clear() }
     }
 
-    fun verdict(context: Context, armor: String): Verdict? =
-        kept(context).getString(key(armor), null)?.let { name -> Verdict.entries.firstOrNull { it.name == name } }
-
-    private fun kept(context: Context) = context.getSharedPreferences("verdicts", Context.MODE_PRIVATE)
+    /** Verdicts once written down by an earlier version, which outlived the words: gone. */
+    private fun forgetOld(context: Context) {
+        context.getSharedPreferences("verdicts", Context.MODE_PRIVATE).takeIf { it.all.isNotEmpty() }?.edit()?.clear()?.apply()
+    }
 }
