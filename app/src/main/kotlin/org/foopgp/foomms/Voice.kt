@@ -19,6 +19,9 @@ class Voice(private val context: Context) {
 
     val recording: Boolean get() = recorder != null
 
+    /** How long it has been recording. */
+    val millis: Long get() = if (recorder == null) 0 else System.currentTimeMillis() - started
+
     /** Begin, keeping under [most] bytes. False when the phone would not record. */
     fun start(most: Int): Boolean {
         if (recorder != null) return true
@@ -53,7 +56,7 @@ class Voice(private val context: Context) {
         if (!stopped || long < SHORTEST) { file.delete() ; return null }
         val bytes = runCatching { file.readBytes() }.getOrNull() ?: return null
         file.delete()
-        return Media.Attachment("audio/3gpp", "voice.3gp", bytes)
+        return Media.Attachment("audio/3gpp", "voice.3gp", bytes, long)
     }
 
     /** Let go of the microphone, keeping nothing. */

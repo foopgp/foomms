@@ -145,10 +145,11 @@ object Look {
         addView(
             TextView(context).apply {
                 text = "•••"
-                setTextColor(ORANGE)
+                setTextColor(Color.WHITE)
                 setTypeface(typeface, android.graphics.Typeface.BOLD)
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
-                letterSpacing = 0.15f
+                paint.isFakeBoldText = true
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 19f)
+                letterSpacing = 0.1f
                 setPadding(dp(context, 10), 0, dp(context, 4), 0)
             },
         )

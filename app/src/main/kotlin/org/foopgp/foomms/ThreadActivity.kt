@@ -94,7 +94,15 @@ class ThreadActivity : AskingActivity() {
         }
         field.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
         chip.visibility = View.VISIBLE
-        chip.text = getString(R.string.voice_recording)
+        // The time it has been recording, said each second for as long as it records.
+        val tick = object : Runnable {
+            override fun run() {
+                if (!voice.recording) return
+                chip.text = getString(R.string.voice_recording, Media.clock(voice.millis))
+                chip.postDelayed(this, 250)
+            }
+        }
+        tick.run()
         return true
     }
 
@@ -194,7 +202,7 @@ class ThreadActivity : AskingActivity() {
         val pad = Look.dp(this, 6)
         val add = Look.button(this, "+") { attach() }.apply { textSize = 22f }
         // What is attached, said above the field; pressed, it is taken off.
-        chip = Look.words(this, "", size = 14f, muted = true).apply {
+        chip = Look.words(this, "", size = 16f, muted = true).apply {
             setPadding(pad * 3, pad, pad * 3, 0)
             visibility = View.GONE
             setOnClickListener { carry(null) }
@@ -432,7 +440,10 @@ class ThreadActivity : AskingActivity() {
     private fun carry(what: Media.Attachment?) {
         carried = what
         chip.visibility = if (what == null) View.GONE else View.VISIBLE
-        chip.text = what?.let { getString(R.string.carrying, it.name, it.bytes.size / 1024 + 1) }.orEmpty()
+        chip.text = what?.let {
+            val weight = it.bytes.size / 1024 + 1
+            it.millis?.let { long -> getString(R.string.carrying_long, it.name, Media.clock(long), weight) } ?: getString(R.string.carrying, it.name, weight)
+        }.orEmpty()
     }
 
     /**

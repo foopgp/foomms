@@ -146,11 +146,12 @@
     <string name="backup_saved">Enregistré : %1$d SMS et %2$d MMS.</string>
     <string name="backup_restored">Restauré : %1$d SMS et %2$d MMS ; %3$d déjà sur le téléphone.</string>
     <string name="words_or_voice">Votre message, ou maintenez pour parler</string>
-    <string name="voice_recording">● Enregistrement — relâchez pour arrêter</string>
     <string name="voice_too_short">Trop court : rien n\'a été enregistré.</string>
     <string name="voice_failed">Le téléphone n\'a pas voulu enregistrer.</string>
     <string name="voice_ready">Maintenez de nouveau le champ pour parler.</string>
     <string name="call">📞 Appeler le %1$s</string>
     <string name="contact_show">👤 Afficher le contact</string>
     <string name="contact_add">👤 Ajouter aux contacts</string>
+    <string name="voice_recording">● Enregistrement %1$s — relâchez pour arrêter</string>
+    <string name="carrying_long">📎 %1$s — %2$s — %3$d ko   ✕</string>
 </resources>

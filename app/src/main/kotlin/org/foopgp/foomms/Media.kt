@@ -14,7 +14,11 @@ import java.io.ByteArrayOutputStream
  */
 object Media {
 
-    class Attachment(val type: String, val name: String, val bytes: ByteArray)
+    /** [millis]: how long a sound lasts, when it is known. */
+    class Attachment(val type: String, val name: String, val bytes: ByteArray, val millis: Long? = null)
+
+    /** A length of time as a clock says it: 0:07, 12:45. */
+    fun clock(millis: Long): String = "%d:%02d".format(millis / 60_000, millis / 1000 % 60)
 
     /**
      * A picture, as JPEG, no heavier than [most]: made smaller, then lighter,

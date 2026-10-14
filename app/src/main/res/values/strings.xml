@@ -148,11 +148,12 @@
     <string name="backup_saved">Saved: %1$d SMS and %2$d MMS.</string>
     <string name="backup_restored">Restored: %1$d SMS and %2$d MMS; %3$d already on the phone.</string>
     <string name="words_or_voice">Your message, or hold to speak</string>
-    <string name="voice_recording">● Recording — let go to stop</string>
     <string name="voice_too_short">Too short: nothing was recorded.</string>
     <string name="voice_failed">The phone would not record.</string>
     <string name="voice_ready">Hold the field again to speak.</string>
     <string name="call">📞 Call %1$s</string>
     <string name="contact_show">👤 Show the contact</string>
     <string name="contact_add">👤 Add to contacts</string>
+    <string name="voice_recording">● Recording %1$s — let go to stop</string>
+    <string name="carrying_long">📎 %1$s — %2$s — %3$d kB   ✕</string>
 </resources>
