@@ -518,7 +518,8 @@ class ThreadActivity : AskingActivity() {
             return if (line.pieces.isNotEmpty()) pick(line) { handOver(it, Intent.ACTION_VIEW) }
             else textOf(line).takeIf { it.isNotEmpty() }?.let { select(it, armored = false) } ?: Unit
         }
-        val near = Around.others(lines.size, at, Conf.around(this)) { closed(lines[it]) }.map { lines[it] }
+        // The messages shown around it, as many on each side as set; of those, the ones still closed.
+        val near = Around.others(lines.size, at, Conf.around(this)).map { lines[it] }.filter(::closed)
         openAll(line, near)
     }
 

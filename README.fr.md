@@ -75,8 +75,9 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   désigne, pour qui d'autre il était.
 - **Lire.** Un message PGP reçu dit ce qu'il est jusqu'à ce qu'on appuie
   dessus : foodjis l'ouvre, avec la clé de sécurité s'il est chiffré — et avec
-  lui, pour ce seul passage de la clé, les messages fermés les plus proches : deux, sauf autre nombre, de zéro à
-  cinq, réglé dans la configuration. Un message encore chiffré dit pour qui il est, par un petit
+  lui, pour ce seul passage de la clé, les messages affichés avant et après lui : deux de chaque côté, sauf autre
+  nombre, de zéro à quatre, réglé dans la configuration — PGP ou non, ils
+  comptent. foodjis dit dans sa fenêtre chaque étape de ce qu'il fait. Un message encore chiffré dit pour qui il est, par un petit
   visage pour chaque clé qu'il désigne. Celui qui ne s'ouvre pas — chiffré
   pour quelqu'un d'autre — peut être transféré ou enregistré tel quel. Un
   appui sur un message ouvert ouvre ce qu'il porte, ou montre son texte à

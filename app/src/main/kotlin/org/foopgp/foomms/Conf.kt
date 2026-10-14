@@ -18,10 +18,10 @@ object Conf {
         FOUR_HOURS(240),
     }
 
-    const val MOST_AROUND = 5
+    const val MOST_AROUND = 4
     private const val USUAL_AROUND = 2
 
-    /** How many closed messages near the one pressed a use of the key opens with it; none, and it opens alone. */
+    /** How many messages shown before the one pressed, and as many after, a use of the key tries to open with it; none, and it opens alone. */
     fun around(context: Context): Int = kept(context).getInt("neighbours", USUAL_AROUND).coerceIn(0, MOST_AROUND)
 
     fun around(context: Context, most: Int) = kept(context).edit().putInt("neighbours", most.coerceIn(0, MOST_AROUND)).apply()

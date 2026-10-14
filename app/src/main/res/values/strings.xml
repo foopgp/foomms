@@ -51,7 +51,7 @@
     <string name="theme_system">System</string>
     <string name="theme_light">Light</string>
     <string name="conf_around">Neighbouring messages</string>
-    <string name="conf_around_note">The most neighbouring messages decrypted with each use of the security key. At 0, only the message you press is.</string>
+    <string name="conf_around_note">How many messages shown before the one you press, and as many after it, are decrypted or checked with each use of the security key — PGP messages or not, they count. At 2, five messages at most. At 0, only the message you press.</string>
     <string name="conf_hold">Remember decrypted messages</string>
     <string name="conf_hold_note">Held in memory for this long, never stored on the phone. After that, a message asks for the security key again.</string>
     <string name="conf_hold_forget">Forget the decrypted messages</string>
