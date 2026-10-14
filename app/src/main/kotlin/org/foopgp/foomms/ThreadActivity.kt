@@ -120,6 +120,9 @@ class ThreadActivity : AskingActivity() {
     /** The pictures of this conversation, small, by the part they are. */
     private var thumbs: Map<Long, Bitmap?> = emptyMap()
 
+    /** How long each sound of this conversation lasts, by the part it is, as it came or as it was opened. */
+    private val lasts = java.util.concurrent.ConcurrentHashMap<Long, Long>()
+
     /** The message to show first, when the page was opened from a search: its date, taken once. */
     private var wanted = 0L
 
@@ -281,6 +284,9 @@ class ThreadActivity : AskingActivity() {
             val named = found.mapNotNull { Pgp.armorIn(it.body) }.filter { Pgp.isLocked(it) }.flatMap { Pgp.recipients(it) }.distinct()
             val small = found.takeLast(SHOWN_PICTURES).flatMap { it.pieces }.filter { it.type.startsWith("image/") }
                 .associate { piece -> piece.id to (thumbs[piece.id] ?: Media.thumbnail(this, piece.uri, Look.dp(this, 200))) }
+            for (piece in found.flatMap { it.pieces }) {
+                if (piece.type.startsWith("audio/") && !lasts.containsKey(piece.id)) Media.lasting(this, piece.uri)?.let { lasts[piece.id] = it }
+            }
             val theirFaces = named.associateWith { id -> foodjis.signer(id)?.let { whose -> For(whose.name, foodjis.face(whose.fingerprint)) } }
             if (shown) {
                 thread?.let { Keep.read(this, it) }
@@ -657,6 +663,7 @@ class ThreadActivity : AskingActivity() {
         val told = Kind.of(answer.bytes.copyOf(minOf(answer.bytes.size, 32)), null)
         val name = piece.name.orEmpty().removeSuffix(".pgp").removeSuffix(".gpg").removeSuffix(".asc").ifEmpty { "file.${told.extension}" }
         Opened.keepPiece(this, piece.id, told.type, name, answer.bytes, Verdict.of(true, certified))
+        if (told.type.startsWith("audio/") || told.type == "video/3gpp") Media.lasting(answer.bytes)?.let { lasts[piece.id] = it }
         if (told.type.startsWith("image/")) {
             openedThumbs[piece.id] = runCatching {
                 val side = Look.dp(this, 200)
@@ -804,6 +811,14 @@ class ThreadActivity : AskingActivity() {
 
     /** What is known of a message beyond its words: where from, when, how heavy, what it is made of. */
     private fun details(line: Store.Line) {
+        // The parts are weighed off the page: a message of the phone's store says nothing of their size.
+        thread {
+            val weights = line.pieces.associate { it.id to Media.weight(this, it.uri) }
+            runOnUiThread { if (!isFinishing && !isDestroyed) details(line, weights) }
+        }
+    }
+
+    private fun details(line: Store.Line, weights: Map<Long, Long>) {
         val armor = Pgp.armorIn(line.body)
         val precise = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM)
         val told = buildString {
@@ -813,8 +828,13 @@ class ThreadActivity : AskingActivity() {
             append(getString(R.string.detail_kind, if (line.mms) "MMS" else "SMS"))
             if (!line.mms) append(' ').append(getString(R.string.detail_pieces, runCatching { Outbox.pieces(this@ThreadActivity, line.body) }.getOrDefault(1)))
             append('\n')
-            append(getString(R.string.detail_size, line.body.toByteArray().size)).append('\n')
-            for (piece in line.pieces) append("•  ").append(piece.name ?: "?").append(" — ").append(piece.type).append('\n')
+            append(getString(R.string.detail_size, line.body.toByteArray().size + weights.values.sum())).append('\n')
+            for (piece in line.pieces) {
+                append("•  ").append(piece.name ?: "?").append(" — ").append(piece.type)
+                append(" — ").append(android.text.format.Formatter.formatShortFileSize(this@ThreadActivity, weights[piece.id] ?: 0L))
+                lasts[piece.id]?.let { append(" — ").append(Media.clock(it)) }
+                append('\n')
+            }
             if (armor != null) {
                 append(getString(if (Pgp.isLocked(armor)) R.string.detail_locked else R.string.detail_signed)).append('\n')
                 for (id in Pgp.recipients(armor)) {
@@ -896,7 +916,7 @@ class ThreadActivity : AskingActivity() {
                     setPadding(0, Look.dp(context, 4), 0, Look.dp(context, 4))
                 }
                 opened.type.startsWith("audio/") || opened.type == "video/3gpp" ->
-                    Look.button(this, "▶ ${opened.name}") { play(piece) }.apply { setOnLongClickListener { about(at) ; true } }
+                    Look.button(this, "▶ ${opened.name}" + lasted(piece)) { play(piece) }.apply { setOnLongClickListener { about(at) ; true } }
                 else -> Look.words(this, "📎 ${opened.name}", size = 15f)
             }
         }
@@ -910,11 +930,13 @@ class ThreadActivity : AskingActivity() {
                 setPadding(0, Look.dp(context, 4), 0, Look.dp(context, 4))
             }
             // The button takes the press, long ones too: a long one is handed to the message, whose menu it opens.
-            piece.type.startsWith("audio/") -> Look.button(this, "▶ $name") { play(piece) }.apply { setOnLongClickListener { about(at) ; true } }
+            piece.type.startsWith("audio/") -> Look.button(this, "▶ $name" + lasted(piece)) { play(piece) }.apply { setOnLongClickListener { about(at) ; true } }
             piece.type == Pgp.TYPE || name.endsWith(".pgp") || name.endsWith(".gpg") -> Look.words(this, "⚿ $name", size = 15f, muted = true)
             else -> Look.words(this, "📎 $name", size = 15f, muted = true)
         }
     }
+
+    private fun lasted(piece: Store.Piece): String = lasts[piece.id]?.let { "  ·  " + Media.clock(it) }.orEmpty()
 
     private var player: android.media.MediaPlayer? = null
 

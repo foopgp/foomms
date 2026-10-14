@@ -20,6 +20,41 @@ object Media {
     /** A length of time as a clock says it: 0:07, 12:45. */
     fun clock(millis: Long): String = "%d:%02d".format(millis / 60_000, millis / 1000 % 60)
 
+    /** How long a sound lasts, as it came. */
+    fun lasting(context: Context, uri: Uri): Long? = lasting { it.setDataSource(context, uri) }
+
+    /** How long a sound lasts, read where it is held: what was opened from its lock stays in memory. */
+    fun lasting(bytes: ByteArray): Long? = lasting {
+        it.setDataSource(object : android.media.MediaDataSource() {
+            override fun readAt(at: Long, into: ByteArray, offset: Int, size: Int): Int {
+                if (at >= bytes.size) return -1
+                val n = minOf(size.toLong(), bytes.size - at).toInt()
+                System.arraycopy(bytes, at.toInt(), into, offset, n)
+                return n
+            }
+            override fun getSize() = bytes.size.toLong()
+            override fun close() {}
+        })
+    }
+
+    private fun lasting(source: (android.media.MediaMetadataRetriever) -> Unit): Long? = runCatching {
+        val reader = android.media.MediaMetadataRetriever()
+        try {
+            source(reader)
+            reader.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
+        } finally { reader.release() }
+    }.getOrNull()
+
+    /** How many bytes a part of a message weighs: the phone's store does not say, it is counted. */
+    fun weight(context: Context, uri: Uri): Long = runCatching {
+        context.contentResolver.openInputStream(uri)?.use { input ->
+            val buffer = ByteArray(16 * 1024)
+            var total = 0L
+            while (true) { val n = input.read(buffer) ; if (n < 0) break ; total += n }
+            total
+        }
+    }.getOrNull() ?: 0L
+
     /**
      * A picture, as JPEG, no heavier than [most]: made smaller, then lighter,
      * until it fits. Null when it is not a picture one can read.
