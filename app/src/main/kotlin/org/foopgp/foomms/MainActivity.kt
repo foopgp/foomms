@@ -30,6 +30,12 @@ class MainActivity : Activity() {
 
     private lateinit var list: ListView
     private lateinit var asking: LinearLayout
+    private lateinit var detail: android.widget.TextView
+
+    /** Every conversation read so far, and whether only those with something unread are shown. */
+    private var every: List<Row> = emptyList()
+    private var onlyUnread = false
+    private var counts: Store.Counts? = null
     private lateinit var all: android.widget.TextView
     private lateinit var unread: android.widget.TextView
     private var rows: List<Row> = emptyList()
@@ -48,6 +54,8 @@ class MainActivity : Activity() {
             customView = LinearLayout(this@MainActivity).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
+                // Pressed: the counts in more detail, and only the conversations that hold something unread; pressed again, all of them.
+                setOnClickListener { onlyUnread = !onlyUnread ; show() }
                 val side = Look.dp(context, 36)
                 addView(android.widget.ImageView(context).apply { setImageResource(R.drawable.launcher) }, LinearLayout.LayoutParams(side, side))
                 addView(
@@ -69,6 +77,12 @@ class MainActivity : Activity() {
             setOnItemClickListener { _, _, at, _ -> open(rows[at].talk) }
         }
         column.addView(asking)
+        detail = Look.words(this, "", size = 14f, muted = true).apply {
+            val pad = Look.dp(context, 16)
+            setPadding(pad, pad / 2, pad, pad / 2)
+            visibility = View.GONE
+        }
+        column.addView(detail)
         column.addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         setContentView(column)
     }
@@ -148,16 +162,18 @@ class MainActivity : Activity() {
             }
             fun show(found: List<Row>) = runOnUiThread {
                 if (isFinishing || isDestroyed || turn != turns) return@runOnUiThread
-                rows = found
-                talks.notifyDataSetChanged()
+                every = found
+                show()
             }
             val first = runCatching { Store.talks(this, FIRST) }.getOrDefault(emptyList()).map(::row)
             show(first)
             runCatching { Store.counts(this) }.getOrNull()?.let { counts ->
                 runOnUiThread {
                     if (isFinishing || isDestroyed) return@runOnUiThread
+                    this.counts = counts
                     all.text = getString(R.string.count_all, counts.pgp, counts.all)
                     unread.text = getString(R.string.count_unread, counts.unreadPgp, counts.unread)
+                    show()
                 }
             }
             if (first.size < FIRST) return@thread
@@ -165,64 +181,37 @@ class MainActivity : Activity() {
         }
     }
 
+    /** What the list shows of what was read: everything, or what holds something unread, with the counts spelled out above. */
+    private fun show() {
+        rows = if (onlyUnread) every.filter { it.talk.unread } else every
+        talks.notifyDataSetChanged()
+        val known = counts
+        detail.visibility = if (onlyUnread && known != null) View.VISIBLE else View.GONE
+        if (known != null) {
+            detail.text = getString(
+                R.string.count_detail,
+                known.all, known.sms, known.mms, known.pgp, known.talks, known.unread, known.unreadPgp, known.unreadTalks,
+            )
+        }
+    }
+
     /** Which filling is the latest asked for: an older one that finishes late shows nothing. */
     private var turns = 0
 
-    /** A conversation's name, and after it what the person said of its sender: blocked, not announced. */
-    private fun marked(row: Row): String = buildString {
-        append(row.name)
-        if (Marks.blocked(this@MainActivity, row.talk.number)) append("  ⊘")
-        if (Marks.muted(this@MainActivity, row.talk.number)) append("  🔕")
-    }
+    /** A conversation's name, and after it what the person said of its sender: not to be announced. */
+    private fun marked(row: Row): String =
+        if (Marks.muted(this, row.talk.number)) row.name + "  🔕" else row.name
 
     /** Pressed long, a conversation says what can be done about it and about who it is with. */
     private fun about(row: Row) {
         val sender = row.talk.number ?: return
-        val number = Phone.plain(sender)
-        val blocked = Marks.blocked(this, sender)
-        val muted = Marks.muted(this, sender)
-        val choices = ArrayList<Pair<Int, () -> Unit>>()
-        if (row.person != null) {
-            choices += R.string.contact_show to {
-                startActivity(
-                    Intent(Intent.ACTION_VIEW, android.content.ContentUris.withAppendedId(android.provider.ContactsContract.Contacts.CONTENT_URI, row.person.contact)),
-                )
-            }
-        } else if (number != null) {
-            choices += R.string.contact_add to {
-                startActivity(
-                    Intent(Intent.ACTION_INSERT, android.provider.ContactsContract.Contacts.CONTENT_URI)
-                        .putExtra(android.provider.ContactsContract.Intents.Insert.PHONE, sender),
-                )
-            }
-        }
-        // Tying is done from the conversation, which is where foodjis shows its list over.
-        if (number != null) choices += R.string.tie to { open(row.talk, tie = true) }
-        choices += (if (blocked) R.string.unblock else R.string.block) to { Marks.block(this, sender, !blocked) ; talks.notifyDataSetChanged() }
-        choices += (if (muted) R.string.unmute else R.string.mute) to { Marks.mute(this, sender, !muted) ; talks.notifyDataSetChanged() }
-        choices += R.string.forget_talk to {
-            AlertDialog.Builder(this)
-                .setMessage(getString(R.string.forget_talk_ask, row.name))
-                .setPositiveButton(R.string.forget_yes) { _, _ ->
-                    thread {
-                        val gone = Keep.forgetAll(this, row.talk.thread)
-                        runOnUiThread {
-                            if (isFinishing || isDestroyed) return@runOnUiThread
-                            if (gone) fill() else say(getString(if (Keep.ours(this)) R.string.forget_failed else R.string.forget_not_ours))
-                        }
-                    }
-                }
-                .setNegativeButton(android.R.string.cancel, null)
-                .show()
-        }
-        AlertDialog.Builder(this)
-            .setTitle(row.name)
-            .setItems(choices.map { getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }
-            .show()
-    }
-
-    private fun say(words: String) {
-        AlertDialog.Builder(this).setMessage(words).setPositiveButton(R.string.close, null).show()
+        TalkMenu.show(
+            this, row.name, sender, row.person, row.talk.thread,
+            // Tying is done from the conversation, which is where foodjis shows its list over.
+            tie = { open(row.talk, tie = true) },
+            changed = { talks.notifyDataSetChanged() },
+            gone = { fill() },
+        )
     }
 
     private fun open(talk: Store.Talk, tie: Boolean = false) = startActivity(

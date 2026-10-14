@@ -15,8 +15,8 @@ import android.content.Intent
 object Notify {
 
     fun arrived(context: Context, number: String, body: String) {
-        // Not announced: a sender the person blocked, or asked not to hear of.
-        if (Marks.blocked(context, number) || Marks.muted(context, number)) return
+        // Not announced: a sender the person asked not to hear of.
+        if (Marks.muted(context, number)) return
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
         manager.createNotificationChannel(
             NotificationChannel(CHANNEL, context.getString(R.string.channel_messages), NotificationManager.IMPORTANCE_HIGH),

@@ -29,7 +29,7 @@ object Store {
     }
 
     /** How many messages the phone holds, and how many of them are PGP; the same among those not read yet. */
-    class Counts(val pgp: Int, val all: Int, val unreadPgp: Int, val unread: Int)
+    class Counts(val pgp: Int, val all: Int, val unreadPgp: Int, val unread: Int, val sms: Int = 0, val mms: Int = 0, val talks: Int = 0, val unreadTalks: Int = 0)
 
     /** A message found by its words. */
     class Hit(val thread: Long, val number: String?, val at: Long, val incoming: Boolean, val words: String)
@@ -205,11 +205,16 @@ object Store {
                 while (rows.moveToNext()) unreadMms += rows.getLong(0)
             }
         }
+        val sms = count(SMS, null)
+        val mms = count(MMS, null)
         return Counts(
             pgp = count(SMS, armored) + sealed.size,
-            all = count(SMS, null) + count(MMS, null),
+            all = sms + mms,
             unreadPgp = count(SMS, "$armored AND read = 0") + sealed.count { it in unreadMms },
             unread = count(SMS, "read = 0") + unreadMms.size,
+            sms = sms, mms = mms,
+            talks = count(THREADS, null),
+            unreadTalks = count(THREADS, "read = 0"),
         )
     }
 

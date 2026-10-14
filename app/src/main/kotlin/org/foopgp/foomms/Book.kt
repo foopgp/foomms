@@ -39,6 +39,22 @@ object Book {
         }
     }.getOrNull()
 
+    class Found(val name: String, val number: String)
+
+    /** The contacts whose name or number holds [typed], each with a number one can write to. */
+    fun find(context: Context, typed: String, most: Int = 30): List<Found> = runCatching {
+        val asked = Uri.withAppendedPath(PhoneRow.CONTENT_FILTER_URI, Uri.encode(typed.trim()))
+        val found = ArrayList<Found>()
+        context.contentResolver.query(asked, arrayOf(PhoneRow.DISPLAY_NAME, PhoneRow.NUMBER), null, null, PhoneRow.DISPLAY_NAME)?.use { rows ->
+            while (rows.moveToNext() && found.size < most) {
+                val number = rows.getString(1) ?: continue
+                // The same number written twice in a contact is one way to reach them.
+                if (found.none { Phone.same(it.number, number) }) found += Found(rows.getString(0) ?: number, number)
+            }
+        }
+        found
+    }.getOrDefault(emptyList())
+
     private fun fingerprint(context: Context, contact: Long): String? =
         values(context, contact, Website.CONTENT_ITEM_TYPE, Website.URL).firstNotNullOfOrNull { Fingerprint.of(it) }
 

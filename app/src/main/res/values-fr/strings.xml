@@ -97,8 +97,6 @@
     <string name="tie">🔑 Relier à un certificat</string>
     <string name="contact_show">Afficher le contact</string>
     <string name="contact_add">Ajouter aux contacts</string>
-    <string name="block">⊘ Bloquer</string>
-    <string name="unblock">Débloquer</string>
     <string name="mute">🔕 Désactiver les notifications</string>
     <string name="unmute">🔔 Activer les notifications</string>
     <string name="forget_talk">⌫ Supprimer la conversation</string>
@@ -125,9 +123,6 @@
     <string name="detail_unknown_key">une clé que foodjis ne détient pas</string>
     <string name="tie_ask_before">Son certificat est</string>
     <string name="tie_ask_after">. Ceci sera inscrit dans votre carnet d\'adresses, là où le contact ne le dit pas déjà :</string>
-    <string name="conf_blocked">Expéditeurs bloqués</string>
-    <string name="conf_blocked_note">Les messages d\'un expéditeur bloqué sont conservés, arrivent comme lus, et ne sont pas annoncés.</string>
-    <string name="conf_blocked_see">Voir les expéditeurs bloqués (%1$d)</string>
-    <string name="blocked_title">⊘ Expéditeurs bloqués</string>
-    <string name="blocked_none">Personne n\'est bloqué.</string>
+    <string name="whom_hint">Un nom, ou un numéro de téléphone</string>
+    <string name="count_detail">%1$d messages : %2$d SMS, %3$d MMS — dont %4$d PGP\n%5$d conversations\n%6$d non lus, dont %7$d PGP, dans %8$d conversations\n\nSeules les conversations contenant un message non lu sont affichées. Appuyez de nouveau sur les compteurs pour les revoir toutes.</string>
 </resources>

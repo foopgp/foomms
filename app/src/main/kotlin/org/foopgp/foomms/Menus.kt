@@ -55,18 +55,63 @@ object Menus {
         return true
     }
 
-    /** A new message begins with whom it is for. */
+    /**
+     * A new message begins with whom it is for: a number typed, or somebody
+     * found in the address book by a few letters of their name.
+     */
     private fun write(activity: Activity) {
-        val number = EditText(activity).apply { inputType = InputType.TYPE_CLASS_PHONE ; setHint(R.string.number_hint) }
-        AlertDialog.Builder(activity)
+        fun open(number: String) = activity.startActivity(
+            Intent(activity, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, number),
+        )
+        val contacts = activity.checkSelfPermission(android.Manifest.permission.READ_CONTACTS) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        val asked = EditText(activity).apply {
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+            setHint(if (contacts) R.string.whom_hint else R.string.number_hint)
+            setSingleLine()
+        }
+        val found = android.widget.LinearLayout(activity).apply { orientation = android.widget.LinearLayout.VERTICAL }
+        val pad = Look.dp(activity, 20)
+        val dialog = AlertDialog.Builder(activity)
             .setTitle(R.string.write)
-            .setView(number)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                Phone.plain(number.text.toString())?.let {
-                    activity.startActivity(Intent(activity, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, it))
-                }
-            }
+            .setView(
+                android.widget.LinearLayout(activity).apply {
+                    orientation = android.widget.LinearLayout.VERTICAL
+                    setPadding(pad, 0, pad, 0)
+                    addView(asked)
+                    addView(android.widget.ScrollView(context).apply { addView(found) })
+                },
+            )
+            // A number typed in full needs no contact to go with it.
+            .setPositiveButton(android.R.string.ok) { _, _ -> Phone.plain(asked.text.toString())?.let { open(it) } }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            .create()
+        var turn = 0
+        asked.addTextChangedListener(
+            object : android.text.TextWatcher {
+                override fun afterTextChanged(text: android.text.Editable?) {
+                    val typed = text.toString()
+                    val mine = ++turn
+                    if (!contacts || typed.trim().length < 2) return found.removeAllViews()
+                    kotlin.concurrent.thread {
+                        val people = Book.find(activity, typed)
+                        activity.runOnUiThread {
+                            if (mine != turn || !dialog.isShowing) return@runOnUiThread
+                            found.removeAllViews()
+                            for (one in people) {
+                                found.addView(
+                                    Look.words(activity, one.name + "\n" + one.number, size = 16f).apply {
+                                        setPadding(0, Look.dp(activity, 10), 0, Look.dp(activity, 10))
+                                        setOnClickListener { dialog.dismiss() ; open(one.number) }
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
+                override fun beforeTextChanged(text: CharSequence?, start: Int, count: Int, after: Int) = Unit
+                override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) = Unit
+            },
+        )
+        dialog.show()
     }
 }

@@ -54,12 +54,6 @@
             android:parentActivityName=".MainActivity"
             android:windowSoftInputMode="adjustResize" />
 
-        <!-- Everybody the person blocked. -->
-        <activity
-            android:name=".BlockedActivity"
-            android:exported="false"
-            android:parentActivityName=".ConfActivity" />
-
         <!-- What the person sets. -->
         <activity
             android:name=".ConfActivity"

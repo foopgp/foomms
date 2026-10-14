@@ -133,14 +133,6 @@ class ConfActivity : Activity() {
             )
         }
 
-        heading(R.string.conf_blocked)
-        note(R.string.conf_blocked_note)
-        column.addView(
-            Look.button(this, getString(R.string.conf_blocked_see, Marks.allBlocked(this).size)) {
-                startActivity(android.content.Intent(this, BlockedActivity::class.java))
-            },
-        )
-
         heading(R.string.conf_myself)
         column.addView(flip(R.string.conf_to_myself, Conf.toMyself(this)) { Conf.toMyself(this, it) })
         note(R.string.conf_to_myself_note)

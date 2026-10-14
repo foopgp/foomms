@@ -62,6 +62,12 @@ class ThreadActivity : AskingActivity() {
     private lateinit var field: EditText
     private lateinit var how: android.widget.Button
     private lateinit var chip: android.widget.TextView
+    private lateinit var whoIs: android.widget.TextView
+    private lateinit var under: android.widget.TextView
+    private lateinit var portrait: android.widget.FrameLayout
+
+    /** The conversation in the phone's store, once it is known to have one. */
+    private var thread: Long? = null
 
     /** What the next message carries beside its words: a picture, a sound. */
     private var carried: Media.Attachment? = null
@@ -79,6 +85,36 @@ class ThreadActivity : AskingActivity() {
         if (number.isBlank()) return finish()
         title = number
         wanted = intent.getLongExtra(EXTRA_AT, 0L)
+        // In the bar: who the conversation is with -- a face, a name, and under it the number and what its
+        // certificate is worth. Pressed, what can be done about them, as from the list of conversations.
+        whoIs = Look.words(this, number, size = 17f).apply { setTextColor(Look.ORANGE) ; setTypeface(typeface, android.graphics.Typeface.BOLD) ; maxLines = 1 }
+        under = Look.words(this, "", size = 13f).apply { setTextColor(android.graphics.Color.rgb(0xE0, 0xE7, 0xFF)) ; maxLines = 1 }
+        portrait = android.widget.FrameLayout(this)
+        actionBar?.apply {
+            setDisplayShowTitleEnabled(false)
+            setDisplayShowCustomEnabled(true)
+            setDisplayHomeAsUpEnabled(true)
+            customView = LinearLayout(this@ThreadActivity).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                val side = Look.dp(context, 38)
+                addView(portrait, LinearLayout.LayoutParams(side, side))
+                addView(
+                    LinearLayout(context).apply {
+                        orientation = LinearLayout.VERTICAL
+                        setPadding(Look.dp(context, 10), 0, 0, 0)
+                        addView(whoIs)
+                        addView(under)
+                    },
+                )
+                setOnClickListener {
+                    TalkMenu.show(
+                        this@ThreadActivity, person?.name ?: number, number, person, thread,
+                        tie = { tie() }, changed = { }, gone = { finish() },
+                    )
+                }
+            }
+        }
         list = ListView(this).apply {
             divider = null
             transcriptMode = ListView.TRANSCRIPT_MODE_NORMAL
@@ -159,7 +195,7 @@ class ThreadActivity : AskingActivity() {
             val theirs = who?.fingerprint?.takeIf { who.photo == null }?.let { foodjis.face(it) }
             // The conversation it was opened from, when it was opened from one: a sender that is a name and not a
             // number -- a bank, a shop -- has a conversation all the same.
-            val thread = intent.getLongExtra(EXTRA_THREAD, -1L).takeIf { it >= 0 } ?: runCatching { Store.thread(this, number) }.getOrNull()
+            val thread: Long? = intent.getLongExtra(EXTRA_THREAD, -1L).takeIf { it >= 0 } ?: runCatching { Store.thread(this, number) }.getOrNull()
             val found = runCatching { thread?.let { Store.lines(this, it) } }.getOrNull().orEmpty()
             // Whom each locked message is for, by the keys it names: a face each, asked of foodjis once.
             val named = found.mapNotNull { Pgp.armorIn(it.body) }.filter { Pgp.isLocked(it) }.flatMap { Pgp.recipients(it) }.distinct()
@@ -173,16 +209,20 @@ class ThreadActivity : AskingActivity() {
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 person = who ; card = whose ; face = theirs ; lines = found ; meant = theirFaces ; thumbs = small
+                this.thread = thread
                 // A conversation is with a number: the name it has in the address book, and under it the number
                 // and what its certificate is worth. With no name, the number is the title.
                 title = who?.name ?: number
+                whoIs.text = who?.name ?: number
+                portrait.removeAllViews()
+                portrait.addView(Look.face(this, 38, who?.photo, theirs))
                 val standing: CharSequence = when {
                     who?.fingerprint == null -> getString(R.string.no_certificate)
                     foodjis.shut -> getString(R.string.foodjis_shut)
                     whose == null -> getString(R.string.certificate_not_held)
                     else -> android.text.SpannableStringBuilder("🔑 ").append(Look.standing(this, whose.validity))
                 }
-                actionBar?.subtitle =
+                under.text =
                     if (who?.name != null && who.name != number) android.text.SpannableStringBuilder("$number — ").append(standing) else standing
                 // Asked from the list of conversations: whose certificate this number means.
                 if (intent.getBooleanExtra(EXTRA_TIE, false)) {
@@ -389,8 +429,13 @@ class ThreadActivity : AskingActivity() {
      * presentation of the key has answered for all of them.
      */
     private fun pressed(at: Int) {
-        val chosen = lines.getOrNull(at)?.let { Pgp.armorIn(it.body) } ?: return
-        if (Opened.words(chosen) != null) return
+        val line = lines.getOrNull(at) ?: return
+        val chosen = Pgp.armorIn(line.body)
+        // Nothing to unlock: what a message carries is opened, and failing that its text is shown to select from.
+        if (chosen == null || Opened.words(chosen) != null) {
+            return if (line.pieces.isNotEmpty()) pick(line) { handOver(it, Intent.ACTION_VIEW) }
+            else textOf(line).takeIf { it.isNotEmpty() }?.let { select(it, armored = false) } ?: Unit
+        }
         val others = Around.others(lines.size, at, Conf.around(this)) { other ->
             Pgp.armorIn(lines[other].body)?.let { it != chosen && Opened.words(it) == null } == true
         }.mapNotNull { Pgp.armorIn(lines[it].body) }.distinct()
