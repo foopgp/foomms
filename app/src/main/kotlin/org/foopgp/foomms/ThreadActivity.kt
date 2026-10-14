@@ -289,8 +289,9 @@ class ThreadActivity : AskingActivity() {
     }
 
     /** What the next message will be worth to who receives it. */
-    // Certified only when signed: what is not signed cannot be told from anybody's, whoever it went to.
-    private fun worth(mode: Mode): Verdict = Verdict.of(mode.locks, mode.signs && card?.certified == true)
+    // Certified when signed: signed here, it is signed by the identity this phone carries, which certifies itself --
+    // whoever it goes to, and whether or not their number means a certificate.
+    private fun worth(mode: Mode): Verdict = Verdict.of(mode.locks, mode.signs)
 
     /** The switches as they can be, and the colour of what they add up to. */
     private fun paint() {

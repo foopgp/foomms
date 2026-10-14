@@ -119,7 +119,8 @@ class ManyActivity : AskingActivity() {
     private fun worth(): Verdict {
         val locked = locks.isChecked && locks.isEnabled
         val signed = signs.isChecked && signs.isEnabled
-        return Verdict.of(locked, signed && whom.isNotEmpty() && whom.all { it.cert?.certified == true })
+        // Signed here is signed by the identity this phone carries: certified, whoever it goes to.
+        return Verdict.of(locked, signed)
     }
 
     private fun paint() {
