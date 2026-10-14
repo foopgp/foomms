@@ -43,6 +43,8 @@ class MainActivity : Activity() {
     private var unreadRows: List<Row>? = null
     private lateinit var all: android.widget.TextView
     private lateinit var unread: android.widget.TextView
+    private lateinit var showing: LinearLayout
+    private lateinit var everything: android.widget.Button
     private var rows: List<Row> = emptyList()
 
     override fun onCreate(state: Bundle?) {
@@ -76,8 +78,17 @@ class MainActivity : Activity() {
                         orientation = LinearLayout.VERTICAL
                         setPadding(Look.dp(context, 12), 0, 0, 0)
                         addView(all)
-                        // The dots that say the bar can be pressed, on its second line.
-                        addView(Look.pressable(context, unread), LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+                        // The second line: the unread and a small button that shows them; while they are shown,
+                        // a small button in its place gives everything back.
+                        showing = LinearLayout(context).apply {
+                            orientation = LinearLayout.HORIZONTAL
+                            gravity = Gravity.CENTER_VERTICAL
+                            addView(unread)
+                            addView(Look.small(context, getString(R.string.show_unread)) { filter(true) }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginStart = Look.dp(context, 10) })
+                        }
+                        addView(showing)
+                        everything = Look.small(context, getString(R.string.show_all)) { filter(false) }.apply { visibility = View.GONE }
+                        addView(everything, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
                     },
                     LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f),
                 )
@@ -256,6 +267,8 @@ class MainActivity : Activity() {
             )
         }
         detail.visibility = if (onlyUnread && known != null) View.VISIBLE else View.GONE
+        showing.visibility = if (onlyUnread) View.GONE else View.VISIBLE
+        everything.visibility = if (onlyUnread) View.VISIBLE else View.GONE
     }
 
     /** Which filling is the latest asked for: an older one that finishes late shows nothing. */

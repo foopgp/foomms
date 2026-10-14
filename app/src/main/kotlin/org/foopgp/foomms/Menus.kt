@@ -15,7 +15,6 @@ import android.widget.EditText
 object Menus {
 
     private const val TALKS = 0x7001
-    private const val WRITE = 0x7002
     private const val CONFIGURE = 0x7003
     private const val SEARCH = 0x7004
     private const val BACKUP = 0x7005
@@ -35,8 +34,6 @@ object Menus {
         }
         // In a conversation, what is looked through is that conversation.
         if (activity !is SearchActivity) menu.add(0, SEARCH, 9, if (activity is ThreadActivity) R.string.search_here else R.string.search_all)
-        // The list of conversations has its own button for it, at the bottom.
-        if (activity !is MainActivity) menu.add(0, WRITE, 11, R.string.write)
         if (activity !is BackupActivity) menu.add(0, BACKUP, 11, if (activity is ThreadActivity) R.string.backup_one else R.string.backup_all)
         if (activity !is ConfActivity) menu.add(0, CONFIGURE, 12, R.string.configure)
     }
@@ -47,7 +44,6 @@ object Menus {
             TALKS -> activity.startActivity(
                 Intent(activity, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
             )
-            WRITE -> write(activity)
             SEARCH -> activity.startActivity(
                 Intent(activity, SearchActivity::class.java)
                     .putExtra(SearchActivity.EXTRA_NUMBER, (activity as? ThreadActivity)?.talkingTo),

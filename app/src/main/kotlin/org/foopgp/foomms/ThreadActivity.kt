@@ -68,8 +68,8 @@ class ThreadActivity : AskingActivity() {
 
     private lateinit var list: ListView
     private lateinit var field: EditText
-    private lateinit var signs: android.widget.Switch
-    private lateinit var locks: android.widget.Switch
+    private lateinit var signs: Flip
+    private lateinit var locks: Flip
     private lateinit var options: LinearLayout
     private lateinit var sender: android.widget.Button
     private lateinit var chip: android.widget.TextView
@@ -192,14 +192,8 @@ class ThreadActivity : AskingActivity() {
         }
         // Two switches above the field: signed, encrypted. Each is grey when it cannot be; together they
         // give the line, and the button that sends, the colour the message will have.
-        fun flip(words: Int) = android.widget.Switch(this).apply {
-            setText(words)
-            textSize = 14f
-            setTextColor(Look.INK)
-            setOnCheckedChangeListener { _, _ -> paint() }
-        }
-        signs = flip(R.string.switch_sign)
-        locks = flip(R.string.switch_lock)
+        signs = Flip(this, "✍", R.string.switch_sign) { paint() }
+        locks = Flip(this, "⚿", R.string.switch_lock) { paint() }
         sender = Look.button(this, "➤") { send() }.apply { textSize = 20f }
         val send = sender
         val pad = Look.dp(this, 6)

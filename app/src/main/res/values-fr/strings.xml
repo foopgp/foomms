@@ -119,9 +119,11 @@
     <string name="tie_ask_before">Son certificat est</string>
     <string name="tie_ask_after">. Ceci sera inscrit dans votre carnet d\'adresses, là où le contact ne le dit pas déjà :</string>
     <string name="whom_hint">Un nom, ou un numéro de téléphone</string>
-    <string name="count_detail">%1$d messages : %2$d SMS, %3$d MMS — dont %4$d PGP\n%5$d conversations\n%6$d non lus, dont %7$d PGP, dans %8$d conversations\n\nSeules les conversations contenant un message non lu sont affichées. Appuyez de nouveau sur les compteurs pour les revoir toutes.</string>
-    <string name="switch_sign">✍ Signer</string>
-    <string name="switch_lock">⚿ Chiffrer</string>
+    <string name="show_unread">Afficher</string>
+    <string name="show_all">Tout afficher</string>
+    <string name="count_detail">%1$d messages : %2$d SMS, %3$d MMS — dont %4$d PGP\n%5$d conversations\n%6$d non lus, dont %7$d PGP, dans %8$d conversations</string>
+    <string name="switch_sign">Signer</string>
+    <string name="switch_lock">Chiffrer</string>
     <string name="cert_show">🔑 Afficher le certificat</string>
     <string name="cert_refresh">⟳ Rafraîchir depuis le certificat</string>
     <string name="cert_forget">⌫ Oublier le certificat</string>

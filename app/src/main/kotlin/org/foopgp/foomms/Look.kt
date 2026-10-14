@@ -88,11 +88,8 @@ object Look {
             "revoked" -> Triple(R.string.standing_revoked, Color.rgb(0xFF, 0x62, 0x7D), Color.rgb(0x4D, 0x02, 0x18))
             else -> Triple(R.string.standing_broken, Color.rgb(0xDB, 0x3A, 0x60), Color.WHITE)
         }
-        // A space each side, inside the colour: a word flush against the edge of its ground reads as a stain.
-        return android.text.SpannableString(" ${context.getString(word)} ").apply {
-            setSpan(android.text.style.BackgroundColorSpan(ground), 0, length, 0)
-            setSpan(android.text.style.ForegroundColorSpan(ink), 0, length, 0)
-        }
+        // On a ground with rounded corners, as the letters of the list are; the ground leaves room each side.
+        return android.text.SpannableString(context.getString(word)).apply { setSpan(Badge(ground, ink), 0, length, 0) }
     }
 
     /**
@@ -177,6 +174,13 @@ object Look {
         background = buttonFace(context, FACE)
         setTextColor(INK)
         setOnClickListener(then)
+    }
+
+    /** A small button, to sit on a line of text. */
+    fun small(context: Context, label: CharSequence, then: (View) -> Unit): Button = button(context, label, then).apply {
+        textSize = 12f
+        minHeight = 0 ; minimumHeight = 0 ; minWidth = 0 ; minimumWidth = 0
+        setPadding(dp(context, 10), dp(context, 5), dp(context, 10), dp(context, 5))
     }
 
     /** A button's face, with a margin drawn in: two buttons one after the other stay apart, wherever they are put. */

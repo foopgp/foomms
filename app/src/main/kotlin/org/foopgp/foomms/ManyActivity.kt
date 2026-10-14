@@ -36,8 +36,8 @@ class ManyActivity : AskingActivity() {
 
     private lateinit var people: LinearLayout
     private lateinit var options: LinearLayout
-    private lateinit var signs: android.widget.Switch
-    private lateinit var locks: android.widget.Switch
+    private lateinit var signs: Flip
+    private lateinit var locks: Flip
     private lateinit var field: EditText
     private lateinit var sender: android.widget.Button
 
@@ -47,14 +47,8 @@ class ManyActivity : AskingActivity() {
         if (numbers.size < 2) return finish()
         title = getString(R.string.many_title, numbers.size)
         people = Look.column(this)
-        fun flip(words: Int) = android.widget.Switch(this).apply {
-            setText(words)
-            textSize = 14f
-            setTextColor(Look.INK)
-            setOnCheckedChangeListener { _, _ -> paint() }
-        }
-        signs = flip(R.string.switch_sign)
-        locks = flip(R.string.switch_lock)
+        signs = Flip(this, "✍", R.string.switch_sign) { paint() }
+        locks = Flip(this, "⚿", R.string.switch_lock) { paint() }
         field = EditText(this).apply {
             setHint(R.string.words_hint)
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
