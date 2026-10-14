@@ -22,6 +22,8 @@ object TalkMenu {
         thread: Long?,
         /** Say whose certificate the number means: asked of the page that can show foodjis's list. */
         tie: () -> Unit,
+        /** Read the certificate again from foodjis, and write in the contact what it says now. */
+        refresh: () -> Unit,
         /** Something said of the sender changed, and what shows it is to be drawn again. */
         changed: () -> Unit,
         /** The conversation is no more. */
@@ -52,7 +54,29 @@ object TalkMenu {
                 }
             }
         }
-        if (number != null) choices += R.string.tie to tie
+        val tied = person?.fingerprint
+        if (tied != null) {
+            // A number that already means a certificate: see it, read it again, or let go of it.
+            choices += R.string.cert_show to {
+                val foodjis = if (activity.packageName.endsWith(".dev")) Provider.FOODJIS_DEV else Provider.FOODJIS
+                runCatching {
+                    activity.startActivity(
+                        Intent("org.foopgp.foodjis.action.SHOW_CERTIFICATE").setPackage(foodjis).putExtra("fingerprint", tied),
+                    )
+                }.onFailure {
+                    AlertDialog.Builder(activity).setMessage(R.string.no_provider).setPositiveButton(R.string.close, null).show()
+                }
+            }
+            choices += R.string.cert_refresh to refresh
+            choices += R.string.cert_forget to {
+                thread {
+                    runCatching { Book.untie(activity, person.contact) }
+                    activity.runOnUiThread { if (!activity.isFinishing && !activity.isDestroyed) changed() }
+                }
+            }
+        } else if (number != null) {
+            choices += R.string.tie to tie
+        }
         choices += (if (muted) R.string.unmute else R.string.mute) to { Marks.mute(activity, sender, !muted) ; changed() }
         if (thread != null) {
             choices += R.string.forget_talk to {

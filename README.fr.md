@@ -59,9 +59,15 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   petit et un son se joue sur place.
 - **Relire ce qu'on a envoyé** : un message chiffré l'est aussi pour vous,
   sauf si vous réglez que non.
-- **Comment part le prochain message** se lit sur le bouton à côté du champ,
-  dans la couleur qu'il aura : ✍⚿ signé et chiffré, ⚿ chiffré, ✍ signé, ✉ tel
-  quel. Avec un certificat relié au numéro, on commence par signé et chiffré.
+- **Comment part le prochain message** se lit sur deux interrupteurs au-dessus
+  du champ, *Signer* et *Chiffrer*, chacun grisé quand il ne peut pas servir ;
+  la ligne qui les porte, et le bouton d'envoi, prennent la couleur qu'aura le
+  message. Avec un certificat relié au numéro, les deux sont allumés d'emblée.
+- **Un même message pour plusieurs personnes** : nommées l'une après l'autre
+  au moment de commencer un message, chacune le reçoit dans sa propre
+  conversation. Chiffré, c'est un seul message PGP pour toutes, comme une
+  lettre à plusieurs destinataires — chacune peut voir, aux clés qu'il
+  désigne, pour qui d'autre il était.
 - **Lire.** Un message PGP reçu dit ce qu'il est jusqu'à ce qu'on appuie
   dessus : foodjis l'ouvre, avec la clé de sécurité s'il est chiffré — et avec
   lui, pour ce seul passage de la clé, les messages fermés les plus proches : deux, sauf autre nombre, de zéro à
@@ -89,7 +95,8 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   relié, on demande à foodjis le certificat qui porte lui-même le numéro.
 - **Une conversation, par un appui long**, ou son en-tête une fois ouverte,
   dit ce qu'on peut en faire : afficher ou ajouter le contact, relier le
-  numéro à un certificat, rendre son expéditeur silencieux — ce que la liste
+  numéro à un certificat — ou, une fois relié, voir ce certificat dans
+  foodjis, le relire, ou l'oublier —, rendre son expéditeur silencieux — ce que la liste
   montre ensuite —, la supprimer. Supprimer est réservé à l'application de
   messagerie du téléphone. L'en-tête d'une conversation ouverte montre le
   visage, le nom, et dessous le numéro et ce que vaut son certificat.

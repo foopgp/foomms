@@ -41,13 +41,17 @@ object Store {
      * through every message to find the last of each took the time it takes
      * to read years of them.
      */
-    fun talks(context: Context, most: Int): List<Talk> {
+    fun talks(context: Context, most: Int, unreadOnly: Boolean = false, given: () -> Boolean = { false }): List<Talk> {
         val talks = ArrayList<Talk>()
         val listed = runCatching {
-            context.contentResolver.query(THREADS, arrayOf("_id", "date", "snippet", "recipient_ids", "read"), null, null, "date DESC")
-        }.getOrNull() ?: return everyTalk(context).take(most)
+            // Only those that hold something unread, when that is all that is asked: a hundred to read rather than all.
+            context.contentResolver.query(
+                THREADS, arrayOf("_id", "date", "snippet", "recipient_ids", "read"), if (unreadOnly) "read = 0" else null, null, "date DESC",
+            )
+        }.getOrNull() ?: return everyTalk(context).filter { !unreadOnly || it.unread }.take(most)
         listed.use { rows ->
-            while (rows.moveToNext() && talks.size < most) {
+            // [given] up: whoever asked no longer wants the answer, and reading on would only slow what they asked next.
+            while (rows.moveToNext() && talks.size < most && !given()) {
                 val thread = rows.getLong(0)
                 val number = rows.getString(3)?.trim()?.split(' ')?.firstOrNull()?.toLongOrNull()?.let { address(context, it) }
                 val last = last(context, thread)

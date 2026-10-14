@@ -24,10 +24,6 @@
     <string name="signed_press">✍ Message signé — appuyez pour le vérifier</string>
     <string name="foodjis_shut">foodjis n\'a pas encore laissé entrer cette application</string>
     <string name="certificate_not_held">foodjis ne détient pas ce certificat</string>
-    <string name="mode_sign_lock">Signé avec votre clé de sécurité, et chiffré</string>
-    <string name="mode_lock">Chiffré, non signé</string>
-    <string name="mode_sign">Signé avec votre clé de sécurité, non chiffré</string>
-    <string name="mode_plain">Tel quel : ni chiffré ni signé</string>
     <string name="tied">Ce numéro désigne maintenant le certificat de %1$s.</string>
     <string name="no_card">foodjis n\'a pas de fiche à faire pour %1$s : son certificat ne porte pas de nom.</string>
     <string name="card_photo">sa photo</string>
@@ -125,4 +121,14 @@
     <string name="tie_ask_after">. Ceci sera inscrit dans votre carnet d\'adresses, là où le contact ne le dit pas déjà :</string>
     <string name="whom_hint">Un nom, ou un numéro de téléphone</string>
     <string name="count_detail">%1$d messages : %2$d SMS, %3$d MMS — dont %4$d PGP\n%5$d conversations\n%6$d non lus, dont %7$d PGP, dans %8$d conversations\n\nSeules les conversations contenant un message non lu sont affichées. Appuyez de nouveau sur les compteurs pour les revoir toutes.</string>
+    <string name="switch_sign">✍ Signer</string>
+    <string name="switch_lock">⚿ Chiffrer</string>
+    <string name="cert_show">🔑 Afficher le certificat</string>
+    <string name="cert_refresh">⟳ Rafraîchir depuis le certificat</string>
+    <string name="cert_forget">⌫ Oublier le certificat</string>
+    <string name="whom_so_far">Pour : %1$s   ✕</string>
+    <string name="whom_write">Écrire</string>
+    <string name="many_title">Pour %1$d personnes</string>
+    <string name="many_sent">Confié au téléphone, pour %1$d personnes.</string>
+    <string name="many_failed">Non envoyé à : %1$s</string>
 </resources>

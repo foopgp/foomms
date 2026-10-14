@@ -35,7 +35,9 @@ class MainActivity : Activity() {
     /** Every conversation read so far, and whether only those with something unread are shown. */
     private var every: List<Row> = emptyList()
     private var onlyUnread = false
-    private var counts: Store.Counts? = null
+
+    /** The conversations with something unread, read for themselves; none yet, and they are picked out of [every]. */
+    private var unreadRows: List<Row>? = null
     private lateinit var all: android.widget.TextView
     private lateinit var unread: android.widget.TextView
     private var rows: List<Row> = emptyList()
@@ -45,6 +47,13 @@ class MainActivity : Activity() {
         dressed = Look.dark
         super.onCreate(state)
         title = getString(R.string.app_title)
+        // The counts of last time, until those of now are worked out.
+        if (counts == null) {
+            val last = getSharedPreferences("counts", MODE_PRIVATE).getString("last", null)?.split(',')?.mapNotNull { it.toIntOrNull() }
+            if (last?.size == 8) counts = Store.Counts(last[0], last[1], last[2], last[3], last[4], last[5], last[6], last[7])
+        }
+        // A new start reads the address book again: a name may have changed since the application last ran.
+        if (state == null) { synchronized(people) { people.clear() } ; synchronized(lines) { lines.clear() } }
         // In the bar: the application's mark, then how much of what the phone holds is PGP.
         all = Look.words(this, "", size = 15f).apply { setTextColor(Look.ORANGE) ; setTypeface(typeface, Typeface.BOLD) }
         unread = Look.words(this, "", size = 13f).apply { setTextColor(android.graphics.Color.rgb(0xE0, 0xE7, 0xFF)) }
@@ -55,7 +64,12 @@ class MainActivity : Activity() {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 // Pressed: the counts in more detail, and only the conversations that hold something unread; pressed again, all of them.
-                setOnClickListener { onlyUnread = !onlyUnread ; show() }
+                setOnClickListener {
+                    onlyUnread = !onlyUnread
+                    unreadRows = null
+                    show()
+                    if (onlyUnread) fill()
+                }
                 val side = Look.dp(context, 36)
                 addView(android.widget.ImageView(context).apply { setImageResource(R.drawable.launcher) }, LinearLayout.LayoutParams(side, side))
                 addView(
@@ -94,7 +108,6 @@ class MainActivity : Activity() {
         // The theme was changed while this page was behind another: it is built again in the new one.
         if (Look.wantsDark(this) != dressed) return recreate()
         Look.dress(this)
-        synchronized(people) { people.clear() }
         asking.removeAllViews()
         val missing = NEEDED.filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
         if (Manifest.permission.READ_SMS in missing) {
@@ -130,20 +143,22 @@ class MainActivity : Activity() {
         super.onStop()
     }
 
-    /** Who a number is, asked of the address book once for as long as this page is shown. */
-    private val people = HashMap<String, Book.Person?>()
-
     /**
-     * The latest conversations first, shown as soon as they are read; the
-     * rest behind them. A phone holds years of messages, and what one opens
-     * the application for is at the top.
+     * The conversations, the latest first and shown as soon as they are
+     * read, the rest behind them; or, when only the unread are wanted, those
+     * alone, which are few. A phone holds years of messages: what was worked
+     * out once -- who a number is, the line of a conversation that has not
+     * changed -- is kept for as long as the application runs.
      */
     private fun fill() {
         val contacts = checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
         val turn = ++turns
+        val unreadOnly = onlyUnread
+        if (written != Book.written) { synchronized(people) { people.clear() } ; synchronized(lines) { lines.clear() } ; written = Book.written }
         thread {
             val foodjis = Foodjis.of(this)
             fun row(talk: Store.Talk): Row {
+                synchronized(lines) { lines[talk.thread] }?.takeIf { it.talk.at == talk.at && it.talk.unread == talk.unread && it.talk.last == talk.last }?.let { return it }
                 val person = talk.number?.takeIf { contacts }?.let { number ->
                     synchronized(people) { if (people.containsKey(number)) return@let people[number] }
                     Book.who(this, number).also { synchronized(people) { people[number] = it } }
@@ -159,40 +174,57 @@ class MainActivity : Activity() {
                     else -> Opened.words(armor)?.words ?: getString(if (Pgp.isLocked(armor)) R.string.locked_message else R.string.signed_message)
                 }
                 return Row(talk, person, face, person?.name ?: talk.number ?: getString(R.string.unknown_number), verdict, last)
+                    // A closed PGP message may be opened at any moment: its line is worked out each time.
+                    .also { if (armor == null) synchronized(lines) { lines[talk.thread] = it } }
             }
             fun show(found: List<Row>) = runOnUiThread {
                 if (isFinishing || isDestroyed || turn != turns) return@runOnUiThread
-                every = found
+                if (unreadOnly) unreadRows = found else every = found
                 show()
             }
-            val first = runCatching { Store.talks(this, FIRST) }.getOrDefault(emptyList()).map(::row)
-            show(first)
-            runCatching { Store.counts(this) }.getOrNull()?.let { counts ->
-                runOnUiThread {
-                    if (isFinishing || isDestroyed) return@runOnUiThread
-                    this.counts = counts
-                    all.text = getString(R.string.count_all, counts.pgp, counts.all)
-                    unread.text = getString(R.string.count_unread, counts.unreadPgp, counts.unread)
-                    show()
+            val stale = { turn != turns }
+            // The counts as soon as there is something to look at: they are what a press on them shows, and
+            // the ones of a moment ago stand in until then.
+            fun count() = runCatching { Store.counts(this) }.getOrNull()?.let { fresh ->
+                counts = fresh
+                getSharedPreferences("counts", MODE_PRIVATE).edit()
+                    .putString("last", listOf(fresh.pgp, fresh.all, fresh.unreadPgp, fresh.unread, fresh.sms, fresh.mms, fresh.talks, fresh.unreadTalks).joinToString(","))
+                    .apply()
+                runOnUiThread { if (!isFinishing && !isDestroyed) show() }
+            }
+            if (unreadOnly) {
+                show(runCatching { Store.talks(this, Int.MAX_VALUE, unreadOnly = true, given = stale) }.getOrDefault(emptyList()).map(::row))
+                if (!stale()) count()
+            } else {
+                val first = runCatching { Store.talks(this, FIRST) }.getOrDefault(emptyList()).map(::row)
+                show(first)
+                if (!stale()) count()
+                if (first.size >= FIRST && !stale()) {
+                    val all = runCatching { Store.talks(this, Int.MAX_VALUE, given = stale) }.getOrDefault(emptyList())
+                    if (!stale()) show(all.map(::row))
                 }
             }
-            if (first.size < FIRST) return@thread
-            show(runCatching { Store.talks(this, Int.MAX_VALUE) }.getOrDefault(emptyList()).map(::row))
         }
     }
 
-    /** What the list shows of what was read: everything, or what holds something unread, with the counts spelled out above. */
+    /**
+     * What the list shows of what was read: everything, or what holds
+     * something unread -- at once from what is at hand, then from those
+     * conversations read for themselves --, with the counts spelled out above.
+     */
     private fun show() {
-        rows = if (onlyUnread) every.filter { it.talk.unread } else every
+        rows = if (!onlyUnread) every else unreadRows ?: every.filter { it.talk.unread }
         talks.notifyDataSetChanged()
         val known = counts
-        detail.visibility = if (onlyUnread && known != null) View.VISIBLE else View.GONE
         if (known != null) {
+            all.text = getString(R.string.count_all, known.pgp, known.all)
+            unread.text = getString(R.string.count_unread, known.unreadPgp, known.unread)
             detail.text = getString(
                 R.string.count_detail,
                 known.all, known.sms, known.mms, known.pgp, known.talks, known.unread, known.unreadPgp, known.unreadTalks,
             )
         }
+        detail.visibility = if (onlyUnread && known != null) View.VISIBLE else View.GONE
     }
 
     /** Which filling is the latest asked for: an older one that finishes late shows nothing. */
@@ -208,17 +240,19 @@ class MainActivity : Activity() {
         TalkMenu.show(
             this, row.name, sender, row.person, row.talk.thread,
             // Tying is done from the conversation, which is where foodjis shows its list over.
-            tie = { open(row.talk, tie = true) },
-            changed = { talks.notifyDataSetChanged() },
+            tie = { open(row.talk, ask = ThreadActivity.ASK_TIE) },
+            refresh = { open(row.talk, ask = ThreadActivity.ASK_REFRESH) },
+            // What was said of the sender, or of whose certificate the number means, shows on its line.
+            changed = { fill() },
             gone = { fill() },
         )
     }
 
-    private fun open(talk: Store.Talk, tie: Boolean = false) = startActivity(
+    private fun open(talk: Store.Talk, ask: String? = null) = startActivity(
         Intent(this, ThreadActivity::class.java)
             .putExtra(ThreadActivity.EXTRA_NUMBER, talk.number ?: getString(R.string.unknown_number))
             .putExtra(ThreadActivity.EXTRA_THREAD, talk.thread)
-            .putExtra(ThreadActivity.EXTRA_TIE, tie),
+            .putExtra(ThreadActivity.EXTRA_ASK, ask),
     )
 
     private val talks = object : BaseAdapter() {
@@ -285,6 +319,12 @@ class MainActivity : Activity() {
         DateUtils.getRelativeTimeSpanString(at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL)
 
     private companion object {
+        /** Kept for as long as the application runs: who a number is, the line of each conversation, the last counts. */
+        val people = HashMap<String, Book.Person?>()
+        val lines = HashMap<Long, Row>()
+        @Volatile var counts: Store.Counts? = null
+        @Volatile var written = 0
+
         /** How many conversations are shown before the rest is read. */
         const val FIRST = 20
         val NEEDED = listOf(Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS, Manifest.permission.READ_CONTACTS)

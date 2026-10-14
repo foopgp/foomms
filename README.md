@@ -53,10 +53,14 @@ then one of them in bubbles, a field at the bottom.
   plays where it stands.
 - **Read again what you sent**: a locked message is locked for you too,
   unless you set it not to be.
-- **How the next message leaves** is said by the button beside the field, in
-  the colour it will have: ✍⚿ signed and encrypted, ⚿ encrypted, ✍ signed, ✉
-  as it is. With a certificate tied to the number, signed and encrypted is how
-  it starts.
+- **How the next message leaves** is said by two switches above the field,
+  *Sign* and *Encrypt*, each grey when it cannot be; the line they stand on,
+  and the button that sends, take the colour the message will have. With a
+  certificate tied to the number, both are on to begin with.
+- **One message for several people**: named one after the other when a new
+  message is begun, each receives it in their own conversation. Encrypted,
+  it is one PGP message for all of them, as a letter with several addressees
+  is — each can see, by the keys it names, who else it was for.
 - **Reading.** A received PGP message says what it is until it is pressed:
   foodjis opens it, with the security key if it is encrypted — and with it,
   for that one use of the key, the closed messages nearest to it: two of them
@@ -84,7 +88,8 @@ then one of them in bubbles, a field at the bottom.
   number itself.
 - **A conversation pressed long**, or its head pressed once it is open, says
   what can be done about it: show or add the contact, tie the number to a
-  certificate, silence its sender — which the list then shows —, delete it.
+  certificate — or, once it is, see that certificate in foodjis, read it
+  again, or forget it —, silence its sender — which the list then shows —, delete it.
   Deleting is for the phone's messaging application. The head of an open
   conversation shows the face, the name, and under it the number and what
   its certificate is worth.

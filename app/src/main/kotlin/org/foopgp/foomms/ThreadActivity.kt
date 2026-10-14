@@ -26,8 +26,8 @@ import org.openintents.openpgp.OpenPgpSignatureResult
  * is worth, and at the bottom a field to write in.
  *
  * A PGP message shows its words once foodjis has opened it -- pressed, for
- * one received -- and until then says what it is. Beside the field, a button
- * says how the next message will leave: signed and locked, locked, signed,
+ * one received -- and until then says what it is. Above the field, two
+ * switches say how the next message will leave: signed, encrypted, both,
  * or as it is.
  */
 class ThreadActivity : AskingActivity() {
@@ -36,7 +36,11 @@ class ThreadActivity : AskingActivity() {
         SIGN_AND_LOCK("✍⚿", true, true),
         LOCK("⚿", true, false),
         SIGN("✍", false, true),
-        PLAIN("✉", false, false),
+        PLAIN("✉", false, false) ;
+
+        companion object {
+            fun of(signs: Boolean, locks: Boolean): Mode = entries.first { it.signs == signs && it.locks == locks }
+        }
     }
 
     /** Whom this conversation is with, for a page opened from this one. */
@@ -49,7 +53,8 @@ class ThreadActivity : AskingActivity() {
     private var card: Foodjis.Cert? = null
     private var face: Bitmap? = null
     private var lines: List<Store.Line> = emptyList()
-    private var mode = Mode.PLAIN
+    /** How the next message leaves: what the two switches say, as far as each can be on. */
+    private val mode: Mode get() = Mode.of(signs.isChecked && signs.isEnabled, locks.isChecked && locks.isEnabled)
 
     /** Who a key a message names belongs to, as far as foodjis knows. */
     private class For(val name: String, val face: Bitmap?)
@@ -60,7 +65,10 @@ class ThreadActivity : AskingActivity() {
 
     private lateinit var list: ListView
     private lateinit var field: EditText
-    private lateinit var how: android.widget.Button
+    private lateinit var signs: android.widget.Switch
+    private lateinit var locks: android.widget.Switch
+    private lateinit var options: LinearLayout
+    private lateinit var sender: android.widget.Button
     private lateinit var chip: android.widget.TextView
     private lateinit var whoIs: android.widget.TextView
     private lateinit var under: android.widget.TextView
@@ -110,7 +118,8 @@ class ThreadActivity : AskingActivity() {
                 setOnClickListener {
                     TalkMenu.show(
                         this@ThreadActivity, person?.name ?: number, number, person, thread,
-                        tie = { tie() }, changed = { }, gone = { finish() },
+                        tie = { tie() }, refresh = { person?.fingerprint?.let { found(it) } },
+                        changed = { person = null ; card = null ; load(first = true) }, gone = { finish() },
                     )
                 }
             }
@@ -128,8 +137,18 @@ class ThreadActivity : AskingActivity() {
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             maxLines = 5
         }
-        how = Look.button(this, mode.glyph) { next() }.apply { textSize = 20f }
-        val send = Look.button(this, "➤") { send() }.apply { setTextColor(Look.ORANGE) ; textSize = 20f }
+        // Two switches above the field: signed, encrypted. Each is grey when it cannot be; together they
+        // give the line, and the button that sends, the colour the message will have.
+        fun flip(words: Int) = android.widget.Switch(this).apply {
+            setText(words)
+            textSize = 14f
+            setTextColor(Look.INK)
+            setOnCheckedChangeListener { _, _ -> paint() }
+        }
+        signs = flip(R.string.switch_sign)
+        locks = flip(R.string.switch_lock)
+        sender = Look.button(this, "➤") { send() }.apply { textSize = 20f }
+        val send = sender
         val pad = Look.dp(this, 6)
         val add = Look.button(this, "+") { attach() }.apply { textSize = 22f }
         // What is attached, said above the field; pressed, it is taken off.
@@ -142,8 +161,7 @@ class ThreadActivity : AskingActivity() {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.BOTTOM
             setPadding(pad, pad, pad, pad)
-            addView(how, LinearLayout.LayoutParams(Look.dp(context, 64), ViewGroup.LayoutParams.WRAP_CONTENT))
-            addView(add, LinearLayout.LayoutParams(Look.dp(context, 44), ViewGroup.LayoutParams.WRAP_CONTENT).apply { marginStart = pad })
+            addView(add, LinearLayout.LayoutParams(Look.dp(context, 44), ViewGroup.LayoutParams.WRAP_CONTENT))
             addView(field, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = pad ; marginEnd = pad })
             addView(send, LinearLayout.LayoutParams(Look.dp(context, 56), ViewGroup.LayoutParams.WRAP_CONTENT))
         }
@@ -152,6 +170,14 @@ class ThreadActivity : AskingActivity() {
                 orientation = LinearLayout.VERTICAL
                 addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
                 addView(chip)
+                options = LinearLayout(context).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    setPadding(pad * 3, pad / 2, pad * 3, pad / 2)
+                    addView(signs, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = pad * 3 })
+                    addView(locks, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                }
+                addView(options)
                 addView(bar)
             },
         )
@@ -225,16 +251,16 @@ class ThreadActivity : AskingActivity() {
                 under.text =
                     if (who?.name != null && who.name != number) android.text.SpannableStringBuilder("$number — ").append(standing) else standing
                 // Asked from the list of conversations: whose certificate this number means.
-                if (intent.getBooleanExtra(EXTRA_TIE, false)) {
-                    intent.removeExtra(EXTRA_TIE)
-                    tie()
+                when (intent.getStringExtra(EXTRA_ASK).also { intent.removeExtra(EXTRA_ASK) }) {
+                    ASK_TIE -> tie()
+                    ASK_REFRESH -> who?.fingerprint?.let { found(it) }
                 }
                 // Nothing can be written to a sender that is not a number.
                 val reachable = Phone.plain(number) != null
                 field.isEnabled = reachable
                 if (!reachable) field.setHint(R.string.no_answer)
                 // With a certificate that can be locked for, that is how a message leaves unless told otherwise.
-                if (first) mode = if (whose?.usable == true) Mode.SIGN_AND_LOCK else Mode.PLAIN
+                if (first) { locks.isChecked = whose?.usable == true ; signs.isChecked = whose?.usable == true }
                 paint()
                 bubbles.notifyDataSetChanged()
                 if (wanted > 0) {
@@ -253,27 +279,22 @@ class ThreadActivity : AskingActivity() {
         if (mine != null) return
         provider.ask(Intent(Provider.GET_SIGN_KEY_ID), null) { answer ->
             if (answer is Provider.Answer.Done) mine = answer.says.getLongExtra(Provider.EXTRA_SIGN_KEY_ID, 0L).takeIf { it != 0L }
+            if (!isFinishing && !isDestroyed) paint()
         }
     }
 
     /** What the next message will be worth to who receives it. */
     private fun worth(mode: Mode): Verdict = Verdict.of(mode.locks, (mode.locks || mode.signs) && card?.certified == true)
 
+    /** The switches as they can be, and the colour of what they add up to. */
     private fun paint() {
-        how.text = mode.glyph
-        how.background = Look.rounded(Look.pale(worth(mode)), Look.dp(this, 10))
-    }
-
-    private fun next() {
-        mode = Mode.entries[(mode.ordinal + 1) % Mode.entries.size]
-        paint()
-        val says = when (mode) {
-            Mode.SIGN_AND_LOCK -> R.string.mode_sign_lock
-            Mode.LOCK -> R.string.mode_lock
-            Mode.SIGN -> R.string.mode_sign
-            Mode.PLAIN -> R.string.mode_plain
-        }
-        Toast.makeText(this, says, Toast.LENGTH_SHORT).show()
+        // Nothing to encrypt for without a certificate that stands; nothing to sign with until foodjis has said whose identity this is.
+        locks.isEnabled = card?.usable == true
+        signs.isEnabled = mine != null
+        val worth = worth(mode)
+        options.setBackgroundColor(Look.pale(worth))
+        sender.background = Look.rounded(Look.colour(worth), Look.dp(this, 10))
+        sender.setTextColor(if (worth == Verdict.BLUE && !Look.dark) android.graphics.Color.WHITE else Look.INDIGO)
     }
 
     private fun send() {
@@ -884,8 +905,10 @@ class ThreadActivity : AskingActivity() {
         /** The conversation, when the page is opened from the list of them. */
         const val EXTRA_THREAD = "thread"
 
-        /** Opened to say whose certificate the number means. */
-        const val EXTRA_TIE = "tie"
+        /** Opened for something to be done at once: say whose certificate the number means, or read it again from foodjis. */
+        const val EXTRA_ASK = "ask"
+        const val ASK_TIE = "tie"
+        const val ASK_REFRESH = "refresh"
 
         /** The date of the message to show first. */
         const val EXTRA_AT = "at"

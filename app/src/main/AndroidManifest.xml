@@ -47,6 +47,15 @@
             </intent-filter>
         </activity>
 
+        <!-- One message for several people. It shows foodjis's screens over
+             itself and waits for their answer, as a conversation does. -->
+        <activity
+            android:name=".ManyActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize" />
+
         <!-- Looking for a message by its words. -->
         <activity
             android:name=".SearchActivity"

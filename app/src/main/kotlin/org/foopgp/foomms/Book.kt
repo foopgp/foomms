@@ -39,6 +39,21 @@ object Book {
         }
     }.getOrNull()
 
+    /** Counts each writing in the address book made from here: what was read of it before is to be read again. */
+    @Volatile var written = 0
+        private set
+
+    /** Take the certificate off a contact: the web address that names it, and nothing else of what was written. */
+    fun untie(context: Context, contact: Long) {
+        for (old in values(context, contact, Website.CONTENT_ITEM_TYPE, Website.URL).filter { Fingerprint.of(it) != null }) {
+            context.contentResolver.delete(
+                Data.CONTENT_URI, "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ? AND ${Website.URL} = ?",
+                arrayOf(contact.toString(), Website.CONTENT_ITEM_TYPE, old),
+            )
+        }
+        written++
+    }
+
     class Found(val name: String, val number: String)
 
     /** The contacts whose name or number holds [typed], each with a number one can write to. */
@@ -74,6 +89,7 @@ object Book {
      * when the number has none.
      */
     fun tie(context: Context, number: String, card: Card, address: String) {
+        written++
         val known = who(context, number)
         val raw = known?.let { rawOf(context, it.contact) } ?: create(context, number, card.name ?: number)
         val contact = known?.contact ?: contactOf(context, raw)

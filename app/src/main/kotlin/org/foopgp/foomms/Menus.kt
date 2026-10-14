@@ -57,32 +57,55 @@ object Menus {
 
     /**
      * A new message begins with whom it is for: a number typed, or somebody
-     * found in the address book by a few letters of their name.
+     * found in the address book by a few letters of their name -- one, and
+     * their conversation opens; several, and the same message goes to each.
      */
     private fun write(activity: Activity) {
-        fun open(number: String) = activity.startActivity(
-            Intent(activity, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, number),
-        )
         val contacts = activity.checkSelfPermission(android.Manifest.permission.READ_CONTACTS) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        val chosen = LinkedHashMap<String, String>()
         val asked = EditText(activity).apply {
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
             setHint(if (contacts) R.string.whom_hint else R.string.number_hint)
             setSingleLine()
         }
+        val whom = Look.words(activity, "", size = 15f).apply { visibility = android.view.View.GONE }
         val found = android.widget.LinearLayout(activity).apply { orientation = android.widget.LinearLayout.VERTICAL }
         val pad = Look.dp(activity, 20)
+        fun add(number: String, name: String) {
+            if (chosen.keys.none { Phone.same(it, number) }) chosen[number] = name
+            // Whom it is for so far; pressed, the last one named is taken off.
+            whom.text = activity.getString(R.string.whom_so_far, chosen.values.joinToString(", "))
+            whom.visibility = if (chosen.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
+        }
+        whom.setOnClickListener {
+            chosen.keys.lastOrNull()?.let { chosen.remove(it) }
+            whom.text = activity.getString(R.string.whom_so_far, chosen.values.joinToString(", "))
+            whom.visibility = if (chosen.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
+        }
         val dialog = AlertDialog.Builder(activity)
             .setTitle(R.string.write)
             .setView(
                 android.widget.LinearLayout(activity).apply {
                     orientation = android.widget.LinearLayout.VERTICAL
                     setPadding(pad, 0, pad, 0)
+                    addView(whom)
                     addView(asked)
                     addView(android.widget.ScrollView(context).apply { addView(found) })
                 },
             )
-            // A number typed in full needs no contact to go with it.
-            .setPositiveButton(android.R.string.ok) { _, _ -> Phone.plain(asked.text.toString())?.let { open(it) } }
+            .setPositiveButton(R.string.whom_write) { _, _ ->
+                // A number typed in full needs no contact to go with it.
+                Phone.plain(asked.text.toString())?.let { add(it, it) }
+                when (chosen.size) {
+                    0 -> Unit
+                    1 -> activity.startActivity(
+                        Intent(activity, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, chosen.keys.first()),
+                    )
+                    else -> activity.startActivity(
+                        Intent(activity, ManyActivity::class.java).putExtra(ManyActivity.EXTRA_NUMBERS, chosen.keys.toTypedArray()),
+                    )
+                }
+            }
             .setNegativeButton(android.R.string.cancel, null)
             .create()
         var turn = 0
@@ -101,7 +124,7 @@ object Menus {
                                 found.addView(
                                     Look.words(activity, one.name + "\n" + one.number, size = 16f).apply {
                                         setPadding(0, Look.dp(activity, 10), 0, Look.dp(activity, 10))
-                                        setOnClickListener { dialog.dismiss() ; open(one.number) }
+                                        setOnClickListener { add(one.number, one.name) ; asked.setText("") }
                                     },
                                 )
                             }
