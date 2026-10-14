@@ -123,15 +123,6 @@ class ConfActivity : Activity() {
                     .show()
             },
         )
-        // A setting that only takes effect next time cannot say "not any more".
-        if (Opened.holdsAnything()) {
-            column.addView(
-                Look.button(this, getString(R.string.conf_hold_forget)) {
-                    Opened.forget()
-                    draw()
-                }.apply { (layoutParams as? LinearLayout.LayoutParams)?.topMargin = Look.dp(context, 6) },
-            )
-        }
 
         heading(R.string.conf_myself)
         column.addView(flip(R.string.conf_to_myself, Conf.toMyself(this)) { Conf.toMyself(this, it) })
@@ -173,12 +164,13 @@ class ConfActivity : Activity() {
 
     private fun label(hold: Conf.Hold): String = getString(
         when (hold) {
-            Conf.Hold.NEVER -> R.string.hold_never
+            Conf.Hold.HALF_MINUTE -> R.string.hold_half_minute
             Conf.Hold.TWO_MINUTES -> R.string.hold_two_minutes
             Conf.Hold.FIVE_MINUTES -> R.string.hold_five_minutes
             Conf.Hold.FIFTEEN_MINUTES -> R.string.hold_fifteen_minutes
             Conf.Hold.HOUR -> R.string.hold_hour
             Conf.Hold.FOUR_HOURS -> R.string.hold_four_hours
+            Conf.Hold.TWELVE_HOURS -> R.string.hold_twelve_hours
         },
     )
 }

@@ -31,9 +31,11 @@ enum class Verdict(val encrypted: Boolean, val certified: Boolean) {
 /**
  * What was learnt of the PGP messages opened: their words, what carried
  * them, and what they are worth -- known from the key and held with the
- * words, in memory, for the time the person set. Past it, a message is
- * closed again, and grey again: what it is worth is in what the key says,
- * and the key is asked again.
+ * words, in memory. What was encrypted is held for the time the person set,
+ * counted from the last opening: each one winds it up again for all. Past
+ * it, they close together, and are grey again: what they are worth is in
+ * what the key says, and the key is asked again. What was only signed needs
+ * no key, and stays.
  */
 object Opened {
 
@@ -46,22 +48,39 @@ object Opened {
         MessageDigest.getInstance("SHA-256").digest(armor.trim().toByteArray())
             .joinToString("") { "%02x".format(it) }.take(32)
 
-    /** How long words are held, in milliseconds; none, and they last as long as the page that opened them. */
-    @Volatile var holdFor: Long = 15 * 60_000L
+    /** How long what was encrypted stays open after the last opening, in milliseconds. */
+    @Volatile var holdFor: Long = 5 * 60_000L
 
-    /** The words of a message, if it was opened not too long ago; past that, they are dropped. */
-    fun words(armor: String, now: Long = System.currentTimeMillis()): Read? = synchronized(read) {
-        val key = key(armor)
-        val held = read[key] ?: return null
-        if (holdFor > 0 && now - held.at > holdFor) { read.remove(key) ; return null }
-        held
+    /** When something encrypted was last opened; nothing open, none. */
+    @Volatile private var lastOpened = 0L
+
+    /** When what is open closes; nothing encrypted open, null. */
+    fun closesAt(now: Long = System.currentTimeMillis()): Long? {
+        close(now)
+        val open = synchronized(read) { read.values.any { it.verdict.encrypted } } || synchronized(pieces) { pieces.isNotEmpty() }
+        return if (open) lastOpened + holdFor else null
+    }
+
+    /** Everything encrypted, closed: past its time, or [now] when asked to. */
+    fun close(now: Long = System.currentTimeMillis(), force: Boolean = false) {
+        if (!force && now - lastOpened <= holdFor) return
+        synchronized(read) { read.values.removeAll { it.verdict.encrypted } }
+        synchronized(pieces) { pieces.clear() }
+    }
+
+    /** The words of a message, while it is open. */
+    fun words(armor: String, now: Long = System.currentTimeMillis()): Read? {
+        close(now)
+        return synchronized(read) { read[key(armor)] }
     }
 
     fun keep(
         context: Context, armor: String, words: String, signed: String?, verdict: Verdict,
         signer: Long? = null, eid: String? = null, now: Long = System.currentTimeMillis(),
     ) {
+        close(now)
         synchronized(read) { read[key(armor)] = Read(words, signed, now, verdict, signer, eid) }
+        if (verdict.encrypted) lastOpened = now
         forgetOld(context)
     }
 
@@ -77,31 +96,24 @@ object Opened {
 
     private val pieces = HashMap<Long, Piece>()
 
-    /** A part opened not too long ago, by its number in the phone's store. */
-    fun piece(part: Long, now: Long = System.currentTimeMillis()): Piece? = synchronized(pieces) {
-        val held = pieces[part] ?: return null
-        if (holdFor > 0 && now - held.at > holdFor) { pieces.remove(part) ; return null }
-        held
+    /** A part while it is open, by its number in the phone's store. */
+    fun piece(part: Long, now: Long = System.currentTimeMillis()): Piece? {
+        close(now)
+        return synchronized(pieces) { pieces[part] }
     }
 
     fun keepPiece(
         context: Context, part: Long, type: String, name: String, bytes: ByteArray, verdict: Verdict,
         signed: String? = null, signer: Long? = null, eid: String? = null, now: Long = System.currentTimeMillis(),
     ) {
+        close(now)
         synchronized(pieces) { pieces[part] = Piece(type, name, bytes, now, verdict, signed, signer, eid) }
+        lastOpened = now
         forgetOld(context)
     }
 
     @Suppress("UNUSED_PARAMETER")
     fun pieceVerdict(context: Context, part: Long): Verdict? = piece(part)?.verdict
-
-    fun holdsAnything(): Boolean = synchronized(read) { read.isNotEmpty() } || synchronized(pieces) { pieces.isNotEmpty() }
-
-    /** The words of every message and what they carried, dropped, and what they were worth with them. */
-    fun forget() {
-        synchronized(read) { read.clear() }
-        synchronized(pieces) { pieces.clear() }
-    }
 
     /** Verdicts once written down by an earlier version, which outlived the words: gone. */
     private fun forgetOld(context: Context) {

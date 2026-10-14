@@ -51,10 +51,12 @@
     <string name="theme_light">Light</string>
     <string name="conf_around">Neighbouring messages</string>
     <string name="conf_around_note">How many messages shown before the one you press, and as many after it, are decrypted or checked with each use of the security key — PGP messages or not, they count. At 2, five messages at most. At 0, only the message you press.</string>
-    <string name="conf_hold">Remember decrypted messages</string>
-    <string name="conf_hold_note">Held in memory for this long, never stored on the phone. After that, a message asks for the security key again.</string>
-    <string name="conf_hold_forget">Forget the decrypted messages</string>
-    <string name="hold_never">Do not remember</string>
+    <string name="conf_hold">Close encrypted messages</string>
+    <string name="conf_hold_note">How long encrypted messages stay open, or visible, in a conversation. Each opening winds the countdown up again.</string>
+    <string name="hold_half_minute">30 seconds</string>
+    <string name="hold_twelve_hours">12 hours</string>
+    <string name="close_now">Close now</string>
+    <string name="closes_in">⚿ Closing in %1$s</string>
     <string name="hold_two_minutes">2 minutes</string>
     <string name="hold_five_minutes">5 minutes</string>
     <string name="hold_fifteen_minutes">15 minutes</string>

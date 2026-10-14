@@ -37,7 +37,7 @@ object Look {
     fun dress(activity: Activity) {
         dark = wantsDark(activity)
         activity.setTheme(if (dark) R.style.Pages_Dark else R.style.Pages)
-        Opened.holdFor = Conf.hold(activity).minutes * 60_000L
+        Opened.holdFor = Conf.hold(activity).seconds * 1000L
     }
 
     val INK: Int get() = if (dark) Color.rgb(0xF4, 0xF4, 0xF5) else Color.rgb(0x18, 0x18, 0x1B)

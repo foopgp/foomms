@@ -162,7 +162,7 @@ class ThreadActivity : AskingActivity() {
                         letIn = if (foodjis.shut) ({ letIn() }) else null,
                     )
                 }
-                addView(Look.icon(context, R.drawable.search, getString(R.string.search_here)) { Menus.search(this@ThreadActivity, number) })
+                addView(Look.icon(context, R.drawable.search, getString(R.string.search_here)) { seeking(seeker.visibility != View.VISIBLE) })
             }
             customView.layoutParams = android.app.ActionBar.LayoutParams(android.app.ActionBar.LayoutParams.MATCH_PARENT, android.app.ActionBar.LayoutParams.WRAP_CONTENT)
         }
@@ -223,6 +223,8 @@ class ThreadActivity : AskingActivity() {
         setContentView(
             LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
+                addView(closing)
+                addView(seeker)
                 addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
                 addView(chip)
                 options = LinearLayout(context).apply {
@@ -248,6 +250,120 @@ class ThreadActivity : AskingActivity() {
 
     private var dressed = false
 
+    /** Under the bar while encrypted messages are open: when they close, and a button to close them now. */
+    private val closing by lazy {
+        LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            val pad = Look.dp(context, 12)
+            setPadding(pad, pad / 3, pad, pad / 3)
+            setBackgroundColor(Look.pale(Verdict.YELLOW))
+            visibility = View.GONE
+            addView(remaining, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            addView(Look.small(context, getString(R.string.close_now)) { Opened.close(force = true) ; tick() })
+        }
+    }
+    private val remaining by lazy { Look.words(this, "", size = 14f) }
+
+    /** Each second while the page is shown: the time left, and what was open shown closed once it is up. */
+    private val ticking = object : Runnable {
+        override fun run() {
+            tick()
+            if (shown) closing.postDelayed(this, 1000)
+        }
+    }
+
+    private var wasOpen = false
+
+    private fun tick() {
+        val closes = Opened.closesAt()
+        if (closes != null) remaining.text = getString(R.string.closes_in, Media.clock(maxOf(0L, closes - System.currentTimeMillis() + 999)))
+        closing.visibility = if (closes != null) View.VISIBLE else View.GONE
+        // Closed now: the bubbles show it, and the pictures opened from locked parts go with the rest.
+        if (closes == null && wasOpen) { openedThumbs.clear() ; bubbles.notifyDataSetChanged() }
+        wasOpen = closes != null
+    }
+
+    /** Under the bar when asked: words looked for in this conversation, found one after the other. */
+    private val seeker by lazy {
+        LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            val pad = Look.dp(context, 8)
+            setPadding(pad, 0, pad, 0)
+            visibility = View.GONE
+            addView(sought, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            addView(hitCount)
+            addView(Look.small(context, "▲") { seek(-1) })
+            addView(Look.small(context, "▼") { seek(1) })
+            addView(Look.small(context, "✕") { seeking(false) })
+        }
+    }
+    private val sought by lazy {
+        EditText(this).apply {
+            setHint(R.string.search_hint)
+            isSingleLine = true
+            imeOptions = android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH
+            setOnEditorActionListener { _, _, _ -> seek(-1) ; true }
+            addTextChangedListener(object : android.text.TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+                override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+                override fun afterTextChanged(s: android.text.Editable?) { hits = null ; hit = -1 ; seek(0) }
+            })
+        }
+    }
+    private val hitCount by lazy { Look.words(this, "", size = 13f, muted = true).apply { setPadding(Look.dp(context, 6), 0, Look.dp(context, 6), 0) } }
+
+    /** What is looked for, while the search is shown. */
+    private val looked: String get() = if (seeker.visibility == View.VISIBLE) sought.text.toString().trim() else ""
+
+    /** The messages holding it, oldest first, and the one shown. */
+    private var hits: List<Int>? = null
+    private var hit = -1
+
+    private fun seeking(on: Boolean) {
+        seeker.visibility = if (on) View.VISIBLE else View.GONE
+        val keys = getSystemService(android.view.inputmethod.InputMethodManager::class.java)
+        if (on) { sought.requestFocus() ; keys?.showSoftInput(sought, 0) } else { keys?.hideSoftInputFromWindow(sought.windowToken, 0) ; field.requestFocus() }
+        hits = null ; hit = -1
+        bubbles.notifyDataSetChanged()
+    }
+
+    /** What a message shows that can be looked for: its words when they can be read, and what its parts are called. */
+    private fun searchable(line: Store.Line): String {
+        val armor = Pgp.armorIn(line.body)
+        val words = if (armor == null) line.body else Opened.words(armor)?.words.orEmpty()
+        return words + " " + line.pieces.joinToString(" ") { Opened.piece(it.id)?.name ?: it.name.orEmpty() }
+    }
+
+    /** The next match up (-1) or down (1), or the latest one (0); the list scrolls to it. */
+    private fun seek(way: Int) {
+        val wanted = looked
+        if (wanted.isEmpty()) { hitCount.text = "" ; bubbles.notifyDataSetChanged() ; return }
+        val all = hits ?: lines.indices.filter { searchable(lines[it]).contains(wanted, ignoreCase = true) }.also { hits = it }
+        if (all.isEmpty()) { hitCount.text = "0" ; bubbles.notifyDataSetChanged() ; return }
+        hit = when {
+            hit < 0 || way == 0 -> all.size - 1
+            else -> (hit + way).coerceIn(0, all.size - 1)
+        }
+        hitCount.text = "${hit + 1}/${all.size}"
+        bubbles.notifyDataSetChanged()
+        list.setSelection(all[hit])
+    }
+
+    /** [text] with what is looked for marked wherever it is. */
+    private fun marked(text: CharSequence): CharSequence {
+        val wanted = looked
+        if (wanted.isEmpty()) return text
+        val out = android.text.SpannableString(text)
+        var from = text.indexOf(wanted, ignoreCase = true)
+        while (from >= 0) {
+            out.setSpan(android.text.style.BackgroundColorSpan(Look.ORANGE), from, from + wanted.length, 0)
+            from = text.indexOf(wanted, from + wanted.length, ignoreCase = true)
+        }
+        return out
+    }
+
     override fun onResume() {
         super.onResume()
         if (Look.wantsDark(this) != dressed) return recreate()
@@ -256,6 +372,8 @@ class ThreadActivity : AskingActivity() {
         whoAmI()
         contentResolver.registerContentObserver(MESSAGES, true, arrivals)
         load(first = card == null && person == null)
+        closing.removeCallbacks(ticking)
+        ticking.run()
     }
 
     override fun onPause() {
@@ -263,8 +381,6 @@ class ThreadActivity : AskingActivity() {
         if (voice.recording) voice.drop()
         player?.let { runCatching { it.stop() ; it.release() } }
         player = null
-        // Set never to be remembered, what was opened here is gone with the page.
-        if (Opened.holdFor == 0L) Opened.forget()
         contentResolver.unregisterContentObserver(arrivals)
         super.onPause()
     }
@@ -302,6 +418,7 @@ class ThreadActivity : AskingActivity() {
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 person = who ; card = whose ; face = theirs ; lines = found ; meant = theirFaces ; thumbs = small
+                hits = null
                 this.thread = thread
                 // A conversation is with a number: the name it has in the address book, and under it the number
                 // and what its certificate is worth. With no name, the number is the title.
@@ -827,7 +944,7 @@ class ThreadActivity : AskingActivity() {
             if (Pgp.isLocked(armor) || Opened.words(armor) != null || !verifying.add(armor)) continue
             provider.ask(Intent(Provider.DECRYPT_VERIFY), armor.toByteArray()) { answer ->
                 if (answer !is Provider.Answer.Done || isFinishing || isDestroyed) return@ask
-                opened(armor, answer, offer = false)
+                opened(armor, answer, offer = line.incoming)
                 verifying.remove(armor)
             }
         }
@@ -919,15 +1036,23 @@ class ThreadActivity : AskingActivity() {
             .show()
     }
 
+    /** Whether the page has offered to tie the number to a signer's certificate already. */
+    private var offered = false
+
     private fun opened(armor: String, answer: Provider.Answer.Done, offer: Boolean) {
         val signature = Signer.keep(this, armor, answer)
         bubbles.notifyDataSetChanged()
         // Signed, from a number that means no certificate yet: it may well mean the signer's.
-        if (offer && person?.fingerprint == null && signature?.result in VALID) {
+        // Once a page: several signed messages from the same unknown number ask the same question.
+        if (offer && !offered && person?.fingerprint == null && signature?.result in VALID) {
             val keyId = signature!!.keyId
             thread {
                 val whose = foodjis.signer(keyId) ?: return@thread
-                runOnUiThread { if (!isFinishing && !isDestroyed) offer(whose) }
+                runOnUiThread {
+                    if (isFinishing || isDestroyed || offered) return@runOnUiThread
+                    offered = true
+                    offer(whose)
+                }
             }
         }
     }
@@ -1032,7 +1157,7 @@ class ThreadActivity : AskingActivity() {
                 read?.signed?.let { append("  ✍ ").append(it) }
             }
             val pad = Look.dp(context, 10)
-            val text = Look.words(context, words, size = 16f, muted = closed)
+            val text = Look.words(context, if (closed) words else marked(words), size = 16f, muted = closed)
             val bubble = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 background = Look.rounded(Look.pale(verdict), Look.dp(context, 14))

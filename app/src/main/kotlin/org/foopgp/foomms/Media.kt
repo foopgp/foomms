@@ -17,8 +17,10 @@ object Media {
     /** [millis]: how long a sound lasts, when it is known. */
     class Attachment(val type: String, val name: String, val bytes: ByteArray, val millis: Long? = null)
 
-    /** A length of time as a clock says it: 0:07, 12:45. */
-    fun clock(millis: Long): String = "%d:%02d".format(millis / 60_000, millis / 1000 % 60)
+    /** A length of time as a clock says it: 0:07, 12:45, 3:05:00. */
+    fun clock(millis: Long): String =
+        if (millis >= 3_600_000) "%d:%02d:%02d".format(millis / 3_600_000, millis / 60_000 % 60, millis / 1000 % 60)
+        else "%d:%02d".format(millis / 60_000, millis / 1000 % 60)
 
     /** How long a sound lasts, as it came. */
     fun lasting(context: Context, uri: Uri): Long? = lasting { it.setDataSource(context, uri) }

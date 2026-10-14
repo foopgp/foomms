@@ -7,15 +7,15 @@ object Conf {
 
     enum class Theme { DARK, SYSTEM, LIGHT }
 
-    /** How long the words of an opened message are held in memory. */
-    enum class Hold(val minutes: Int) {
-        /** Not past the conversation they were opened in. */
-        NEVER(0),
-        TWO_MINUTES(2),
-        FIVE_MINUTES(5),
-        FIFTEEN_MINUTES(15),
-        HOUR(60),
-        FOUR_HOURS(240),
+    /** How long encrypted messages stay open after the last one was opened. */
+    enum class Hold(val seconds: Int) {
+        HALF_MINUTE(30),
+        TWO_MINUTES(120),
+        FIVE_MINUTES(300),
+        FIFTEEN_MINUTES(900),
+        HOUR(3600),
+        FOUR_HOURS(14400),
+        TWELVE_HOURS(43200),
     }
 
     const val MOST_AROUND = 4
@@ -30,7 +30,7 @@ object Conf {
 
     fun theme(context: Context, theme: Theme) = kept(context).edit().putString("theme", theme.name).apply()
 
-    fun hold(context: Context): Hold = named(kept(context).getString("hold", null), Hold.FIFTEEN_MINUTES)
+    fun hold(context: Context): Hold = named(kept(context).getString("hold", null), Hold.FIVE_MINUTES)
 
     fun hold(context: Context, hold: Hold) = kept(context).edit().putString("hold", hold.name).apply()
 

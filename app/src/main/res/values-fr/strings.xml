@@ -49,10 +49,12 @@
     <string name="theme_light">Clair</string>
     <string name="conf_around">Messages voisins</string>
     <string name="conf_around_note">Nombre de messages affichés avant celui sélectionné, et autant après, à déchiffrer ou vérifier à chaque utilisation de la clé de sécurité — qu\'ils soient PGP ou non, ils comptent. À 2, cinq messages au plus. À 0, seul le message sélectionné l\'est.</string>
-    <string name="conf_hold">Mémoriser les messages déchiffrés</string>
-    <string name="conf_hold_note">Gardés en mémoire vive pendant ce délai, jamais enregistrés sur le téléphone. Passé ce délai, un message redemande la clé de sécurité.</string>
-    <string name="conf_hold_forget">Oublier les messages déchiffrés</string>
-    <string name="hold_never">Ne pas mémoriser</string>
+    <string name="conf_hold">Refermer les messages chiffrés</string>
+    <string name="conf_hold_note">Le temps que les messages chiffrés restent ouverts ou visibles dans une conversation. Chaque ouverture remonte le compte à rebours.</string>
+    <string name="hold_half_minute">30 secondes</string>
+    <string name="hold_twelve_hours">12 heures</string>
+    <string name="close_now">Refermer maintenant</string>
+    <string name="closes_in">⚿ Refermés dans %1$s</string>
     <string name="hold_two_minutes">2 minutes</string>
     <string name="hold_five_minutes">5 minutes</string>
     <string name="hold_fifteen_minutes">15 minutes</string>
