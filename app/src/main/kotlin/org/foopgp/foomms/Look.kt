@@ -106,10 +106,28 @@ object Look {
             "revoked" -> Triple("R", Color.rgb(0xFF, 0x62, 0x7D), Color.rgb(0x4D, 0x02, 0x18))
             else -> Triple("B", Color.rgb(0xDB, 0x3A, 0x60), Color.WHITE)
         }
-        return android.text.SpannableString("\u2009$letter\u2009").apply {
-            setSpan(android.text.style.BackgroundColorSpan(ground), 0, length, 0)
-            setSpan(android.text.style.ForegroundColorSpan(ink), 0, length, 0)
-            setSpan(android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, length, 0)
+        return android.text.SpannableString(letter).apply { setSpan(Badge(ground, ink), 0, length, 0) }
+    }
+
+    /** A letter on a coloured ground with rounded corners, sitting on the line like the text beside it. */
+    private class Badge(private val ground: Int, private val ink: Int) : android.text.style.ReplacementSpan() {
+        override fun getSize(paint: android.graphics.Paint, text: CharSequence, start: Int, end: Int, fm: android.graphics.Paint.FontMetricsInt?): Int {
+            val bold = android.graphics.Paint(paint).apply { typeface = android.graphics.Typeface.DEFAULT_BOLD }
+            return (bold.measureText(text, start, end) + paint.textSize * 0.8f).toInt()
+        }
+
+        override fun draw(
+            canvas: android.graphics.Canvas, text: CharSequence, start: Int, end: Int,
+            x: Float, top: Int, y: Int, bottom: Int, paint: android.graphics.Paint,
+        ) {
+            val bold = android.graphics.Paint(paint).apply { typeface = android.graphics.Typeface.DEFAULT_BOLD }
+            val width = bold.measureText(text, start, end) + paint.textSize * 0.8f
+            val metrics = paint.fontMetrics
+            val rect = android.graphics.RectF(x, y + metrics.ascent - 1, x + width, y + metrics.descent + 1)
+            val radius = paint.textSize * 0.35f
+            canvas.drawRoundRect(rect, radius, radius, android.graphics.Paint(paint).apply { color = ground })
+            bold.color = ink
+            canvas.drawText(text, start, end, x + paint.textSize * 0.4f, y.toFloat(), bold)
         }
     }
 

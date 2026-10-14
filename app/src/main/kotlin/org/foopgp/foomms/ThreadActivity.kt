@@ -160,6 +160,8 @@ class ThreadActivity : AskingActivity() {
         val bar = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.BOTTOM
+            // Aligned on their baselines, the two buttons would follow the field's first line up as it grows.
+            isBaselineAligned = false
             setPadding(pad, pad, pad, pad)
             addView(add, LinearLayout.LayoutParams(Look.dp(context, 44), ViewGroup.LayoutParams.WRAP_CONTENT))
             addView(field, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = pad ; marginEnd = pad })
@@ -389,20 +391,72 @@ class ThreadActivity : AskingActivity() {
         chip.text = what?.let { getString(R.string.carrying, it.name, it.bytes.size / 1024 + 1) }.orEmpty()
     }
 
-    /** A picture from the phone, or a sound recorded now. */
+    /**
+     * What a message can carry: a photograph taken now, a picture, a sound
+     * recorded, a contact, where one is, any file. What the phone has no
+     * application for is not offered.
+     */
     private fun attach() {
-        AlertDialog.Builder(this)
-            .setItems(arrayOf(getString(R.string.attach_picture), getString(R.string.attach_sound))) { _, which ->
-                val picture = Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*")
-                val record = Intent(android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION)
-                // A phone with no recorder of its own still has sounds to choose among.
-                val sound = if (record.resolveActivity(packageManager) != null) record
-                else Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("audio/*")
-                @Suppress("DEPRECATION")
-                runCatching { startActivityForResult(if (which == 0) picture else sound, if (which == 0) PICTURE else SOUND) }
-                    .onFailure { say(getString(R.string.failed, it.message)) }
+        val choices = ArrayList<Pair<Int, () -> Unit>>()
+        fun launch(asked: Intent, request: Int) {
+            @Suppress("DEPRECATION")
+            runCatching { startActivityForResult(asked, request) }.onFailure { say(getString(R.string.failed, it.message)) }
+        }
+        fun offered(asked: Intent) = asked.resolveActivity(packageManager) != null
+        val camera = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
+        if (offered(camera)) {
+            choices += R.string.attach_photo to {
+                val where = Outbox.shot(this)
+                launch(
+                    camera.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, where)
+                        .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        .also { it.clipData = android.content.ClipData.newRawUri(null, where) },
+                    SHOT,
+                )
             }
+        }
+        choices += R.string.attach_picture to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*"), PICTURE) }
+        val record = Intent(android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION)
+        // A phone with no recorder of its own still has sounds to choose among.
+        choices += R.string.attach_sound to {
+            launch(if (offered(record)) record else Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("audio/*"), SOUND)
+        }
+        choices += R.string.attach_contact to { launch(Intent(Intent.ACTION_PICK, android.provider.ContactsContract.Contacts.CONTENT_URI), CONTACT) }
+        choices += R.string.attach_place to { place() }
+        choices += R.string.attach_file to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), FILE) }
+        AlertDialog.Builder(this)
+            .setItems(choices.map { getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }
             .show()
+    }
+
+    /**
+     * Where one is, written into the message: a `geo:` address, which a map
+     * application opens, and the same place on OpenStreetMap for whoever has
+     * none. Asked of the phone once, when it is asked for.
+     */
+    private fun place() {
+        val wanted = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+        if (wanted.none { checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }) return requestPermissions(wanted, PLACE)
+        val locations = getSystemService(android.location.LocationManager::class.java) ?: return
+        val from = listOf(android.location.LocationManager.GPS_PROVIDER, android.location.LocationManager.NETWORK_PROVIDER)
+            .filter { runCatching { locations.isProviderEnabled(it) }.getOrDefault(false) }
+        if (from.isEmpty()) return say(getString(R.string.place_off))
+        Toast.makeText(this, R.string.place_seeking, Toast.LENGTH_SHORT).show()
+        fun found(where: android.location.Location?) {
+            if (isFinishing || isDestroyed) return
+            if (where == null) return say(getString(R.string.place_none))
+            val lat = "%.5f".format(java.util.Locale.ROOT, where.latitude)
+            val lon = "%.5f".format(java.util.Locale.ROOT, where.longitude)
+            val words = "📍 geo:$lat,$lon\nhttps://www.openstreetmap.org/?mlat=$lat&mlon=$lon#map=17/$lat/$lon"
+            val at = field.selectionStart.coerceAtLeast(0)
+            field.text.insert(at, (if (at > 0) "\n" else "") + words)
+        }
+        @Suppress("MissingPermission")
+        if (android.os.Build.VERSION.SDK_INT >= 30) {
+            locations.getCurrentLocation(from.last(), null, mainExecutor) { found(it ?: from.firstNotNullOfOrNull { p -> runCatching { locations.getLastKnownLocation(p) }.getOrNull() }) }
+        } else {
+            found(from.firstNotNullOfOrNull { runCatching { locations.getLastKnownLocation(it) }.getOrNull() })
+        }
     }
 
     private fun attached(request: Int, from: android.net.Uri) {
@@ -410,7 +464,11 @@ class ThreadActivity : AskingActivity() {
         val most = Outbox.heaviest(this) - 16 * 1024
         thread {
             val made = runCatching {
-                if (request == PICTURE) Media.picture(this, from, most) else Media.file(this, from, most)
+                when (request) {
+                    PICTURE, SHOT -> Media.picture(this, from, most)
+                    CONTACT -> Media.contact(this, from, most)
+                    else -> Media.file(this, from, most)
+                }
             }.getOrNull()
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
@@ -514,7 +572,12 @@ class ThreadActivity : AskingActivity() {
 
     override fun onActivityResult(request: Int, outcome: Int, data: Intent?) {
         super.onActivityResult(request, outcome, data)
-        if (request == PICTURE || request == SOUND) {
+        if (request == SHOT) {
+            // The camera wrote where it was told: read it from there, without clearing it first.
+            if (outcome == RESULT_OK) attached(SHOT, android.net.Uri.parse("content://$packageName.pdu/shot/photo.jpg"))
+            return
+        }
+        if (request == PICTURE || request == SOUND || request == CONTACT || request == FILE) {
             data?.data?.takeIf { outcome == RESULT_OK }?.let { attached(request, it) }
             return
         }
@@ -890,6 +953,10 @@ class ThreadActivity : AskingActivity() {
     }
 
     override fun onRequestPermissionsResult(request: Int, permissions: Array<String>, results: IntArray) {
+        if (request == PLACE) {
+            if (results.any { it == PackageManager.PERMISSION_GRANTED }) place()
+            return
+        }
         val then = waiting.also { waiting = null }
         if (request == 2 && results.isNotEmpty() && results.all { it == PackageManager.PERMISSION_GRANTED }) then?.invoke()
     }
@@ -916,6 +983,10 @@ class ThreadActivity : AskingActivity() {
         private const val SAVE = 4
         private const val PICTURE = 5
         private const val SOUND = 6
+        private const val SHOT = 7
+        private const val CONTACT = 8
+        private const val FILE = 9
+        private const val PLACE = 10
 
         /** How many of the latest messages have their pictures shown small. */
         private const val SHOWN_PICTURES = 40

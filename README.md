@@ -46,7 +46,9 @@ then one of them in bubbles, a field at the bottom.
   operator may charge for. In both it is text, a PGP message in its armor. Whoever
   receives it without this application sees that it is coded, and can copy it
   into foodjis.
-- **A photo or a sound** goes as an MMS: chosen or recorded with **+**, a
+- **A photo, a picture, a sound, a contact, a file** goes as an MMS: taken,
+  chosen or recorded with **+**, which also writes where one is into the
+  message (a `geo:` address and the same place on OpenStreetMap); a
   picture made small enough for the network before it leaves. Locked or
   signed, the file becomes a PGP message of its own, under its name and
   `.pgp`, which foodjis opens as it opens any file; the words stay a text in

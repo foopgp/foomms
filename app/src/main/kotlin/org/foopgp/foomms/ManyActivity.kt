@@ -78,6 +78,7 @@ class ManyActivity : AskingActivity() {
                     LinearLayout(context).apply {
                         orientation = LinearLayout.HORIZONTAL
                         gravity = Gravity.BOTTOM
+                        isBaselineAligned = false
                         setPadding(pad, pad, pad, pad)
                         addView(field, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = pad })
                         addView(sender, LinearLayout.LayoutParams(Look.dp(context, 56), ViewGroup.LayoutParams.WRAP_CONTENT))

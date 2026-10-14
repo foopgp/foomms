@@ -50,7 +50,9 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   c'est du texte, un message PGP sous son armure.
   Qui le reçoit sans cette application voit qu'il est codé, et peut le copier
   dans foodjis.
-- **Une photo ou un son** part en MMS : choisi ou enregistré par **+**, une
+- **Une photo, une image, un son, un contact, un fichier** part en MMS :
+  pris, choisi ou enregistré par **+**, qui écrit aussi dans le message où
+  l'on est (une adresse `geo:` et le même lieu sur OpenStreetMap) ; une
   image étant réduite avant le départ pour tenir dans ce que prend le réseau.
   Chiffré ou signé, le fichier devient un message PGP à lui, sous son nom
   suivi de `.pgp`, que foodjis ouvre comme n'importe quel fichier ; le texte

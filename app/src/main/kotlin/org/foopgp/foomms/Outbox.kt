@@ -82,6 +82,15 @@ object Outbox {
     private fun journal(context: Context) = context.getSharedPreferences("sent", Context.MODE_PRIVATE)
 
     private const val OPENED = "open"
+    private const val SHOT = "shot"
+
+    private fun shotFile(context: Context) = File(File(context.cacheDir, SHOT).apply { mkdirs() }, "photo.jpg")
+
+    /** Where the camera is to write the photograph about to be taken. */
+    fun shot(context: Context): Uri {
+        shotFile(context).delete()
+        return Uri.parse("content://${context.packageName}.pdu/$SHOT/photo.jpg")
+    }
     private val types = HashMap<String, String>()
 
     private fun opened(context: Context, name: String) = File(File(context.cacheDir, OPENED), name.filter { it.isLetterOrDigit() || it in "._-" })
@@ -132,6 +141,12 @@ object Outbox {
             if (uri.pathSegments.firstOrNull() == OPENED) {
                 return ParcelFileDescriptor.open(opened(context, uri.lastPathSegment ?: return null), ParcelFileDescriptor.MODE_READ_ONLY)
             }
+            // The photograph being taken: written by the camera, read back here.
+            if (uri.pathSegments.firstOrNull() == SHOT) {
+                val how = if ('w' in mode) ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE or ParcelFileDescriptor.MODE_TRUNCATE
+                else ParcelFileDescriptor.MODE_READ_ONLY
+                return ParcelFileDescriptor.open(shotFile(context), how)
+            }
             val transaction = uri.lastPathSegment ?: return null
             // Read by the service for a message that leaves, written by it for one it fetched.
             val how = if ('w' in mode) ParcelFileDescriptor.MODE_WRITE_ONLY or ParcelFileDescriptor.MODE_CREATE or ParcelFileDescriptor.MODE_TRUNCATE
@@ -140,7 +155,8 @@ object Outbox {
         }
 
         override fun getType(uri: Uri): String =
-            if (uri.pathSegments.firstOrNull() == OPENED) types[uri.lastPathSegment].orEmpty().ifEmpty { "application/octet-stream" }
+            if (uri.pathSegments.firstOrNull() == SHOT) "image/jpeg"
+            else if (uri.pathSegments.firstOrNull() == OPENED) types[uri.lastPathSegment].orEmpty().ifEmpty { "application/octet-stream" }
             else "application/vnd.wap.mms-message"
         override fun query(uri: Uri, p: Array<String>?, s: String?, a: Array<String>?, o: String?): Cursor? = null
         override fun insert(uri: Uri, values: ContentValues?): Uri? = null

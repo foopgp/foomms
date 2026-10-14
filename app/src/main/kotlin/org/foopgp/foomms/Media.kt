@@ -55,6 +55,18 @@ object Media {
         return Attachment(type, name.filter { it.code in 32..126 && it !in "\"\\/" }.ifEmpty { "file" }, bytes)
     }
 
+    /** A contact of the address book, as the vCard the phone itself writes of it. */
+    fun contact(context: Context, chosen: Uri, most: Int): Attachment? {
+        val (key, name) = context.contentResolver.query(
+            chosen, arrayOf(android.provider.ContactsContract.Contacts.LOOKUP_KEY, android.provider.ContactsContract.Contacts.DISPLAY_NAME), null, null, null,
+        )?.use { rows -> if (rows.moveToFirst()) rows.getString(0) to (rows.getString(1) ?: "contact") else null } ?: return null
+        val card = Uri.withAppendedPath(android.provider.ContactsContract.Contacts.CONTENT_VCARD_URI, key)
+        val bytes = context.contentResolver.openInputStream(card)?.use { it.readBytes() } ?: return null
+        if (bytes.size > most) return null
+        val file = name.filter { it.isLetterOrDigit() || it == ' ' }.trim().replace(' ', '_').ifEmpty { "contact" }
+        return Attachment("text/x-vcard", "$file.vcf", bytes)
+    }
+
     /** A picture small enough to sit in a bubble, or null. */
     fun thumbnail(context: Context, from: Uri, side: Int): Bitmap? = runCatching {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
