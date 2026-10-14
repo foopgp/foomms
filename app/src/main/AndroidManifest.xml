@@ -25,6 +25,10 @@
     <uses-feature android:name="android.hardware.location" android:required="false" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
+    <!-- A few words spoken, while a finger stays on the empty field. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
 
     <queries>

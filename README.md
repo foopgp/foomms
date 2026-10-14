@@ -59,6 +59,9 @@ then one of them in bubbles, a field at the bottom.
   plays where it stands.
 - **Read again what you sent**: a locked message is locked for you too,
   unless you set it not to be.
+- **Push to talk**: the field, while empty, held down records a few words
+  for as long as it is held — AMR, low quality, which every phone plays —,
+  attached to the next message like any sound.
 - **How the next message leaves** is said by two switches above the field,
   *Sign* and *Encrypt*, each grey when it cannot be; the line they stand on,
   and the button that sends, take the colour the message will have. With a

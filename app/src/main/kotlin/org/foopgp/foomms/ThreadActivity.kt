@@ -80,6 +80,32 @@ class ThreadActivity : AskingActivity() {
     /** The conversation in the phone's store, once it is known to have one. */
     private var thread: Long? = null
 
+    private val voice by lazy { Voice(this) }
+
+    /** The field held down while empty: record, if the microphone may be used, until it is let go. */
+    private fun speak(): Boolean {
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), VOICE)
+            return true
+        }
+        if (!voice.start(Outbox.heaviest(this) - 16 * 1024)) {
+            say(getString(R.string.voice_failed))
+            return true
+        }
+        field.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+        chip.visibility = View.VISIBLE
+        chip.text = getString(R.string.voice_recording)
+        return true
+    }
+
+    /** Let go: what was said is attached to the next message, to send or to take off as any attachment. */
+    private fun spoken() {
+        val said = voice.stop()
+        field.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
+        carry(said)
+        if (said == null) Toast.makeText(this, R.string.voice_too_short, Toast.LENGTH_SHORT).show()
+    }
+
     /** What the next message carries beside its words: a picture, a sound. */
     private var carried: Media.Attachment? = null
 
@@ -136,9 +162,19 @@ class ThreadActivity : AskingActivity() {
             setOnItemLongClickListener { _, _, at, _ -> about(at) ; true }
         }
         field = EditText(this).apply {
-            setHint(R.string.words_hint)
+            // Empty, the field also listens: held down, it records what is said, for as long as it is held.
+            setHint(R.string.words_or_voice)
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             maxLines = 5
+            setOnLongClickListener { if (text.isEmpty()) speak() else false }
+            setOnTouchListener { _, touch ->
+                if (voice.recording && (touch.action == android.view.MotionEvent.ACTION_UP || touch.action == android.view.MotionEvent.ACTION_CANCEL)) {
+                    spoken()
+                    true
+                } else {
+                    false
+                }
+            }
         }
         // Two switches above the field: signed, encrypted. Each is grey when it cannot be; together they
         // give the line, and the button that sends, the colour the message will have.
@@ -209,6 +245,7 @@ class ThreadActivity : AskingActivity() {
 
     override fun onPause() {
         shown = false
+        if (voice.recording) voice.drop()
         player?.let { runCatching { it.stop() ; it.release() } }
         player = null
         // Set never to be remembered, what was opened here is gone with the page.
@@ -1057,6 +1094,11 @@ class ThreadActivity : AskingActivity() {
             if (results.any { it == PackageManager.PERMISSION_GRANTED }) place()
             return
         }
+        // Let in: the next press records. The one that asked was already let go.
+        if (request == VOICE) {
+            if (results.any { it == PackageManager.PERMISSION_GRANTED }) Toast.makeText(this, R.string.voice_ready, Toast.LENGTH_SHORT).show()
+            return
+        }
         val then = waiting.also { waiting = null }
         if (request == 2 && results.isNotEmpty() && results.all { it == PackageManager.PERMISSION_GRANTED }) then?.invoke()
     }
@@ -1087,6 +1129,7 @@ class ThreadActivity : AskingActivity() {
         private const val CONTACT = 8
         private const val FILE = 9
         private const val PLACE = 10
+        private const val VOICE = 11
 
         /** How many of the latest messages have their pictures shown small. */
         private const val SHOWN_PICTURES = 40

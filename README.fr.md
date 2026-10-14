@@ -64,6 +64,9 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   petit et un son se joue sur place.
 - **Relire ce qu'on a envoyé** : un message chiffré l'est aussi pour vous,
   sauf si vous réglez que non.
+- **Appuyer pour parler** : le champ, tant qu'il est vide, maintenu enregistre
+  quelques mots aussi longtemps qu'on le tient — AMR, basse qualité, que tout
+  téléphone lit —, joints au prochain message comme n'importe quel son.
 - **Comment part le prochain message** se lit sur deux interrupteurs au-dessus
   du champ, *Signer* et *Chiffrer*, chacun grisé quand il ne peut pas servir ;
   la ligne qui les porte, et le bouton d'envoi, prennent la couleur qu'aura le
