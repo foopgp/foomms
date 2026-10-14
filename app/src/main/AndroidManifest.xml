@@ -74,12 +74,6 @@
             android:parentActivityName=".MainActivity"
             android:windowSoftInputMode="adjustResize" />
 
-        <!-- Saving the messages to a file, or putting them back. -->
-        <activity
-            android:name=".BackupActivity"
-            android:exported="false"
-            android:parentActivityName=".MainActivity" />
-
         <!-- What the person sets. -->
         <activity
             android:name=".ConfActivity"

@@ -28,11 +28,16 @@ object TalkMenu {
         changed: () -> Unit,
         /** The conversation is no more. */
         gone: () -> Unit,
+        /** Save this conversation to a file. */
+        save: () -> Unit,
+        /** foodjis keeps its door shut: ask to be let in. */
+        letIn: (() -> Unit)? = null,
     ) {
         val number = Phone.plain(sender)
         val muted = Marks.muted(activity, sender)
         val choices = ArrayList<Pair<String, () -> Unit>>()
         fun add(words: Int, then: () -> Unit) { choices += activity.getString(words) to then }
+        if (letIn != null) add(R.string.let_in, letIn)
         // Calling, where the phone can: the dialler opens with the number, and nothing is dialled without the person.
         val dial = Intent(Intent.ACTION_DIAL, android.net.Uri.fromParts("tel", sender, null))
         if (number != null && dial.resolveActivity(activity.packageManager) != null) {
@@ -84,6 +89,7 @@ object TalkMenu {
             add(R.string.tie, tie)
         }
         add(if (muted) R.string.unmute else R.string.mute) { Marks.mute(activity, sender, !muted) ; changed() }
+        if (thread != null) add(R.string.backup_one, save)
         if (thread != null) {
             add(R.string.forget_talk) {
                 AlertDialog.Builder(activity)

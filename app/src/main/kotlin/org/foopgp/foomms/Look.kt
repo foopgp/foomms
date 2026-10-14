@@ -40,6 +40,17 @@ object Look {
         Opened.holdFor = Conf.hold(activity).minutes * 60_000L
     }
 
+    /** The application's mark where the bar's arrow back stood: it leads back to the list of conversations. */
+    fun homeMark(activity: Activity) {
+        val bar = activity.actionBar ?: return
+        val side = dp(activity, 34)
+        val drawn = Bitmap.createBitmap(side, side, Bitmap.Config.ARGB_8888)
+        activity.getDrawable(R.drawable.launcher)?.apply { setBounds(0, 0, side, side) ; draw(android.graphics.Canvas(drawn)) }
+        bar.setDisplayHomeAsUpEnabled(true)
+        bar.setHomeAsUpIndicator(android.graphics.drawable.BitmapDrawable(activity.resources, drawn))
+        bar.setHomeActionContentDescription(R.string.talks)
+    }
+
     val INK: Int get() = if (dark) Color.rgb(0xF4, 0xF4, 0xF5) else Color.rgb(0x18, 0x18, 0x1B)
     val MUTED: Int get() = if (dark) Color.argb(0x99, 0xF4, 0xF4, 0xF5) else Color.argb(0x99, 0x18, 0x18, 0x1B)
     val INDIGO = Color.rgb(0x31, 0x26, 0x4B)
@@ -132,8 +143,9 @@ object Look {
     }
 
     /**
-     * Three dots at the end of a line of a bar, saying that the bar can be
-     * pressed: the line takes the room left, the dots stand at its right.
+     * Three dots, one above the other, at the end of a line of a bar, saying
+     * that the bar can be pressed: the line takes the room left, the dots
+     * stand at its right.
      */
     fun pressable(context: Context, line: android.widget.TextView): LinearLayout = LinearLayout(context).apply {
         orientation = LinearLayout.HORIZONTAL
@@ -141,15 +153,26 @@ object Look {
         addView(line, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
         addView(
             TextView(context).apply {
-                text = "•••"
+                text = "⋮"
                 setTextColor(Color.WHITE)
                 setTypeface(typeface, android.graphics.Typeface.BOLD)
                 paint.isFakeBoldText = true
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, 19f)
-                letterSpacing = 0.1f
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
                 setPadding(dp(context, 10), 0, dp(context, 4), 0)
             },
         )
+    }
+
+    /** A drawing to press, in a title bar: what it does is said for whoever cannot see it. */
+    fun icon(context: Context, drawing: Int, said: CharSequence, then: (View) -> Unit): ImageView = ImageView(context).apply {
+        setImageResource(drawing)
+        contentDescription = said
+        val pad = dp(context, 8)
+        setPadding(pad, pad, pad, pad)
+        val ripple = context.obtainStyledAttributes(intArrayOf(android.R.attr.selectableItemBackgroundBorderless))
+        background = ripple.getDrawable(0)
+        ripple.recycle()
+        setOnClickListener(then)
     }
 
     fun dp(context: Context, value: Int): Int =

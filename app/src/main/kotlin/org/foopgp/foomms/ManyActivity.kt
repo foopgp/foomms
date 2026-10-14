@@ -7,8 +7,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.InputType
 import android.view.Gravity
-import android.view.Menu
-import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -44,6 +42,7 @@ class ManyActivity : AskingActivity() {
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
         super.onCreate(state)
+        Look.homeMark(this)
         if (numbers.size < 2) return finish()
         title = getString(R.string.many_title, numbers.size)
         people = Look.column(this)
@@ -183,13 +182,6 @@ class ManyActivity : AskingActivity() {
     private fun say(words: String) {
         AlertDialog.Builder(this).setMessage(words).setPositiveButton(R.string.close, null).show()
     }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        Menus.build(this, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = Menus.select(this, item) || super.onOptionsItemSelected(item)
 
     companion object {
         const val EXTRA_NUMBERS = "numbers"

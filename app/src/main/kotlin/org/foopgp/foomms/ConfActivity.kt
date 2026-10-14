@@ -4,8 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.graphics.Typeface
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import android.content.Intent
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -19,6 +18,7 @@ class ConfActivity : Activity() {
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
         super.onCreate(state)
+        Look.homeMark(this)
         title = getString(R.string.configure)
         column = Look.column(this)
         setContentView(ScrollView(this).apply { addView(column) })
@@ -138,6 +138,12 @@ class ConfActivity : Activity() {
         column.addView(flip(R.string.conf_to_myself, Conf.toMyself(this)) { Conf.toMyself(this, it) })
         note(R.string.conf_to_myself_note)
 
+        heading(R.string.backup_all)
+        note(R.string.backup_about)
+        column.addView(Look.button(this, getString(R.string.backup_save)) { Saving.save(this) })
+        column.addView(Look.button(this, getString(R.string.backup_restore)) { if (!Saving.restore(this)) backedUp(getString(R.string.forget_not_ours)) })
+        if (backup.isNotEmpty()) column.addView(Look.words(this, backup, size = 15f))
+
         heading(R.string.conf_mms)
         column.addView(flip(R.string.conf_prefer_mms, Conf.preferMms(this)) { Conf.preferMms(this, it) ; draw() })
         note(R.string.conf_prefer_mms_note)
@@ -146,6 +152,16 @@ class ConfActivity : Activity() {
             column.addView(flip(R.string.conf_warn_mms, Conf.warnMms(this)) { Conf.warnMms(this, it) })
             note(R.string.conf_warn_mms_note)
         }
+    }
+
+    /** How the last saving or restoring went: the page is drawn again on return, and it is kept for that. */
+    private var backup = ""
+
+    private fun backedUp(words: String) { backup = words ; draw() }
+
+    override fun onActivityResult(request: Int, outcome: Int, data: Intent?) {
+        super.onActivityResult(request, outcome, data)
+        Saving.done(this, request, outcome, data, ::backedUp)
     }
 
     private fun flip(words: Int, on: Boolean, then: (Boolean) -> Unit) = android.widget.Switch(this).apply {
@@ -166,11 +182,4 @@ class ConfActivity : Activity() {
             Conf.Hold.FOUR_HOURS -> R.string.hold_four_hours
         },
     )
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        Menus.build(this, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = Menus.select(this, item) || super.onOptionsItemSelected(item)
 }

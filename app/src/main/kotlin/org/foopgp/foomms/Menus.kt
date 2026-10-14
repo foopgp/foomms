@@ -4,61 +4,19 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.text.InputType
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.EditText
 
 /**
- * The same menu on every page, less the entry of the page one is on: a
- * menu that changes from page to page is one to learn each time.
+ * Where the title bars lead -- the search, the configuration -- and the
+ * writing of a new message. No page has a menu: what it offers is in its bar.
  */
 object Menus {
 
-    private const val TALKS = 0x7001
-    private const val CONFIGURE = 0x7003
-    private const val SEARCH = 0x7004
-    private const val BACKUP = 0x7005
+    /** Searching every conversation, or only the one with [number]. */
+    fun search(activity: Activity, number: String? = null) =
+        activity.startActivity(Intent(activity, SearchActivity::class.java).putExtra(SearchActivity.EXTRA_NUMBER, number))
 
-    fun build(activity: Activity, menu: Menu) {
-        if (activity !is MainActivity) {
-            // The application's mark in front of the way back to its first page, in the menu's own ink.
-            val words = android.text.SpannableString("\u00A0 " + activity.getString(R.string.talks))
-            activity.getDrawable(R.drawable.mark)?.mutate()?.let { mark ->
-                val side = Look.dp(activity, 22)
-                mark.setBounds(0, 0, side, side)
-                mark.setTint(Look.INK)
-                val how = if (android.os.Build.VERSION.SDK_INT >= 29) android.text.style.ImageSpan.ALIGN_CENTER else android.text.style.ImageSpan.ALIGN_BOTTOM
-                words.setSpan(android.text.style.ImageSpan(mark, how), 0, 1, 0)
-            }
-            menu.add(0, TALKS, 10, words)
-        }
-        // In a conversation, what is looked through is that conversation.
-        if (activity !is SearchActivity) menu.add(0, SEARCH, 9, if (activity is ThreadActivity) R.string.search_here else R.string.search_all)
-        if (activity !is BackupActivity) menu.add(0, BACKUP, 11, if (activity is ThreadActivity) R.string.backup_one else R.string.backup_all)
-        if (activity !is ConfActivity) menu.add(0, CONFIGURE, 12, R.string.configure)
-    }
-
-    /** True when the entry was one of these, and what it asks has been started. */
-    fun select(activity: Activity, item: MenuItem): Boolean {
-        when (item.itemId) {
-            TALKS -> activity.startActivity(
-                Intent(activity, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
-            )
-            SEARCH -> activity.startActivity(
-                Intent(activity, SearchActivity::class.java)
-                    .putExtra(SearchActivity.EXTRA_NUMBER, (activity as? ThreadActivity)?.talkingTo),
-            )
-            CONFIGURE -> activity.startActivity(Intent(activity, ConfActivity::class.java))
-            // In a conversation, what is saved or put back is that conversation.
-            BACKUP -> activity.startActivity(
-                Intent(activity, BackupActivity::class.java)
-                    .putExtra(BackupActivity.EXTRA_THREAD, (activity as? ThreadActivity)?.threadId ?: -1L)
-                    .putExtra(BackupActivity.EXTRA_NAME, (activity as? ThreadActivity)?.title?.toString()),
-            )
-            else -> return false
-        }
-        return true
-    }
+    fun configure(activity: Activity) = activity.startActivity(Intent(activity, ConfActivity::class.java))
 
     /**
      * A new message begins with whom it is for: a number typed, or somebody

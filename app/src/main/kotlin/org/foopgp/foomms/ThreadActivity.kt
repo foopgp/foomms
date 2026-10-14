@@ -9,8 +9,6 @@ import android.os.Bundle
 import android.text.InputType
 import android.text.format.DateUtils
 import android.view.Gravity
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
@@ -42,12 +40,6 @@ class ThreadActivity : AskingActivity() {
             fun of(signs: Boolean, locks: Boolean): Mode = entries.first { it.signs == signs && it.locks == locks }
         }
     }
-
-    /** The conversation in the phone's store, for a page opened from this one; none yet, -1. */
-    val threadId: Long get() = thread ?: -1L
-
-    /** Whom this conversation is with, for a page opened from this one. */
-    val talkingTo: String get() = number
 
     private val number by lazy { intent.getStringExtra(EXTRA_NUMBER) ?: intent.data?.schemeSpecificPart.orEmpty() }
     private val foodjis by lazy { Foodjis.of(this) }
@@ -130,6 +122,7 @@ class ThreadActivity : AskingActivity() {
         Look.dress(this)
         dressed = Look.dark
         super.onCreate(state)
+        Look.homeMark(this)
         if (number.isBlank()) return finish()
         title = number
         wanted = intent.getLongExtra(EXTRA_AT, 0L)
@@ -141,7 +134,6 @@ class ThreadActivity : AskingActivity() {
         actionBar?.apply {
             setDisplayShowTitleEnabled(false)
             setDisplayShowCustomEnabled(true)
-            setDisplayHomeAsUpEnabled(true)
             customView = LinearLayout(this@ThreadActivity).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
@@ -162,8 +154,12 @@ class ThreadActivity : AskingActivity() {
                         this@ThreadActivity, person?.name ?: number, number, person, thread,
                         tie = { tie() }, refresh = { person?.fingerprint?.let { found(it) } },
                         changed = { person = null ; card = null ; load(first = true) }, gone = { finish() },
+                        save = { Saving.save(this@ThreadActivity, thread, person?.name ?: number) },
+                        // Only while foodjis keeps its door shut: once let in, there is nothing to ask.
+                        letIn = if (foodjis.shut) ({ letIn() }) else null,
                     )
                 }
+                addView(Look.icon(context, R.drawable.search, getString(R.string.search_here)) { Menus.search(this@ThreadActivity, number) })
             }
             customView.layoutParams = android.app.ActionBar.LayoutParams(android.app.ActionBar.LayoutParams.MATCH_PARENT, android.app.ActionBar.LayoutParams.WRAP_CONTENT)
         }
@@ -705,6 +701,7 @@ class ThreadActivity : AskingActivity() {
 
     override fun onActivityResult(request: Int, outcome: Int, data: Intent?) {
         super.onActivityResult(request, outcome, data)
+        if (Saving.done(this, request, outcome, data, ::say)) return
         if (request == SHOT) {
             // The camera wrote where it was told: read it from there, without clearing it first.
             if (outcome == RESULT_OK) attached(SHOT, android.net.Uri.parse("content://$packageName.pdu/shot/photo.jpg"))
@@ -1047,18 +1044,6 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Only while foodjis keeps its door shut: once let in, there is nothing to ask.
-        if (foodjis.shut) menu.add(0, LET_IN, 1, R.string.let_in)
-        Menus.build(this, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        LET_IN -> { letIn() ; true }
-        else -> Menus.select(this, item) || super.onOptionsItemSelected(item)
-    }
-
     /** foodjis asks the person whether this application may use the identity; its door opens with the answer. */
     private fun letIn() {
         ask(Intent(Provider.GET_SIGN_KEY_ID), null, ::say) {
@@ -1175,7 +1160,6 @@ class ThreadActivity : AskingActivity() {
         /** The date of the message to show first. */
         const val EXTRA_AT = "at"
         private const val TIE = 1
-        private const val LET_IN = 2
         private const val SAVE = 4
         private const val PICTURE = 5
         private const val SHOT = 7

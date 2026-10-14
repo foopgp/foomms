@@ -8,8 +8,6 @@ import android.text.InputType
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.text.format.DateUtils
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
@@ -33,6 +31,7 @@ class SearchActivity : Activity() {
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
         super.onCreate(state)
+        Look.homeMark(this)
         title = getString(if (number == null) R.string.search_all else R.string.search_here)
         val asked = EditText(this).apply {
             setHint(R.string.search_hint)
@@ -118,13 +117,6 @@ class SearchActivity : Activity() {
             }
         }
     }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        Menus.build(this, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = Menus.select(this, item) || super.onOptionsItemSelected(item)
 
     companion object {
         /** The conversation to look in; none, and every conversation is looked in. */

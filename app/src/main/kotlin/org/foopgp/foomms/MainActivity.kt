@@ -11,8 +11,6 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.text.format.DateUtils
 import android.view.Gravity
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
@@ -54,8 +52,7 @@ class MainActivity : Activity() {
         title = getString(R.string.app_title)
         // The counts of last time, until those of now are worked out.
         if (counts == null) {
-            val last = getSharedPreferences("counts", MODE_PRIVATE).getString("last", null)?.split(',')?.mapNotNull { it.toIntOrNull() }
-            if (last?.size == 8) counts = Store.Counts(last[0], last[1], last[2], last[3], last[4], last[5], last[6], last[7])
+            counts = Store.Counts.of(getSharedPreferences("counts", MODE_PRIVATE).getString("last", null))
         }
         // A new start reads the address book again: a name may have changed since the application last ran.
         if (state == null) { synchronized(people) { people.clear() } ; synchronized(lines) { lines.clear() } }
@@ -72,7 +69,9 @@ class MainActivity : Activity() {
                 // Pressed: the counts in more detail, and only the conversations that hold something unread; pressed again, all of them.
                 setOnClickListener { filter(!onlyUnread) }
                 val side = Look.dp(context, 36)
-                addView(android.widget.ImageView(context).apply { setImageResource(R.drawable.launcher) }, LinearLayout.LayoutParams(side, side))
+                // At the far left, the way to the configuration; at the far right, to the search.
+                addView(Look.icon(context, R.drawable.settings, getString(R.string.configure)) { Menus.configure(this@MainActivity) })
+                addView(android.widget.ImageView(context).apply { setImageResource(R.drawable.launcher) }, LinearLayout.LayoutParams(side, side).apply { marginStart = Look.dp(context, 4) })
                 addView(
                     LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
@@ -92,8 +91,9 @@ class MainActivity : Activity() {
                     },
                     LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f),
                 )
+                addView(Look.icon(context, R.drawable.search, getString(R.string.search_all)) { Menus.search(this@MainActivity) })
             }
-            // The whole width, up to the menu's own button: the dots stand at the right of it.
+            // The whole width of the bar.
             customView.layoutParams = android.app.ActionBar.LayoutParams(android.app.ActionBar.LayoutParams.MATCH_PARENT, android.app.ActionBar.LayoutParams.WRAP_CONTENT)
         }
         val column = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
@@ -135,6 +135,11 @@ class MainActivity : Activity() {
         // In: the unread are read for themselves. Out: what was read of the rest is shown at once,
         // and read to its end if being in had cut that short.
         if (onlyUnread || !everyWhole) fill()
+    }
+
+    override fun onActivityResult(request: Int, outcome: Int, data: android.content.Intent?) {
+        super.onActivityResult(request, outcome, data)
+        Saving.done(this, request, outcome, data) { android.widget.Toast.makeText(this, it, android.widget.Toast.LENGTH_LONG).show() }
     }
 
     override fun onSaveInstanceState(state: Bundle) {
@@ -230,7 +235,7 @@ class MainActivity : Activity() {
             fun count() = runCatching { Store.counts(this) }.getOrNull()?.let { fresh ->
                 counts = fresh
                 getSharedPreferences("counts", MODE_PRIVATE).edit()
-                    .putString("last", listOf(fresh.pgp, fresh.all, fresh.unreadPgp, fresh.unread, fresh.sms, fresh.mms, fresh.talks, fresh.unreadTalks).joinToString(","))
+                    .putString("last", fresh.kept())
                     .apply()
                 runOnUiThread { if (!isFinishing && !isDestroyed) redraw() }
             }
@@ -261,10 +266,13 @@ class MainActivity : Activity() {
         if (known != null) {
             all.text = getString(R.string.count_all, known.pgp, known.all)
             unread.text = getString(R.string.count_unread, known.unreadPgp, known.unread)
-            detail.text = getString(
-                R.string.count_detail,
-                known.all, known.sms, known.mms, known.pgp, known.talks, known.unread, known.unreadPgp, known.unreadTalks,
-            )
+            val weight = java.text.NumberFormat.getIntegerInstance().format(known.bytes)
+            detail.text = android.text.SpannableStringBuilder(
+                getString(R.string.count_detail, known.all, known.sms, known.mms, known.pgp, known.pgpSms, known.pgpMms, known.talks, weight),
+            ).append("\n\n").append(
+                getString(R.string.count_detail_unread, known.unread),
+                android.text.style.StyleSpan(Typeface.BOLD), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+            ).append(getString(R.string.count_detail_unread_rest, known.unreadPgp, known.unreadTalks))
         }
         detail.visibility = if (onlyUnread && known != null) View.VISIBLE else View.GONE
         showing.visibility = if (onlyUnread) View.GONE else View.VISIBLE
@@ -292,6 +300,7 @@ class MainActivity : Activity() {
             // What was said of the sender, or of whose certificate the number means, shows on its line.
             changed = { fill() },
             gone = { fill() },
+            save = { Saving.save(this, row.talk.thread, row.name) },
         )
     }
 
@@ -342,13 +351,6 @@ class MainActivity : Activity() {
             }
         }
     }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        Menus.build(this, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = Menus.select(this, item) || super.onOptionsItemSelected(item)
 
     /** Android asks the person; nothing changes unless they say so. */
     private fun becomeDefault() {
