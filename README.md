@@ -69,9 +69,10 @@ then one of them in bubbles, a field at the bottom.
   is — each can see, by the keys it names, who else it was for.
 - **Reading.** A received PGP message says what it is until it is pressed:
   foodjis opens it, with the security key if it is encrypted — and with it,
-  for that one use of the key, the closed messages nearest to it: two of them
-  unless you set another number, from none to five, in the configuration. A
-  message still locked says whom it is for, by a small face for each key it
+  for that one use of the key, the messages shown before it and after it: two
+  on each side unless you set another number, from none to four, in the
+  configuration — PGP or not, they count; foodjis says in its prompt each step
+  of what it does. A message still locked says whom it is for, by a small face for each key it
   names. One that does not open — locked for somebody else — can be forwarded
   or saved as it is. Pressed once it is open, a message opens what it carries, or shows its
   text to select from. Pressed long, it says what can be done with it:
