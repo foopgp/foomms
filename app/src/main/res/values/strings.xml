@@ -49,8 +49,8 @@
     <string name="theme_dark">Dark</string>
     <string name="theme_system">System</string>
     <string name="theme_light">Light</string>
-    <string name="conf_around">Neighbouring messages</string>
-    <string name="conf_around_note">When a message to decrypt is selected, how many messages before and after it to decrypt as well, if they are encrypted and not open. At 0, only the selected encrypted message is opened by the security key.</string>
+    <string name="conf_around">Decryption window</string>
+    <string name="conf_around_note">Most messages to decrypt, where possible, around the selected encrypted message.</string>
     <string name="conf_hold">Close encrypted messages</string>
     <string name="conf_hold_note">How long encrypted messages stay open, or visible, in a conversation.</string>
     <string name="conf_hold_after">Close encrypted messages after</string>
@@ -163,4 +163,15 @@
     <string name="contact_add">👤 Add to contacts</string>
     <string name="voice_recording">● Recording %1$s — let go to stop</string>
     <string name="carrying_long">📎 %1$s — %2$s — %3$d kB   ✕</string>
+    <string name="language_tag">en</string>
+    <string name="about_title">About</string>
+    <string name="about_news">What\'s new</string>
+    <string name="about_copyright">Copyright</string>
+    <string name="about_licence">Licence</string>
+    <string name="about_what">foomms is an SMS and MMS messenger that encrypts and signs your messages with PGP, through foodjis and your security key.</string>
+    <string name="about_licence_body">GNU General Public License, version 3 only (GPL-3.0-only).</string>
+    <string name="about_source">You have the right to obtain the source code corresponding to this application: ask the authors above.</string>
+    <string name="about_licence_gnu">Read the GPL-3.0 licence</string>
+    <string name="about_third_party">Third-party components</string>
+    <string name="about_licence_apache">Read the Apache 2.0 licence</string>
 </resources>

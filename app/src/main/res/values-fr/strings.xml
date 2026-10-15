@@ -47,8 +47,8 @@
     <string name="theme_dark">Sombre</string>
     <string name="theme_system">Système</string>
     <string name="theme_light">Clair</string>
-    <string name="conf_around">Messages voisins</string>
-    <string name="conf_around_note">Lors de la sélection d\'un message à déchiffrer, nombre de messages précédents et suivants à déchiffrer également, si ces messages sont chiffrés et non ouverts. À 0, seul le message chiffré sélectionné sera ouvert par la clé de sécurité.</string>
+    <string name="conf_around">Fenêtre de déchiffrement</string>
+    <string name="conf_around_note">Nombre maximum de messages à déchiffrer, si possible, autour du message chiffré sélectionné.</string>
     <string name="conf_hold">Refermer les messages chiffrés</string>
     <string name="conf_hold_note">Le temps que les messages chiffrés restent ouverts ou visibles dans une conversation.</string>
     <string name="conf_hold_after">Refermer les messages chiffrés au bout de</string>
@@ -161,4 +161,15 @@
     <string name="contact_add">👤 Ajouter aux contacts</string>
     <string name="voice_recording">● Enregistrement %1$s — relâchez pour arrêter</string>
     <string name="carrying_long">📎 %1$s — %2$s — %3$d ko   ✕</string>
+    <string name="language_tag">fr</string>
+    <string name="about_title">À propos</string>
+    <string name="about_news">Nouveautés</string>
+    <string name="about_copyright">Droits d\'auteur</string>
+    <string name="about_licence">Licence</string>
+    <string name="about_what">foomms est une messagerie SMS et MMS qui chiffre et signe vos messages avec PGP, par foodjis et votre clé de sécurité.</string>
+    <string name="about_licence_body">GNU General Public License, version 3 uniquement (GPL-3.0-only).</string>
+    <string name="about_source">Vous avez le droit d\'obtenir le code source correspondant à cette application : demandez-le aux auteurs ci-dessus.</string>
+    <string name="about_licence_gnu">Lire la licence GPL-3.0</string>
+    <string name="about_third_party">Composants tiers</string>
+    <string name="about_licence_apache">Lire la licence Apache 2.0</string>
 </resources>

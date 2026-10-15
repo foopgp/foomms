@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.graphics.Typeface
 import android.os.Bundle
 import android.content.Intent
+import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -80,7 +81,8 @@ class ConfActivity : Activity() {
 
         heading(R.string.conf_around)
         note(R.string.conf_around_note)
-        val shown = Look.words(this, Conf.around(this).toString(), size = 18f)
+        // Kept as how many on each side; said as the whole window, the one selected in the middle: 1, 3, 5 ... 15.
+        val shown = Look.words(this, (2 * Conf.around(this) + 1).toString(), size = 18f)
         column.addView(
             LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -93,7 +95,7 @@ class ConfActivity : Activity() {
                             object : SeekBar.OnSeekBarChangeListener {
                                 override fun onProgressChanged(bar: SeekBar?, value: Int, byHand: Boolean) {
                                     Conf.around(context, value)
-                                    shown.text = value.toString()
+                                    shown.text = (2 * value + 1).toString()
                                 }
                                 override fun onStartTrackingTouch(bar: SeekBar?) = Unit
                                 override fun onStopTrackingTouch(bar: SeekBar?) = Unit
@@ -142,6 +144,11 @@ class ConfActivity : Activity() {
             column.addView(flip(R.string.conf_warn_mms, Conf.warnMms(this)) { Conf.warnMms(this, it) })
             note(R.string.conf_warn_mms_note)
         }
+
+        // Below the settings, as foodjis has them: what the application is, and what changed.
+        column.addView(View(this), LinearLayout.LayoutParams(1, Look.dp(this, 24)))
+        column.addView(Look.button(this, getString(R.string.about_title)) { startActivity(Intent(this, AboutActivity::class.java)) })
+        column.addView(Look.button(this, getString(R.string.about_news)) { startActivity(Intent(this, ChangelogActivity::class.java)) })
     }
 
     /** How the last saving or restoring went: the page is drawn again on return, and it is kept for that. */

@@ -214,16 +214,10 @@ class ThreadActivity : AskingActivity() {
             // Aligned on their baselines, the two buttons would follow the field's first line up as it grows.
             isBaselineAligned = false
             setPadding(pad, pad, pad, pad)
-            addView(field, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = pad })
-            // The two buttons one above the other: the field keeps the width.
-            addView(
-                LinearLayout(context).apply {
-                    orientation = LinearLayout.VERTICAL
-                    addView(add, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-                    addView(send, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-                },
-                LinearLayout.LayoutParams(Look.dp(context, 56), ViewGroup.LayoutParams.WRAP_CONTENT),
-            )
+            // Attaching at the bottom left, sending at the bottom right.
+            addView(add, LinearLayout.LayoutParams(Look.dp(context, 48), ViewGroup.LayoutParams.WRAP_CONTENT))
+            addView(field, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = pad ; marginEnd = pad })
+            addView(send, LinearLayout.LayoutParams(Look.dp(context, 56), ViewGroup.LayoutParams.WRAP_CONTENT))
         }
         setContentView(
             LinearLayout(this).apply {
@@ -231,7 +225,6 @@ class ThreadActivity : AskingActivity() {
                 addView(closing)
                 addView(seeker)
                 addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
-                addView(chip)
                 options = LinearLayout(context).apply {
                     orientation = LinearLayout.HORIZONTAL
                     gravity = Gravity.CENTER_VERTICAL
@@ -239,8 +232,13 @@ class ThreadActivity : AskingActivity() {
                     addView(signs, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = pad * 3 })
                     addView(locks, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
                 }
-                addView(options)
-                addView(bar)
+                writing = LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    addView(chip)
+                    addView(options)
+                    addView(bar)
+                }
+                addView(writing)
             },
         )
         Edges.fit(this)

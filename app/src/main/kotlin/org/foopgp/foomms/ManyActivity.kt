@@ -65,17 +65,21 @@ class ManyActivity : AskingActivity() {
             LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 addView(ScrollView(context).apply { addView(people) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
-                addView(options)
-                addView(
-                    LinearLayout(context).apply {
-                        orientation = LinearLayout.HORIZONTAL
-                        gravity = Gravity.BOTTOM
-                        isBaselineAligned = false
-                        setPadding(pad, pad, pad, pad)
-                        addView(field, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = pad })
-                        addView(sender, LinearLayout.LayoutParams(Look.dp(context, 56), ViewGroup.LayoutParams.WRAP_CONTENT))
-                    },
-                )
+                writing = LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    addView(options)
+                    addView(
+                        LinearLayout(context).apply {
+                            orientation = LinearLayout.HORIZONTAL
+                            gravity = Gravity.BOTTOM
+                            isBaselineAligned = false
+                            setPadding(pad, pad, pad, pad)
+                            addView(field, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = pad })
+                            addView(sender, LinearLayout.LayoutParams(Look.dp(context, 56), ViewGroup.LayoutParams.WRAP_CONTENT))
+                        },
+                    )
+                }
+                addView(writing)
             },
         )
         Edges.fit(this)

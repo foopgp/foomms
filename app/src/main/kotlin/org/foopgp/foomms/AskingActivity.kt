@@ -26,6 +26,17 @@ abstract class AskingActivity : Activity() {
     private var shown = 0
 
     /**
+     * What the person writes with, out of sight while a screen of foodjis is
+     * over the page: the PIN pad leaves it showing above its keys, and its
+     * send button is not the screen's OK.
+     */
+    protected var writing: android.view.View? = null
+
+    private fun screening(on: Boolean) {
+        writing?.visibility = if (on) android.view.View.GONE else android.view.View.VISIBLE
+    }
+
+    /**
      * [screened] is told what a screen of foodjis answered, and says whether
      * that was the whole answer: a list to choose from answers by itself, a
      * question of consent only clears the way for asking again.
@@ -57,8 +68,9 @@ abstract class AskingActivity : Activity() {
                         this.errand = null
                         errand.failed(getString(R.string.failed, "too many questions"))
                     } else {
+                        screening(true)
                         runCatching { startIntentSenderForResult(answer.screen.intentSender, SCREEN, null, 0, 0, 0) }
-                            .onFailure { this.errand = null ; errand.failed(getString(R.string.failed, it.message)) }
+                            .onFailure { screening(false) ; this.errand = null ; errand.failed(getString(R.string.failed, it.message)) }
                     }
             }
         }
@@ -67,6 +79,7 @@ abstract class AskingActivity : Activity() {
     override fun onActivityResult(request: Int, outcome: Int, data: Intent?) {
         super.onActivityResult(request, outcome, data)
         if (request != SCREEN) return
+        screening(false)
         if (outcome == RESULT_OK) {
             if (errand?.shown?.invoke(data) == true) { errand = null ; return }
             return again(data?.extras)
