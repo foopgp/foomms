@@ -178,5 +178,4 @@
     <string name="about_third_party_home">Открыть страницу openpgp-api</string>
     <string name="no_foodjis">foomms сам не занимается криптографией: ему нужен %1$s, который не установлен на этом телефоне.</string>
     <string name="install_foodjis">Установить %1$s</string>
-    <string name="many_no_attachment">Вложение отправляется только одному человеку за раз.</string>
 </resources>

@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.InputType
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -39,6 +40,10 @@ class ManyActivity : AskingActivity() {
     private lateinit var field: EditText
     private lateinit var sender: android.widget.Button
 
+    /** What goes with the words to each, when something was shared: made ready once, sent to each in an MMS of their own. */
+    private var carried: Media.Attachment? = null
+    private lateinit var chip: android.widget.TextView
+
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
         super.onCreate(state)
@@ -65,8 +70,16 @@ class ManyActivity : AskingActivity() {
             LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 addView(ScrollView(context).apply { addView(people) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+                chip = Look.words(context, "", size = 16f, muted = true).apply {
+                    setPadding(pad * 3, pad, pad * 3, 0)
+                    gravity = Gravity.CENTER
+                    setTypeface(typeface, android.graphics.Typeface.BOLD)
+                    visibility = View.GONE
+                    setOnClickListener { carried = null ; visibility = View.GONE }
+                }
                 writing = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
+                    addView(chip)
                     addView(options)
                     addView(
                         LinearLayout(context).apply {
@@ -85,6 +98,22 @@ class ManyActivity : AskingActivity() {
         Edges.fit(this)
         // Words handed over with the page -- shared from another application, or a link's "sms_body" -- are already written.
         if (state == null) (intent.getStringExtra(Intent.EXTRA_TEXT) ?: intent.getStringExtra("sms_body"))?.let { field.setText(it) }
+        // A picture made small enough for an MMS, any other file if it fits, as in a conversation.
+        @Suppress("DEPRECATION")
+        intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)?.let { shared ->
+            val most = Outbox.heaviest(this) - 16 * 1024
+            val picture = (intent.type ?: contentResolver.getType(shared).orEmpty()).startsWith("image/")
+            thread {
+                val made = runCatching { if (picture) Media.picture(this, shared, most) else Media.file(this, shared, most) }.getOrNull()
+                runOnUiThread {
+                    if (isFinishing || isDestroyed) return@runOnUiThread
+                    if (made == null) return@runOnUiThread say(getString(R.string.too_heavy, most / 1024))
+                    carried = made
+                    chip.text = getString(R.string.carrying, made.name, made.bytes.size / 1024 + 1)
+                    chip.visibility = View.VISIBLE
+                }
+            }
+        }
         provider.ask(Intent(Provider.GET_SIGN_KEY_ID), null) { answer ->
             if (answer is Provider.Answer.Done) mine = answer.says.getLongExtra(Provider.EXTRA_SIGN_KEY_ID, 0L).takeIf { it != 0L }
             if (!isFinishing && !isDestroyed) paint()
@@ -134,41 +163,61 @@ class ManyActivity : AskingActivity() {
 
     private fun send() {
         val written = field.text.toString()
-        if (written.isBlank() || whom.isEmpty()) return
+        val with = carried
+        if ((written.isBlank() && with == null) || whom.isEmpty()) return
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)
         }
         val locked = locks.isChecked && locks.isEnabled
         val signed = signs.isChecked && signs.isEnabled
-        if (!locked && !signed) return leave(written, written, null)
-        val request = Intent(if (locked && signed) Provider.SIGN_AND_ENCRYPT else if (locked) Provider.ENCRYPT else Provider.SIGN)
-            .putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, true)
-        if (locked) {
-            val keys = (whom.mapNotNull { it.cert?.fingerprint?.let(Fingerprint::keyId) } + listOfNotNull(mine.takeIf { Conf.toMyself(this) })).distinct()
-            request.putExtra(Provider.EXTRA_KEY_IDS, keys.toLongArray())
+        if (!locked && !signed) return leave(written.takeIf { it.isNotBlank() }, written, null, with?.let { Pdu.Part(it.type, it.name, it.bytes) })
+        fun request(armored: Boolean) = Intent(if (locked && signed) Provider.SIGN_AND_ENCRYPT else if (locked) Provider.ENCRYPT else Provider.SIGN)
+            .putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, armored).apply {
+                if (locked) {
+                    val keys = (whom.mapNotNull { it.cert?.fingerprint?.let(Fingerprint::keyId) } + listOfNotNull(mine.takeIf { Conf.toMyself(this@ManyActivity) })).distinct()
+                    putExtra(Provider.EXTRA_KEY_IDS, keys.toLongArray())
+                }
+            }
+        fun piece(sealed: Provider.Answer.Done) = Pdu.Part(Pgp.TYPE, with!!.name + ".pgp", sealed.bytes)
+        if (with == null) {
+            return ask(request(true), written.toByteArray(), ::say) { answer ->
+                val armor = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
+                    ?: return@ask say(getString(R.string.failed, "what came back is not a PGP message"))
+                leave(armor, written, worth(), null)
+            }
         }
-        ask(request, written.toByteArray(), ::say) { answer ->
-            val armor = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
-                ?: return@ask say(getString(R.string.failed, "what came back is not a PGP message"))
-            leave(armor, written, worth())
+        if (written.isBlank()) return ask(request(false), with.bytes, ::say) { leave(null, written, worth(), piece(it)) }
+        // The file told of first, so that one presentation of the key does both, as in a conversation.
+        provider.ask(request(false), with.bytes) { first ->
+            if (isFinishing || isDestroyed) return@ask
+            ask(request(true), written.toByteArray(), ::say) { answer ->
+                val armor = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
+                    ?: return@ask say(getString(R.string.failed, "what came back is not a PGP message"))
+                if (first is Provider.Answer.Done) return@ask leave(armor, written, worth(), piece(first))
+                ask(request(false), with.bytes, ::say) { leave(armor, written, worth(), piece(it)) }
+            }
         }
     }
 
-    /** The same text to each, as SMS or as an MMS by the same rule as in a conversation. */
-    private fun leave(text: String, written: String, verdict: Verdict?) {
-        val mms = runCatching { Conf.asMms(Outbox.pieces(this, text), Conf.preferMms(this)) }.getOrDefault(false)
+    /**
+     * The same to each, separately: a text as SMS or as an MMS by the same
+     * rule as in a conversation; with a [piece], always an MMS of its own.
+     */
+    private fun leave(text: String?, written: String, verdict: Verdict?, piece: Pdu.Part?) {
+        val mms = piece != null || runCatching { Conf.asMms(Outbox.pieces(this, text.orEmpty()), Conf.preferMms(this)) }.getOrDefault(false)
         fun go() {
             val failed = ArrayList<String>()
             for (one in whom) {
                 runCatching {
-                    if (!mms) Outbox.text(this, one.number, text)
+                    if (!mms) Outbox.text(this, one.number, text.orEmpty())
                     else {
                         val transaction = "T" + java.lang.Long.toHexString(System.nanoTime())
-                        Outbox.send(this, one.number, Pdu.send(transaction, listOf(one.number), listOf(Pdu.Part.text(text))), transaction)
+                        val parts = listOfNotNull(text?.let { Pdu.Part.text(it) }, piece)
+                        Outbox.send(this, one.number, Pdu.send(transaction, listOf(one.number), parts), transaction)
                     }
                 }.onFailure { failed += one.name }
             }
-            if (verdict != null) Opened.keep(this, text, written, null, verdict)
+            if (verdict != null && text != null) Opened.keep(this, text, written, null, verdict)
             if (failed.isNotEmpty()) return say(getString(R.string.many_failed, failed.joinToString(", ")))
             Toast.makeText(this, getString(R.string.many_sent, whom.size), Toast.LENGTH_LONG).show()
             finish()

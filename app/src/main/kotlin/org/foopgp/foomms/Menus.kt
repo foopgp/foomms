@@ -68,10 +68,10 @@ object Menus {
                                 carried?.let { putExtra(Intent.EXTRA_STREAM, it) ; addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) ; clipData = android.content.ClipData.newRawUri(null, it) }
                             },
                     )
-                    // The page for several sends words only.
-                    carried != null -> android.widget.Toast.makeText(activity, R.string.many_no_attachment, android.widget.Toast.LENGTH_LONG).show()
+                    // To several: the same to each, separately, what was shared included.
                     else -> activity.startActivity(
-                        Intent(activity, ManyActivity::class.java).putExtra(ManyActivity.EXTRA_NUMBERS, chosen.keys.toTypedArray()).putExtra(Intent.EXTRA_TEXT, text),
+                        Intent(activity, ManyActivity::class.java).putExtra(ManyActivity.EXTRA_NUMBERS, chosen.keys.toTypedArray()).putExtra(Intent.EXTRA_TEXT, text)
+                            .apply { carried?.let { putExtra(Intent.EXTRA_STREAM, it) ; addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) ; clipData = android.content.ClipData.newRawUri(null, it) } },
                     )
                 }
             }

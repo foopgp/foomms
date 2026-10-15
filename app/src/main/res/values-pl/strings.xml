@@ -178,5 +178,4 @@
     <string name="about_third_party_home">Zobacz stronę openpgp-api</string>
     <string name="no_foodjis">foomms sam nie zajmuje się kryptografią: potrzebuje %1$s, którego nie ma w tym telefonie.</string>
     <string name="install_foodjis">Zainstaluj %1$s</string>
-    <string name="many_no_attachment">Załącznik trafia naraz tylko do jednej osoby.</string>
 </resources>

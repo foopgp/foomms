@@ -351,7 +351,7 @@ class ThreadActivity : AskingActivity() {
 
     /** What a message shows that can be looked for: its words when they can be read, and what its parts are called. */
     private fun searchable(line: Store.Line): String {
-        val armor = Pgp.armorIn(line.body)
+        val armor = armorOf(line)
         val words = if (armor == null) line.body else Opened.words(armor)?.words.orEmpty()
         return words + " " + line.pieces.joinToString(" ") { Opened.piece(it.id)?.name ?: it.name.orEmpty() }
     }
@@ -426,7 +426,7 @@ class ThreadActivity : AskingActivity() {
                     bytes?.let { pieceLocked[piece.id] = Pgp.isLocked(it) }
                 }
             }
-            val named = (found.mapNotNull { Pgp.armorIn(it.body) }.filter { Pgp.isLocked(it) }.flatMap { Pgp.recipients(it) } +
+            val named = (found.mapNotNull { armorOf(it) }.filter { Pgp.isLocked(it) }.flatMap { Pgp.recipients(it) } +
                 found.flatMap { it.pieces }.flatMap { sealedFor[it.id].orEmpty() }).distinct()
             val small = found.takeLast(SHOWN_PICTURES).flatMap { it.pieces }.filter { it.type.startsWith("image/") }
                 .associate { piece -> piece.id to (thumbs[piece.id] ?: Media.thumbnail(this, piece.uri, Look.dp(this, 200))) }
@@ -733,14 +733,17 @@ class ThreadActivity : AskingActivity() {
         class Part(override val line: Store.Line, val piece: Store.Piece, val bytes: ByteArray) : Job()
     }
 
+    /** A line's PGP message: the innermost reached of what it holds ([Opened.inner]), or none. */
+    private fun armorOf(line: Store.Line): String? = Pgp.armorIn(line.body)?.let { Opened.inner(it) }
+
     /** Whether a message holds something encrypted still closed: its words, or a part. */
     private fun lockedAndClosed(line: Store.Line): Boolean =
-        Pgp.armorIn(line.body)?.let { Pgp.isLocked(it) && Opened.words(it) == null } == true ||
+        armorOf(line)?.let { Pgp.isLocked(it) && Opened.words(it) == null } == true ||
             line.pieces.any { isLockedPiece(it) && Opened.piece(it.id) == null }
 
     /** Whether a message holds something still closed: its words, or a locked part. */
     private fun closed(line: Store.Line): Boolean =
-        Pgp.armorIn(line.body)?.let { Opened.words(it) == null } == true ||
+        armorOf(line)?.let { Opened.words(it) == null } == true ||
             line.pieces.any { isSealed(it) && Opened.piece(it.id) == null }
 
     /**
@@ -755,7 +758,7 @@ class ThreadActivity : AskingActivity() {
         thread {
             fun jobs(line: Store.Line): List<Job> {
                 val found = ArrayList<Job>()
-                Pgp.armorIn(line.body)?.takeIf { Opened.words(it) == null }?.let { found += Job.Words(line, it) }
+                armorOf(line)?.takeIf { Opened.words(it) == null }?.let { found += Job.Words(line, it) }
                 for (piece in line.pieces.filter { isSealed(it) && Opened.piece(it.id) == null }) {
                     runCatching { contentResolver.openInputStream(piece.uri)?.use { it.readBytes() } }.getOrNull()
                         ?.let { found += Job.Part(line, piece, it) }
@@ -882,7 +885,7 @@ class ThreadActivity : AskingActivity() {
 
     /** The words of a message as they can be read now: opened, or as they travelled. */
     private fun textOf(line: Store.Line): String {
-        val armor = Pgp.armorIn(line.body)
+        val armor = armorOf(line)
         return armor?.let { Opened.words(it)?.words } ?: line.body
     }
 
@@ -897,7 +900,7 @@ class ThreadActivity : AskingActivity() {
                     ?.setPrimaryClip(android.content.ClipData.newPlainText(getString(R.string.message), text))
                 Toast.makeText(this, R.string.copied, Toast.LENGTH_SHORT).show()
             }
-            choices += R.string.select_text to { select(text, armored = Pgp.armorIn(line.body) != null && Opened.words(Pgp.armorIn(line.body)!!) == null) }
+            choices += R.string.select_text to { select(text, armored = armorOf(line) != null && Opened.words(armorOf(line)!!) == null) }
         }
         if (line.pieces.isNotEmpty()) choices += R.string.open_file to { pick(line) { handOver(it, Intent.ACTION_VIEW) } }
         choices += R.string.forward to {
@@ -985,7 +988,7 @@ class ThreadActivity : AskingActivity() {
             }
         }
         for (line in lines) {
-            val armor = Pgp.armorIn(line.body) ?: continue
+            val armor = armorOf(line) ?: continue
             if (Pgp.isLocked(armor) || Opened.words(armor) != null || !verifying.add(armor)) continue
             provider.ask(Intent(Provider.DECRYPT_VERIFY), armor.toByteArray()) { answer ->
                 if (answer !is Provider.Answer.Done || isFinishing || isDestroyed) return@ask
@@ -999,7 +1002,7 @@ class ThreadActivity : AskingActivity() {
     private class Seal(val signed: String?, val signer: Long?, val eid: String?)
 
     private fun sealOf(line: Store.Line): Seal? =
-        Pgp.armorIn(line.body)?.let { Opened.words(it) }?.let { Seal(it.signed, it.signer, it.eid) }
+        armorOf(line)?.let { Opened.words(it) }?.let { Seal(it.signed, it.signer, it.eid) }
             ?: line.pieces.filter(::isSealed).firstNotNullOfOrNull { Opened.piece(it.id) }?.let { Seal(it.signed, it.signer, it.eid) }
 
     /** What is known of a message beyond its words: where from, when, how heavy, what it is made of. */
@@ -1014,7 +1017,7 @@ class ThreadActivity : AskingActivity() {
     }
 
     private fun details(line: Store.Line, weights: Map<Long, Long>, signer: Foodjis.Cert?) {
-        val armor = Pgp.armorIn(line.body)
+        val armor = armorOf(line)
         val precise = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM)
         val told = buildString {
             append(getString(if (line.incoming) R.string.detail_from else R.string.detail_to, line.address ?: number)).append('\n')
@@ -1087,6 +1090,8 @@ class ThreadActivity : AskingActivity() {
     private fun opened(armor: String, answer: Provider.Answer.Done, offer: Boolean) {
         val signature = Signer.keep(this, armor, answer, here())
         bubbles.notifyDataSetChanged()
+        // Opened onto another message: signed only, it is read at once; locked, a press opens it.
+        verifySigned()
         // Signed, from a number that means no certificate yet: it may well mean the signer's.
         // Once a page: several signed messages from the same unknown number ask the same question.
         if (offer && !offered && person?.fingerprint == null && signature?.result in VALID) {
@@ -1179,7 +1184,7 @@ class ThreadActivity : AskingActivity() {
         override fun getView(at: Int, old: View?, parent: ViewGroup): View {
             val line = lines[at]
             val context = this@ThreadActivity
-            val armor = Pgp.armorIn(line.body)
+            val armor = armorOf(line)
             val read = armor?.let { Opened.words(it) }
             val sealed = line.pieces.filter(::isSealed)
             // Not opened yet: nothing tells what a PGP message is worth, signed or not, before the key does.
@@ -1199,7 +1204,9 @@ class ThreadActivity : AskingActivity() {
             val under = buildString {
                 append(DateUtils.getRelativeTimeSpanString(line.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL))
                 if (verdict.encrypted) append("  ⚿")
-                read?.signed?.let { append("  ✍ ").append(it) }
+                // Who signed: the words, or else what the first of its PGP parts said once opened -- a voice message has no words.
+                (read?.signed ?: line.pieces.filter(::isSealed).firstNotNullOfOrNull { Opened.piece(it.id)?.signed })
+                    ?.let { append("  ✍ ").append(it) }
             }
             val pad = Look.dp(context, 10)
             val text = Look.words(context, if (closed) words else marked(words), size = 16f, muted = closed)
