@@ -162,13 +162,19 @@ class MainActivity : Activity() {
         shared(intent)
     }
 
-    /** A text shared from another application: whom it is for is asked, and their conversation opens with it written. */
+    /**
+     * A text, a picture or a file shared from another application: whom it is
+     * for is asked, and their conversation opens with it written or carried.
+     */
     private fun shared(asked: Intent?) {
         if (asked?.action != Intent.ACTION_SEND) return
-        val text = asked.getStringExtra(Intent.EXTRA_TEXT) ?: return
+        val text = asked.getStringExtra(Intent.EXTRA_TEXT)
+        @Suppress("DEPRECATION")
+        val stream = asked.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)
+        if (text == null && stream == null) return
         // Once: the page made again keeps its intent, and would ask again.
         setIntent(Intent(this, MainActivity::class.java))
-        Menus.write(this, text)
+        Menus.write(this, text, stream)
     }
 
     /** Only the conversations with something unread and the counts in detail, or everything. */

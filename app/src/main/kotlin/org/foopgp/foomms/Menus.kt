@@ -23,7 +23,7 @@ object Menus {
      * found in the address book by a few letters of their name -- one, and
      * their conversation opens; several, and the same message goes to each.
      */
-    fun write(activity: Activity, text: String? = null) {
+    fun write(activity: Activity, text: String? = null, carried: android.net.Uri? = null) {
         val contacts = activity.checkSelfPermission(android.Manifest.permission.READ_CONTACTS) == android.content.pm.PackageManager.PERMISSION_GRANTED
         val chosen = LinkedHashMap<String, String>()
         val asked = EditText(activity).apply {
@@ -59,11 +59,17 @@ object Menus {
             .setPositiveButton(R.string.whom_write) { _, _ ->
                 // A number typed in full needs no contact to go with it.
                 Phone.plain(asked.text.toString())?.let { add(it, it) }
-                when (chosen.size) {
-                    0 -> Unit
-                    1 -> activity.startActivity(
-                        Intent(activity, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, chosen.keys.first()).putExtra(Intent.EXTRA_TEXT, text),
+                when {
+                    chosen.isEmpty() -> Unit
+                    chosen.size == 1 -> activity.startActivity(
+                        Intent(activity, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, chosen.keys.first()).putExtra(Intent.EXTRA_TEXT, text)
+                            .apply {
+                                // What was shared goes on with the page, and the right to read it with it.
+                                carried?.let { putExtra(Intent.EXTRA_STREAM, it) ; addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) ; clipData = android.content.ClipData.newRawUri(null, it) }
+                            },
                     )
+                    // The page for several sends words only.
+                    carried != null -> android.widget.Toast.makeText(activity, R.string.many_no_attachment, android.widget.Toast.LENGTH_LONG).show()
                     else -> activity.startActivity(
                         Intent(activity, ManyActivity::class.java).putExtra(ManyActivity.EXTRA_NUMBERS, chosen.keys.toTypedArray()).putExtra(Intent.EXTRA_TEXT, text),
                     )

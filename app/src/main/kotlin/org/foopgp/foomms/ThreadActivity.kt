@@ -249,6 +249,12 @@ class ThreadActivity : AskingActivity() {
         Edges.fit(this)
         // Words handed over with the page -- shared from another application, or a link's "sms_body" -- are already written.
         if (state == null) (intent.getStringExtra(Intent.EXTRA_TEXT) ?: intent.getStringExtra("sms_body"))?.let { field.setText(it) }
+        // And what was shared with them: a picture made small enough for an MMS, any other file if it fits.
+        @Suppress("DEPRECATION")
+        if (state == null) intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)?.let { shared ->
+            val type = intent.type ?: contentResolver.getType(shared).orEmpty()
+            attached(if (type.startsWith("image/")) PICTURE else FILE, shared)
+        }
     }
 
     /** Shown, and so read by the person: a conversation open behind another screen reads nothing. */
