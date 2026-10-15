@@ -57,7 +57,8 @@ class MainActivity : Activity() {
         if (state == null) { synchronized(people) { people.clear() } ; synchronized(lines) { lines.clear() } }
         onlyUnread = state?.getBoolean(ONLY_UNREAD) ?: false
         // Nothing encrypted open: what was laid out for other applications from a lock has no business staying.
-        if (!Opened.anyOpen()) Outbox.shut(this)
+        // Not when the page is opened to receive one of them: forwarding a part hands it here, laid out for others.
+        if (!Opened.anyOpen() && intent?.action != Intent.ACTION_SEND) Outbox.shut(this)
         // In the bar: the application's mark, then how much of what the phone holds is PGP.
         all = Look.words(this, "", size = 15f).apply { setTextColor(Look.ORANGE) ; setTypeface(typeface, Typeface.BOLD) }
         unread = Look.words(this, "", size = 13f).apply { setTextColor(android.graphics.Color.rgb(0xE0, 0xE7, 0xFF)) }

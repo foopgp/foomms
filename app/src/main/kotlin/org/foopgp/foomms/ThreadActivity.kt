@@ -1162,7 +1162,9 @@ class ThreadActivity : AskingActivity() {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 addView(Look.words(context, (if (isLockedPiece(piece)) "⚿ " else "✍ ") + name, size = 15f, muted = true))
-                for (id in sealedFor[piece.id].orEmpty()) {
+                // Whom it is for, unless the message's words already said it: one face each, not twice.
+                val wordsFor = lines.getOrNull(at)?.let { armorOf(it) }?.takeIf { Pgp.isLocked(it) }?.let { Pgp.recipients(it) }.orEmpty()
+                for (id in sealedFor[piece.id].orEmpty().filter { it !in wordsFor }) {
                     addView(View(context), LinearLayout.LayoutParams(Look.dp(context, 4), 1))
                     addView(Look.face(context, 22, null, meant[id]?.face))
                 }

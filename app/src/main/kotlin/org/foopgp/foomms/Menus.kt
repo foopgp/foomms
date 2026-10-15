@@ -104,6 +104,10 @@ object Menus {
                 override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) = Unit
             },
         )
+        // The list behind is hidden, and a press beside the window does not close it: whom it is for is
+        // chosen here, and a finger went looking for them among the conversations drawn behind.
+        dialog.setCanceledOnTouchOutside(false)
         dialog.show()
+        dialog.window?.setDimAmount(0.94f)
     }
 }
