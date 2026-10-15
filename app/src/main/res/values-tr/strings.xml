@@ -176,4 +176,6 @@
     <string name="close_all">Tümünü kapat</string>
     <string name="closes_talk">⚿ %1$s — %2$s</string>
     <string name="about_third_party_home">openpgp-api sayfasını gör</string>
+    <string name="no_foodjis">foomms kendisi şifreleme yapmaz: bu telefonda yüklü olmayan %1$s uygulamasına ihtiyaç duyar.</string>
+    <string name="install_foodjis">%1$s uygulamasını yükle</string>
 </resources>

@@ -192,9 +192,16 @@ class MainActivity : Activity() {
             asking.addView(Look.button(this, getString(R.string.allow)) { requestPermissions(missing.toTypedArray(), 1) })
             return
         }
+        asking.visibility = View.GONE
+        // Nobody to ask for the keys: foodjis is offered to be installed, under the name this build speaks to.
+        if (Provider.whom(this) == null) {
+            val name = if (Provider.wanted(this).endsWith(".dev")) "foodjis-dev" else "foodjis"
+            asking.visibility = View.VISIBLE
+            asking.addView(Look.words(this, getString(R.string.no_foodjis, name), size = 14f, muted = true).apply { setPadding(0, 0, 0, Look.dp(context, 8)) })
+            asking.addView(Look.button(this, getString(R.string.install_foodjis, name)) { Provider.install(this) })
+        }
         // Not the phone's messaging application yet: it can be asked for, and until then another receives.
-        if (Keep.ours(this)) asking.visibility = View.GONE
-        else {
+        if (!Keep.ours(this)) {
             asking.visibility = View.VISIBLE
             asking.addView(Look.words(this, getString(R.string.not_default), size = 14f, muted = true).apply { setPadding(0, 0, 0, Look.dp(context, 8)) })
             asking.addView(Look.button(this, getString(R.string.become_default)) { becomeDefault() })

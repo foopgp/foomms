@@ -176,4 +176,6 @@
     <string name="close_all">Alle schließen</string>
     <string name="closes_talk">⚿ %1$s – %2$s</string>
     <string name="about_third_party_home">Seite von openpgp-api ansehen</string>
+    <string name="no_foodjis">foomms betreibt selbst keine Kryptografie: Es braucht %1$s, das auf diesem Telefon nicht installiert ist.</string>
+    <string name="install_foodjis">%1$s installieren</string>
 </resources>

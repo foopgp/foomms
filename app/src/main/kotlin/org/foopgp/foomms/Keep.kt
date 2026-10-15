@@ -14,8 +14,18 @@ import android.provider.Telephony
  */
 object Keep {
 
-    /** Whether this application is the phone's messaging application. */
-    fun ours(context: Context): Boolean = Telephony.Sms.getDefaultSmsPackage(context) == context.packageName
+    /**
+     * Whether this application is the phone's messaging application: from
+     * Android 10, whether it holds the SMS role. The older setting it replaced
+     * is left empty on some phones (an Android 16 one) while the role is held,
+     * and the page then kept asking for a role already given.
+     */
+    fun ours(context: Context): Boolean =
+        if (android.os.Build.VERSION.SDK_INT >= 29) {
+            context.getSystemService(android.app.role.RoleManager::class.java)?.isRoleHeld(android.app.role.RoleManager.ROLE_SMS) == true
+        } else {
+            Telephony.Sms.getDefaultSmsPackage(context) == context.packageName
+        }
 
     fun smsReceived(context: Context, from: String, body: String, sentAt: Long, subscription: Int): Uri? =
         context.contentResolver.insert(

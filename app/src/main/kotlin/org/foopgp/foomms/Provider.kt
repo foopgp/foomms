@@ -41,14 +41,7 @@ class Provider(private val context: Context) {
     private var door: IOpenPgpService2? = null
     private var bond: ServiceConnection? = null
 
-    /** The foodjis to speak to: the trial one for a trial build of ours, the published one otherwise. */
-    private fun whom(): ComponentName? {
-        val wanted = if (context.packageName.endsWith(".dev")) FOODJIS_DEV else FOODJIS
-        return context.packageManager.queryIntentServices(Intent(SERVICE), 0)
-            .map { it.serviceInfo }
-            .firstOrNull { it.packageName == wanted }
-            ?.let { ComponentName(it.packageName, it.name) }
-    }
+    private fun whom(): ComponentName? = whom(context)
 
     private fun bound(then: (IOpenPgpService2?) -> Unit) {
         door?.let { return then(it) }
@@ -116,6 +109,28 @@ class Provider(private val context: Context) {
     companion object {
         const val FOODJIS = "org.foopgp.foodjis"
         const val FOODJIS_DEV = "org.foopgp.foodjis.dev"
+
+        /** The foodjis to speak to: the trial one for a trial build of ours, the published one otherwise. */
+        fun wanted(context: Context): String = if (context.packageName.endsWith(".dev")) FOODJIS_DEV else FOODJIS
+
+        fun whom(context: Context): ComponentName? =
+            context.packageManager.queryIntentServices(Intent(SERVICE), 0)
+                .map { it.serviceInfo }
+                .firstOrNull { it.packageName == wanted(context) }
+                ?.let { ComponentName(it.packageName, it.name) }
+
+        /**
+         * Somebody to speak to, or the way to install them: the store's page
+         * of the foodjis this build speaks to, or that page on the web when
+         * the phone has no store.
+         */
+        fun install(context: Context) {
+            val wanted = wanted(context)
+            runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("market://details?id=$wanted"))) }
+                .recoverCatching {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://play.google.com/store/apps/details?id=$wanted")))
+                }
+        }
         const val SERVICE = "org.openintents.openpgp.IOpenPgpService2"
 
         // The words of the interface, as org.openintents.openpgp.util.OpenPgpApi names them.
