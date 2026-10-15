@@ -280,7 +280,7 @@ class ThreadActivity : AskingActivity() {
         if (closes != null) remaining.text = getString(R.string.closes_in, Media.clock(maxOf(0L, closes - System.currentTimeMillis() + 999)))
         closing.visibility = if (closes != null) View.VISIBLE else View.GONE
         // Closed now: the bubbles show it, and the pictures opened from locked parts go with the rest.
-        if (closes == null && wasOpen) { openedThumbs.clear() ; bubbles.notifyDataSetChanged() }
+        if (closes == null && wasOpen) { openedThumbs.clear() ; Outbox.shut(this) ; bubbles.notifyDataSetChanged() }
         wasOpen = closes != null
     }
 

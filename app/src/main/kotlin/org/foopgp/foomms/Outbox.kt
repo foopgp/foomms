@@ -93,6 +93,12 @@ object Outbox {
     }
     private val types = HashMap<String, String>()
 
+    /** What was laid out for another application, gone: it may have been opened from a lock, and that is closed now. */
+    fun shut(context: Context) {
+        File(context.cacheDir, OPENED).listFiles()?.forEach { it.delete() }
+        types.clear()
+    }
+
     private fun opened(context: Context, name: String) = File(File(context.cacheDir, OPENED), name.filter { it.isLetterOrDigit() || it in "._-" })
 
     /**
