@@ -16,12 +16,18 @@ class ConfActivity : Activity() {
 
     private lateinit var column: LinearLayout
 
+    /** Left by the top, as every page but the list. */
+    private val swipes by lazy { Swipes.watch(this) }
+
+    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean = swipes.feed(event) || super.dispatchTouchEvent(event)
+
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
         super.onCreate(state)
         title = getString(R.string.configure)
         column = Look.column(this)
-        setContentView(ScrollView(this).apply { addView(column) })
+        val version = runCatching { packageManager.getPackageInfo(packageName, 0).versionName }.getOrNull().orEmpty()
+        setContentView(Swipes.under(this, ScrollView(this).apply { addView(column) }, "foomms — $version"))
         Edges.fit(this)
         draw()
     }
@@ -144,11 +150,6 @@ class ConfActivity : Activity() {
             column.addView(flip(R.string.conf_warn_mms, Conf.warnMms(this)) { Conf.warnMms(this, it) })
             note(R.string.conf_warn_mms_note)
         }
-
-        // Below the settings, as foodjis has them: what the application is, and what changed.
-        column.addView(View(this), LinearLayout.LayoutParams(1, Look.dp(this, 24)))
-        column.addView(Look.button(this, getString(R.string.about_title)) { startActivity(Intent(this, AboutActivity::class.java)) })
-        column.addView(Look.button(this, getString(R.string.about_news)) { startActivity(Intent(this, ChangelogActivity::class.java)) })
     }
 
     /** How the last saving or restoring went: the page is drawn again on return, and it is kept for that. */

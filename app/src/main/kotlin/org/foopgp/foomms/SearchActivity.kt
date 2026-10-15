@@ -28,6 +28,11 @@ class SearchActivity : Activity() {
     private val names = HashMap<String, String>()
     private var turn = 0
 
+    /** Left by the top, as every page but the list. */
+    private val swipes by lazy { Swipes.watch(this) }
+
+    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean = swipes.feed(event) || super.dispatchTouchEvent(event)
+
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
         super.onCreate(state)

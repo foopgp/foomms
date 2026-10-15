@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- How long a page takes to slide in or out: short enough that the hand
+         still feels it moved the page, as in foodjis. -->
+    <integer name="step_ms">170</integer>
+</resources>

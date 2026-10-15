@@ -172,4 +172,5 @@
     <string name="about_licence_gnu">Lire la licence GPL-3.0</string>
     <string name="about_third_party">Composants tiers</string>
     <string name="about_licence_apache">Lire la licence Apache 2.0</string>
+    <string name="conf_title">Configuration</string>
 </resources>

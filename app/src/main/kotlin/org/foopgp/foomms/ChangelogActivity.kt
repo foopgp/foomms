@@ -13,12 +13,17 @@ import android.widget.ScrollView
  */
 class ChangelogActivity : Activity() {
 
+    /** Left by the top, as every page but the list. */
+    private val swipes by lazy { Swipes.watch(this) }
+
+    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean = swipes.feed(event) || super.dispatchTouchEvent(event)
+
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
         super.onCreate(state)
         title = getString(R.string.about_news)
         val column = Look.column(this)
-        setContentView(ScrollView(this).apply { addView(column) })
+        setContentView(Swipes.under(this, ScrollView(this).apply { addView(column) }, getString(R.string.conf_title)))
         Edges.fit(this)
         for ((version, note) in notes()) {
             column.addView(Look.words(this, version, size = 19f).apply { setTypeface(typeface, Typeface.BOLD) ; setPadding(0, Look.dp(context, 12), 0, 0) })

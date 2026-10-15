@@ -25,12 +25,17 @@ class AboutActivity : Activity() {
 
     private val thirdParty = listOf("openpgp-api (thunderbird-android) — Apache License 2.0")
 
+    /** Left by the top, as every page but the list. */
+    private val swipes by lazy { Swipes.watch(this) }
+
+    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean = swipes.feed(event) || super.dispatchTouchEvent(event)
+
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
         super.onCreate(state)
         title = getString(R.string.about_title)
         val column = Look.column(this)
-        setContentView(ScrollView(this).apply { addView(column) })
+        setContentView(Swipes.under(this, ScrollView(this).apply { addView(column) }, getString(R.string.about_news)))
         Edges.fit(this)
 
         val version = runCatching { packageManager.getPackageInfo(packageName, 0).versionName }.getOrNull().orEmpty()

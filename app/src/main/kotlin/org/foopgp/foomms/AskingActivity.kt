@@ -14,6 +14,11 @@ abstract class AskingActivity : Activity() {
 
     protected val provider by lazy { Provider(this) }
 
+    /** Left by the top, as every page but the list. */
+    private val swipes by lazy { Swipes.watch(this) }
+
+    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean = swipes.feed(event) || super.dispatchTouchEvent(event)
+
     private class Errand(
         val request: Intent,
         val input: ByteArray?,

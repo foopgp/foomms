@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Coming up from under, for the page below in the vertical cycle: the hand
+  pulled the head down, so what arrives comes from where the finger went.
+-->
+<translate xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fromYDelta="100%p" android:toYDelta="0"
+    android:duration="@integer/step_ms"
+    android:interpolator="@android:interpolator/decelerate_quad" />
