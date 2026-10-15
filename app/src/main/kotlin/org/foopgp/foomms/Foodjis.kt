@@ -25,7 +25,7 @@ class Foodjis(private val context: Context) {
         private set
 
     private val door: String =
-        "content://" + (if (context.packageName.endsWith(".dev")) Provider.FOODJIS_DEV else Provider.FOODJIS) + ".directory"
+        "content://" + Provider.foodjis(context) + ".directory"
 
     private val cards = HashMap<String, Cert?>()
     private val faces = HashMap<String, Bitmap?>()

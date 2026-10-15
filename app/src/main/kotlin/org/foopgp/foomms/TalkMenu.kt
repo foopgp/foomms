@@ -69,7 +69,7 @@ object TalkMenu {
         if (tied != null) {
             // A number that already means a certificate: see it, read it again, or let go of it.
             add(R.string.cert_show) {
-                val foodjis = if (activity.packageName.endsWith(".dev")) Provider.FOODJIS_DEV else Provider.FOODJIS
+                val foodjis = Provider.foodjis(activity)
                 runCatching {
                     activity.startActivity(
                         Intent("org.foopgp.foodjis.action.SHOW_CERTIFICATE").setPackage(foodjis).putExtra("fingerprint", tied),

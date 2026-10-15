@@ -195,7 +195,7 @@ class MainActivity : Activity() {
         asking.visibility = View.GONE
         // Nobody to ask for the keys: foodjis is offered to be installed, under the name this build speaks to.
         if (Provider.whom(this) == null) {
-            val name = if (Provider.wanted(this).endsWith(".dev")) "foodjis-dev" else "foodjis"
+            val name = "foodjis"
             asking.visibility = View.VISIBLE
             asking.addView(Look.words(this, getString(R.string.no_foodjis, name), size = 14f, muted = true).apply { setPadding(0, 0, 0, Look.dp(context, 8)) })
             asking.addView(Look.button(this, getString(R.string.install_foodjis, name)) { Provider.install(this) })

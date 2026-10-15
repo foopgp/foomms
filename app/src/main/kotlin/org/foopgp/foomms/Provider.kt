@@ -110,22 +110,34 @@ class Provider(private val context: Context) {
         const val FOODJIS = "org.foopgp.foodjis"
         const val FOODJIS_DEV = "org.foopgp.foodjis.dev"
 
-        /** The foodjis to speak to: the trial one for a trial build of ours, the published one otherwise. */
-        fun wanted(context: Context): String = if (context.packageName.endsWith(".dev")) FOODJIS_DEV else FOODJIS
+        /**
+         * The foodjis this build speaks to, in the order it would rather: a
+         * trial build of ours the trial foodjis first, and the published one
+         * when that is the one on the phone; the published build, the
+         * published one only.
+         */
+        private fun preferred(context: Context): List<String> =
+            if (context.packageName.endsWith(".dev")) listOf(FOODJIS_DEV, FOODJIS) else listOf(FOODJIS)
 
-        fun whom(context: Context): ComponentName? =
-            context.packageManager.queryIntentServices(Intent(SERVICE), 0)
+        fun whom(context: Context): ComponentName? {
+            val preferred = preferred(context)
+            return context.packageManager.queryIntentServices(Intent(SERVICE), 0)
                 .map { it.serviceInfo }
-                .firstOrNull { it.packageName == wanted(context) }
+                .filter { it.packageName in preferred }
+                .minByOrNull { preferred.indexOf(it.packageName) }
                 ?.let { ComponentName(it.packageName, it.name) }
+        }
+
+        /** The package of the foodjis spoken to: the one found, or the one this build would rather have. */
+        fun foodjis(context: Context): String = whom(context)?.packageName ?: preferred(context).first()
 
         /**
-         * Somebody to speak to, or the way to install them: the store's page
-         * of the foodjis this build speaks to, or that page on the web when
-         * the phone has no store.
+         * Nobody to speak to: the way to install foodjis, the published one,
+         * which a trial build of ours speaks to as well -- the store's page,
+         * or that page on the web when the phone has no store.
          */
         fun install(context: Context) {
-            val wanted = wanted(context)
+            val wanted = FOODJIS
             runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("market://details?id=$wanted"))) }
                 .recoverCatching {
                     context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://play.google.com/store/apps/details?id=$wanted")))
