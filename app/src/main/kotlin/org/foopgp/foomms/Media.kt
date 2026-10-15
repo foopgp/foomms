@@ -92,7 +92,7 @@ object Media {
             context.contentResolver.query(from, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { rows ->
                 if (rows.moveToFirst()) rows.getString(0) else null
             }
-        }.getOrNull() ?: ("sound." + type.substringAfter('/').substringBefore(';'))
+        }.getOrNull() ?: from.lastPathSegment?.takeIf { '.' in it } ?: ("file." + type.substringAfter('/').substringBefore(';'))
         return Attachment(type, name.filter { it.code in 32..126 && it !in "\"\\/" }.ifEmpty { "file" }, bytes)
     }
 

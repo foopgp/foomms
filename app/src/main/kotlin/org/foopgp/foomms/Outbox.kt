@@ -164,7 +164,29 @@ object Outbox {
             if (uri.pathSegments.firstOrNull() == SHOT) "image/jpeg"
             else if (uri.pathSegments.firstOrNull() == OPENED) types[uri.lastPathSegment].orEmpty().ifEmpty { "application/octet-stream" }
             else "application/vnd.wap.mms-message"
-        override fun query(uri: Uri, p: Array<String>?, s: String?, a: Array<String>?, o: String?): Cursor? = null
+        /**
+         * The name and size of a file laid out for another application, as
+         * Android's documents say they are asked: without them, whoever is
+         * handed the file makes up a name -- a forwarded "photo.jpg.pgp" arrived
+         * as "sound.pgp-encrypted".
+         */
+        override fun query(uri: Uri, p: Array<String>?, s: String?, a: Array<String>?, o: String?): Cursor? {
+            val context = context ?: return null
+            if (uri.pathSegments.firstOrNull() != OPENED) return null
+            val name = uri.lastPathSegment ?: return null
+            val asked = p ?: arrayOf(android.provider.OpenableColumns.DISPLAY_NAME, android.provider.OpenableColumns.SIZE)
+            return android.database.MatrixCursor(asked).apply {
+                addRow(
+                    asked.map { column ->
+                        when (column) {
+                            android.provider.OpenableColumns.DISPLAY_NAME -> name
+                            android.provider.OpenableColumns.SIZE -> opened(context, name).length()
+                            else -> null
+                        }
+                    },
+                )
+            }
+        }
         override fun insert(uri: Uri, values: ContentValues?): Uri? = null
         override fun delete(uri: Uri, s: String?, a: Array<String>?) = 0
         override fun update(uri: Uri, values: ContentValues?, s: String?, a: Array<String>?) = 0
