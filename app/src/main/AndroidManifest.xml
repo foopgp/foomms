@@ -76,6 +76,13 @@
             android:windowSoftInputMode="adjustResize"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize" />
 
+        <!-- A new message: whom it is for, chosen in a list of conversations and contacts. -->
+        <activity
+            android:name=".WriteActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- Looking for a message by its words. -->
         <activity
             android:name=".SearchActivity"

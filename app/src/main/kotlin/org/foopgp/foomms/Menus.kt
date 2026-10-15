@@ -1,10 +1,7 @@
 package org.foopgp.foomms
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Intent
-import android.text.InputType
-import android.widget.EditText
 
 /**
  * Where the title bars lead -- the search, the configuration -- and the
@@ -19,95 +16,15 @@ object Menus {
     fun configure(activity: Activity) = activity.startActivity(Intent(activity, ConfActivity::class.java))
 
     /**
-     * A new message begins with whom it is for: a number typed, or somebody
-     * found in the address book by a few letters of their name -- one, and
-     * their conversation opens; several, and the same message goes to each.
+     * A new message: its page, where whom it is for is chosen ([WriteActivity]),
+     * with what was shared from another application.
      */
     fun write(activity: Activity, text: String? = null, carried: android.net.Uri? = null) {
-        val contacts = activity.checkSelfPermission(android.Manifest.permission.READ_CONTACTS) == android.content.pm.PackageManager.PERMISSION_GRANTED
-        val chosen = LinkedHashMap<String, String>()
-        val asked = EditText(activity).apply {
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-            setHint(if (contacts) R.string.whom_hint else R.string.number_hint)
-            setSingleLine()
-        }
-        val whom = Look.words(activity, "", size = 15f).apply { visibility = android.view.View.GONE }
-        val found = android.widget.LinearLayout(activity).apply { orientation = android.widget.LinearLayout.VERTICAL }
-        val pad = Look.dp(activity, 20)
-        fun add(number: String, name: String) {
-            if (chosen.keys.none { Phone.same(it, number) }) chosen[number] = name
-            // Whom it is for so far; pressed, the last one named is taken off.
-            whom.text = activity.getString(R.string.whom_so_far, chosen.values.joinToString(", "))
-            whom.visibility = if (chosen.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
-        }
-        whom.setOnClickListener {
-            chosen.keys.lastOrNull()?.let { chosen.remove(it) }
-            whom.text = activity.getString(R.string.whom_so_far, chosen.values.joinToString(", "))
-            whom.visibility = if (chosen.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
-        }
-        val dialog = AlertDialog.Builder(activity)
-            .setTitle(R.string.write)
-            .setView(
-                android.widget.LinearLayout(activity).apply {
-                    orientation = android.widget.LinearLayout.VERTICAL
-                    setPadding(pad, 0, pad, 0)
-                    addView(whom)
-                    addView(asked)
-                    addView(android.widget.ScrollView(context).apply { addView(found) })
-                },
-            )
-            .setPositiveButton(R.string.whom_write) { _, _ ->
-                // A number typed in full needs no contact to go with it.
-                Phone.plain(asked.text.toString())?.let { add(it, it) }
-                when {
-                    chosen.isEmpty() -> Unit
-                    chosen.size == 1 -> activity.startActivity(
-                        Intent(activity, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, chosen.keys.first()).putExtra(Intent.EXTRA_TEXT, text)
-                            .apply {
-                                // What was shared goes on with the page, and the right to read it with it.
-                                carried?.let { putExtra(Intent.EXTRA_STREAM, it) ; addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) ; clipData = android.content.ClipData.newRawUri(null, it) }
-                            },
-                    )
-                    // To several: the same to each, separately, what was shared included.
-                    else -> activity.startActivity(
-                        Intent(activity, ManyActivity::class.java).putExtra(ManyActivity.EXTRA_NUMBERS, chosen.keys.toTypedArray()).putExtra(Intent.EXTRA_TEXT, text)
-                            .apply { carried?.let { putExtra(Intent.EXTRA_STREAM, it) ; addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) ; clipData = android.content.ClipData.newRawUri(null, it) } },
-                    )
-                }
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .create()
-        var turn = 0
-        asked.addTextChangedListener(
-            object : android.text.TextWatcher {
-                override fun afterTextChanged(text: android.text.Editable?) {
-                    val typed = text.toString()
-                    val mine = ++turn
-                    if (!contacts || typed.trim().length < 2) return found.removeAllViews()
-                    kotlin.concurrent.thread {
-                        val people = Book.find(activity, typed)
-                        activity.runOnUiThread {
-                            if (mine != turn || !dialog.isShowing) return@runOnUiThread
-                            found.removeAllViews()
-                            for (one in people) {
-                                found.addView(
-                                    Look.words(activity, one.name + "\n" + one.number, size = 16f).apply {
-                                        setPadding(0, Look.dp(activity, 10), 0, Look.dp(activity, 10))
-                                        setOnClickListener { add(one.number, one.name) ; asked.setText("") }
-                                    },
-                                )
-                            }
-                        }
-                    }
-                }
-                override fun beforeTextChanged(text: CharSequence?, start: Int, count: Int, after: Int) = Unit
-                override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) = Unit
+        activity.startActivity(
+            Intent(activity, WriteActivity::class.java).putExtra(Intent.EXTRA_TEXT, text).apply {
+                // What was shared goes on with the page, and the right to read it with it.
+                carried?.let { putExtra(Intent.EXTRA_STREAM, it) ; addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) ; clipData = android.content.ClipData.newRawUri(null, it) }
             },
         )
-        // The list behind is hidden, and a press beside the window does not close it: whom it is for is
-        // chosen here, and a finger went looking for them among the conversations drawn behind.
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.show()
-        dialog.window?.setDimAmount(0.94f)
     }
 }
