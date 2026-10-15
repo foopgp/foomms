@@ -64,7 +64,12 @@ object Opened {
     /** What each conversation is called, for whoever shows its countdown elsewhere. */
     private val titles = HashMap<Long, String>()
 
-    fun title(thread: Long, title: String) = synchronized(titles) { titles[thread] = title }
+    fun title(thread: Long, title: String, number: String) = synchronized(titles) { titles[thread] = title ; numbers[thread] = number }
+
+    /** The number each conversation is with, to open it again from elsewhere. */
+    private val numbers = HashMap<Long, String>()
+
+    fun number(thread: Long): String? = synchronized(titles) { numbers[thread] }
 
     /** The conversations holding something encrypted open. */
     private fun open(): Set<Long> =

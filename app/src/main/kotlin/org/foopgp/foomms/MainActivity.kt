@@ -258,7 +258,23 @@ class MainActivity : Activity() {
             })
         }
     }
-    private val remaining by lazy { Look.words(this, "", size = 14f).apply { maxLines = 1 ; ellipsize = android.text.TextUtils.TruncateAt.MIDDLE } }
+    private val remaining by lazy {
+        Look.words(this, "", size = 14f).apply {
+            maxLines = 1
+            ellipsize = android.text.TextUtils.TruncateAt.MIDDLE
+            // Pressed, the conversation it names opens.
+            setOnClickListener { goToLatest() }
+        }
+    }
+
+    /** The conversation whose countdown the strip shows. */
+    private fun goToLatest() {
+        val (thread, _, _) = Opened.latest() ?: return
+        val number = Opened.number(thread) ?: return
+        startActivity(
+            Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, number).putExtra(ThreadActivity.EXTRA_THREAD, thread),
+        )
+    }
 
     private val ticking = object : Runnable {
         override fun run() {
@@ -273,7 +289,12 @@ class MainActivity : Activity() {
         val latest = Opened.latest()
         if (latest != null) {
             val (_, title, closes) = latest
-            remaining.text = getString(R.string.closes_talk, title.orEmpty(), Media.clock(maxOf(0L, closes - System.currentTimeMillis() + 999)))
+            val said = getString(R.string.closes_talk, title.orEmpty(), Media.clock(maxOf(0L, closes - System.currentTimeMillis() + 999)))
+            // The name underlined: it is what a press opens.
+            remaining.text = android.text.SpannableString(said).apply {
+                val at = if (title.isNullOrEmpty()) -1 else said.indexOf(title)
+                if (at >= 0) setSpan(android.text.style.UnderlineSpan(), at, at + title!!.length, 0)
+            }
         }
         closing.visibility = if (latest != null) View.VISIBLE else View.GONE
         // Closed now: the last lines shown open are shown closed again.

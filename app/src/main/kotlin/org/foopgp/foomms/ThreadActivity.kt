@@ -443,7 +443,7 @@ class ThreadActivity : AskingActivity() {
                 person = who ; card = whose ; face = theirs ; lines = found ; meant = theirFaces ; thumbs = small
                 hits = null
                 this.thread = thread
-                thread?.let { Opened.title(it, who?.name ?: number) }
+                thread?.let { Opened.title(it, who?.name ?: number, number) }
                 // A conversation is with a number: the name it has in the address book, and under it the number
                 // and what its certificate is worth. With no name, the number is the title.
                 title = who?.name ?: number
