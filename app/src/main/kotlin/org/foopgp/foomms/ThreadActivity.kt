@@ -336,7 +336,7 @@ class ThreadActivity : AskingActivity() {
         return words + " " + line.pieces.joinToString(" ") { Opened.piece(it.id)?.name ?: it.name.orEmpty() }
     }
 
-    /** The next match up (-1) or down (1), or the latest one (0); the list scrolls to it. */
+    /** The next match up (-1) or down (1), round from one end to the other, or the latest one (0); the list scrolls to it. */
     private fun seek(way: Int) {
         val wanted = looked
         if (wanted.isEmpty()) { hitCount.text = "" ; bubbles.notifyDataSetChanged() ; return }
@@ -344,7 +344,7 @@ class ThreadActivity : AskingActivity() {
         if (all.isEmpty()) { hitCount.text = "0" ; bubbles.notifyDataSetChanged() ; return }
         hit = when {
             hit < 0 || way == 0 -> all.size - 1
-            else -> (hit + way).coerceIn(0, all.size - 1)
+            else -> Math.floorMod(hit + way, all.size)
         }
         hitCount.text = "${hit + 1}/${all.size}"
         bubbles.notifyDataSetChanged()
@@ -697,8 +697,8 @@ class ThreadActivity : AskingActivity() {
             return if (line.pieces.isNotEmpty()) pick(line) { handOver(it, Intent.ACTION_VIEW) }
             else textOf(line).takeIf { it.isNotEmpty() }?.let { select(it, armored = false) } ?: Unit
         }
-        // The messages shown around it, as many on each side as set; of those, the ones still closed.
-        val near = Around.others(lines.size, at, Conf.around(this)).map { lines[it] }.filter(::closed)
+        // The messages shown around it, as many on each side as set; of those, the ones encrypted and still closed.
+        val near = Around.others(lines.size, at, Conf.around(this)).map { lines[it] }.filter(::lockedAndClosed)
         openAll(line, near)
     }
 
@@ -708,6 +708,11 @@ class ThreadActivity : AskingActivity() {
         class Words(override val line: Store.Line, val armor: String) : Job()
         class Part(override val line: Store.Line, val piece: Store.Piece, val bytes: ByteArray) : Job()
     }
+
+    /** Whether a message holds something encrypted still closed: its words, or a part. */
+    private fun lockedAndClosed(line: Store.Line): Boolean =
+        Pgp.armorIn(line.body)?.let { Pgp.isLocked(it) && Opened.words(it) == null } == true ||
+            line.pieces.any { isSealed(it) && Opened.piece(it.id) == null }
 
     /** Whether a message holds something still closed: its words, or a locked part. */
     private fun closed(line: Store.Line): Boolean =

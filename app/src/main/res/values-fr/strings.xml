@@ -48,9 +48,10 @@
     <string name="theme_system">Système</string>
     <string name="theme_light">Clair</string>
     <string name="conf_around">Messages voisins</string>
-    <string name="conf_around_note">Nombre de messages affichés avant celui sélectionné, et autant après, à déchiffrer ou vérifier à chaque utilisation de la clé de sécurité — qu\'ils soient PGP ou non, ils comptent. À 2, cinq messages au plus. À 0, seul le message sélectionné l\'est.</string>
+    <string name="conf_around_note">Lors de la sélection d\'un message à déchiffrer, nombre de messages précédents et suivants à déchiffrer également, si ces messages sont chiffrés et non ouverts. À 0, seul le message chiffré sélectionné sera ouvert par la clé de sécurité.</string>
     <string name="conf_hold">Refermer les messages chiffrés</string>
-    <string name="conf_hold_note">Le temps que les messages chiffrés restent ouverts ou visibles dans une conversation. Chaque ouverture remonte le compte à rebours.</string>
+    <string name="conf_hold_note">Le temps que les messages chiffrés restent ouverts ou visibles dans une conversation.</string>
+    <string name="conf_hold_after">Refermer les messages chiffrés au bout de</string>
     <string name="hold_half_minute">30 secondes</string>
     <string name="hold_twelve_hours">12 heures</string>
     <string name="close_now">Refermer maintenant</string>

@@ -113,7 +113,7 @@ class ConfActivity : Activity() {
         column.addView(
             Look.button(this, "${getString(R.string.conf_hold)} — ${label(current)}") {
                 AlertDialog.Builder(this)
-                    .setTitle(R.string.conf_hold)
+                    .setTitle(R.string.conf_hold_after)
                     .setSingleChoiceItems(choices.map { label(it) }.toTypedArray(), choices.indexOf(current)) { dialog, which ->
                         dialog.dismiss()
                         Conf.hold(this, choices[which])
