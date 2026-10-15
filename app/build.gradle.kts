@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
 }
@@ -30,9 +32,9 @@ android {
     // (storeFile, storePassword, keyAlias, keyPassword), as foodjis's does.
     // foodjis's own: Play then signs both with keys of the same account, and
     // foodjis lets in, without asking, what is signed as it is.
-    val distribution: java.util.Properties? =
+    val distribution: Properties? =
         rootProject.file("keystore.properties").takeIf { it.isFile }?.let { file ->
-            java.util.Properties().apply { file.inputStream().use { load(it) } }
+            Properties().apply { file.inputStream().use { load(it) } }
         }
     signingConfigs {
         distribution?.let { held ->
