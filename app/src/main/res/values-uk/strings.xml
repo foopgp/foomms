@@ -101,9 +101,9 @@
     <string name="forget_message">✖ Видалити повідомлення</string>
     <string name="forget_message_ask">Видалити це повідомлення? Його не можна буде відновити.</string>
     <string name="copy_text">⎘ Копіювати текст</string>
-    <string name="select_text">Виділити текст</string>
+    <string name="select_text">⌶ Виділити текст</string>
     <string name="open_file">❏ Відкрити</string>
-    <string name="details">Подробиці повідомлення</string>
+    <string name="details">ⓘ Подробиці повідомлення</string>
     <string name="detail_from">Від: %1$s</string>
     <string name="detail_to">Кому: %1$s</string>
     <string name="detail_received">Отримано: %1$s</string>
@@ -179,4 +179,5 @@
     <string name="no_foodjis">foomms сам не займається криптографією: йому потрібен %1$s, який не встановлено на цьому телефоні.</string>
     <string name="install_foodjis">Встановити %1$s</string>
     <string name="write_to">Написати на %1$s</string>
+    <string name="decrypt_this">⚿ Розшифрувати це повідомлення</string>
 </resources>

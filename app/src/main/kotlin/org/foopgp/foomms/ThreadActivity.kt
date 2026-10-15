@@ -900,6 +900,8 @@ class ThreadActivity : AskingActivity() {
         val line = lines.getOrNull(at) ?: return
         val text = textOf(line)
         val choices = ArrayList<Pair<Int, () -> Unit>>()
+        // Still locked: opening it comes first, as a press does.
+        if (lockedAndClosed(line)) choices += R.string.decrypt_this to { pressed(at) }
         if (text.isNotEmpty()) {
             choices += R.string.copy_text to {
                 getSystemService(android.content.ClipboardManager::class.java)

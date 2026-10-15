@@ -101,9 +101,9 @@
     <string name="forget_message">✖ Supprimer le message</string>
     <string name="forget_message_ask">Supprimer ce message ? Il ne pourra pas être récupéré.</string>
     <string name="copy_text">⎘ Copier le texte</string>
-    <string name="select_text">Sélectionner le texte</string>
+    <string name="select_text">⌶ Sélectionner le texte</string>
     <string name="open_file">❏ Ouvrir</string>
-    <string name="details">Détails du message</string>
+    <string name="details">ⓘ Détails du message</string>
     <string name="detail_from">De : %1$s</string>
     <string name="detail_to">Pour : %1$s</string>
     <string name="detail_received">Reçu : %1$s</string>
@@ -179,4 +179,5 @@
     <string name="no_foodjis">foomms ne fait lui-même aucune cryptographie : il a besoin de %1$s, qui n\'est pas installé sur ce téléphone.</string>
     <string name="install_foodjis">Installer %1$s</string>
     <string name="write_to">Écrire au %1$s</string>
+    <string name="decrypt_this">⚿ Déchiffrer ce message</string>
 </resources>
