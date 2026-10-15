@@ -28,7 +28,7 @@ object Signer {
     }
 
     fun named(signature: OpenPgpSignatureResult): String =
-        named(signature.userIds.orEmpty() + listOfNotNull(signature.primaryUserId), signature.keyId)
+        named(userIds(signature) + listOfNotNull(signature.primaryUserId), signature.keyId)
 
     /**
      * What a signature said, kept without words -- its verdict and who -- so
@@ -37,7 +37,14 @@ object Signer {
      */
     class Said(val result: Int?, val who: String)
 
-    fun of(signature: OpenPgpSignatureResult?): Said = Said(signature?.result, signature?.let { named(it) }.orEmpty())
+    fun of(signature: OpenPgpSignatureResult?): Said {
+        // Who signed only when a valid signature names them: with none, the result's list of user ids is
+        // null, and openpgp-api's own reader of it throws (seen on the phone, opening an unsigned message).
+        val valid = signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED ||
+            signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_UNCONFIRMED
+        val who = if (valid) runCatching { named(signature!!) }.getOrNull() ?: "0x%016X".format(signature!!.keyId) else ""
+        return Said(signature?.result, who)
+    }
 
     /** What a signature says, in words: by whom, and whether they are certified. */
     fun words(context: android.content.Context, said: Said): String = when (said.result) {
@@ -66,7 +73,10 @@ object Signer {
 
     /** The identifier a signature's certificate carries, in full. */
     fun eid(signature: OpenPgpSignatureResult): String? =
-        (signature.userIds.orEmpty() + listOfNotNull(signature.primaryUserId)).firstOrNull { it.startsWith(EID) }?.substringAfter(EID)?.trim()
+        (userIds(signature) + listOfNotNull(signature.primaryUserId)).firstOrNull { it.startsWith(EID) }?.substringAfter(EID)?.trim()
+
+    /** A result's user ids: openpgp-api's reader throws when the provider sent none, rather than giving an empty list. */
+    private fun userIds(signature: OpenPgpSignatureResult): List<String> = runCatching { signature.userIds }.getOrNull().orEmpty()
 
     private const val EID = "UID:urn:eid:"
     private val PROPERTY = Regex("^[A-Z]+[:;]")
