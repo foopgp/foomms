@@ -50,7 +50,7 @@
     <string name="theme_system">System</string>
     <string name="theme_light">Light</string>
     <string name="conf_around">Decryption window</string>
-    <string name="conf_around_note">Most messages to decrypt, where possible, around the selected encrypted message.</string>
+    <string name="conf_around_note">Most messages to decrypt, where possible, before the selected encrypted message.</string>
     <string name="conf_hold">Close encrypted messages</string>
     <string name="conf_hold_note">How long encrypted messages stay open, or visible, in a conversation.</string>
     <string name="conf_hold_after">Close encrypted messages after</string>

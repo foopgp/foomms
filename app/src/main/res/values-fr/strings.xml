@@ -48,7 +48,7 @@
     <string name="theme_system">Système</string>
     <string name="theme_light">Clair</string>
     <string name="conf_around">Fenêtre de déchiffrement</string>
-    <string name="conf_around_note">Nombre maximum de messages à déchiffrer, si possible, autour du message chiffré sélectionné.</string>
+    <string name="conf_around_note">Nombre maximum de messages à déchiffrer, si possible, précédant le message chiffré sélectionné.</string>
     <string name="conf_hold">Refermer les messages chiffrés</string>
     <string name="conf_hold_note">Le temps que les messages chiffrés restent ouverts ou visibles dans une conversation.</string>
     <string name="conf_hold_after">Refermer les messages chiffrés au bout de</string>

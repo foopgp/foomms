@@ -48,7 +48,7 @@
     <string name="theme_system">Системная</string>
     <string name="theme_light">Светлая</string>
     <string name="conf_around">Окно расшифровки</string>
-    <string name="conf_around_note">Наибольшее число сообщений, которые по возможности будут расшифрованы вокруг выбранного зашифрованного сообщения.</string>
+    <string name="conf_around_note">Наибольшее число сообщений, которые по возможности будут расшифрованы перед выбранным зашифрованным сообщением.</string>
     <string name="conf_hold">Закрывать зашифрованные сообщения</string>
     <string name="conf_hold_note">Сколько времени зашифрованные сообщения остаются открытыми или видимыми в переписке.</string>
     <string name="conf_hold_after">Закрывать зашифрованные сообщения через</string>

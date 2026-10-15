@@ -48,7 +48,7 @@
     <string name="theme_system">Системна</string>
     <string name="theme_light">Світла</string>
     <string name="conf_around">Вікно розшифрування</string>
-    <string name="conf_around_note">Найбільша кількість повідомлень, які за можливості буде розшифровано навколо вибраного зашифрованого повідомлення.</string>
+    <string name="conf_around_note">Найбільша кількість повідомлень, які за можливості буде розшифровано перед вибраним зашифрованим повідомленням.</string>
     <string name="conf_hold">Закривати зашифровані повідомлення</string>
     <string name="conf_hold_note">Скільки часу зашифровані повідомлення залишаються відкритими або видимими в листуванні.</string>
     <string name="conf_hold_after">Закривати зашифровані повідомлення через</string>

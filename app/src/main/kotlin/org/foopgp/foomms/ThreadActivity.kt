@@ -139,7 +139,12 @@ class ThreadActivity : AskingActivity() {
         // In the bar: who the conversation is with -- a face, a name, and under it the number and what its
         // certificate is worth. Pressed, what can be done about them, as from the list of conversations.
         whoIs = Look.words(this, number, size = 17f).apply { setTextColor(Look.ORANGE) ; setTypeface(typeface, android.graphics.Typeface.BOLD) ; maxLines = 1 }
-        under = Look.words(this, "", size = 13f).apply { setTextColor(android.graphics.Color.rgb(0xE0, 0xE7, 0xFF)) ; maxLines = 1 }
+        // One line, smaller when the language's word for the certificate's standing is long: the badge fell off in Greek.
+        under = Look.words(this, "", size = 13f).apply {
+            setTextColor(android.graphics.Color.rgb(0xE0, 0xE7, 0xFF))
+            maxLines = 1
+            setAutoSizeTextTypeUniformWithConfiguration(8, 13, 1, android.util.TypedValue.COMPLEX_UNIT_SP)
+        }
         portrait = android.widget.FrameLayout(this)
         actionBar?.apply {
             setDisplayShowTitleEnabled(false)
@@ -156,7 +161,7 @@ class ThreadActivity : AskingActivity() {
                         setPadding(Look.dp(context, 10), 0, 0, 0)
                         // The dots that say the bar can be pressed, on its first line.
                         addView(Look.pressable(context, whoIs), LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-                        addView(under)
+                        addView(under, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
                     },
                     LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f),
                 )

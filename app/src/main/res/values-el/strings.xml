@@ -48,7 +48,7 @@
     <string name="theme_system">Συστήματος</string>
     <string name="theme_light">Ανοιχτό</string>
     <string name="conf_around">Παράθυρο αποκρυπτογράφησης</string>
-    <string name="conf_around_note">Μέγιστος αριθμός μηνυμάτων προς αποκρυπτογράφηση, αν είναι δυνατόν, γύρω από το επιλεγμένο κρυπτογραφημένο μήνυμα.</string>
+    <string name="conf_around_note">Μέγιστος αριθμός μηνυμάτων προς αποκρυπτογράφηση, αν είναι δυνατόν, πριν από το επιλεγμένο κρυπτογραφημένο μήνυμα.</string>
     <string name="conf_hold">Κλείσιμο κρυπτογραφημένων μηνυμάτων</string>
     <string name="conf_hold_note">Πόσο χρόνο τα κρυπτογραφημένα μηνύματα μένουν ανοιχτά ή ορατά σε μια συνομιλία.</string>
     <string name="conf_hold_after">Κλείσιμο κρυπτογραφημένων μηνυμάτων μετά από</string>

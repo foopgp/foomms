@@ -88,8 +88,8 @@ class ConfActivity : Activity() {
 
         heading(R.string.conf_around)
         note(R.string.conf_around_note)
-        // Kept as how many on each side; said as the whole window, the one selected in the middle: 1, 3, 5 ... 15.
-        val shown = Look.words(this, (2 * Conf.around(this) + 1).toString(), size = 18f)
+        // How many before the one selected, 0 to 10.
+        val shown = Look.words(this, Conf.around(this).toString(), size = 18f)
         column.addView(
             LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -102,7 +102,7 @@ class ConfActivity : Activity() {
                             object : SeekBar.OnSeekBarChangeListener {
                                 override fun onProgressChanged(bar: SeekBar?, value: Int, byHand: Boolean) {
                                     Conf.around(context, value)
-                                    shown.text = (2 * value + 1).toString()
+                                    shown.text = value.toString()
                                 }
                                 override fun onStartTrackingTouch(bar: SeekBar?) = Unit
                                 override fun onStopTrackingTouch(bar: SeekBar?) = Unit

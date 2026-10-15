@@ -48,7 +48,7 @@
     <string name="theme_system">Sistema</string>
     <string name="theme_light">Chiaro</string>
     <string name="conf_around">Finestra di decifratura</string>
-    <string name="conf_around_note">Numero massimo di messaggi da decifrare, se possibile, intorno al messaggio cifrato selezionato.</string>
+    <string name="conf_around_note">Numero massimo di messaggi da decifrare, se possibile, prima del messaggio cifrato selezionato.</string>
     <string name="conf_hold">Richiudere i messaggi cifrati</string>
     <string name="conf_hold_note">Il tempo per cui i messaggi cifrati restano aperti o visibili in una conversazione.</string>
     <string name="conf_hold_after">Richiudere i messaggi cifrati dopo</string>

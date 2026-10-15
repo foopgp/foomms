@@ -48,7 +48,7 @@
     <string name="theme_system">System</string>
     <string name="theme_light">Hell</string>
     <string name="conf_around">Entschlüsselungsfenster</string>
-    <string name="conf_around_note">Höchstzahl der Nachrichten, die nach Möglichkeit rund um die ausgewählte verschlüsselte Nachricht entschlüsselt werden.</string>
+    <string name="conf_around_note">Höchstzahl der Nachrichten, die nach Möglichkeit vor der ausgewählten verschlüsselten Nachricht entschlüsselt werden.</string>
     <string name="conf_hold">Verschlüsselte Nachrichten schließen</string>
     <string name="conf_hold_note">Wie lange verschlüsselte Nachrichten in einer Unterhaltung geöffnet oder sichtbar bleiben.</string>
     <string name="conf_hold_after">Verschlüsselte Nachrichten schließen nach</string>
