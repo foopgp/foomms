@@ -5,11 +5,15 @@ plugins {
 }
 
 // One per build that leaves this machine.
-val appVersionCode = 1
-val appVersionName = "1.0.0"
+val appVersionCode = 2
+val appVersionName = "1.0.1"
 
 // A build made only to be tried on a phone: -Ptry=d1 gives 0.0.1d1.
 val trial = (findProperty("try") as String?).orEmpty()
+
+// A trial build dressed as the published one, for the store's pictures:
+// -Pdemo=1.0.0demo names it foomms, at that version.
+val demo = (findProperty("demo") as String?).orEmpty()
 
 android {
     namespace = "org.foopgp.foomms"
@@ -20,12 +24,14 @@ android {
         minSdk = 26
         targetSdk = 36
         versionCode = appVersionCode
-        versionName = appVersionName + trial
+        versionName = demo.ifEmpty { appVersionName + trial }
     }
     buildFeatures {
         // The provider's door is an AIDL interface, which the Android plugin
         // does not compile unless asked.
         aidl = true
+        // The trial build's name is chosen here: see demo.
+        resValues = true
     }
     // The upload key, if this machine holds one: `keystore.properties` beside
     // the sources, never committed, names it and carries its two passwords
@@ -52,6 +58,8 @@ android {
         // trial applications sit on a phone beside the two published ones.
         getByName("debug") {
             applicationIdSuffix = ".dev"
+            // It says so in its name, as foodjis-dev does.
+            resValue("string", "app_name", if (demo.isEmpty()) "foomms-dev" else "foomms")
         }
         getByName("release") {
             signingConfig = signingConfigs.findByName("distribution")
