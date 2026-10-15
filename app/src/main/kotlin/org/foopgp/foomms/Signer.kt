@@ -30,14 +30,25 @@ object Signer {
     fun named(signature: OpenPgpSignatureResult): String =
         named(signature.userIds.orEmpty() + listOfNotNull(signature.primaryUserId), signature.keyId)
 
+    /**
+     * What a signature said, kept without words -- its verdict and who -- so
+     * that it is said in the language of the page that shows it, not of the
+     * one that opened it.
+     */
+    class Said(val result: Int?, val who: String)
+
+    fun of(signature: OpenPgpSignatureResult?): Said = Said(signature?.result, signature?.let { named(it) }.orEmpty())
+
     /** What a signature says, in words: by whom, and whether they are certified. */
-    fun said(context: android.content.Context, signature: OpenPgpSignatureResult?): String = when (signature?.result) {
+    fun words(context: android.content.Context, said: Said): String = when (said.result) {
         null, OpenPgpSignatureResult.RESULT_NO_SIGNATURE -> context.getString(R.string.unsigned)
-        OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED -> context.getString(R.string.signed_certified, named(signature))
-        OpenPgpSignatureResult.RESULT_VALID_KEY_UNCONFIRMED -> context.getString(R.string.signed_other, named(signature))
+        OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED -> context.getString(R.string.signed_certified, said.who)
+        OpenPgpSignatureResult.RESULT_VALID_KEY_UNCONFIRMED -> context.getString(R.string.signed_other, said.who)
         OpenPgpSignatureResult.RESULT_KEY_MISSING -> context.getString(R.string.signed_unknown)
         else -> context.getString(R.string.signed_broken)
     }
+
+    fun said(context: android.content.Context, signature: OpenPgpSignatureResult?): String = words(context, of(signature))
 
     /** A message foodjis opened or verified, kept with what its signature says; the signature, for whoever asks more. */
     fun keep(context: android.content.Context, armor: String, answer: Provider.Answer.Done, thread: Long = Opened.NO_THREAD): OpenPgpSignatureResult? {
@@ -47,7 +58,7 @@ object Signer {
         val certified = signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED
         val signer = signature?.takeIf { it.result != OpenPgpSignatureResult.RESULT_NO_SIGNATURE }
         Opened.keep(
-            context, armor, String(answer.bytes, Charsets.UTF_8), said(context, signature), Verdict.of(Pgp.isLocked(armor), certified),
+            context, armor, String(answer.bytes, Charsets.UTF_8), of(signature), Verdict.of(Pgp.isLocked(armor), certified),
             signer = signer?.keyId, eid = signer?.let { eid(it) }, thread = thread,
         )
         return signature

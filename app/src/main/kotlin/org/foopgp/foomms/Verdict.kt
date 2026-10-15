@@ -42,7 +42,7 @@ object Opened {
 
     /** [signer]: the key that signed, and [eid] the identifier its certificate carries, when it said so. */
     class Read(
-        val words: String, val signed: String?, val at: Long, val verdict: Verdict,
+        val words: String, val signed: Signer.Said?, val at: Long, val verdict: Verdict,
         val signer: Long? = null, val eid: String? = null, val thread: Long = NO_THREAD,
     )
 
@@ -121,7 +121,7 @@ object Opened {
     }
 
     fun keep(
-        context: Context, armor: String, words: String, signed: String?, verdict: Verdict,
+        context: Context, armor: String, words: String, signed: Signer.Said?, verdict: Verdict,
         signer: Long? = null, eid: String? = null, thread: Long = NO_THREAD, now: Long = System.currentTimeMillis(),
     ) {
         expire(now)
@@ -153,7 +153,7 @@ object Opened {
     /** What a part of an MMS held once it was opened: the file, what it is, what it is worth. */
     class Piece(
         val type: String, val name: String, val bytes: ByteArray, val at: Long, val verdict: Verdict,
-        val signed: String? = null, val signer: Long? = null, val eid: String? = null, val thread: Long = NO_THREAD,
+        val signed: Signer.Said? = null, val signer: Long? = null, val eid: String? = null, val thread: Long = NO_THREAD,
     )
 
     private val pieces = HashMap<Long, Piece>()
@@ -166,7 +166,7 @@ object Opened {
 
     fun keepPiece(
         context: Context, part: Long, type: String, name: String, bytes: ByteArray, verdict: Verdict,
-        signed: String? = null, signer: Long? = null, eid: String? = null, thread: Long = NO_THREAD,
+        signed: Signer.Said? = null, signer: Long? = null, eid: String? = null, thread: Long = NO_THREAD,
         now: Long = System.currentTimeMillis(),
     ) {
         expire(now)

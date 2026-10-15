@@ -822,7 +822,7 @@ class ThreadActivity : AskingActivity() {
         val signer = signature?.takeIf { it.result != OpenPgpSignatureResult.RESULT_NO_SIGNATURE }
         Opened.keepPiece(
             this, piece.id, told.type, name, answer.bytes, Verdict.of(pieceLocked[piece.id] != false, certified),
-            signed = Signer.said(this, signature), signer = signer?.keyId, eid = signer?.let { Signer.eid(it) }, thread = here(),
+            signed = Signer.of(signature), signer = signer?.keyId, eid = signer?.let { Signer.eid(it) }, thread = here(),
         )
         if (told.type.startsWith("audio/") || told.type == "video/3gpp") Media.lasting(answer.bytes)?.let { lasts[piece.id] = it }
         if (told.type.startsWith("image/")) openedThumbs[piece.id] = thumbnail(answer.bytes)
@@ -1005,7 +1005,7 @@ class ThreadActivity : AskingActivity() {
     }
 
     /** What a signature said of an opened message: of its words, or else of the first of its locked parts opened. */
-    private class Seal(val signed: String?, val signer: Long?, val eid: String?)
+    private class Seal(val signed: Signer.Said?, val signer: Long?, val eid: String?)
 
     private fun sealOf(line: Store.Line): Seal? =
         armorOf(line)?.let { Opened.words(it) }?.let { Seal(it.signed, it.signer, it.eid) }
@@ -1067,7 +1067,7 @@ class ThreadActivity : AskingActivity() {
             for (id in keys) person(meant[id]?.face, (meant[id]?.name ?: getString(R.string.detail_unknown_key)) + "\n0x%016X".format(id))
         }
         sealOf(line)?.let { seal ->
-            seal.signed?.let { if (signer != null) person(signerFace, it) else text(it) }
+            seal.signed?.let { Signer.words(this, it) }?.let { if (signer != null) person(signerFace, it) else text(it) }
             val more = buildString {
                 seal.signer?.let { append(getString(R.string.detail_signer_key, "%016X".format(it))).append('\n') }
                 signer?.let { append(getString(R.string.detail_signer_fpr, it.fingerprint.chunked(4).joinToString(" "))).append('\n') }
@@ -1227,7 +1227,7 @@ class ThreadActivity : AskingActivity() {
                 append(DateUtils.getRelativeTimeSpanString(line.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL))
                 if (verdict.encrypted) append("  ⚿")
                 // Who signed: the words, or else what the first of its PGP parts said once opened -- a voice message has no words.
-                (read?.signed ?: line.pieces.filter(::isSealed).firstNotNullOfOrNull { Opened.piece(it.id)?.signed })
+                (read?.signed ?: line.pieces.filter(::isSealed).firstNotNullOfOrNull { Opened.piece(it.id)?.signed })?.let { Signer.words(context, it) }
                     ?.let { append("  ✍ ").append(it) }
             }
             val pad = Look.dp(context, 10)

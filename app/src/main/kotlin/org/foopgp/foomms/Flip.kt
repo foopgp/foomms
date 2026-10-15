@@ -12,7 +12,11 @@ import android.widget.Switch
 class Flip(context: Context, glyph: String, verb: Int, changed: () -> Unit) : LinearLayout(context) {
 
     private val mark = Look.words(context, glyph, size = 16f)
-    private val word = Look.words(context, context.getString(verb), size = 14f)
+    // One line, the room left beside the switch, the letters smaller when the verb is long: "Зашифровать" broke in two.
+    private val word = Look.words(context, context.getString(verb), size = 14f).apply {
+        maxLines = 1
+        setAutoSizeTextTypeUniformWithConfiguration(9, 14, 1, android.util.TypedValue.COMPLEX_UNIT_SP)
+    }
     private val switch = Switch(context).apply { setOnCheckedChangeListener { _, _ -> changed() } }
 
     var isChecked: Boolean
@@ -24,7 +28,7 @@ class Flip(context: Context, glyph: String, verb: Int, changed: () -> Unit) : Li
         gravity = Gravity.CENTER_VERTICAL
         addView(mark)
         addView(switch, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { marginStart = Look.dp(context, 4) ; marginEnd = Look.dp(context, 4) })
-        addView(word)
+        addView(word, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
         setOnClickListener { if (switch.isEnabled) switch.toggle() }
     }
 
