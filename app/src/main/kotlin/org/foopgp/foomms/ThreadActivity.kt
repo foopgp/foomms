@@ -825,21 +825,22 @@ class ThreadActivity : AskingActivity() {
             signed = Signer.said(this, signature), signer = signer?.keyId, eid = signer?.let { Signer.eid(it) }, thread = here(),
         )
         if (told.type.startsWith("audio/") || told.type == "video/3gpp") Media.lasting(answer.bytes)?.let { lasts[piece.id] = it }
-        if (told.type.startsWith("image/")) {
-            openedThumbs[piece.id] = runCatching {
-                val side = Look.dp(this, 200)
-                val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                android.graphics.BitmapFactory.decodeByteArray(answer.bytes, 0, answer.bytes.size, bounds)
-                var sample = 1
-                while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 2 * side) sample *= 2
-                android.graphics.BitmapFactory.decodeByteArray(answer.bytes, 0, answer.bytes.size, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample })
-            }.getOrNull()
-        }
+        if (told.type.startsWith("image/")) openedThumbs[piece.id] = thumbnail(answer.bytes)
         bubbles.notifyDataSetChanged()
     }
 
     /** The pictures opened from locked parts, small, by the part they were. */
     private val openedThumbs = HashMap<Long, Bitmap?>()
+
+    /** A picture opened from its lock, made small to sit in its bubble. */
+    private fun thumbnail(bytes: ByteArray): Bitmap? = runCatching {
+        val side = Look.dp(this, 200)
+        val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+        var sample = 1
+        while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 2 * side) sample *= 2
+        android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample })
+    }.getOrNull()
 
     /**
      * A message that did not open -- locked for somebody else, most often --
@@ -1131,7 +1132,9 @@ class ThreadActivity : AskingActivity() {
         val opened = Opened.piece(piece.id)
         if (opened != null) {
             // Opened: shown as if it had travelled in clear, under its own name.
-            val small = openedThumbs[piece.id]
+            // Made again from what is held open when this page did not open it: a conversation left and come back to
+            // finds its pictures still open, and they are to look it.
+            val small = if (opened.type.startsWith("image/")) openedThumbs.getOrPut(piece.id) { thumbnail(opened.bytes) } else null
             return when {
                 small != null -> android.widget.ImageView(this).apply {
                     setImageBitmap(small)
