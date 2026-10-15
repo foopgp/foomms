@@ -59,6 +59,11 @@ class ThreadActivity : AskingActivity() {
     /** Whom each locked part of an MMS is for, by the keys it names, by the part it is. */
     private val sealedFor = java.util.concurrent.ConcurrentHashMap<Long, List<Long>>()
 
+    /** Whether each PGP part is locked, or only signed; not read yet, it is taken to be locked. */
+    private val pieceLocked = java.util.concurrent.ConcurrentHashMap<Long, Boolean>()
+
+    private fun isLockedPiece(piece: Store.Piece): Boolean = isSealed(piece) && pieceLocked[piece.id] != false
+
     /** The message whose text can be selected, and so copied: the one pressed long, or none. */
 
     private lateinit var list: ListView
@@ -398,9 +403,12 @@ class ThreadActivity : AskingActivity() {
             val found = runCatching { thread?.let { Store.lines(this, it) } }.getOrNull().orEmpty()
             // Whom each locked message is for, by the keys it names: a face each, asked of foodjis once.
             // A locked part says it too, at the head of its bytes.
+            // Whether it is locked at all, too: a part may be only signed, readable by anyone, and is not to be shown locked.
             for (piece in found.flatMap { it.pieces }.filter(::isSealed)) {
                 if (!sealedFor.containsKey(piece.id)) {
-                    sealedFor[piece.id] = runCatching { contentResolver.openInputStream(piece.uri)?.use { Pgp.recipients(it.readBytes()) } }.getOrNull().orEmpty()
+                    val bytes = runCatching { contentResolver.openInputStream(piece.uri)?.use { it.readBytes() } }.getOrNull()
+                    sealedFor[piece.id] = bytes?.let { Pgp.recipients(it) }.orEmpty()
+                    bytes?.let { pieceLocked[piece.id] = Pgp.isLocked(it) }
                 }
             }
             val named = (found.mapNotNull { Pgp.armorIn(it.body) }.filter { Pgp.isLocked(it) }.flatMap { Pgp.recipients(it) } +
@@ -712,7 +720,7 @@ class ThreadActivity : AskingActivity() {
     /** Whether a message holds something encrypted still closed: its words, or a part. */
     private fun lockedAndClosed(line: Store.Line): Boolean =
         Pgp.armorIn(line.body)?.let { Pgp.isLocked(it) && Opened.words(it) == null } == true ||
-            line.pieces.any { isSealed(it) && Opened.piece(it.id) == null }
+            line.pieces.any { isLockedPiece(it) && Opened.piece(it.id) == null }
 
     /** Whether a message holds something still closed: its words, or a locked part. */
     private fun closed(line: Store.Line): Boolean =
@@ -789,7 +797,7 @@ class ThreadActivity : AskingActivity() {
         val name = piece.name.orEmpty().removeSuffix(".pgp").removeSuffix(".gpg").removeSuffix(".asc").ifEmpty { "file.${told.extension}" }
         val signer = signature?.takeIf { it.result != OpenPgpSignatureResult.RESULT_NO_SIGNATURE }
         Opened.keepPiece(
-            this, piece.id, told.type, name, answer.bytes, Verdict.of(true, certified),
+            this, piece.id, told.type, name, answer.bytes, Verdict.of(pieceLocked[piece.id] != false, certified),
             signed = Signer.said(this, signature), signer = signer?.keyId, eid = signer?.let { Signer.eid(it) },
         )
         if (told.type.startsWith("audio/") || told.type == "video/3gpp") Media.lasting(answer.bytes)?.let { lasts[piece.id] = it }
@@ -942,8 +950,24 @@ class ThreadActivity : AskingActivity() {
     /** The signed messages being verified, or that could not be: not asked again while the page stands. */
     private val verifying = HashSet<String>()
 
-    /** Signed only, a message needs no key: it is verified as soon as it is shown, and never stays grey. */
+    /** The parts only signed being verified, or that could not be. */
+    private val verifyingParts = HashSet<Long>()
+
+    /** Signed only, a message needs no key: it is verified as soon as it is shown, and never stays grey -- its words, and its parts. */
     private fun verifySigned() {
+        for (piece in lines.flatMap { it.pieces }) {
+            if (!isSealed(piece) || pieceLocked[piece.id] != false || Opened.piece(piece.id) != null || !verifyingParts.add(piece.id)) continue
+            thread {
+                val bytes = runCatching { contentResolver.openInputStream(piece.uri)?.use { it.readBytes() } }.getOrNull() ?: return@thread
+                runOnUiThread {
+                    provider.ask(Intent(Provider.DECRYPT_VERIFY), bytes) { answer ->
+                        if (answer !is Provider.Answer.Done || isFinishing || isDestroyed) return@ask
+                        got(piece, answer)
+                        verifyingParts.remove(piece.id)
+                    }
+                }
+            }
+        }
         for (line in lines) {
             val armor = Pgp.armorIn(line.body) ?: continue
             if (Pgp.isLocked(armor) || Opened.words(armor) != null || !verifying.add(armor)) continue
@@ -991,7 +1015,7 @@ class ThreadActivity : AskingActivity() {
                 append('\n')
             }
             val lockedWords = armor != null && Pgp.isLocked(armor)
-            val lockedParts = line.pieces.filter(::isSealed)
+            val lockedParts = line.pieces.filter(::isLockedPiece)
             if (armor != null && !lockedWords) append(getString(R.string.detail_signed)).append('\n')
             if (lockedWords || lockedParts.isNotEmpty()) {
                 append(getString(R.string.detail_locked)).append('\n')
@@ -1094,7 +1118,7 @@ class ThreadActivity : AskingActivity() {
             isSealed(piece) -> LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
-                addView(Look.words(context, "⚿ $name", size = 15f, muted = true))
+                addView(Look.words(context, (if (isLockedPiece(piece)) "⚿ " else "✍ ") + name, size = 15f, muted = true))
                 for (id in sealedFor[piece.id].orEmpty()) {
                     addView(View(context), LinearLayout.LayoutParams(Look.dp(context, 4), 1))
                     addView(Look.face(context, 22, null, meant[id]?.face))

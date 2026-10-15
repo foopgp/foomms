@@ -51,6 +51,10 @@ object Pgp {
         }
     }
 
+    /** Whether a message as it travels in a part of an MMS, bare or armored, is locked for somebody rather than only signed. */
+    fun isLocked(bytes: ByteArray): Boolean =
+        if (isArmor(bytes)) isLocked(String(bytes, Charsets.US_ASCII)) else isMessage(bytes)
+
     /** The armored message a text carries, from its banner to its last line, or null. */
     fun armorIn(text: String): String? {
         val from = text.indexOf(BANNER)

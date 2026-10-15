@@ -57,7 +57,7 @@ object Opened {
     /** When what is open closes; nothing encrypted open, null. */
     fun closesAt(now: Long = System.currentTimeMillis()): Long? {
         close(now)
-        val open = synchronized(read) { read.values.any { it.verdict.encrypted } } || synchronized(pieces) { pieces.isNotEmpty() }
+        val open = synchronized(read) { read.values.any { it.verdict.encrypted } } || synchronized(pieces) { pieces.values.any { it.verdict.encrypted } }
         return if (open) lastOpened + holdFor else null
     }
 
@@ -65,7 +65,7 @@ object Opened {
     fun close(now: Long = System.currentTimeMillis(), force: Boolean = false) {
         if (!force && now - lastOpened <= holdFor) return
         synchronized(read) { read.values.removeAll { it.verdict.encrypted } }
-        synchronized(pieces) { pieces.clear() }
+        synchronized(pieces) { pieces.values.removeAll { it.verdict.encrypted } }
     }
 
     /** The words of a message, while it is open. */
@@ -108,7 +108,7 @@ object Opened {
     ) {
         close(now)
         synchronized(pieces) { pieces[part] = Piece(type, name, bytes, now, verdict, signed, signer, eid) }
-        lastOpened = now
+        if (verdict.encrypted) lastOpened = now
         forgetOld(context)
     }
 
