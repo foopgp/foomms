@@ -73,7 +73,7 @@
     <string name="mms_send">Αποστολή</string>
     <string name="language_name">Ελληνικά</string>
     <string name="conf_language">Γλώσσα</string>
-    <string name="conf_language_note">Το foomms μιλά 11 γλώσσες.</string>
+    <string name="conf_language_note">Αν και φτιαγμένο στη Γαλλία, το foomms μιλά έντεκα γλώσσες.</string>
     <string name="conf_language_change">⚑ Αλλαγή γλώσσας της εφαρμογής</string>
     <string name="search_all">🔍 Αναζήτηση στις συνομιλίες</string>
     <string name="search_here">🔍 Αναζήτηση σε αυτά τα μηνύματα</string>

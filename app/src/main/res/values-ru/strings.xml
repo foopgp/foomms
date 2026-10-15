@@ -73,7 +73,7 @@
     <string name="mms_send">Отправить</string>
     <string name="language_name">русский</string>
     <string name="conf_language">Язык</string>
-    <string name="conf_language_note">foomms говорит на 11 языках.</string>
+    <string name="conf_language_note">Хотя foomms сделан во Франции, он говорит на одиннадцати языках.</string>
     <string name="conf_language_change">⚑ Изменить язык приложения</string>
     <string name="search_all">🔍 Поиск по перепискам</string>
     <string name="search_here">🔍 Поиск в этих сообщениях</string>

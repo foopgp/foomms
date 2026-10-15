@@ -73,7 +73,7 @@
     <string name="mms_send">Wyślij</string>
     <string name="language_name">polski</string>
     <string name="conf_language">Język</string>
-    <string name="conf_language_note">foomms mówi w 11 językach.</string>
+    <string name="conf_language_note">Choć powstał we Francji, foomms mówi jedenastoma językami.</string>
     <string name="conf_language_change">⚑ Zmień język aplikacji</string>
     <string name="search_all">🔍 Szukaj w rozmowach</string>
     <string name="search_here">🔍 Szukaj w tych wiadomościach</string>

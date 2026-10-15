@@ -73,7 +73,7 @@
     <string name="mms_send">Надіслати</string>
     <string name="language_name">українська</string>
     <string name="conf_language">Мова</string>
-    <string name="conf_language_note">foomms розмовляє 11 мовами.</string>
+    <string name="conf_language_note">Хоча foomms зроблено у Франції, він розмовляє одинадцятьма мовами.</string>
     <string name="conf_language_change">⚑ Змінити мову застосунку</string>
     <string name="search_all">🔍 Пошук у листуваннях</string>
     <string name="search_here">🔍 Пошук у цих повідомленнях</string>

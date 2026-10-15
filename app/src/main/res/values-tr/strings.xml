@@ -73,7 +73,7 @@
     <string name="mms_send">Gönder</string>
     <string name="language_name">Türkçe</string>
     <string name="conf_language">Dil</string>
-    <string name="conf_language_note">foomms 11 dil konuşur.</string>
+    <string name="conf_language_note">Fransa\'da yapılmış olsa da foomms on bir dil konuşuyor.</string>
     <string name="conf_language_change">⚑ Uygulamanın dilini değiştir</string>
     <string name="search_all">🔍 Konuşmalarda ara</string>
     <string name="search_here">🔍 Bu mesajlarda ara</string>

@@ -73,7 +73,7 @@
     <string name="mms_send">Enviar</string>
     <string name="language_name">português</string>
     <string name="conf_language">Idioma</string>
-    <string name="conf_language_note">O foomms fala 11 idiomas.</string>
+    <string name="conf_language_note">Embora feito em França, o foomms fala onze línguas.</string>
     <string name="conf_language_change">⚑ Mudar o idioma da aplicação</string>
     <string name="search_all">🔍 Pesquisar nas conversas</string>
     <string name="search_here">🔍 Pesquisar nestas mensagens</string>
