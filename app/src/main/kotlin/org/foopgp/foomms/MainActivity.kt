@@ -123,6 +123,7 @@ class MainActivity : Activity() {
         )
         setContentView(column)
         Edges.fit(this)
+        shared(intent)
     }
 
     private var dressed = false
@@ -154,6 +155,20 @@ class MainActivity : Activity() {
     override fun onDestroy() {
         provider.close()
         super.onDestroy()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        shared(intent)
+    }
+
+    /** A text shared from another application: whom it is for is asked, and their conversation opens with it written. */
+    private fun shared(asked: Intent?) {
+        if (asked?.action != Intent.ACTION_SEND) return
+        val text = asked.getStringExtra(Intent.EXTRA_TEXT) ?: return
+        // Once: the page made again keeps its intent, and would ask again.
+        setIntent(Intent(this, MainActivity::class.java))
+        Menus.write(this, text)
     }
 
     /** Only the conversations with something unread and the counts in detail, or everything. */

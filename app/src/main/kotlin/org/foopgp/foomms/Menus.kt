@@ -23,7 +23,7 @@ object Menus {
      * found in the address book by a few letters of their name -- one, and
      * their conversation opens; several, and the same message goes to each.
      */
-    fun write(activity: Activity) {
+    fun write(activity: Activity, text: String? = null) {
         val contacts = activity.checkSelfPermission(android.Manifest.permission.READ_CONTACTS) == android.content.pm.PackageManager.PERMISSION_GRANTED
         val chosen = LinkedHashMap<String, String>()
         val asked = EditText(activity).apply {
@@ -62,10 +62,10 @@ object Menus {
                 when (chosen.size) {
                     0 -> Unit
                     1 -> activity.startActivity(
-                        Intent(activity, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, chosen.keys.first()),
+                        Intent(activity, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, chosen.keys.first()).putExtra(Intent.EXTRA_TEXT, text),
                     )
                     else -> activity.startActivity(
-                        Intent(activity, ManyActivity::class.java).putExtra(ManyActivity.EXTRA_NUMBERS, chosen.keys.toTypedArray()),
+                        Intent(activity, ManyActivity::class.java).putExtra(ManyActivity.EXTRA_NUMBERS, chosen.keys.toTypedArray()).putExtra(Intent.EXTRA_TEXT, text),
                     )
                 }
             }

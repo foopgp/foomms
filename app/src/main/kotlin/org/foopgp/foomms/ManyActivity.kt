@@ -83,6 +83,8 @@ class ManyActivity : AskingActivity() {
             },
         )
         Edges.fit(this)
+        // Words handed over with the page -- shared from another application, or a link's "sms_body" -- are already written.
+        if (state == null) (intent.getStringExtra(Intent.EXTRA_TEXT) ?: intent.getStringExtra("sms_body"))?.let { field.setText(it) }
         provider.ask(Intent(Provider.GET_SIGN_KEY_ID), null) { answer ->
             if (answer is Provider.Answer.Done) mine = answer.says.getLongExtra(Provider.EXTRA_SIGN_KEY_ID, 0L).takeIf { it != 0L }
             if (!isFinishing && !isDestroyed) paint()

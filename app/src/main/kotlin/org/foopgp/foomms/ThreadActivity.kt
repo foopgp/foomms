@@ -247,6 +247,8 @@ class ThreadActivity : AskingActivity() {
             },
         )
         Edges.fit(this)
+        // Words handed over with the page -- shared from another application, or a link's "sms_body" -- are already written.
+        if (state == null) (intent.getStringExtra(Intent.EXTRA_TEXT) ?: intent.getStringExtra("sms_body"))?.let { field.setText(it) }
     }
 
     /** Shown, and so read by the person: a conversation open behind another screen reads nothing. */
