@@ -734,10 +734,12 @@ class ThreadActivity : AskingActivity() {
     }
 
     /**
-     * A line's PGP message, or none: the first envelope, and no further -- a
-     * message whose words are themselves a PGP message shows them as they are.
+     * A line's PGP message: the innermost opened so far ([Opened.inner]), or
+     * none. One envelope opened onto another shows that one, closed, as a
+     * message of its own -- grey, "encrypted for" --, and the person opens it
+     * or not: nothing is opened further behind their back.
      */
-    private fun armorOf(line: Store.Line): String? = Pgp.armorIn(line.body)
+    private fun armorOf(line: Store.Line): String? = Pgp.armorIn(line.body)?.let { Opened.inner(it) }
 
     /** Whether a message holds something encrypted still closed: its words, or a part. */
     private fun lockedAndClosed(line: Store.Line): Boolean =
@@ -1107,6 +1109,8 @@ class ThreadActivity : AskingActivity() {
     private fun opened(armor: String, answer: Provider.Answer.Done, offer: Boolean) {
         val signature = Signer.keep(this, armor, answer, here())
         bubbles.notifyDataSetChanged()
+        // Opened onto another message: signed only, it is read at once, as any signed message is; locked, a press opens it.
+        verifySigned()
         // Signed, from a number that means no certificate yet: it may well mean the signer's.
         // Once a page: several signed messages from the same unknown number ask the same question.
         if (offer && !offered && person?.fingerprint == null && signature?.result in VALID) {
