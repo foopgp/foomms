@@ -57,7 +57,7 @@ class MainActivity : Activity() {
         if (state == null) { synchronized(people) { people.clear() } ; synchronized(lines) { lines.clear() } }
         onlyUnread = state?.getBoolean(ONLY_UNREAD) ?: false
         // Nothing encrypted open: what was laid out for other applications from a lock has no business staying.
-        if (Opened.closesAt() == null) Outbox.shut(this)
+        if (!Opened.anyOpen()) Outbox.shut(this)
         // In the bar: the application's mark, then how much of what the phone holds is PGP.
         all = Look.words(this, "", size = 15f).apply { setTextColor(Look.ORANGE) ; setTypeface(typeface, Typeface.BOLD) }
         unread = Look.words(this, "", size = 13f).apply { setTextColor(android.graphics.Color.rgb(0xE0, 0xE7, 0xFF)) }
@@ -105,6 +105,7 @@ class MainActivity : Activity() {
             setOnItemLongClickListener { _, _, at, _ -> about(rows[at]) ; true }
             setOnItemClickListener { _, _, at, _ -> open(rows[at].talk) }
         }
+        column.addView(closing)
         column.addView(asking)
         detail = Look.words(this, "", size = 14f, muted = true).apply {
             val pad = Look.dp(context, 16)
@@ -207,12 +208,60 @@ class MainActivity : Activity() {
         override fun onChange(self: Boolean) = fill()
     }
 
+    /**
+     * Under the bar while encrypted messages are open somewhere: the
+     * conversation whose countdown is the longest -- the last one opened in
+     * --, when it closes, and a button to close everything now.
+     */
+    private val closing by lazy {
+        LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            val pad = Look.dp(context, 12)
+            setPadding(pad, pad / 3, pad, pad / 3)
+            setBackgroundColor(Look.pale(Verdict.YELLOW))
+            visibility = View.GONE
+            addView(remaining, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            addView(Look.small(context, getString(R.string.close_all)) {
+                Opened.closeAll()
+                Outbox.shut(this@MainActivity)
+                tick()
+                fill()
+            })
+        }
+    }
+    private val remaining by lazy { Look.words(this, "", size = 14f).apply { maxLines = 1 ; ellipsize = android.text.TextUtils.TruncateAt.MIDDLE } }
+
+    private val ticking = object : Runnable {
+        override fun run() {
+            tick()
+            closing.postDelayed(this, 1000)
+        }
+    }
+
+    private var wasOpen = false
+
+    private fun tick() {
+        val latest = Opened.latest()
+        if (latest != null) {
+            val (_, title, closes) = latest
+            remaining.text = getString(R.string.closes_talk, title.orEmpty(), Media.clock(maxOf(0L, closes - System.currentTimeMillis() + 999)))
+        }
+        closing.visibility = if (latest != null) View.VISIBLE else View.GONE
+        // Closed now: the last lines shown open are shown closed again.
+        if (latest == null && wasOpen) { if (!Opened.anyOpen()) Outbox.shut(this) ; fill() }
+        wasOpen = latest != null
+    }
+
     override fun onStart() {
         super.onStart()
+        closing.removeCallbacks(ticking)
+        ticking.run()
         runCatching { contentResolver.registerContentObserver(android.net.Uri.parse("content://mms-sms/"), true, arrivals) }
     }
 
     override fun onStop() {
+        closing.removeCallbacks(ticking)
         contentResolver.unregisterContentObserver(arrivals)
         super.onStop()
     }

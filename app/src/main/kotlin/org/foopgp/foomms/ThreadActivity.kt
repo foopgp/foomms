@@ -80,6 +80,9 @@ class ThreadActivity : AskingActivity() {
     /** The conversation in the phone's store, once it is known to have one. */
     private var thread: Long? = null
 
+    /** This conversation, as what is opened in it is counted down: none yet, the conversation of nobody. */
+    private fun here(): Long = thread ?: Opened.NO_THREAD
+
     private val voice by lazy { Voice(this) }
 
     /** The field held down while empty: record, if the microphone may be used, until it is let go. */
@@ -205,6 +208,8 @@ class ThreadActivity : AskingActivity() {
         // What is attached, said above the field; pressed, it is taken off.
         chip = Look.words(this, "", size = 16f, muted = true).apply {
             setPadding(pad * 3, pad, pad * 3, 0)
+            gravity = Gravity.CENTER
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
             visibility = View.GONE
             setOnClickListener { carry(null) }
         }
@@ -263,7 +268,7 @@ class ThreadActivity : AskingActivity() {
             setBackgroundColor(Look.pale(Verdict.YELLOW))
             visibility = View.GONE
             addView(remaining, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-            addView(Look.small(context, getString(R.string.close_now)) { Opened.close(force = true) ; tick() })
+            addView(Look.small(context, getString(R.string.close_now)) { Opened.close(here()) ; tick() })
         }
     }
     private val remaining by lazy { Look.words(this, "", size = 14f) }
@@ -279,11 +284,15 @@ class ThreadActivity : AskingActivity() {
     private var wasOpen = false
 
     private fun tick() {
-        val closes = Opened.closesAt()
+        val closes = Opened.closesAt(here())
         if (closes != null) remaining.text = getString(R.string.closes_in, Media.clock(maxOf(0L, closes - System.currentTimeMillis() + 999)))
         closing.visibility = if (closes != null) View.VISIBLE else View.GONE
         // Closed now: the bubbles show it, and the pictures opened from locked parts go with the rest.
-        if (closes == null && wasOpen) { openedThumbs.clear() ; Outbox.shut(this) ; bubbles.notifyDataSetChanged() }
+        if (closes == null && wasOpen) {
+            openedThumbs.clear()
+            if (!Opened.anyOpen()) Outbox.shut(this)
+            bubbles.notifyDataSetChanged()
+        }
         wasOpen = closes != null
     }
 
@@ -426,6 +435,7 @@ class ThreadActivity : AskingActivity() {
                 person = who ; card = whose ; face = theirs ; lines = found ; meant = theirFaces ; thumbs = small
                 hits = null
                 this.thread = thread
+                thread?.let { Opened.title(it, who?.name ?: number) }
                 // A conversation is with a number: the name it has in the address book, and under it the number
                 // and what its certificate is worth. With no name, the number is the title.
                 title = who?.name ?: number
@@ -541,7 +551,7 @@ class ThreadActivity : AskingActivity() {
             val parts = listOfNotNull(words?.let { Pdu.Part.text(it) }, piece)
             runCatching { Outbox.send(this, number, Pdu.send(transaction, listOf(number), parts), transaction) }
                 .onFailure { return@confirmMms say(getString(R.string.failed, it.message)) }
-            if (verdict != null && words != null) Opened.keep(this, words, written, null, verdict)
+            if (verdict != null && words != null) Opened.keep(this, words, written, null, verdict, thread = here())
             field.setText("")
             carry(null)
             Toast.makeText(this, getString(R.string.handed_mms, with.name), Toast.LENGTH_SHORT).show()
@@ -681,7 +691,7 @@ class ThreadActivity : AskingActivity() {
                     Outbox.send(this, number, Pdu.send(transaction, listOf(number), listOf(Pdu.Part.text(text))), transaction)
                 }
             }.onFailure { return say(getString(R.string.failed, it.message)) }
-            if (verdict != null) Opened.keep(this, text, written, null, verdict)
+            if (verdict != null) Opened.keep(this, text, written, null, verdict, thread = here())
             field.setText("")
             // The phone writes what was sent a moment after taking it.
             list.postDelayed({ if (shown) load() }, 1500)
@@ -796,7 +806,7 @@ class ThreadActivity : AskingActivity() {
         val signer = signature?.takeIf { it.result != OpenPgpSignatureResult.RESULT_NO_SIGNATURE }
         Opened.keepPiece(
             this, piece.id, told.type, name, answer.bytes, Verdict.of(pieceLocked[piece.id] != false, certified),
-            signed = Signer.said(this, signature), signer = signer?.keyId, eid = signer?.let { Signer.eid(it) },
+            signed = Signer.said(this, signature), signer = signer?.keyId, eid = signer?.let { Signer.eid(it) }, thread = here(),
         )
         if (told.type.startsWith("audio/") || told.type == "video/3gpp") Media.lasting(answer.bytes)?.let { lasts[piece.id] = it }
         if (told.type.startsWith("image/")) {
@@ -1067,7 +1077,7 @@ class ThreadActivity : AskingActivity() {
     private var offered = false
 
     private fun opened(armor: String, answer: Provider.Answer.Done, offer: Boolean) {
-        val signature = Signer.keep(this, armor, answer)
+        val signature = Signer.keep(this, armor, answer, here())
         bubbles.notifyDataSetChanged()
         // Signed, from a number that means no certificate yet: it may well mean the signer's.
         // Once a page: several signed messages from the same unknown number ask the same question.

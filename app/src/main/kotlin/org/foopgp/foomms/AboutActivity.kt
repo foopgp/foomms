@@ -25,6 +25,9 @@ class AboutActivity : Activity() {
 
     private val thirdParty = listOf("openpgp-api (thunderbird-android) — Apache License 2.0")
 
+    /** Where the component presents itself. */
+    private val thirdPartyHome = "https://github.com/thunderbird/thunderbird-android/tree/main/plugins/openpgp-api-lib"
+
     /** Left by the top, as every page but the list. */
     private val swipes by lazy { Swipes.watch(this) }
 
@@ -59,6 +62,7 @@ class AboutActivity : Activity() {
         // What the Apache 2.0 asks of whoever passes its files on: the attribution, where the application names itself.
         column.addView(heading(R.string.about_third_party))
         for (line in thirdParty) column.addView(Look.words(this, line, size = 12f).apply { typeface = Typeface.MONOSPACE })
+        column.addView(Look.button(this, getString(R.string.about_third_party_home)) { open(thirdPartyHome) })
         column.addView(Look.button(this, getString(R.string.about_licence_apache)) { open("https://www.apache.org/licenses/LICENSE-2.0") })
     }
 

@@ -175,4 +175,7 @@
     <string name="about_third_party">Third-party components</string>
     <string name="about_licence_apache">Read the Apache 2.0 licence</string>
     <string name="conf_title">Configuration</string>
+    <string name="close_all">Close all</string>
+    <string name="closes_talk">⚿ %1$s — %2$s</string>
+    <string name="about_third_party_home">See the openpgp-api page</string>
 </resources>

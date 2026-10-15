@@ -32,15 +32,22 @@ enum class Verdict(val encrypted: Boolean, val certified: Boolean) {
  * What was learnt of the PGP messages opened: their words, what carried
  * them, and what they are worth -- known from the key and held with the
  * words, in memory. What was encrypted is held for the time the person set,
- * counted from the last opening: each one winds it up again for all. Past
- * it, they close together, and are grey again: what they are worth is in
- * what the key says, and the key is asked again. What was only signed needs
- * no key, and stays.
+ * a countdown for each conversation, from the last opening in it: each one
+ * winds it up again for the whole conversation. Past it, they close
+ * together, and are grey again: what they are worth is in what the key
+ * says, and the key is asked again. What was only signed needs no key, and
+ * stays.
  */
 object Opened {
 
     /** [signer]: the key that signed, and [eid] the identifier its certificate carries, when it said so. */
-    class Read(val words: String, val signed: String?, val at: Long, val verdict: Verdict, val signer: Long? = null, val eid: String? = null)
+    class Read(
+        val words: String, val signed: String?, val at: Long, val verdict: Verdict,
+        val signer: Long? = null, val eid: String? = null, val thread: Long = NO_THREAD,
+    )
+
+    /** Opened outside any conversation known: what a message to several held, as it left. */
+    const val NO_THREAD = -1L
 
     private val read = HashMap<String, Read>()
 
@@ -51,36 +58,70 @@ object Opened {
     /** How long what was encrypted stays open after the last opening, in milliseconds. */
     @Volatile var holdFor: Long = 5 * 60_000L
 
-    /** When something encrypted was last opened; nothing open, none. */
-    @Volatile private var lastOpened = 0L
+    /** When something encrypted was last opened, conversation by conversation. */
+    private val lastOpened = HashMap<Long, Long>()
 
-    /** When what is open closes; nothing encrypted open, null. */
-    fun closesAt(now: Long = System.currentTimeMillis()): Long? {
-        close(now)
-        val open = synchronized(read) { read.values.any { it.verdict.encrypted } } || synchronized(pieces) { pieces.values.any { it.verdict.encrypted } }
-        return if (open) lastOpened + holdFor else null
+    /** What each conversation is called, for whoever shows its countdown elsewhere. */
+    private val titles = HashMap<Long, String>()
+
+    fun title(thread: Long, title: String) = synchronized(titles) { titles[thread] = title }
+
+    /** The conversations holding something encrypted open. */
+    private fun open(): Set<Long> =
+        synchronized(read) { read.values.filter { it.verdict.encrypted }.map { it.thread } }.toSet() +
+            synchronized(pieces) { pieces.values.filter { it.verdict.encrypted }.map { it.thread } }
+
+    /** When what is open in [thread] closes; nothing encrypted open there, null. */
+    fun closesAt(thread: Long, now: Long = System.currentTimeMillis()): Long? {
+        expire(now)
+        return if (thread in open()) synchronized(lastOpened) { lastOpened[thread] }?.plus(holdFor) else null
     }
 
-    /** Everything encrypted, closed: past its time, or [now] when asked to. */
-    fun close(now: Long = System.currentTimeMillis(), force: Boolean = false) {
-        if (!force && now - lastOpened <= holdFor) return
+    /** The conversation whose countdown is the longest, its title, and when it closes; nothing open, null. */
+    fun latest(now: Long = System.currentTimeMillis()): Triple<Long, String?, Long>? {
+        expire(now)
+        val thread = open().filter { it != NO_THREAD }.maxByOrNull { synchronized(lastOpened) { lastOpened[it] } ?: 0L } ?: return null
+        val at = synchronized(lastOpened) { lastOpened[thread] } ?: return null
+        return Triple(thread, synchronized(titles) { titles[thread] }, at + holdFor)
+    }
+
+    /** Whether anything encrypted is open anywhere. */
+    fun anyOpen(now: Long = System.currentTimeMillis()): Boolean {
+        expire(now)
+        return open().isNotEmpty()
+    }
+
+    /** What is encrypted in [thread], closed now. */
+    fun close(thread: Long) {
+        synchronized(read) { read.values.removeAll { it.verdict.encrypted && it.thread == thread } }
+        synchronized(pieces) { pieces.values.removeAll { it.verdict.encrypted && it.thread == thread } }
+    }
+
+    /** Everything encrypted, closed now. */
+    fun closeAll() {
         synchronized(read) { read.values.removeAll { it.verdict.encrypted } }
         synchronized(pieces) { pieces.values.removeAll { it.verdict.encrypted } }
     }
 
+    /** The conversations past their time, closed. */
+    private fun expire(now: Long) {
+        val past = synchronized(lastOpened) { lastOpened.filterValues { now - it > holdFor }.keys }
+        for (thread in past) close(thread)
+    }
+
     /** The words of a message, while it is open. */
     fun words(armor: String, now: Long = System.currentTimeMillis()): Read? {
-        close(now)
+        expire(now)
         return synchronized(read) { read[key(armor)] }
     }
 
     fun keep(
         context: Context, armor: String, words: String, signed: String?, verdict: Verdict,
-        signer: Long? = null, eid: String? = null, now: Long = System.currentTimeMillis(),
+        signer: Long? = null, eid: String? = null, thread: Long = NO_THREAD, now: Long = System.currentTimeMillis(),
     ) {
-        close(now)
-        synchronized(read) { read[key(armor)] = Read(words, signed, now, verdict, signer, eid) }
-        if (verdict.encrypted) lastOpened = now
+        expire(now)
+        synchronized(read) { read[key(armor)] = Read(words, signed, now, verdict, signer, eid, thread) }
+        if (verdict.encrypted) synchronized(lastOpened) { lastOpened[thread] = now }
         forgetOld(context)
     }
 
@@ -91,24 +132,25 @@ object Opened {
     /** What a part of an MMS held once it was opened: the file, what it is, what it is worth. */
     class Piece(
         val type: String, val name: String, val bytes: ByteArray, val at: Long, val verdict: Verdict,
-        val signed: String? = null, val signer: Long? = null, val eid: String? = null,
+        val signed: String? = null, val signer: Long? = null, val eid: String? = null, val thread: Long = NO_THREAD,
     )
 
     private val pieces = HashMap<Long, Piece>()
 
     /** A part while it is open, by its number in the phone's store. */
     fun piece(part: Long, now: Long = System.currentTimeMillis()): Piece? {
-        close(now)
+        expire(now)
         return synchronized(pieces) { pieces[part] }
     }
 
     fun keepPiece(
         context: Context, part: Long, type: String, name: String, bytes: ByteArray, verdict: Verdict,
-        signed: String? = null, signer: Long? = null, eid: String? = null, now: Long = System.currentTimeMillis(),
+        signed: String? = null, signer: Long? = null, eid: String? = null, thread: Long = NO_THREAD,
+        now: Long = System.currentTimeMillis(),
     ) {
-        close(now)
-        synchronized(pieces) { pieces[part] = Piece(type, name, bytes, now, verdict, signed, signer, eid) }
-        if (verdict.encrypted) lastOpened = now
+        expire(now)
+        synchronized(pieces) { pieces[part] = Piece(type, name, bytes, now, verdict, signed, signer, eid, thread) }
+        if (verdict.encrypted) synchronized(lastOpened) { lastOpened[thread] = now }
         forgetOld(context)
     }
 
