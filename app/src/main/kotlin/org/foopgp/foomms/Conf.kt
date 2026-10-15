@@ -19,7 +19,7 @@ object Conf {
     }
 
     const val MOST_AROUND = 7
-    private const val USUAL_AROUND = 2
+    private const val USUAL_AROUND = 3
 
     /** How many messages shown before the one pressed, and as many after, a use of the key tries to open with it; none, and it opens alone. */
     fun around(context: Context): Int = kept(context).getInt("neighbours", USUAL_AROUND).coerceIn(0, MOST_AROUND)

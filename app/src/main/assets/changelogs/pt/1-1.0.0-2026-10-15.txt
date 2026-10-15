@@ -1,4 +1,4 @@
-Primeira versão, ainda não publicada.
+Primeira versão.
 
 • Aplicação de mensagens SMS e MMS, que pode tornar-se a aplicação de mensagens do telemóvel.
 • Mensagens PGP cifradas e assinadas pelo foodjis e pela sua chave de segurança; viajam em armadura, legíveis por qualquer outra aplicação PGP.
@@ -7,3 +7,4 @@ Primeira versão, ainda não publicada.
 • Um número associado ao certificado do seu titular, na lista de contactos.
 • Anexos: fotografia, imagem, contacto, localização, ficheiro; uma mensagem de voz mantendo premido o campo vazio.
 • Pesquisa, cópia de segurança e restauro no formato do «SMS Backup & Restore».
+• Partilha de um texto, uma imagem ou um ficheiro a partir de outra aplicação, para uma ou várias pessoas.

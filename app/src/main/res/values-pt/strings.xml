@@ -152,7 +152,7 @@
     <string name="backup_working">Em curso…</string>
     <string name="backup_saved">Guardado: %1$d SMS e %2$d MMS.</string>
     <string name="backup_restored">Restaurado: %1$d SMS e %2$d MMS; %3$d já no telemóvel.</string>
-    <string name="words_or_voice">A sua mensagem, ou mantenha premido para falar</string>
+    <string name="words_or_voice">Mensagem. Escreva ⌨, ou prima para falar 🎤.</string>
     <string name="voice_too_short">Demasiado curto: nada foi gravado.</string>
     <string name="voice_failed">O telemóvel não quis gravar.</string>
     <string name="voice_ready">Mantenha o campo premido de novo para falar.</string>

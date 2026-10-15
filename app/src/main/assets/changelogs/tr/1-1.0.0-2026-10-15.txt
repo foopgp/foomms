@@ -1,4 +1,4 @@
-İlk sürüm, henüz yayımlanmadı.
+İlk sürüm.
 
 • Telefonun mesajlaşma uygulaması olabilen SMS ve MMS uygulaması.
 • foodjis ve güvenlik anahtarınız aracılığıyla şifrelenen ve imzalanan PGP mesajları; metin zırhı içinde yolculuk eder, başka her PGP uygulamasınca okunabilir.
@@ -7,3 +7,4 @@
 • Adres defterinde, sahibinin sertifikasına bağlanmış bir numara.
 • Ekler: fotoğraf, resim, kişi, konum, dosya; boş alanı basılı tutarak sesli mesaj.
 • «SMS Backup & Restore» biçiminde arama, yedekleme ve geri yükleme.
+• Başka bir uygulamadan bir metni, resmi ya da dosyayı bir veya birkaç kişiyle paylaşma.

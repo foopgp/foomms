@@ -152,7 +152,7 @@
     <string name="backup_working">Виконується…</string>
     <string name="backup_saved">Збережено: %1$d SMS і %2$d MMS.</string>
     <string name="backup_restored">Відновлено: %1$d SMS і %2$d MMS; %3$d уже були на телефоні.</string>
-    <string name="words_or_voice">Ваше повідомлення, або утримуйте, щоб говорити</string>
+    <string name="words_or_voice">Повідомлення. Введіть ⌨ або натисніть, щоб говорити 🎤.</string>
     <string name="voice_too_short">Закоротко: нічого не записано.</string>
     <string name="voice_failed">Телефон не став записувати.</string>
     <string name="voice_ready">Знову утримуйте поле, щоб говорити.</string>

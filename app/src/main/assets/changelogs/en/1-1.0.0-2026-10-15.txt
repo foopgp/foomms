@@ -1,4 +1,4 @@
-First version, not published yet.
+First version.
 
 • SMS and MMS messaging, which can become the phone's messaging application.
 • PGP messages encrypted and signed by foodjis and your security key; they travel armored, readable by any other PGP application.
@@ -7,3 +7,4 @@ First version, not published yet.
 • A number tied to its holder's certificate, in the address book.
 • Attachments: photo, picture, contact, place, file; a voice message by holding the empty field.
 • Search, backup and restore in the "SMS Backup & Restore" format.
+• Sharing a text, a picture or a file from another application, to one person or several.

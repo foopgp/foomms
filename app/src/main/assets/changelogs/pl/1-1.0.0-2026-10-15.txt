@@ -1,4 +1,4 @@
-Pierwsza wersja, jeszcze nieopublikowana.
+Pierwsza wersja.
 
 • Komunikator SMS i MMS, który może stać się aplikacją do wiadomości w telefonie.
 • Wiadomości PGP szyfrowane i podpisywane przez foodjis i twój klucz bezpieczeństwa; podróżują w opakowaniu tekstowym (armor), czytelne dla każdej innej aplikacji PGP.
@@ -7,3 +7,4 @@ Pierwsza wersja, jeszcze nieopublikowana.
 • Numer powiązany z certyfikatem jego właściciela w książce adresowej.
 • Załączniki: zdjęcie, obraz, kontakt, położenie, plik; wiadomość głosowa przez przytrzymanie pustego pola.
 • Wyszukiwanie, kopia zapasowa i przywracanie w formacie „SMS Backup & Restore”.
+• Udostępnianie tekstu, obrazu lub pliku z innej aplikacji jednej lub kilku osobom.

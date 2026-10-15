@@ -1,4 +1,4 @@
-Erste Version, noch nicht veröffentlicht.
+Erste Version.
 
 • SMS- und MMS-Messenger, der zur Nachrichten-App des Telefons werden kann.
 • PGP-Nachrichten, verschlüsselt und signiert durch foodjis und Ihren Sicherheitsschlüssel; sie reisen gepanzert (armored) und sind für jede andere PGP-Anwendung lesbar.
@@ -7,3 +7,4 @@ Erste Version, noch nicht veröffentlicht.
 • Eine Nummer, im Adressbuch mit dem Zertifikat ihres Inhabers verknüpft.
 • Anhänge: Foto, Bild, Kontakt, Standort, Datei; eine Sprachnachricht durch Gedrückthalten des leeren Feldes.
 • Suche, Sicherung und Wiederherstellung im Format von „SMS Backup & Restore“.
+• Teilen eines Textes, Bildes oder einer Datei aus einer anderen Anwendung, an eine oder mehrere Personen.

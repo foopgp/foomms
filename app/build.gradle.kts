@@ -4,7 +4,7 @@ plugins {
 
 // One per build that leaves this machine.
 val appVersionCode = 1
-val appVersionName = "0.0.1"
+val appVersionName = "1.0.0"
 
 // A build made only to be tried on a phone: -Ptry=d1 gives 0.0.1d1.
 val trial = (findProperty("try") as String?).orEmpty()
@@ -25,11 +25,34 @@ android {
         // does not compile unless asked.
         aidl = true
     }
+    // The upload key, if this machine holds one: `keystore.properties` beside
+    // the sources, never committed, names it and carries its two passwords
+    // (storeFile, storePassword, keyAlias, keyPassword), as foodjis's does.
+    // foodjis's own: Play then signs both with keys of the same account, and
+    // foodjis lets in, without asking, what is signed as it is.
+    val distribution: java.util.Properties? =
+        rootProject.file("keystore.properties").takeIf { it.isFile }?.let { file ->
+            java.util.Properties().apply { file.inputStream().use { load(it) } }
+        }
+    signingConfigs {
+        distribution?.let { held ->
+            create("distribution") {
+                // Trimmed: a Properties value keeps the space that follows it.
+                storeFile = rootProject.file(held.getProperty("storeFile").trim())
+                storePassword = held.getProperty("storePassword")
+                keyAlias = held.getProperty("keyAlias").trim()
+                keyPassword = held.getProperty("keyPassword")
+            }
+        }
+    }
     buildTypes {
         // An application of its own, which speaks to foodjis-dev: the two
         // trial applications sit on a phone beside the two published ones.
         getByName("debug") {
             applicationIdSuffix = ".dev"
+        }
+        getByName("release") {
+            signingConfig = signingConfigs.findByName("distribution")
         }
     }
     compileOptions {

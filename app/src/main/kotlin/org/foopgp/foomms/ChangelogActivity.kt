@@ -9,7 +9,8 @@ import android.widget.ScrollView
  * What changed, version by version, newest first, in the language of the
  * pages around it. Each note is a file of its own, `<code>-<version>.txt`
  * under `assets/changelogs/<language>/`: the code orders them, the version
- * is the heading.
+ * is the heading, and a date after it, `<code>-<version>-<YYYY-MM-DD>.txt`,
+ * the day it went out.
  */
 class ChangelogActivity : Activity() {
 
@@ -26,7 +27,15 @@ class ChangelogActivity : Activity() {
         setContentView(Swipes.under(this, ScrollView(this).apply { addView(column) }, getString(R.string.conf_title)))
         Edges.fit(this)
         for ((version, note) in notes()) {
-            column.addView(Look.words(this, version, size = 19f).apply { setTypeface(typeface, Typeface.BOLD) ; setPadding(0, Look.dp(context, 12), 0, 0) })
+            // The day it went out, when the file name says it: small, and grey.
+            val day = Regex("-(\\d{4}-\\d{2}-\\d{2})$").find(version)
+            val heading: CharSequence = if (day == null) version else android.text.SpannableStringBuilder(version.removeSuffix(day.value)).apply {
+                val from = length
+                append("   ").append(day.groupValues[1])
+                setSpan(android.text.style.RelativeSizeSpan(0.65f), from, length, 0)
+                setSpan(android.text.style.ForegroundColorSpan(Look.MUTED), from, length, 0)
+            }
+            column.addView(Look.words(this, heading, size = 19f).apply { setTypeface(typeface, Typeface.BOLD) ; setPadding(0, Look.dp(context, 12), 0, 0) })
             column.addView(Look.words(this, note, size = 15f).apply { setPadding(0, Look.dp(context, 4), 0, 0) })
         }
     }

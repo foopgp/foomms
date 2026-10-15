@@ -1,4 +1,4 @@
-Première version, pas encore publiée.
+Première version.
 
 • Messagerie SMS et MMS, qui peut devenir l'application de messagerie du téléphone.
 • Messages PGP chiffrés et signés par foodjis et votre clé de sécurité ; ils voyagent sous armure, lisibles par toute autre application PGP.
@@ -7,3 +7,4 @@ Première version, pas encore publiée.
 • Numéro relié au certificat de son porteur, dans le carnet d'adresses.
 • Pièces jointes : photo, image, contact, position, fichier ; message vocal en maintenant le champ vide.
 • Recherche, sauvegarde et restauration au format de « SMS Backup & Restore ».
+• Partage d'un texte, d'une image ou d'un fichier depuis une autre application, vers une ou plusieurs personnes.

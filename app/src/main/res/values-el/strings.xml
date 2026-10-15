@@ -152,7 +152,7 @@
     <string name="backup_working">Σε εξέλιξη…</string>
     <string name="backup_saved">Αποθηκεύτηκαν: %1$d SMS και %2$d MMS.</string>
     <string name="backup_restored">Επαναφέρθηκαν: %1$d SMS και %2$d MMS· %3$d υπήρχαν ήδη στο τηλέφωνο.</string>
-    <string name="words_or_voice">Το μήνυμά σας, ή κρατήστε πατημένο για να μιλήσετε</string>
+    <string name="words_or_voice">Μήνυμα. Πληκτρολογήστε ⌨, ή πατήστε για να μιλήσετε 🎤.</string>
     <string name="voice_too_short">Πολύ σύντομο: δεν ηχογραφήθηκε τίποτα.</string>
     <string name="voice_failed">Το τηλέφωνο αρνήθηκε την ηχογράφηση.</string>
     <string name="voice_ready">Κρατήστε ξανά πατημένο το πεδίο για να μιλήσετε.</string>

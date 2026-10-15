@@ -152,7 +152,7 @@
     <string name="backup_working">Sürüyor…</string>
     <string name="backup_saved">Kaydedildi: %1$d SMS ve %2$d MMS.</string>
     <string name="backup_restored">Geri yüklendi: %1$d SMS ve %2$d MMS; %3$d zaten telefondaydı.</string>
-    <string name="words_or_voice">Mesajınız, ya da konuşmak için basılı tutun</string>
+    <string name="words_or_voice">Mesaj. ⌨ ile yazın ya da konuşmak için basın 🎤.</string>
     <string name="voice_too_short">Çok kısa: hiçbir şey kaydedilmedi.</string>
     <string name="voice_failed">Telefon kayıt yapmadı.</string>
     <string name="voice_ready">Konuşmak için alanı yeniden basılı tutun.</string>

@@ -152,7 +152,7 @@
     <string name="backup_working">W toku…</string>
     <string name="backup_saved">Zapisano: %1$d SMS i %2$d MMS.</string>
     <string name="backup_restored">Przywrócono: %1$d SMS i %2$d MMS; %3$d już było w telefonie.</string>
-    <string name="words_or_voice">Twoja wiadomość lub przytrzymaj, aby mówić</string>
+    <string name="words_or_voice">Wiadomość. Wpisz ⌨ lub naciśnij, aby mówić 🎤.</string>
     <string name="voice_too_short">Za krótko: nic nie nagrano.</string>
     <string name="voice_failed">Telefon nie chciał nagrywać.</string>
     <string name="voice_ready">Przytrzymaj pole ponownie, aby mówić.</string>
