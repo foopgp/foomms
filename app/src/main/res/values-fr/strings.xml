@@ -73,7 +73,7 @@
     <string name="mms_send">Envoyer</string>
     <string name="language_name">français</string>
     <string name="conf_language">Langue</string>
-    <string name="conf_language_note">foomms parle deux langues pour l\'instant : English et français.</string>
+    <string name="conf_language_note">foomms parle 11 langues.</string>
     <string name="conf_language_change">⚑ Changer la langue de l\'application</string>
     <string name="search_all">🔍 Rechercher dans les conversations</string>
     <string name="search_here">🔍 Rechercher dans ces messages</string>
@@ -93,12 +93,12 @@
     <string name="tie">🔑 Relier à un certificat</string>
     <string name="mute">🔕 Désactiver les notifications</string>
     <string name="unmute">🔔 Activer les notifications</string>
-    <string name="forget_talk">⌫ Supprimer la conversation</string>
+    <string name="forget_talk">✖ Supprimer la conversation</string>
     <string name="forget_talk_ask">Supprimer tous les messages de la conversation avec %1$s ? Ils ne pourront pas être récupérés.</string>
     <string name="forget_yes">Supprimer</string>
     <string name="forget_failed">Rien n\'a été supprimé.</string>
     <string name="forget_not_ours">Seule l\'application de messagerie du téléphone peut supprimer des messages : faites d\'abord de foomms cette application.</string>
-    <string name="forget_message">⌫ Supprimer le message</string>
+    <string name="forget_message">✖ Supprimer le message</string>
     <string name="forget_message_ask">Supprimer ce message ? Il ne pourra pas être récupéré.</string>
     <string name="copy_text">⎘ Copier le texte</string>
     <string name="select_text">Sélectionner le texte</string>

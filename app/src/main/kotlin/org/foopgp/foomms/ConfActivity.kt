@@ -27,7 +27,8 @@ class ConfActivity : Activity() {
         title = getString(R.string.configure)
         column = Look.column(this)
         val version = runCatching { packageManager.getPackageInfo(packageName, 0).versionName }.getOrNull().orEmpty()
-        setContentView(Swipes.under(this, ScrollView(this).apply { addView(column) }, "foomms — $version"))
+        // The software product and its version, as the About page names them: foomms-dev for a trial build.
+        setContentView(Swipes.under(this, ScrollView(this).apply { addView(column) }, "${getString(R.string.app_name)} — $version"))
         Edges.fit(this)
         draw()
     }

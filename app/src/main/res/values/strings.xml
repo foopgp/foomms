@@ -75,7 +75,7 @@
     <string name="mms_send">Send</string>
     <string name="language_name">English</string>
     <string name="conf_language">Language</string>
-    <string name="conf_language_note">foomms speaks two languages for now: English and français.</string>
+    <string name="conf_language_note">foomms speaks 11 languages.</string>
     <string name="conf_language_change">⚑ Change the app\'s language</string>
     <string name="search_all">🔍 Search the conversations</string>
     <string name="search_here">🔍 Search these messages</string>
@@ -95,12 +95,12 @@
     <string name="tie">🔑 Tie to a certificate</string>
     <string name="mute">🔕 Turn notifications off</string>
     <string name="unmute">🔔 Turn notifications on</string>
-    <string name="forget_talk">⌫ Delete the conversation</string>
+    <string name="forget_talk">✖ Delete the conversation</string>
     <string name="forget_talk_ask">Delete every message of the conversation with %1$s? They cannot be brought back.</string>
     <string name="forget_yes">Delete</string>
     <string name="forget_failed">Nothing was deleted.</string>
     <string name="forget_not_ours">Only the phone\'s messaging application can delete messages: make foomms that application first.</string>
-    <string name="forget_message">⌫ Delete the message</string>
+    <string name="forget_message">✖ Delete the message</string>
     <string name="forget_message_ask">Delete this message? It cannot be brought back.</string>
     <string name="copy_text">⎘ Copy the text</string>
     <string name="select_text">Select text</string>

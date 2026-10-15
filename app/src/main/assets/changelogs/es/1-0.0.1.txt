@@ -1,0 +1,9 @@
+Primera versión, aún no publicada.
+
+• Mensajería SMS y MMS, que puede convertirse en la aplicación de mensajería del teléfono.
+• Mensajes PGP cifrados y firmados por foodjis y su llave de seguridad; viajan en armadura, legibles por cualquier otra aplicación PGP.
+• Los colores de foodjis: verde cifrado y certificado, azul firmado y certificado, amarillo cifrado, rojo en claro y sin certificar, gris cerrado.
+• Los mensajes solo firmados se comprueban en cuanto se muestran; los cifrados se abren con una sola presentación de la llave, con su ventana de descifrado, y se vuelven a cerrar al cabo del tiempo elegido.
+• Un número vinculado al certificado de su titular, en la libreta de direcciones.
+• Adjuntos: foto, imagen, contacto, ubicación, archivo; un mensaje de voz manteniendo pulsado el campo vacío.
+• Búsqueda, copia de seguridad y restauración en el formato de «SMS Backup & Restore».
