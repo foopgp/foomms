@@ -139,7 +139,7 @@ class MainActivity : Activity() {
      * answered for all of them.
      */
     private fun verifySigned(found: List<Row>) {
-        val asked = found.mapNotNull { Pgp.armorIn(it.talk.last)?.let { a -> Opened.inner(a) } }
+        val asked = found.mapNotNull { Pgp.armorIn(it.talk.last) }
             .filter { !Pgp.isLocked(it) && Opened.words(it) == null && verifying.add(it) }
         var left = asked.size
         var any = false
@@ -316,7 +316,7 @@ class MainActivity : Activity() {
                 }
                 // The face read here, off the page: drawn where it is shown, a contact's picture held the list still.
                 val face = person?.let { Book.face(this, it) } ?: person?.fingerprint?.let { foodjis.face(it) }
-                val armor = Pgp.armorIn(talk.last)?.let { Opened.inner(it) }
+                val armor = Pgp.armorIn(talk.last)
                 val verdict = when {
                     armor == null -> Verdict.RED
                     // Not opened yet: nothing tells what it is worth, signed or not, before the key does.

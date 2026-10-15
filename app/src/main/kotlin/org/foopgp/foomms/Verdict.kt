@@ -125,22 +125,6 @@ object Opened {
         forgetOld(context)
     }
 
-    /**
-     * The message a PGP message holds, as far as it has been opened: a message
-     * locked or signed again as it stood -- shared from foodjis, then locked
-     * on the way out -- opens onto another armor, and that one is the
-     * message. The innermost reached, open or not.
-     */
-    fun inner(armor: String): String {
-        var at = armor
-        repeat(8) {
-            val opened = words(at) ?: return at
-            val next = Pgp.armorIn(opened.words)?.takeIf { it != at } ?: return at
-            at = next
-        }
-        return at
-    }
-
     /** What a message is worth while it is open; closed, nothing -- and it is shown grey. */
     @Suppress("UNUSED_PARAMETER")
     fun verdict(context: Context, armor: String): Verdict? = words(armor)?.verdict

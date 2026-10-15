@@ -733,8 +733,11 @@ class ThreadActivity : AskingActivity() {
         class Part(override val line: Store.Line, val piece: Store.Piece, val bytes: ByteArray) : Job()
     }
 
-    /** A line's PGP message: the innermost reached of what it holds ([Opened.inner]), or none. */
-    private fun armorOf(line: Store.Line): String? = Pgp.armorIn(line.body)?.let { Opened.inner(it) }
+    /**
+     * A line's PGP message, or none: the first envelope, and no further -- a
+     * message whose words are themselves a PGP message shows them as they are.
+     */
+    private fun armorOf(line: Store.Line): String? = Pgp.armorIn(line.body)
 
     /** Whether a message holds something encrypted still closed: its words, or a part. */
     private fun lockedAndClosed(line: Store.Line): Boolean =
@@ -1012,11 +1015,12 @@ class ThreadActivity : AskingActivity() {
             val weights = line.pieces.associate { it.id to Media.weight(this, it.uri) }
             // Who signed, as foodjis knows them: the key named by the signature is all the message says.
             val signer = sealOf(line)?.signer?.let { foodjis.signer(it) }
-            runOnUiThread { if (!isFinishing && !isDestroyed) details(line, weights, signer) }
+            val signerFace = signer?.let { foodjis.face(it.fingerprint) }
+            runOnUiThread { if (!isFinishing && !isDestroyed) details(line, weights, signer, signerFace) }
         }
     }
 
-    private fun details(line: Store.Line, weights: Map<Long, Long>, signer: Foodjis.Cert?) {
+    private fun details(line: Store.Line, weights: Map<Long, Long>, signer: Foodjis.Cert?, signerFace: Bitmap?) {
         val armor = armorOf(line)
         val precise = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM)
         val told = buildString {
@@ -1033,31 +1037,44 @@ class ThreadActivity : AskingActivity() {
                 lasts[piece.id]?.let { append(" — ").append(Media.clock(it)) }
                 append('\n')
             }
-            val lockedWords = armor != null && Pgp.isLocked(armor)
-            val lockedParts = line.pieces.filter(::isLockedPiece)
-            if (armor != null && !lockedWords) append(getString(R.string.detail_signed)).append('\n')
-            if (lockedWords || lockedParts.isNotEmpty()) {
-                append(getString(R.string.detail_locked)).append('\n')
-                val keys = (armor?.takeIf { lockedWords }?.let { Pgp.recipients(it) }.orEmpty() + lockedParts.flatMap { sealedFor[it.id].orEmpty() }).distinct()
-                for (id in keys) {
-                    append("•  ").append(meant[id]?.name ?: getString(R.string.detail_unknown_key)).append("  0x%016X".format(id)).append('\n')
-                }
-            }
-            sealOf(line)?.let { seal ->
-                seal.signed?.let { append(it).append('\n') }
+        }
+        // Then what PGP says of it, the people it names each behind their picture.
+        val column = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            val pad = Look.dp(context, 20)
+            setPadding(pad, pad / 2, pad, 0)
+        }
+        fun text(words: CharSequence) = column.addView(Look.words(this, words, size = 15f).apply { setTextIsSelectable(true) })
+        fun person(face: Bitmap?, words: CharSequence) = column.addView(
+            LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(0, Look.dp(context, 3), 0, Look.dp(context, 3))
+                addView(Look.face(context, 32, null, face))
+                addView(Look.words(context, words, size = 15f).apply { setTextIsSelectable(true) ; setPadding(Look.dp(context, 10), 0, 0, 0) })
+            },
+        )
+        text(told.trimEnd())
+        val lockedWords = armor != null && Pgp.isLocked(armor)
+        val lockedParts = line.pieces.filter(::isLockedPiece)
+        if (armor != null && !lockedWords) text(getString(R.string.detail_signed))
+        if (lockedWords || lockedParts.isNotEmpty()) {
+            text(getString(R.string.detail_locked))
+            val keys = (armor?.takeIf { lockedWords }?.let { Pgp.recipients(it) }.orEmpty() + lockedParts.flatMap { sealedFor[it.id].orEmpty() }).distinct()
+            for (id in keys) person(meant[id]?.face, (meant[id]?.name ?: getString(R.string.detail_unknown_key)) + "\n0x%016X".format(id))
+        }
+        sealOf(line)?.let { seal ->
+            seal.signed?.let { if (signer != null) person(signerFace, it) else text(it) }
+            val more = buildString {
                 seal.signer?.let { append(getString(R.string.detail_signer_key, "%016X".format(it))).append('\n') }
                 signer?.let { append(getString(R.string.detail_signer_fpr, it.fingerprint.chunked(4).joinToString(" "))).append('\n') }
                 (signer?.eid ?: seal.eid)?.let { append(getString(R.string.detail_signer_eid, it)).append('\n') }
             }
+            if (more.isNotEmpty()) text(more.trimEnd())
         }
         AlertDialog.Builder(this)
             .setTitle(R.string.details)
-            .setView(
-                android.widget.ScrollView(this).apply {
-                    val pad = Look.dp(context, 20)
-                    addView(Look.words(context, told.trimEnd(), size = 15f).apply { setTextIsSelectable(true) ; setPadding(pad, pad / 2, pad, 0) })
-                },
-            )
+            .setView(android.widget.ScrollView(this).apply { addView(column) })
             .setPositiveButton(R.string.close, null)
             .show()
     }
@@ -1090,8 +1107,6 @@ class ThreadActivity : AskingActivity() {
     private fun opened(armor: String, answer: Provider.Answer.Done, offer: Boolean) {
         val signature = Signer.keep(this, armor, answer, here())
         bubbles.notifyDataSetChanged()
-        // Opened onto another message: signed only, it is read at once; locked, a press opens it.
-        verifySigned()
         // Signed, from a number that means no certificate yet: it may well mean the signer's.
         // Once a page: several signed messages from the same unknown number ask the same question.
         if (offer && !offered && person?.fingerprint == null && signature?.result in VALID) {
@@ -1245,6 +1260,10 @@ class ThreadActivity : AskingActivity() {
                 if (line.incoming) addView(mark, stripe)
                 addView(bubble, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
                 if (!line.incoming) addView(mark, stripe)
+                // The presses taken here, the whole row: a row holding a button -- a sound to play -- is no longer
+                // one the list hands its presses to, and a long press beside the button did nothing.
+                setOnClickListener { pressed(at) }
+                setOnLongClickListener { about(at) ; true }
             }
         }
     }
