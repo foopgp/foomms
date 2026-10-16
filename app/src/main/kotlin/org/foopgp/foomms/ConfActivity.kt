@@ -2,9 +2,9 @@ package org.foopgp.foomms
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
-import android.content.Intent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -15,6 +15,11 @@ import android.widget.SeekBar
 class ConfActivity : Activity() {
 
     private lateinit var column: LinearLayout
+
+    private val provider by lazy { Provider(this) }
+
+    /** Whether foodjis holds an identity to encrypt to: unknown until it has said. */
+    private var holdsOne: Boolean? = null
 
     /** Left by the top, as every page but the list. */
     private val swipes by lazy { Swipes.watch(this) }
@@ -31,6 +36,16 @@ class ConfActivity : Activity() {
         setContentView(Swipes.under(this, ScrollView(this).apply { addView(column) }, "${getString(R.string.app_name)} — $version"))
         Edges.fit(this)
         draw()
+        // No identity in foodjis, nothing to encrypt to oneself: that switch is greyed, and off.
+        provider.ask(Intent(Provider.GET_SIGN_KEY_ID), null) { answer ->
+            holdsOne = answer is Provider.Answer.Done && answer.says.getLongExtra(Provider.EXTRA_SIGN_KEY_ID, 0L) != 0L
+            if (!isFinishing && !isDestroyed) draw()
+        }
+    }
+
+    override fun onDestroy() {
+        provider.close()
+        super.onDestroy()
     }
 
     override fun onResume() {
@@ -134,7 +149,7 @@ class ConfActivity : Activity() {
         )
 
         heading(R.string.conf_myself)
-        column.addView(flip(R.string.conf_to_myself, Conf.toMyself(this)) { Conf.toMyself(this, it) })
+        column.addView(flip(R.string.conf_to_myself, Conf.toMyself(this), usable = holdsOne != false) { Conf.toMyself(this, it) })
         note(R.string.conf_to_myself_note)
 
         heading(R.string.backup_all)
@@ -163,11 +178,14 @@ class ConfActivity : Activity() {
         Saving.done(this, request, outcome, data, ::backedUp)
     }
 
-    private fun flip(words: Int, on: Boolean, then: (Boolean) -> Unit) = android.widget.Switch(this).apply {
+    /** A switch of the configuration; greyed, it shows off, and what it is set to is kept for when it is usable again. */
+    private fun flip(words: Int, on: Boolean, usable: Boolean = true, then: (Boolean) -> Unit) = android.widget.Switch(this).apply {
         text = getString(words)
         textSize = 17f
         setTextColor(Look.INK)
-        isChecked = on
+        isChecked = on && usable
+        isEnabled = usable
+        if (!usable) alpha = 0.38f
         setOnCheckedChangeListener { _, now -> then(now) }
     }
 
