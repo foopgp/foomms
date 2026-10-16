@@ -322,7 +322,8 @@ class MainActivity : Activity() {
      * read, the rest behind them; or, when only the unread are wanted, those
      * alone, which are few. A phone holds years of messages: what was worked
      * out once -- who a number is, the line of a conversation that has not
-     * changed -- is kept for as long as the application runs.
+     * changed -- is kept for as long as the application runs; the badge of
+     * the certificate only is asked again.
      */
     private fun fill() {
         val contacts = checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
@@ -332,7 +333,12 @@ class MainActivity : Activity() {
         thread {
             val foodjis = Foodjis.of(this)
             fun row(talk: Store.Talk): Row {
-                synchronized(lines) { lines[talk.thread] }?.takeIf { it.talk.at == talk.at && it.talk.unread == talk.unread && it.talk.last == talk.last }?.let { return it }
+                // A line kept is kept but for its badge: what foodjis says of the certificate changes there, unseen here.
+                synchronized(lines) { lines[talk.thread] }?.takeIf { it.talk.at == talk.at && it.talk.unread == talk.unread && it.talk.last == talk.last }?.let { kept ->
+                    val now = kept.person?.fingerprint?.let { foodjis.card(it)?.validity }
+                    return if (now == kept.standing) kept else Row(kept.talk, kept.person, kept.face, kept.name, kept.verdict, kept.last, now)
+                        .also { synchronized(lines) { lines[talk.thread] = it } }
+                }
                 val person = talk.number?.takeIf { contacts }?.let { number ->
                     synchronized(people) { if (people.containsKey(number)) return@let people[number] }
                     Book.who(this, number).also { synchronized(people) { people[number] = it } }
