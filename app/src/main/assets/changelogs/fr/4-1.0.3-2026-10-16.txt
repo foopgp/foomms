@@ -1,0 +1,2 @@
+• Le statut d'un certificat relié (certifié, révoqué…) suit ce qu'en dit foodjis, dans les conversations comme dans leur liste.
+• L'identité que porte foodjis est redemandée à chaque retour sur une conversation.

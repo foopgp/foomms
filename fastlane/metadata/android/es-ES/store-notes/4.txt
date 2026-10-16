@@ -1,0 +1,1 @@
+El estado de un certificado vinculado (certificado, revocado…) sigue lo que dice foodjis, en las conversaciones como en su lista. La identidad que lleva foodjis se vuelve a pedir cada vez que se vuelve a una conversación.
