@@ -186,4 +186,5 @@
     <string name="clipboard_empty">Нечего вставить: буфер обмена пуст.</string>
     <string name="restricted_hint">Установленный из файла foomms сможет читать и отправлять SMS, только когда Android это разрешит: в настройках foomms, меню ⋮ в правом верхнем углу, выберите «Разрешить настройки с ограниченным доступом», затем вернитесь сюда и нажмите «Разрешить».</string>
     <string name="restricted_open">Открыть настройки foomms</string>
+    <string name="copy">Копировать</string>
 </resources>

@@ -186,4 +186,5 @@
     <string name="clipboard_empty">Yapıştırılacak bir şey yok: pano boş.</string>
     <string name="restricted_hint">Bir dosyadan kurulan foomms, ancak Android izin verdiğinde SMS okuyup gönderebilir: foomms ayarlarında, sağ üstteki ⋮ menüsünden «Kısıtlanmış ayarlara izin ver»i seçin, sonra buraya dönüp İzin ver\'e basın.</string>
     <string name="restricted_open">foomms ayarlarını aç</string>
+    <string name="copy">Kopyala</string>
 </resources>

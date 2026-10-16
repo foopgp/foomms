@@ -186,4 +186,5 @@
     <string name="clipboard_empty">Τίποτα για επικόλληση: το πρόχειρο είναι κενό.</string>
     <string name="restricted_hint">Εγκατεστημένο από αρχείο, το foomms μπορεί να διαβάζει και να στέλνει SMS μόνο όταν το επιτρέψει το Android: στις ρυθμίσεις του foomms, το μενού ⋮ πάνω δεξιά, επιλέξτε «Να επιτρέπονται οι περιορισμένες ρυθμίσεις», μετά επιστρέψτε εδώ και πατήστε Να επιτρέπεται.</string>
     <string name="restricted_open">Άνοιγμα ρυθμίσεων του foomms</string>
+    <string name="copy">Αντιγραφή</string>
 </resources>

@@ -164,6 +164,26 @@ object Look {
         setOnClickListener(then)
     }
 
+    /**
+     * A page's title in its bar, on one line and smaller as it grows longer: "Rechercher dans les conversations"
+     * was cut. The page keeps the title for what reads the screen aloud.
+     */
+    fun barTitle(activity: Activity, text: CharSequence) {
+        activity.title = text
+        val bar = activity.actionBar ?: return
+        val shown = (bar.customView as? TextView) ?: TextView(activity).apply {
+            setTextColor(ORANGE)
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            maxLines = 1
+            setAutoSizeTextTypeUniformWithConfiguration(12, 20, 1, android.util.TypedValue.COMPLEX_UNIT_SP)
+            bar.setDisplayShowTitleEnabled(false)
+            bar.setDisplayShowCustomEnabled(true)
+            bar.customView = this
+            layoutParams = android.app.ActionBar.LayoutParams(android.app.ActionBar.LayoutParams.MATCH_PARENT, android.app.ActionBar.LayoutParams.WRAP_CONTENT)
+        }
+        shown.text = text
+    }
+
     fun dp(context: Context, value: Int): Int =
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value.toFloat(), context.resources.displayMetrics).toInt()
 

@@ -186,4 +186,5 @@
     <string name="clipboard_empty">Нічого вставити: буфер обміну порожній.</string>
     <string name="restricted_hint">Установлений із файлу foomms зможе читати й надсилати SMS, лише коли Android це дозволить: у налаштуваннях foomms, меню ⋮ у правому верхньому куті, виберіть «Дозволити обмежені налаштування», потім поверніться сюди й натисніть «Дозволити».</string>
     <string name="restricted_open">Відкрити налаштування foomms</string>
+    <string name="copy">Копіювати</string>
 </resources>

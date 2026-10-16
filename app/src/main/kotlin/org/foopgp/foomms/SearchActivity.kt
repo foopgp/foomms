@@ -111,7 +111,7 @@ class SearchActivity : Activity() {
     }
 
     private fun dressFor() {
-        title = getString(if (number != null) R.string.search_here else if (inContacts) R.string.search_contacts else R.string.search_all)
+        Look.barTitle(this, getString(if (number != null) R.string.search_here else if (inContacts) R.string.search_contacts else R.string.search_all))
         asked.setHint(if (inContacts) R.string.whom_hint else R.string.search_hint)
         where.text = getString(if (inContacts) R.string.contacts else R.string.talks) + " ▾"
         hits = emptyList()

@@ -1107,19 +1107,29 @@ class ThreadActivity : AskingActivity() {
      * of it. In a window of its own: a list redraws its lines as it scrolls,
      * and a selection does not survive that.
      */
+    /**
+     * The text to select from, its web addresses pressable as in a page; Copy takes what is selected, or all
+     * of it when nothing is.
+     */
     private fun select(text: String, armored: Boolean) {
         val pad = Look.dp(this, 20)
+        val shown = Look.words(this, text, size = if (armored) 12f else 16f).apply {
+            // A selectable text still follows its links when it was linked by itself: the mask, then the text again.
+            if (!armored) autoLinkMask = android.text.util.Linkify.WEB_URLS
+            setText(text)
+            setTextIsSelectable(true)
+            setPadding(pad, pad, pad, 0)
+        }
         AlertDialog.Builder(this)
-            .setView(
-                android.widget.ScrollView(this).apply {
-                    addView(
-                        Look.words(context, text, size = if (armored) 12f else 16f).apply {
-                            setTextIsSelectable(true)
-                            setPadding(pad, pad, pad, 0)
-                        },
-                    )
-                },
-            )
+            .setView(android.widget.ScrollView(this).apply { addView(shown) })
+            .setNeutralButton(R.string.copy) { _, _ ->
+                val from = minOf(shown.selectionStart, shown.selectionEnd)
+                val to = maxOf(shown.selectionStart, shown.selectionEnd)
+                val taken = if (from in 0 until to) shown.text.subSequence(from, to).toString() else text
+                getSystemService(android.content.ClipboardManager::class.java)
+                    ?.setPrimaryClip(android.content.ClipData.newPlainText(getString(R.string.message), taken))
+                Toast.makeText(this, R.string.copied, Toast.LENGTH_SHORT).show()
+            }
             .setPositiveButton(R.string.close, null)
             .show()
     }

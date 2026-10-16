@@ -188,4 +188,5 @@
     <string name="clipboard_empty">Nothing to paste: the clipboard is empty.</string>
     <string name="restricted_hint">Installed from a file, foomms may read and send SMS only once Android allows it: in foomms\'s settings, open the ⋮ menu at the top right and choose \"Allow restricted settings\", then come back here and press Allow.</string>
     <string name="restricted_open">Open foomms\'s settings</string>
+    <string name="copy">Copy</string>
 </resources>
