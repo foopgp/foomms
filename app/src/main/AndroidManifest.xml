@@ -37,6 +37,15 @@
         <intent>
             <action android:name="org.openintents.openpgp.IOpenPgpService2" />
         </intent>
+        <!-- The dialler and the camera, asked before being offered: "Call" in
+             a conversation's menu, "Take a photo" in its attachments. -->
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+            <data android:scheme="tel" />
+        </intent>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
     </queries>
 
     <application
