@@ -1,0 +1,11 @@
+İlk sürüm.
+
+foomms, SMS ve MMS'lerinizi foodjis ve güvenlik anahtarınız aracılığıyla PGP ile şifrelenmiş ve imzalanmış olarak gönderir ve alır.
+
+• foodjis renkleri: yeşil, mavi, sarı, kırmızı, gri
+• Sahibinin sertifikasına bağlı numara
+• Fotoğraflar, dosyalar, kişiler, konum, sesli mesajlar
+• Arama, yedekleme ve geri yükleme
+• On bir dil
+
+Özgür, GPL-3.0, hesap ve reklam yok.
