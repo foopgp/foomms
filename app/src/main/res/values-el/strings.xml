@@ -132,7 +132,7 @@
     <string name="cert_refresh">⟳ Ενημέρωση από το πιστοποιητικό</string>
     <string name="cert_forget">⌫ Λήθη του πιστοποιητικού</string>
     <string name="whom_so_far">Προς: %1$s   ✕</string>
-    <string name="whom_write">Σύνταξη</string>
+    <string name="whom_write">✎ Σύνταξη</string>
     <string name="many_title">Για %1$d άτομα</string>
     <string name="many_sent">Παραδόθηκε στο τηλέφωνο, για %1$d άτομα.</string>
     <string name="many_failed">Δεν στάλθηκε σε: %1$s</string>
@@ -180,4 +180,8 @@
     <string name="install_foodjis">Εγκατάσταση του %1$s</string>
     <string name="write_to">Γράψτε στο %1$s</string>
     <string name="decrypt_this">⚿ Αποκρυπτογράφηση αυτού του μηνύματος</string>
+    <string name="search_contacts">🔍 Αναζήτηση στις επαφές</string>
+    <string name="contacts">Επαφές</string>
+    <string name="attach_text">📋 Κείμενο</string>
+    <string name="clipboard_empty">Τίποτα για επικόλληση: το πρόχειρο είναι κενό.</string>
 </resources>

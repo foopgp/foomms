@@ -132,7 +132,7 @@
     <string name="cert_refresh">⟳ Aus dem Zertifikat aktualisieren</string>
     <string name="cert_forget">⌫ Zertifikat vergessen</string>
     <string name="whom_so_far">An: %1$s   ✕</string>
-    <string name="whom_write">Schreiben</string>
+    <string name="whom_write">✎ Schreiben</string>
     <string name="many_title">An %1$d Personen</string>
     <string name="many_sent">An das Telefon übergeben, für %1$d Personen.</string>
     <string name="many_failed">Nicht gesendet an: %1$s</string>
@@ -180,4 +180,8 @@
     <string name="install_foodjis">%1$s installieren</string>
     <string name="write_to">An %1$s schreiben</string>
     <string name="decrypt_this">⚿ Diese Nachricht entschlüsseln</string>
+    <string name="search_contacts">🔍 In den Kontakten suchen</string>
+    <string name="contacts">Kontakte</string>
+    <string name="attach_text">📋 Einen Text</string>
+    <string name="clipboard_empty">Nichts einzufügen: die Zwischenablage ist leer.</string>
 </resources>

@@ -7,7 +7,8 @@ import android.widget.Switch
 
 /**
  * A switch between its glyph and its verb: "✍ ⊙ Sign". Greyed, the three
- * are; a press on the glyph or the verb flips it as on the switch.
+ * are, and the switch shows off whatever it was; enabled again, it shows
+ * what it was. A press on the glyph or the verb flips it as on the switch.
  */
 class Flip(context: Context, glyph: String, verb: Int, changed: () -> Unit) : LinearLayout(context) {
 
@@ -17,11 +18,25 @@ class Flip(context: Context, glyph: String, verb: Int, changed: () -> Unit) : Li
         maxLines = 1
         setAutoSizeTextTypeUniformWithConfiguration(9, 14, 1, android.util.TypedValue.COMPLEX_UNIT_SP)
     }
-    private val switch = Switch(context).apply { setOnCheckedChangeListener { _, _ -> changed() } }
+    /** What the switch is set to, which it shows only while it can be used. */
+    private var wanted = false
+    private var showing = false
+    private val switch = Switch(context).apply {
+        setOnCheckedChangeListener { _, on ->
+            if (!showing) wanted = on
+            changed()
+        }
+    }
 
     var isChecked: Boolean
-        get() = switch.isChecked
-        set(value) { switch.isChecked = value }
+        get() = wanted
+        set(value) { wanted = value ; show() }
+
+    private fun show() {
+        showing = true
+        switch.isChecked = wanted && switch.isEnabled
+        showing = false
+    }
 
     init {
         orientation = HORIZONTAL
@@ -35,6 +50,7 @@ class Flip(context: Context, glyph: String, verb: Int, changed: () -> Unit) : Li
     override fun setEnabled(enabled: Boolean) {
         super.setEnabled(enabled)
         switch.isEnabled = enabled
+        show()
         mark.alpha = if (enabled) 1f else 0.38f
         word.alpha = if (enabled) 1f else 0.38f
     }

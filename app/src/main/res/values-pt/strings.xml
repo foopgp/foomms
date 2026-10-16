@@ -132,7 +132,7 @@
     <string name="cert_refresh">⟳ Atualizar a partir do certificado</string>
     <string name="cert_forget">⌫ Esquecer o certificado</string>
     <string name="whom_so_far">Para: %1$s   ✕</string>
-    <string name="whom_write">Escrever</string>
+    <string name="whom_write">✎ Escrever</string>
     <string name="many_title">Para %1$d pessoas</string>
     <string name="many_sent">Entregue ao telemóvel, para %1$d pessoas.</string>
     <string name="many_failed">Não enviado para: %1$s</string>
@@ -180,4 +180,8 @@
     <string name="install_foodjis">Instalar o %1$s</string>
     <string name="write_to">Escrever para %1$s</string>
     <string name="decrypt_this">⚿ Decifrar esta mensagem</string>
+    <string name="search_contacts">🔍 Pesquisar nos contactos</string>
+    <string name="contacts">Contactos</string>
+    <string name="attach_text">📋 Um texto</string>
+    <string name="clipboard_empty">Nada para colar: a área de transferência está vazia.</string>
 </resources>

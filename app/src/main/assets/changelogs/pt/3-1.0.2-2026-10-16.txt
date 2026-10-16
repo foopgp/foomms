@@ -1,0 +1,3 @@
+• Pesquisar, a partir da lista de conversas, procura primeiro em todos os contactos, cada um com o seu botão «Escrever»; um seletor passa para as conversas, e a página guarda a escolha.
+• Anexos: «Um texto» cola o que foi copiado.
+• Um interruptor a cinzento está sempre desligado.

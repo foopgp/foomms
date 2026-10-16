@@ -17,9 +17,12 @@ import android.widget.ListView
 import kotlin.concurrent.thread
 
 /**
- * Looking for a message by its words: in every conversation, or in the one
- * the search was asked from. A PGP message is found by what it says only
- * while it is open; closed, nobody here knows what it says.
+ * Looking for someone, or for a message by its words. From the list of
+ * conversations it looks first in the contacts -- all of them, those one has
+ * never written to as well -- each with its button to write; a selector beside
+ * the field turns it to the conversations, and the page keeps the choice.
+ * From a conversation it looks in that one only. A PGP message is found by
+ * what it says only while it is open; closed, nobody here knows what it says.
  */
 class SearchActivity : Activity() {
 
@@ -27,6 +30,16 @@ class SearchActivity : Activity() {
     private var hits: List<Store.Hit> = emptyList()
     private val names = HashMap<String, String>()
     private var turn = 0
+
+    /** Somebody one can write to, as the page of a new message shows them. */
+    private class Whom(val number: String, val name: String, val face: android.graphics.Bitmap?, val typed: Boolean = false)
+
+    private var people: List<Whom> = emptyList()
+    private var inContacts = false
+    private lateinit var asked: EditText
+    private lateinit var where: android.widget.Button
+
+    private val foodjis by lazy { Foodjis.of(this) }
 
     /** Left by the top, as every page but the list. */
     private val swipes by lazy { Swipes.watch(this) }
@@ -36,9 +49,8 @@ class SearchActivity : Activity() {
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
         super.onCreate(state)
-        title = getString(if (number == null) R.string.search_all else R.string.search_here)
-        val asked = EditText(this).apply {
-            setHint(R.string.search_hint)
+        inContacts = number == null && Conf.searchContacts(this)
+        asked = EditText(this).apply {
             inputType = InputType.TYPE_CLASS_TEXT
             setSingleLine()
             addTextChangedListener(
@@ -53,6 +65,7 @@ class SearchActivity : Activity() {
             divider = null
             adapter = found
             setOnItemClickListener { _, _, at, _ ->
+                if (inContacts) return@setOnItemClickListener people.getOrNull(at)?.let { write(it.number) } ?: Unit
                 val hit = hits[at]
                 hit.number?.let {
                     startActivity(
@@ -67,15 +80,73 @@ class SearchActivity : Activity() {
             LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 setPadding(pad, pad, pad, 0)
-                addView(asked)
+                addView(
+                    LinearLayout(context).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        gravity = android.view.Gravity.CENTER_VERTICAL
+                        addView(asked, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                        // Where to look, beside what to look for: only from the list of conversations.
+                        where = Look.small(context, "") { choose() }
+                        if (number == null) addView(where)
+                    },
+                )
                 addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
             },
         )
         Edges.fit(this)
+        dressFor()
         asked.requestFocus()
     }
 
+    /** The contacts or the conversations, asked in their own words; the choice is kept for the next time. */
+    private fun choose() {
+        val labels = arrayOf(getString(R.string.search_contacts), getString(R.string.search_all))
+        android.app.AlertDialog.Builder(this)
+            .setItems(labels) { _, which ->
+                inContacts = which == 0
+                Conf.searchContacts(this, inContacts)
+                dressFor()
+            }
+            .show()
+    }
+
+    private fun dressFor() {
+        title = getString(if (number != null) R.string.search_here else if (inContacts) R.string.search_contacts else R.string.search_all)
+        asked.setHint(if (inContacts) R.string.whom_hint else R.string.search_hint)
+        where.text = getString(if (inContacts) R.string.contacts else R.string.talks) + " ▾"
+        hits = emptyList()
+        people = emptyList()
+        found.notifyDataSetChanged()
+        look(asked.text.toString())
+    }
+
+    private fun write(to: String) =
+        startActivity(Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, to))
+
+    /** The contacts that hold what is typed -- all of them, nothing typed -- and a number typed in full, as it is. */
+    private fun lookContacts(typed: String) {
+        val mine = ++turn
+        thread {
+            val found = ArrayList<Whom>()
+            Phone.plain(typed)?.let { found += Whom(it, it, null, typed = true) }
+            if (checkSelfPermission(android.Manifest.permission.READ_CONTACTS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                for (one in Book.find(this, typed, MOST_CONTACTS)) {
+                    if (found.any { Phone.same(it.number, one.number) }) continue
+                    val person = Book.who(this, one.number)
+                    val face = person?.let { Book.face(this, it) } ?: person?.fingerprint?.let { foodjis.face(it) }
+                    found += Whom(one.number, one.name, face)
+                }
+            }
+            runOnUiThread {
+                if (isFinishing || isDestroyed || mine != turn || !inContacts) return@runOnUiThread
+                people = found
+                this.found.notifyDataSetChanged()
+            }
+        }
+    }
+
     private fun look(wanted: String) {
+        if (inContacts) return lookContacts(wanted)
         val mine = ++turn
         thread {
             val within = number?.let { runCatching { Store.thread(this, it) }.getOrNull() ?: -1L }
@@ -90,7 +161,7 @@ class SearchActivity : Activity() {
             }
             runOnUiThread {
                 // An answer to what was typed three letters ago is no answer to what is typed now.
-                if (isFinishing || isDestroyed || mine != turn) return@runOnUiThread
+                if (isFinishing || isDestroyed || mine != turn || inContacts) return@runOnUiThread
                 hits = results
                 found.notifyDataSetChanged()
             }
@@ -98,12 +169,37 @@ class SearchActivity : Activity() {
     }
 
     private val found = object : BaseAdapter() {
-        override fun getCount() = hits.size
-        override fun getItem(at: Int) = hits[at]
+        override fun getCount() = if (inContacts) people.size else hits.size
+        override fun getItem(at: Int): Any = if (inContacts) people[at] else hits[at]
         override fun getItemId(at: Int) = at.toLong()
 
-        override fun getView(at: Int, old: View?, parent: ViewGroup): View {
-            val hit = hits[at]
+        override fun getView(at: Int, old: View?, parent: ViewGroup): View =
+            if (inContacts) person(people[at]) else message(hits[at])
+
+        /** A contact as the page of a new message shows them, with its own button to write. */
+        private fun person(one: Whom): View {
+            val context = this@SearchActivity
+            val pad = Look.dp(context, 8)
+            return LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                setPadding(0, pad, 0, pad)
+                addView(Look.face(context, 44, null, one.face))
+                addView(
+                    LinearLayout(context).apply {
+                        orientation = LinearLayout.VERTICAL
+                        setPadding(Look.dp(context, 12), 0, Look.dp(context, 8), 0)
+                        val title = if (one.typed) getString(R.string.write_to, one.number) else one.name
+                        addView(Look.words(context, title, size = 16f).apply { setTypeface(typeface, android.graphics.Typeface.BOLD) ; maxLines = 1 })
+                        if (!one.typed && one.name != one.number) addView(Look.words(context, one.number, size = 14f, muted = true))
+                    },
+                    LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+                )
+                addView(Look.small(context, getString(R.string.whom_write)) { write(one.number) }.apply { isFocusable = false })
+            }
+        }
+
+        private fun message(hit: Store.Hit): View {
             val context = this@SearchActivity
             val who = hit.number?.let { synchronized(names) { names[it] } ?: it } ?: getString(R.string.unknown_number)
             val about = getString(if (hit.incoming) R.string.hit_from else R.string.hit_to, who) + "  ·  " +
@@ -125,5 +221,8 @@ class SearchActivity : Activity() {
     companion object {
         /** The conversation to look in; none, and every conversation is looked in. */
         const val EXTRA_NUMBER = "number"
+
+        /** How many contacts the list shows at most. */
+        private const val MOST_CONTACTS = 200
     }
 }

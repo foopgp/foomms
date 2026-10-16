@@ -609,8 +609,8 @@ class ThreadActivity : AskingActivity() {
 
     /**
      * What a message can carry: a photograph taken now, a picture, a
-     * contact, where one is, any file. What the phone has no
-     * application for is not offered.
+     * contact, where one is, any file, or what was copied. What the phone
+     * has no application for is not offered.
      */
     private fun attach() {
         val choices = ArrayList<Pair<Int, () -> Unit>>()
@@ -635,9 +635,22 @@ class ThreadActivity : AskingActivity() {
         choices += R.string.attach_contact to { launch(Intent(Intent.ACTION_PICK, android.provider.ContactsContract.Contacts.CONTENT_URI), CONTACT) }
         choices += R.string.attach_place to { place() }
         choices += R.string.attach_file to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), FILE) }
+        choices += R.string.attach_text to { paste() }
         AlertDialog.Builder(this)
             .setItems(choices.map { getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }
             .show()
+    }
+
+    /**
+     * What was copied, written into the message where the cursor is: the
+     * field, held, records the voice, and offers no pasting of its own.
+     */
+    private fun paste() {
+        val copied = getSystemService(android.content.ClipboardManager::class.java)?.primaryClip
+            ?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(this)?.toString().orEmpty()
+        if (copied.isEmpty()) return say(getString(R.string.clipboard_empty))
+        val at = field.selectionStart.coerceAtLeast(0)
+        field.text.insert(at, copied)
     }
 
     /**

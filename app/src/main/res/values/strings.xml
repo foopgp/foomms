@@ -134,7 +134,7 @@
     <string name="cert_refresh">⟳ Refresh from the certificate</string>
     <string name="cert_forget">⌫ Forget the certificate</string>
     <string name="whom_so_far">For: %1$s   ✕</string>
-    <string name="whom_write">Write</string>
+    <string name="whom_write">✎ Write</string>
     <string name="many_title">For %1$d people</string>
     <string name="many_sent">Handed to the phone, for %1$d people.</string>
     <string name="many_failed">Not sent to: %1$s</string>
@@ -182,4 +182,8 @@
     <string name="install_foodjis">Install %1$s</string>
     <string name="write_to">Write to %1$s</string>
     <string name="decrypt_this">⚿ Decrypt this message</string>
+    <string name="search_contacts">🔍 Search the contacts</string>
+    <string name="contacts">Contacts</string>
+    <string name="attach_text">📋 Some text</string>
+    <string name="clipboard_empty">Nothing to paste: the clipboard is empty.</string>
 </resources>

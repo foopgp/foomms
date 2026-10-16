@@ -68,9 +68,10 @@ object Book {
 
     class Found(val name: String, val number: String)
 
-    /** The contacts whose name or number holds [typed], each with a number one can write to. */
+    /** The contacts whose name or number holds [typed] (all, when nothing is typed), each with a number one can write to. */
     fun find(context: Context, typed: String, most: Int = 30): List<Found> = runCatching {
-        val asked = Uri.withAppendedPath(PhoneRow.CONTENT_FILTER_URI, Uri.encode(typed.trim()))
+        // Nothing typed, every contact with a number.
+        val asked = if (typed.isBlank()) PhoneRow.CONTENT_URI else Uri.withAppendedPath(PhoneRow.CONTENT_FILTER_URI, Uri.encode(typed.trim()))
         val found = ArrayList<Found>()
         context.contentResolver.query(asked, arrayOf(PhoneRow.DISPLAY_NAME, PhoneRow.NUMBER), null, null, PhoneRow.DISPLAY_NAME)?.use { rows ->
             while (rows.moveToNext() && found.size < most) {

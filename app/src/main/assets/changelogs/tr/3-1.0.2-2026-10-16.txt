@@ -1,0 +1,3 @@
+• Konuşma listesinden arama önce tüm kişilerde arar, her birinin «Yaz» düğmesi vardır; bir seçici konuşmalara geçirir ve sayfa seçimi hatırlar.
+• Ekler: «Metin», kopyalananı yapıştırır.
+• Gri bir anahtar her zaman kapalıdır.

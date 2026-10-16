@@ -132,7 +132,7 @@
     <string name="cert_refresh">⟳ Оновити з сертифіката</string>
     <string name="cert_forget">⌫ Забути сертифікат</string>
     <string name="whom_so_far">Кому: %1$s   ✕</string>
-    <string name="whom_write">Написати</string>
+    <string name="whom_write">✎ Написати</string>
     <string name="many_title">Для %1$d осіб</string>
     <string name="many_sent">Передано телефону, для %1$d осіб.</string>
     <string name="many_failed">Не надіслано: %1$s</string>
@@ -180,4 +180,8 @@
     <string name="install_foodjis">Встановити %1$s</string>
     <string name="write_to">Написати на %1$s</string>
     <string name="decrypt_this">⚿ Розшифрувати це повідомлення</string>
+    <string name="search_contacts">🔍 Пошук у контактах</string>
+    <string name="contacts">Контакти</string>
+    <string name="attach_text">📋 Текст</string>
+    <string name="clipboard_empty">Нічого вставити: буфер обміну порожній.</string>
 </resources>

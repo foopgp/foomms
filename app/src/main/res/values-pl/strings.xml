@@ -132,7 +132,7 @@
     <string name="cert_refresh">⟳ Odśwież z certyfikatu</string>
     <string name="cert_forget">⌫ Zapomnij certyfikat</string>
     <string name="whom_so_far">Do: %1$s   ✕</string>
-    <string name="whom_write">Napisz</string>
+    <string name="whom_write">✎ Napisz</string>
     <string name="many_title">Do %1$d osób</string>
     <string name="many_sent">Przekazano telefonowi, dla %1$d osób.</string>
     <string name="many_failed">Nie wysłano do: %1$s</string>
@@ -180,4 +180,8 @@
     <string name="install_foodjis">Zainstaluj %1$s</string>
     <string name="write_to">Napisz do %1$s</string>
     <string name="decrypt_this">⚿ Odszyfruj tę wiadomość</string>
+    <string name="search_contacts">🔍 Szukaj w kontaktach</string>
+    <string name="contacts">Kontakty</string>
+    <string name="attach_text">📋 Tekst</string>
+    <string name="clipboard_empty">Nie ma czego wkleić: schowek jest pusty.</string>
 </resources>

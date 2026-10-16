@@ -40,6 +40,11 @@ object Conf {
     fun toMyself(context: Context, on: Boolean) = kept(context).edit().putBoolean("to_myself", on).apply()
 
     /** A text that takes more than one SMS leaves as an MMS; otherwise only one that takes more than [MOST_SMS]. */
+    /** Where the search of the list of conversations looks: the contacts, or the messages. */
+    fun searchContacts(context: Context): Boolean = kept(context).getBoolean("search_contacts", true)
+
+    fun searchContacts(context: Context, on: Boolean) = kept(context).edit().putBoolean("search_contacts", on).apply()
+
     fun preferMms(context: Context): Boolean = kept(context).getBoolean("prefer_mms", false)
 
     fun preferMms(context: Context, on: Boolean) = kept(context).edit().putBoolean("prefer_mms", on).apply()

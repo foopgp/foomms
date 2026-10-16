@@ -1,0 +1,3 @@
+• Search, from the list of conversations, looks first in all the contacts, each with its "Write" button; a selector turns it to the conversations, and the page keeps the choice.
+• Attachments: "Some text" pastes what was copied.
+• A greyed switch is always off.

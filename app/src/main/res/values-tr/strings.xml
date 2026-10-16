@@ -132,7 +132,7 @@
     <string name="cert_refresh">⟳ Sertifikadan yenile</string>
     <string name="cert_forget">⌫ Sertifikayı unut</string>
     <string name="whom_so_far">Alıcı: %1$s   ✕</string>
-    <string name="whom_write">Yaz</string>
+    <string name="whom_write">✎ Yaz</string>
     <string name="many_title">%1$d kişi için</string>
     <string name="many_sent">Telefona teslim edildi, %1$d kişi için.</string>
     <string name="many_failed">Gönderilemedi: %1$s</string>
@@ -180,4 +180,8 @@
     <string name="install_foodjis">%1$s uygulamasını yükle</string>
     <string name="write_to">%1$s numarasına yaz</string>
     <string name="decrypt_this">⚿ Bu mesajın şifresini çöz</string>
+    <string name="search_contacts">🔍 Kişilerde ara</string>
+    <string name="contacts">Kişiler</string>
+    <string name="attach_text">📋 Metin</string>
+    <string name="clipboard_empty">Yapıştırılacak bir şey yok: pano boş.</string>
 </resources>

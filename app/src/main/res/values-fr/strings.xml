@@ -132,7 +132,7 @@
     <string name="cert_refresh">⟳ Rafraîchir depuis le certificat</string>
     <string name="cert_forget">⌫ Oublier le certificat</string>
     <string name="whom_so_far">Pour : %1$s   ✕</string>
-    <string name="whom_write">Écrire</string>
+    <string name="whom_write">✎ Écrire</string>
     <string name="many_title">Pour %1$d personnes</string>
     <string name="many_sent">Confié au téléphone, pour %1$d personnes.</string>
     <string name="many_failed">Non envoyé à : %1$s</string>
@@ -180,4 +180,8 @@
     <string name="install_foodjis">Installer %1$s</string>
     <string name="write_to">Écrire au %1$s</string>
     <string name="decrypt_this">⚿ Déchiffrer ce message</string>
+    <string name="search_contacts">🔍 Rechercher dans les contacts</string>
+    <string name="contacts">Contacts</string>
+    <string name="attach_text">📋 Du texte</string>
+    <string name="clipboard_empty">Rien à coller : le presse-papiers est vide.</string>
 </resources>

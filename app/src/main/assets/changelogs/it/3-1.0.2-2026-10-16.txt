@@ -1,0 +1,3 @@
+• Cerca, dalla lista delle conversazioni, cerca prima in tutti i contatti, ciascuno con il suo pulsante «Scrivi»; un selettore passa alle conversazioni, e la pagina ricorda la scelta.
+• Allegati: «Del testo» incolla ciò che è stato copiato.
+• Un interruttore in grigio è sempre spento.
