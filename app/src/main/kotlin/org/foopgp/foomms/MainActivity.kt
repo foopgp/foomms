@@ -205,6 +205,7 @@ class MainActivity : Activity() {
         // The theme was changed while this page was behind another: it is built again in the new one.
         if (Look.wantsDark(this) != dressed) return recreate()
         Look.dress(this)
+        Foodjis.of(this).fresh()
         asking.removeAllViews()
         val missing = NEEDED.filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
         if (Manifest.permission.READ_SMS in missing) {

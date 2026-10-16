@@ -394,6 +394,7 @@ class ThreadActivity : AskingActivity() {
         if (Look.wantsDark(this) != dressed) return recreate()
         Look.dress(this)
         shown = true
+        foodjis.fresh()
         whoAmI()
         contentResolver.registerContentObserver(MESSAGES, true, arrivals)
         load(first = card == null && person == null)
@@ -488,9 +489,8 @@ class ThreadActivity : AskingActivity() {
     /** The key of the identity foodjis holds, by the id the interface names it with; none until foodjis has said. */
     private var mine: Long? = null
 
-    /** Asked once: whose identity this phone carries, to lock for it what is sent. */
+    /** Asked each time the page comes back: whose identity this phone carries, to lock for it what is sent -- foodjis may hold another, or none, since. */
     private fun whoAmI() {
-        if (mine != null) return
         provider.ask(Intent(Provider.GET_SIGN_KEY_ID), null) { answer ->
             if (answer is Provider.Answer.Done) mine = answer.says.getLongExtra(Provider.EXTRA_SIGN_KEY_ID, 0L).takeIf { it != 0L }
             if (!isFinishing && !isDestroyed) paint()

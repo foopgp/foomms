@@ -72,6 +72,13 @@ class Foodjis(private val context: Context) {
         }
     }
 
+    /**
+     * What foodjis says of a certificate changes there -- certified, revoked,
+     * renamed -- and nothing tells this application: a page coming back to the
+     * front asks again. The faces are kept, which cost more and change less.
+     */
+    fun fresh() = synchronized(cards) { cards.clear() }
+
     fun forget() {
         synchronized(cards) { cards.clear() }
         synchronized(faces) { faces.clear() }
@@ -81,7 +88,7 @@ class Foodjis(private val context: Context) {
     companion object {
         @Volatile private var one: Foodjis? = null
 
-        /** One for the application: what foodjis said is asked once. */
+        /** One for the application: what foodjis said is asked again when a page comes back ([fresh]). */
         fun of(context: Context): Foodjis = one ?: synchronized(this) {
             one ?: Foodjis(context.applicationContext).also { one = it }
         }
