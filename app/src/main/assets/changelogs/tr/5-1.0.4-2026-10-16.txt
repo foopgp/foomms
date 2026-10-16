@@ -1,0 +1,2 @@
+• Bir dosyadan kurulduğunda Android SMS'leri kısıtlar: ana sayfa nerede izin verileceğini söyler ve foomms ayarlarına bir düğme sunar.
+• Bildirim izni diğerleriyle birlikte istenir.

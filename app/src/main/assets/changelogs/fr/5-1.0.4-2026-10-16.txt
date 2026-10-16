@@ -1,0 +1,2 @@
+• Installé depuis un fichier, Android restreint les SMS : la page principale dit où les autoriser, avec un bouton vers les réglages de foomms.
+• L'autorisation des notifications est demandée avec les autres.

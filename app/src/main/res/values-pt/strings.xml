@@ -184,4 +184,6 @@
     <string name="contacts">Contactos</string>
     <string name="attach_text">📋 Um texto</string>
     <string name="clipboard_empty">Nada para colar: a área de transferência está vazia.</string>
+    <string name="restricted_hint">Instalado a partir de um ficheiro, o foomms só pode ler e enviar SMS quando o Android o permitir: nas definições do foomms, o menu ⋮ no canto superior direito, escolha «Permitir definições restritas», volte aqui e prima Permitir.</string>
+    <string name="restricted_open">Abrir as definições do foomms</string>
 </resources>

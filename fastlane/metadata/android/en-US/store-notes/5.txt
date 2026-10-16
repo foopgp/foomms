@@ -1,0 +1,1 @@
+Installed from a file, Android restricts the SMS: the main page says where to allow them, with a button to foomms's settings. Permission for notifications is asked with the others.

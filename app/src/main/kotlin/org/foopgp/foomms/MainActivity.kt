@@ -212,7 +212,20 @@ class MainActivity : Activity() {
             asking.visibility = View.VISIBLE
             asking.addView(Look.words(this, getString(R.string.about), muted = true))
             asking.addView(Look.words(this, getString(R.string.why_read)).apply { setPadding(0, Look.dp(context, 12), 0, Look.dp(context, 12)) })
-            asking.addView(Look.button(this, getString(R.string.allow)) { requestPermissions(missing.toTypedArray(), 1) })
+            // The notifications are asked with the rest: the messaging application of the phone has them anyway,
+            // and until foomms is that application it would show nothing of what arrives.
+            val asked = missing + listOfNotNull(NOTIFY.takeIf { it != null && checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED })
+            asking.addView(Look.button(this, getString(R.string.allow)) { requestPermissions(asked.toTypedArray(), 1) })
+            // Installed from a file, Android grants no SMS until the person allows the restricted settings in
+            // foomms's page of the settings: asking here would end in silence.
+            if (fromFile()) {
+                asking.addView(Look.words(this, getString(R.string.restricted_hint), size = 14f, muted = true).apply { setPadding(0, Look.dp(context, 12), 0, Look.dp(context, 8)) })
+                asking.addView(
+                    Look.button(this, getString(R.string.restricted_open)) {
+                        startActivity(Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, android.net.Uri.fromParts("package", packageName, null)))
+                    },
+                )
+            }
             return
         }
         asking.visibility = View.GONE
@@ -233,6 +246,14 @@ class MainActivity : Activity() {
     }
 
     override fun onRequestPermissionsResult(request: Int, permissions: Array<String>, results: IntArray) = onResume()
+
+    /** Installed from a file, downloaded or not, rather than by a store: Android then restricts the SMS. */
+    private fun fromFile(): Boolean = android.os.Build.VERSION.SDK_INT >= 33 && runCatching {
+        packageManager.getInstallSourceInfo(packageName).packageSource in setOf(
+            android.content.pm.PackageInstaller.PACKAGE_SOURCE_LOCAL_FILE,
+            android.content.pm.PackageInstaller.PACKAGE_SOURCE_DOWNLOADED_FILE,
+        )
+    }.getOrDefault(false)
 
     private val arrivals = object : android.database.ContentObserver(android.os.Handler(android.os.Looper.getMainLooper())) {
         override fun onChange(self: Boolean) = fill()
@@ -514,5 +535,8 @@ class MainActivity : Activity() {
         /** How many conversations are shown before the rest is read. */
         const val FIRST = 20
         val NEEDED = listOf(Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS, Manifest.permission.READ_CONTACTS)
+
+        /** Asked from Android 13 on; before, notifications need no permission. */
+        val NOTIFY: String? = if (android.os.Build.VERSION.SDK_INT >= 33) Manifest.permission.POST_NOTIFICATIONS else null
     }
 }

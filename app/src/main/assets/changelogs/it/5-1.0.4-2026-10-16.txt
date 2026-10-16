@@ -1,0 +1,2 @@
+• Installato da un file, Android limita gli SMS: la pagina principale dice dove consentirli, con un pulsante verso le impostazioni di foomms.
+• L'autorizzazione per le notifiche viene chiesta insieme alle altre.

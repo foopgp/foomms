@@ -184,4 +184,6 @@
     <string name="contacts">Kontakty</string>
     <string name="attach_text">📋 Tekst</string>
     <string name="clipboard_empty">Nie ma czego wkleić: schowek jest pusty.</string>
+    <string name="restricted_hint">Zainstalowany z pliku foomms może czytać i wysyłać SMS-y dopiero, gdy Android na to pozwoli: w ustawieniach foomms, menu ⋮ w prawym górnym rogu, wybierz „Zezwól na ustawienia z ograniczeniami”, wróć tutaj i naciśnij Zezwól.</string>
+    <string name="restricted_open">Otwórz ustawienia foomms</string>
 </resources>

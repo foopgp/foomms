@@ -184,4 +184,6 @@
     <string name="contacts">Contatti</string>
     <string name="attach_text">📋 Del testo</string>
     <string name="clipboard_empty">Niente da incollare: gli appunti sono vuoti.</string>
+    <string name="restricted_hint">Installato da un file, foomms può leggere e inviare SMS solo quando Android lo consente: nelle impostazioni di foomms, il menu ⋮ in alto a destra, scegliete «Consenti impostazioni con restrizioni», poi tornate qui e premete Consenti.</string>
+    <string name="restricted_open">Apri le impostazioni di foomms</string>
 </resources>
