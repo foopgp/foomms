@@ -1,0 +1,4 @@
+• „Zadzwoń …” wraca do menu rozmowy na telefonach, które je ukrywały.
+• Zaznaczanie tekstu: przycisk Kopiuj, a adresy WWW otwierają się jednym dotknięciem.
+• Tytuły wyszukiwania mieszczą się w jednym wierszu.
+• Przycisk „+” jest wyszarzony, gdy nie można odpowiedzieć nadawcy.

@@ -1,0 +1,4 @@
+• "Call …" is back in a conversation's menu, on the phones that hid it.
+• Selecting text: a Copy button, and web addresses open with a press.
+• The search titles fit on one line.
+• The "+" button is greyed when the sender cannot be answered.

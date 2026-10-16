@@ -72,6 +72,8 @@ class ThreadActivity : AskingActivity() {
     private lateinit var locks: Flip
     private lateinit var options: LinearLayout
     private lateinit var sender: android.widget.Button
+    /** The button that attaches: greyed with the field when the sender cannot be answered. */
+    private lateinit var adding: android.widget.Button
     private lateinit var chip: android.widget.TextView
     private lateinit var whoIs: android.widget.TextView
     private lateinit var under: android.widget.TextView
@@ -209,7 +211,8 @@ class ThreadActivity : AskingActivity() {
         sender = Look.button(this, "➤") { send() }.apply { textSize = 20f }
         val send = sender
         val pad = Look.dp(this, 6)
-        val add = Look.button(this, "+") { attach() }.apply { textSize = 22f }
+        adding = Look.button(this, "+") { attach() }.apply { textSize = 22f }
+        val add = adding
         // What is attached, said above the field; pressed, it is taken off.
         chip = Look.words(this, "", size = 16f, muted = true).apply {
             setPadding(pad * 3, pad, pad * 3, 0)
@@ -472,6 +475,9 @@ class ThreadActivity : AskingActivity() {
                 // Nothing can be written to a sender that is not a number.
                 val reachable = Phone.plain(number) != null
                 field.isEnabled = reachable
+                // Nothing to attach to, either: the "+" is greyed as the field is.
+                adding.isEnabled = reachable
+                adding.alpha = if (reachable) 1f else 0.38f
                 if (!reachable) field.setHint(R.string.no_answer)
                 // With a certificate that can be locked for, that is how a message leaves unless told otherwise.
                 if (first) { locks.isChecked = whose?.usable == true ; signs.isChecked = whose?.usable == true }

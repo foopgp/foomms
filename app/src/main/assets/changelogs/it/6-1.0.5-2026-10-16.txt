@@ -1,0 +1,4 @@
+• «Chiama …» torna nel menu di una conversazione, sui telefoni che lo nascondevano.
+• Selezione del testo: un pulsante Copia, e gli indirizzi web si aprono con una pressione.
+• I titoli della ricerca stanno su una riga.
+• Il pulsante «+» è in grigio quando non si può rispondere al mittente.

@@ -1,0 +1,4 @@
+• «Ligar para …» volta ao menu de uma conversa, nos telefones que o escondiam.
+• Selecionar texto: um botão Copiar, e os endereços web abrem-se com um toque.
+• Os títulos da pesquisa cabem numa linha.
+• O botão «+» fica a cinzento quando não se pode responder ao remetente.

@@ -1,0 +1,4 @@
+• « Appeler le … » revient dans le menu d'une conversation, sur les téléphones qui le cachaient.
+• Sélection du texte : un bouton Copier, et les adresses web s'ouvrent d'un appui.
+• Les titres de la recherche tiennent sur une ligne.
+• Le bouton « + » est grisé quand on ne peut pas répondre à l'expéditeur.
