@@ -1,0 +1,18 @@
+foomms es una mensajería SMS y MMS que cifra y firma sus mensajes con PGP. No hace ninguna criptografía por sí misma: se la pide a foodjis, que se apoya en su llave de seguridad.
+
+Lo que puede hacer:
+
+• Escribir a un número: el mensaje se cifra para el certificado de su titular y se firma con su llave. Leer lo que le envían y saber quién lo ha firmado.
+• Reconocer un mensaje de un vistazo, por los colores de foodjis: verde cifrado y certificado, azul firmado y certificado, amarillo cifrado, rojo en claro y sin certificar, gris cerrado.
+• Vincular un número al certificado de su titular, en su libreta de direcciones.
+• Adjuntar una foto, una imagen, un contacto, su ubicación o un archivo; grabar un mensaje de voz manteniendo pulsado el campo vacío.
+• Buscar en las conversaciones; hacer una copia de seguridad y restaurarla en el formato de «SMS Backup & Restore».
+• Convertirla en la aplicación de mensajería del teléfono.
+
+Los mensajes cifrados viajan en armadura ASCII, legibles por cualquier otra aplicación PGP. Se abren con una sola presentación de la llave y se vuelven a cerrar al cabo del tiempo elegido.
+
+La aplicación no pide ninguna cuenta, no pasa por ningún servidor nuestro y no muestra publicidad: es la red del teléfono la que transporta los mensajes.
+
+Necesita foodjis, una llave de seguridad OpenPGP sin contacto y un teléfono con lector NFC.
+
+Software libre, bajo la licencia GPL-3.0-only: el código fuente se entrega a quien tenga la aplicación y lo pida.
