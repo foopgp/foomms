@@ -47,15 +47,16 @@ object Signer {
     }
 
     /** What a signature says, in words: by whom, and whether they are certified. */
-    fun words(context: android.content.Context, said: Said): String = when (said.result) {
+    fun words(context: android.content.Context, said: Said): CharSequence = when (said.result) {
         null, OpenPgpSignatureResult.RESULT_NO_SIGNATURE -> context.getString(R.string.unsigned)
         OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED -> context.getString(R.string.signed_certified, said.who)
-        OpenPgpSignatureResult.RESULT_VALID_KEY_UNCONFIRMED -> context.getString(R.string.signed_other, said.who)
+        // "Not certified" in bold: what the line is there to say.
+        OpenPgpSignatureResult.RESULT_VALID_KEY_UNCONFIRMED -> Look.styled(context, R.string.signed_other, said.who)
         OpenPgpSignatureResult.RESULT_KEY_MISSING -> context.getString(R.string.signed_unknown)
         else -> context.getString(R.string.signed_broken)
     }
 
-    fun said(context: android.content.Context, signature: OpenPgpSignatureResult?): String = words(context, of(signature))
+    fun said(context: android.content.Context, signature: OpenPgpSignatureResult?): String = words(context, of(signature)).toString()
 
     /** A message foodjis opened or verified, kept with what its signature says; the signature, for whoever asks more. */
     fun keep(context: android.content.Context, armor: String, answer: Provider.Answer.Done, thread: Long = Opened.NO_THREAD): OpenPgpSignatureResult? {

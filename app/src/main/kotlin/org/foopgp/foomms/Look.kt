@@ -47,6 +47,23 @@ object Look {
     val FACE: Int get() = if (dark) Color.rgb(0x46, 0x3A, 0x63) else Color.rgb(0xD6, 0xCF, 0xEC)
     private val HOLLOW: Int get() = if (dark) Color.rgb(0x2E, 0x2E, 0x33) else Color.rgb(0xEE, 0xEE, 0xEE)
 
+    /**
+     * A string with its marks -- a word in bold -- and its arguments put in
+     * place: getString would drop the marks, and formatting would too.
+     */
+    fun styled(context: Context, id: Int, vararg args: CharSequence): CharSequence {
+        val out = android.text.SpannableStringBuilder(context.resources.getText(id))
+        for ((at, arg) in args.withIndex()) {
+            val tag = "%${at + 1}\$s"
+            var from = out.indexOf(tag)
+            while (from >= 0) {
+                out.replace(from, from + tag.length, arg)
+                from = out.indexOf(tag, from + arg.length)
+            }
+        }
+        return out
+    }
+
     /** A verdict's colour, as foodjis paints its own: full for a mark, pale under a text. */
     fun colour(verdict: Verdict, dark: Boolean = this.dark): Int = when (verdict) {
         Verdict.RED -> Color.rgb(0xFF, 0x62, 0x7D)

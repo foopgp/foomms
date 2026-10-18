@@ -13,7 +13,7 @@
     <string name="failed">foodjis diyor ki: %1$s</string>
     <string name="given_up">Vazgeçildi.</string>
     <string name="signed_certified">%1$s tarafından imzalandı, sertifikalı.</string>
-    <string name="signed_other">%1$s tarafından imzalandı, sertifikasız.</string>
+    <string name="signed_other">%1$s tarafından imzalandı, <b>sertifikasız</b>.</string>
     <string name="unsigned">İmzasız.</string>
     <string name="signed_unknown">foodjis\'te bulunmayan bir anahtarla imzalanmış.</string>
     <string name="signed_broken">İmza geçersiz.</string>

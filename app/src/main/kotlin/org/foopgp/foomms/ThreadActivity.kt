@@ -1396,7 +1396,7 @@ class ThreadActivity : AskingActivity() {
                 locked -> getString(R.string.locked_for)
                 else -> getString(R.string.signed_press)
             }
-            val under = buildString {
+            val under = android.text.SpannableStringBuilder().apply {
                 append(DateUtils.getRelativeTimeSpanString(line.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL))
                 if (verdict.encrypted) append("  ⚿")
                 // Who signed: the words, or else what the first of its PGP parts said once opened -- a voice message has no words.
@@ -1570,7 +1570,13 @@ class ThreadActivity : AskingActivity() {
                         Look.words(
                             context,
                             android.text.SpannableStringBuilder(getString(R.string.tie_ask_before)).append(" ")
-                                .append(Look.standing(context, whose.validity)).append(getString(R.string.tie_ask_after)).append("\n\n").append(told)
+                                // Anything but certified, in bold: what the person is about to write in their address book.
+                                .append(
+                                    Look.standing(context, whose.validity).let { said ->
+                                        if (whose.certified) said
+                                        else android.text.SpannableString(said).apply { setSpan(android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, length, 0) }
+                                    },
+                                ).append(getString(R.string.tie_ask_after)).append("\n\n").append(told)
                                 .apply { if (stale.isNotEmpty()) append("\n\n").append(getString(R.string.tie_ask_removed)).append("\n").append(stale.joinToString("\n") { "•  ${it.value}" }) },
                             size = 15f,
                         ),

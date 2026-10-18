@@ -15,7 +15,7 @@
     <string name="failed">foodjis says: %1$s</string>
     <string name="given_up">Given up.</string>
     <string name="signed_certified">Signed by %1$s, certified.</string>
-    <string name="signed_other">Signed by %1$s, not certified.</string>
+    <string name="signed_other">Signed by %1$s, <b>not certified</b>.</string>
     <string name="unsigned">Not signed.</string>
     <string name="signed_unknown">Signed by a key foodjis does not hold.</string>
     <string name="signed_broken">The signature does not hold.</string>

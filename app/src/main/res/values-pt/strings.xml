@@ -13,7 +13,7 @@
     <string name="failed">O foodjis diz: %1$s</string>
     <string name="given_up">Cancelado.</string>
     <string name="signed_certified">Assinado por %1$s, certificado.</string>
-    <string name="signed_other">Assinado por %1$s, não certificado.</string>
+    <string name="signed_other">Assinado por %1$s, <b>não certificado</b>.</string>
     <string name="unsigned">Não assinado.</string>
     <string name="signed_unknown">Assinado com uma chave que o foodjis não tem.</string>
     <string name="signed_broken">A assinatura não é válida.</string>

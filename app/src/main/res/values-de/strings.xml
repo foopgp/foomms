@@ -13,7 +13,7 @@
     <string name="failed">foodjis meldet: %1$s</string>
     <string name="given_up">Abgebrochen.</string>
     <string name="signed_certified">Signiert von %1$s, beglaubigt.</string>
-    <string name="signed_other">Signiert von %1$s, nicht beglaubigt.</string>
+    <string name="signed_other">Signiert von %1$s, <b>nicht beglaubigt</b>.</string>
     <string name="unsigned">Nicht signiert.</string>
     <string name="signed_unknown">Signiert mit einem Schlüssel, den foodjis nicht hat.</string>
     <string name="signed_broken">Die Signatur ist ungültig.</string>
