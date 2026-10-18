@@ -1099,7 +1099,9 @@ class ThreadActivity : AskingActivity() {
         }
         for (line in lines) {
             val armor = armorOf(line) ?: continue
-            if (Pgp.isLocked(armor) || Opened.words(armor) != null || !verifying.add(armor)) continue
+            // A key that was missing is asked about again, once a page: foodjis may hold it since.
+            val missing = Opened.words(armor)?.signed?.result == OpenPgpSignatureResult.RESULT_KEY_MISSING
+            if (Pgp.isLocked(armor) || (Opened.words(armor) != null && !missing) || !verifying.add(armor)) continue
             provider.ask(Intent(Provider.DECRYPT_VERIFY), armor.toByteArray()) { answer ->
                 if (answer !is Provider.Answer.Done || isFinishing || isDestroyed) return@ask
                 opened(armor, answer, offer = line.incoming)
@@ -1395,16 +1397,18 @@ class ThreadActivity : AskingActivity() {
                 }
                 for (piece in line.pieces) addView(shownPiece(piece, at))
                 // Its text shows the details; beside it, the rest of the line gives the menu its long press gives.
+                // Told by where the finger fell rather than by a row of its own: a row around it would size the bubble.
                 addView(
-                    LinearLayout(context).apply {
-                        setOnClickListener { about(at) }
+                    Look.words(context, under, size = 11f, muted = true).apply {
+                        var x = 0f
+                        var y = 0
+                        setOnTouchListener { _, event -> x = event.x ; y = event.y.toInt() ; false }
+                        setOnClickListener {
+                            val shown = layout
+                            val onText = shown == null || x - totalPaddingLeft <= shown.getLineWidth(shown.getLineForVertical(y - totalPaddingTop))
+                            if (onText) details(line) else about(at)
+                        }
                         setOnLongClickListener { about(at) ; true }
-                        addView(
-                            Look.words(context, under, size = 11f, muted = true).apply {
-                                setOnClickListener { details(line) }
-                                setOnLongClickListener { about(at) ; true }
-                            },
-                        )
                     },
                 )
             }
@@ -1417,16 +1421,20 @@ class ThreadActivity : AskingActivity() {
             val mark = View(context).apply { background = Look.rounded(Look.colour(form), Look.dp(context, 2)) }
             return LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
-                gravity = (if (line.incoming) Gravity.START else Gravity.END) or Gravity.CENTER_VERTICAL
+                // The mark first, then the bubble, from the side the message came from: a row laid out the other way
+                // for one sent. The bubble measured last gets what the mark left it -- measured first, a wide one
+                // took the whole row, and the mark pushed its edge out of sight. Its own words keep the page's direction.
+                layoutDirection = if (line.incoming) View.LAYOUT_DIRECTION_LTR else View.LAYOUT_DIRECTION_RTL
+                bubble.layoutDirection = View.LAYOUT_DIRECTION_LOCALE
+                gravity = Gravity.START or Gravity.CENTER_VERTICAL
                 // A picture made wide takes the margin left on the far side.
                 val far = if (line.pieces.any { it.id in enlarged }) pad else pad * 5
-                setPadding(if (line.incoming) pad else far, pad / 3, if (line.incoming) far else pad, pad / 3)
+                setPaddingRelative(pad, pad / 3, far, pad / 3)
                 val stripe = LinearLayout.LayoutParams(Look.dp(context, 4), ViewGroup.LayoutParams.MATCH_PARENT).apply {
                     marginStart = pad / 3 ; marginEnd = pad / 3
                 }
-                if (line.incoming) addView(mark, stripe)
+                addView(mark, stripe)
                 addView(bubble, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-                if (!line.incoming) addView(mark, stripe)
             }
         }
     }
