@@ -202,6 +202,5 @@
     <string name="choose_note">Note :</string>
     <string name="note_contact">Garder celle de la fiche : %1$s</string>
     <string name="note_certificate">Prendre celle du certificat : %1$s</string>
-    <string name="note_both">Garder les deux</string>
     <string name="note_size">(%1$d caractères)</string>
 </resources>

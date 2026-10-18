@@ -202,6 +202,5 @@
     <string name="choose_note">Nota:</string>
     <string name="note_contact">Manter a do contacto: %1$s</string>
     <string name="note_certificate">Usar a do certificado: %1$s</string>
-    <string name="note_both">Manter as duas</string>
     <string name="note_size">(%1$d caracteres)</string>
 </resources>

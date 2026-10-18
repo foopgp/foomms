@@ -202,6 +202,5 @@
     <string name="choose_note">Нотатка:</string>
     <string name="note_contact">Залишити з контакту: %1$s</string>
     <string name="note_certificate">Взяти із сертифіката: %1$s</string>
-    <string name="note_both">Залишити обидві</string>
     <string name="note_size">(%1$d символів)</string>
 </resources>

@@ -39,9 +39,11 @@ class Card(val lines: List<Line>) {
             ?.let { runCatching { java.util.Base64.getDecoder().decode(it.value.substringAfter("base64,")) }.getOrNull() }
 
     /** What would be written, as a person reads it: a line each, the key and the face only named. */
-    fun told(): List<String> = buildList {
+    /** Its lines as said to a person; the notes left out when [withNotes] is false, they being asked about apart. */
+    fun told(withNotes: Boolean = true): List<String> = buildList {
         name?.let { add(it) }
-        addAll(emails) ; addAll(phones) ; addAll(addresses.map { it.replace('\n', ' ') }) ; addAll(websites) ; addAll(notes)
+        addAll(emails) ; addAll(phones) ; addAll(addresses.map { it.replace('\n', ' ') }) ; addAll(websites)
+        if (withNotes) addAll(notes)
     }
 
     private fun first(name: String) = all(name).firstOrNull()

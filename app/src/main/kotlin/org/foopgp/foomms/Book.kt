@@ -101,8 +101,8 @@ object Book {
      * face -- where the contact does not say it already. A contact is made
      * when the number has none.
      */
-    /** Which of two to keep, when the contact and the certificate say otherwise: the contact's, the certificate's, or both. */
-    enum class Pick { CONTACT, CERTIFICATE, BOTH }
+    /** Which of two to keep, when the contact and the certificate say otherwise: the contact's or the certificate's. */
+    enum class Pick { CONTACT, CERTIFICATE }
 
     fun tie(
         context: Context, number: String, card: Card, address: String, stale: List<Stale> = emptyList(),
@@ -157,13 +157,12 @@ object Book {
                 row(Website.CONTENT_ITEM_TYPE, Website.URL, site) { put(Website.TYPE, Website.TYPE_CUSTOM) ; put(Website.LABEL, MARK) }
             }
         }
-        // The certificate's note: written where the contact has none; where it has its own, as the person chose.
+        // The certificate's note: written where the contact has none; where it has its own, in its place if
+        // the person chose so. One note, in one row: the phones' contacts show but one.
         val notes = values(context, contact, Note.CONTENT_ITEM_TYPE, Note.NOTE).filter { it.isNotBlank() }
-        if (card.notes.isNotEmpty() && (notes.isEmpty() || note != Pick.CONTACT)) {
-            if (notes.isNotEmpty() && note == Pick.CERTIFICATE) gone(context, contact, Note.CONTENT_ITEM_TYPE)
-            for (said in card.notes) {
-                if (note == Pick.CERTIFICATE || missing(Note.CONTENT_ITEM_TYPE, Note.NOTE, said)) row(Note.CONTENT_ITEM_TYPE, Note.NOTE, said)
-            }
+        if (card.notes.isNotEmpty() && (notes.isEmpty() || note == Pick.CERTIFICATE)) {
+            if (notes.isNotEmpty()) gone(context, contact, Note.CONTENT_ITEM_TYPE)
+            row(Note.CONTENT_ITEM_TYPE, Note.NOTE, card.notes.joinToString("\n\n"))
         }
         // The certificate's face: where the contact has none, or in place of its own when the person chose so.
         val picture = card.photo

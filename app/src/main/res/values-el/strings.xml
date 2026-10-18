@@ -202,6 +202,5 @@
     <string name="choose_note">Σημείωση:</string>
     <string name="note_contact">Διατήρηση αυτής της επαφής: %1$s</string>
     <string name="note_certificate">Λήψη αυτής του πιστοποιητικού: %1$s</string>
-    <string name="note_both">Διατήρηση και των δύο</string>
     <string name="note_size">(%1$d χαρακτήρες)</string>
 </resources>

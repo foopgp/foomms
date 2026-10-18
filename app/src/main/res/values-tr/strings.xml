@@ -202,6 +202,5 @@
     <string name="choose_note">Not:</string>
     <string name="note_contact">Kişidekini koru: %1$s</string>
     <string name="note_certificate">Sertifikadakini al: %1$s</string>
-    <string name="note_both">İkisini de koru</string>
     <string name="note_size">(%1$d karakter)</string>
 </resources>

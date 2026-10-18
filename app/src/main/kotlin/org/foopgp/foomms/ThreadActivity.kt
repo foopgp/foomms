@@ -1556,8 +1556,9 @@ class ThreadActivity : AskingActivity() {
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 if (card == null) return@runOnUiThread say(getString(R.string.no_card, whose.name))
-                val told = card.told().joinToString("\n") { "•  $it" } +
-                    (if (card.photo != null) "\n•  " + getString(R.string.card_photo) else "") +
+                // A face or a note the person chooses below is not also in the list of what is written.
+                val told = card.told(withNotes = differs.note == null).joinToString("\n") { "•  $it" } +
+                    (if (card.photo != null && differs.face == null) "\n•  " + getString(R.string.card_photo) else "") +
                     "\n•  🔑 " + (card.key ?: Fingerprint.address(whose.fingerprint))
                 val pad = Look.dp(this, 20)
                 var face = Book.Pick.CONTACT
@@ -1596,14 +1597,13 @@ class ThreadActivity : AskingActivity() {
                         faces.addView(choice(theirs, R.string.face_certificate, Book.Pick.CERTIFICATE))
                         addView(faces)
                     }
-                    // The two notes, cut when long, and both kept as a third way.
+                    // The two notes, cut when long: one only, as the phones' contacts keep but one.
                     if (differs.note != null) {
                         addView(Look.words(context, getString(R.string.choose_note), size = 15f).apply { setPadding(0, pad, 0, pad / 3) })
                         fun cut(text: String) = if (text.length <= NOTE_SHOWN) "« $text »" else "« ${text.take(NOTE_SHOWN).trimEnd()}… » " + getString(R.string.note_size, text.length)
                         val picks = listOf(
                             Book.Pick.CONTACT to getString(R.string.note_contact, cut(differs.note)),
                             Book.Pick.CERTIFICATE to getString(R.string.note_certificate, cut(card.notes.joinToString("\n\n"))),
-                            Book.Pick.BOTH to getString(R.string.note_both),
                         )
                         addView(
                             android.widget.RadioGroup(context).apply {
