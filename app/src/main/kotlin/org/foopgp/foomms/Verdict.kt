@@ -130,6 +130,19 @@ object Opened {
         synchronized(pieces) { pieces.values.removeAll { it.verdict.encrypted } }
     }
 
+    /**
+     * What was opened while its signer's key was missing, forgotten: the
+     * certificate has come since. Signed only, it is verified again as soon
+     * as it is shown; encrypted, it is closed, its signature judged when the
+     * key opens it again. Whether anything encrypted was closed so.
+     */
+    fun forgetMissing(): Boolean {
+        val missing = { said: Signer.Said? -> said?.result == org.openintents.openpgp.OpenPgpSignatureResult.RESULT_KEY_MISSING }
+        val words = synchronized(read) { read.values.filter { missing(it.signed) }.also { gone -> read.values.removeAll(gone.toSet()) } }
+        val parts = synchronized(pieces) { pieces.values.filter { missing(it.signed) }.also { gone -> pieces.values.removeAll(gone.toSet()) } }
+        return words.any { it.verdict.encrypted } || parts.any { it.verdict.encrypted }
+    }
+
     /** The conversations past their time, closed. */
     private fun expire(now: Long) {
         val past = synchronized(lastOpened) { lastOpened.filterValues { now - it > holdFor }.keys }

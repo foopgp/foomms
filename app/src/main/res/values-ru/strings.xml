@@ -190,5 +190,6 @@
     <string name="fetch_cert">🔑 Найти сертификат</string>
     <string name="cert_fetching">Поиск сертификата на серверах ключей…</string>
     <string name="cert_fetched">Сертификат найден: сообщение проверяется заново.</string>
+    <string name="cert_fetched_reopen">Сертификат найден: откройте зашифрованное сообщение снова, чтобы проверить его подпись.</string>
     <string name="cert_not_found">Ни на одном сервере ключей нет этого сертификата.</string>
 </resources>

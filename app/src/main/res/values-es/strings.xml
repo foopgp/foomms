@@ -190,5 +190,6 @@
     <string name="fetch_cert">🔑 Buscar el certificado</string>
     <string name="cert_fetching">Buscando el certificado en los servidores de claves…</string>
     <string name="cert_fetched">Certificado encontrado: el mensaje se verifica de nuevo.</string>
+    <string name="cert_fetched_reopen">Certificado encontrado: abra de nuevo el mensaje cifrado para verificar su firma.</string>
     <string name="cert_not_found">Ningún servidor de claves tiene este certificado.</string>
 </resources>

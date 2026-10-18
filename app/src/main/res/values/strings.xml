@@ -193,5 +193,6 @@
     <string name="fetch_cert">🔑 Look for the certificate</string>
     <string name="cert_fetching">Looking for the certificate on the keyservers…</string>
     <string name="cert_fetched">Certificate found: the message is checked again.</string>
+    <string name="cert_fetched_reopen">Certificate found: open the encrypted message again to check its signature.</string>
     <string name="cert_not_found">No keyserver has this certificate.</string>
 </resources>

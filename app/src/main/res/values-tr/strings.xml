@@ -190,5 +190,6 @@
     <string name="fetch_cert">🔑 Sertifikayı ara</string>
     <string name="cert_fetching">Sertifika anahtar sunucularında aranıyor…</string>
     <string name="cert_fetched">Sertifika bulundu: mesaj yeniden doğrulanıyor.</string>
+    <string name="cert_fetched_reopen">Sertifika bulundu: imzasını doğrulamak için şifreli mesajı yeniden açın.</string>
     <string name="cert_not_found">Hiçbir anahtar sunucusunda bu sertifika yok.</string>
 </resources>

@@ -190,5 +190,6 @@
     <string name="fetch_cert">🔑 Αναζήτηση του πιστοποιητικού</string>
     <string name="cert_fetching">Αναζήτηση του πιστοποιητικού στους διακομιστές κλειδιών…</string>
     <string name="cert_fetched">Το πιστοποιητικό βρέθηκε: το μήνυμα ελέγχεται ξανά.</string>
+    <string name="cert_fetched_reopen">Το πιστοποιητικό βρέθηκε: ανοίξτε ξανά το κρυπτογραφημένο μήνυμα για να ελέγξετε την υπογραφή του.</string>
     <string name="cert_not_found">Κανένας διακομιστής κλειδιών δεν έχει αυτό το πιστοποιητικό.</string>
 </resources>

@@ -1204,9 +1204,12 @@ class ThreadActivity : AskingActivity() {
             // A screen of foodjis instead -- this application not let in: what it showed was the answer.
             screened = { true },
         ) {
-            say(getString(R.string.cert_fetched))
+            // What was judged without it is judged again: signed only, at once; encrypted, when opened again.
+            val closed = Opened.forgetMissing()
+            say(getString(if (closed) R.string.cert_fetched_reopen else R.string.cert_fetched))
             rechecked.clear()
             verifySigned()
+            bubbles.notifyDataSetChanged()
         }
     }
 
