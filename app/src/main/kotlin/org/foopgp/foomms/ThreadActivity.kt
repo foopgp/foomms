@@ -1082,6 +1082,9 @@ class ThreadActivity : AskingActivity() {
     /** The parts only signed being verified, or that could not be. */
     private val verifyingParts = HashSet<Long>()
 
+    /** The signed messages whose key was missing, asked about again on this page. */
+    private val rechecked = HashSet<String>()
+
     /** Signed only, a message needs no key: it is verified as soon as it is shown, and never stays grey -- its words, and its parts. */
     private fun verifySigned() {
         for (piece in lines.flatMap { it.pieces }) {
@@ -1099,9 +1102,10 @@ class ThreadActivity : AskingActivity() {
         }
         for (line in lines) {
             val armor = armorOf(line) ?: continue
-            // A key that was missing is asked about again, once a page: foodjis may hold it since.
+            // A key that was missing is asked about again, once a page: foodjis may hold it since. Once only --
+            // each answer verifies the rest again, and two still missing would be asked about in turn for ever.
             val missing = Opened.words(armor)?.signed?.result == OpenPgpSignatureResult.RESULT_KEY_MISSING
-            if (Pgp.isLocked(armor) || (Opened.words(armor) != null && !missing) || !verifying.add(armor)) continue
+            if (Pgp.isLocked(armor) || (Opened.words(armor) != null && !(missing && rechecked.add(armor))) || !verifying.add(armor)) continue
             provider.ask(Intent(Provider.DECRYPT_VERIFY), armor.toByteArray()) { answer ->
                 if (answer !is Provider.Answer.Done || isFinishing || isDestroyed) return@ask
                 opened(armor, answer, offer = line.incoming)
@@ -1201,7 +1205,7 @@ class ThreadActivity : AskingActivity() {
             screened = { true },
         ) {
             say(getString(R.string.cert_fetched))
-            verifying.clear()
+            rechecked.clear()
             verifySigned()
         }
     }
