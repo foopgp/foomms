@@ -168,9 +168,11 @@ class ThreadActivity : AskingActivity() {
                     LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f),
                 )
                 setOnClickListener {
+                    // Taken now: what changed forgets who the number is with before the refresh is done.
+                    val tied = person?.fingerprint
                     TalkMenu.show(
                         this@ThreadActivity, person?.name ?: number, number, person, thread,
-                        tie = { tie() }, refresh = { person?.fingerprint?.let { refreshed(it) } },
+                        tie = { tie() }, refresh = { tied?.let { refreshed(it) } },
                         changed = { person = null ; card = null ; load(first = true) }, gone = { finish() },
                         save = { Saving.save(this@ThreadActivity, thread, person?.name ?: number) },
                         // Only while foodjis keeps its door shut: once let in, there is nothing to ask.
