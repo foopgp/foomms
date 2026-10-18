@@ -996,12 +996,20 @@ class ThreadActivity : AskingActivity() {
     private fun pressedPiece(piece: Store.Piece, at: Int) {
         val opened = Opened.piece(piece.id)
         if (isSealed(piece) && opened == null) return pressed(at)
-        if ((opened?.type ?: piece.type).startsWith("image/") && (openedThumbs[piece.id] ?: thumbs[piece.id]) != null) return enlarge(piece)
+        if ((opened?.type ?: piece.type).startsWith("image/") && (openedThumbs[piece.id] ?: thumbs[piece.id]) != null) {
+            // Pressed again at once after growing, it opens rather than goes back.
+            val grew = grownAt[piece.id]
+            if (piece.id in enlarged && grew != null && android.os.SystemClock.uptimeMillis() - grew < AGAIN) return handOver(piece, Intent.ACTION_VIEW)
+            return enlarge(piece)
+        }
         handOver(piece, Intent.ACTION_VIEW)
     }
 
     /** The pictures shown as wide as the conversation, by their part; they go back to small when the page goes. */
     private val enlarged = HashSet<Long>()
+
+    /** When each of them grew. */
+    private val grownAt = HashMap<Long, Long>()
 
     /** Those pictures, made again at the size of the screen. */
     private val bigs = HashMap<Long, Bitmap?>()
@@ -1011,6 +1019,7 @@ class ThreadActivity : AskingActivity() {
             enlarged.remove(piece.id)
             return bubbles.notifyDataSetChanged()
         }
+        grownAt[piece.id] = android.os.SystemClock.uptimeMillis()
         bubbles.notifyDataSetChanged()
         if (bigs[piece.id] != null) return
         // Made at least the screen's width, at most twice.
@@ -1237,44 +1246,9 @@ class ThreadActivity : AskingActivity() {
      * what the part is for, a long one asks what to do with it.
      */
     private fun shownPiece(piece: Store.Piece, at: Int): View = pieceView(piece, at).apply {
-        when (this) {
-            // A sound's button already plays it.
-            is android.widget.Button -> setOnLongClickListener { about(at, piece) ; true }
-            // A picture pressed twice opens, as anything else pressed once.
-            is android.widget.ImageView -> presses(
-                once = { pressedPiece(piece, at) },
-                twice = { if (isSealed(piece) && Opened.piece(piece.id) == null) pressed(at) else handOver(piece, Intent.ACTION_VIEW) },
-                long = { about(at, piece) },
-            )
-            else -> {
-                setOnClickListener { pressedPiece(piece, at) }
-                setOnLongClickListener { about(at, piece) ; true }
-            }
-        }
-    }
-
-    /** Short, double and long presses told apart: a short one waits to know it is not the first of two. */
-    @android.annotation.SuppressLint("ClickableViewAccessibility")
-    private fun View.presses(once: () -> Unit, twice: () -> Unit, long: () -> Unit) {
-        val detector = android.view.GestureDetector(
-            context,
-            object : android.view.GestureDetector.SimpleOnGestureListener() {
-                override fun onDown(e: android.view.MotionEvent) = true
-                override fun onSingleTapConfirmed(e: android.view.MotionEvent): Boolean { once() ; return true }
-                override fun onDoubleTap(e: android.view.MotionEvent): Boolean { twice() ; return true }
-                override fun onLongPress(e: android.view.MotionEvent) = long()
-            },
-        )
-        setOnTouchListener { _, event -> detector.onTouchEvent(event) }
-    }
-
-    /** The first web address of [words] opened, as the selected text would; none, nothing happens. */
-    private fun followFirstLink(words: String) {
-        val linked = android.text.SpannableString(words)
-        android.text.util.Linkify.addLinks(linked, android.text.util.Linkify.WEB_URLS)
-        val first = linked.getSpans(0, linked.length, android.text.style.URLSpan::class.java).minByOrNull { linked.getSpanStart(it) } ?: return
-        runCatching { startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(first.url))) }
-            .onFailure { say(getString(R.string.failed, it.message)) }
+        // A sound's button already plays it.
+        if (this !is android.widget.Button) setOnClickListener { pressedPiece(piece, at) }
+        setOnLongClickListener { about(at, piece) ; true }
     }
 
     /** A picture as wide as the conversation when it was pressed, small otherwise. */
@@ -1415,22 +1389,21 @@ class ThreadActivity : AskingActivity() {
                     )
                 } else if (words.isNotEmpty() || line.pieces.isEmpty()) {
                     // Open, the words are selected, links included: nothing is followed on a press alone.
-                    // Pressed twice, the first link is followed: a choice made, not a slip of the finger.
-                    text.presses(
-                        once = { if (closed || words.isEmpty()) pressed(at) else select(words, armored = false) },
-                        twice = { if (closed || words.isEmpty()) pressed(at) else followFirstLink(words) },
-                        long = { about(at, words = true) },
-                    )
+                    text.setOnClickListener { if (closed || words.isEmpty()) pressed(at) else select(words, armored = false) }
+                    text.setOnLongClickListener { about(at, words = true) ; true }
                     addView(text)
                 }
                 for (piece in line.pieces) addView(shownPiece(piece, at))
-                // As wide as its text only: the rest of the bubble's width takes no press.
+                // The press on its text only, the rest of the bubble's width in a row that takes none.
                 addView(
-                    Look.words(context, under, size = 11f, muted = true).apply {
-                        setOnClickListener { details(line) }
-                        setOnLongClickListener { about(at) ; true }
+                    LinearLayout(context).apply {
+                        addView(
+                            Look.words(context, under, size = 11f, muted = true).apply {
+                                setOnClickListener { details(line) }
+                                setOnLongClickListener { about(at) ; true }
+                            },
+                        )
                     },
-                    LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT),
                 )
             }
             // A mark of the full colour on the side the message came from, the bubble itself on that side.
@@ -1575,6 +1548,9 @@ class ThreadActivity : AskingActivity() {
         private const val PLACE = 10
         private const val VOICE = 11
         private const val SAVE_PIECE = 12
+
+        /** How soon a picture pressed again after growing opens, in milliseconds. */
+        private const val AGAIN = 300L
 
         /** How many of the latest messages have their pictures shown small. */
         private const val SHOWN_PICTURES = 40
