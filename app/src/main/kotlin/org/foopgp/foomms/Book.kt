@@ -240,7 +240,7 @@ object Book {
     fun stale(context: Context, number: String, card: Card): List<Stale> {
         val known = who(context, number) ?: return emptyList()
         val found = ArrayList<Stale>()
-        fun look(kind: String, column: String, carried: List<String>, same: (String, String) -> Boolean = { a, b -> a == b }) {
+        fun look(kind: String, column: String, carried: List<String>, same: (String, String) -> Boolean = { a, b -> a == b }, kept: (String) -> Boolean = { false }) {
             // TYPE and LABEL are DATA2 and DATA3 in every kind of row: a custom type, labelled with the mark.
             context.contentResolver.query(
                 Data.CONTENT_URI, arrayOf(Data._ID, column),
@@ -249,14 +249,15 @@ object Book {
             )?.use { rows ->
                 while (rows.moveToNext()) {
                     val value = rows.getString(1) ?: continue
-                    if (carried.none { same(it, value) }) found += Stale(rows.getLong(0), value)
+                    if (!kept(value) && carried.none { same(it, value) }) found += Stale(rows.getLong(0), value)
                 }
             }
         }
         look(Email.CONTENT_ITEM_TYPE, Email.ADDRESS, card.emails) { a, b -> a.equals(b, true) }
         look(PhoneRow.CONTENT_ITEM_TYPE, PhoneRow.NUMBER, card.phones.mapNotNull { Phone.plain(it) }, Phone::same)
         look(StructuredPostal.CONTENT_ITEM_TYPE, StructuredPostal.FORMATTED_ADDRESS, card.addresses)
-        look(Website.CONTENT_ITEM_TYPE, Website.URL, card.websites) { a, b -> a == b || Fingerprint.of(b) != null }
+        // The certificate's own address is not one of its sites: it is replaced by [tie], never stale.
+        look(Website.CONTENT_ITEM_TYPE, Website.URL, card.websites, kept = { Fingerprint.of(it) != null })
         return found
     }
 
