@@ -186,8 +186,6 @@ class ThreadActivity : AskingActivity() {
             transcriptMode = ListView.TRANSCRIPT_MODE_NORMAL
             isStackFromBottom = true
             adapter = bubbles
-            setOnItemClickListener { _, _, at, _ -> pressed(at) }
-            setOnItemLongClickListener { _, _, at, _ -> about(at) ; true }
         }
         field = EditText(this).apply {
             // Empty, the field also listens: held down, it records what is said, for as long as it is held.
@@ -1015,8 +1013,8 @@ class ThreadActivity : AskingActivity() {
         }
         bubbles.notifyDataSetChanged()
         if (bigs[piece.id] != null) return
-        // Made at least half the screen's width, at most all of it.
-        val side = resources.displayMetrics.widthPixels / 2
+        // Made at least the screen's width, at most twice.
+        val side = resources.displayMetrics.widthPixels
         thread {
             val opened = Opened.piece(piece.id)
             val big = if (opened != null) thumbnail(opened.bytes, side) else Media.thumbnail(this, piece.uri, side)
@@ -1249,8 +1247,14 @@ class ThreadActivity : AskingActivity() {
         val wide = piece.id in enlarged
         setImageBitmap(if (wide) bigs[piece.id] ?: small else small)
         adjustViewBounds = true
-        maxWidth = if (wide) resources.displayMetrics.widthPixels else Look.dp(context, 220)
-        maxHeight = if (wide) resources.displayMetrics.heightPixels * 3 / 4 else Look.dp(context, 220)
+        if (wide) {
+            // All the list's width but the bubble's own margins: the picture is drawn larger than it was made if need be.
+            val pad = Look.dp(context, 10)
+            layoutParams = LinearLayout.LayoutParams(list.width - list.paddingLeft - list.paddingRight - 4 * pad - Look.dp(context, 4) - 2 * (pad / 3), ViewGroup.LayoutParams.WRAP_CONTENT)
+            maxHeight = resources.displayMetrics.heightPixels * 3 / 4
+        } else {
+            maxWidth = Look.dp(context, 220) ; maxHeight = Look.dp(context, 220)
+        }
         setPadding(0, Look.dp(context, 4), 0, Look.dp(context, 4))
     }
 
@@ -1321,6 +1325,11 @@ class ThreadActivity : AskingActivity() {
         override fun getItem(at: Int) = lines[at]
         override fun getItemId(at: Int) = at.toLong()
 
+        // Only the parts of a message take presses, not the white around them.
+        override fun areAllItemsEnabled() = false
+
+        override fun isEnabled(at: Int) = false
+
         override fun getView(at: Int, old: View?, parent: ViewGroup): View {
             val line = lines[at]
             val context = this@ThreadActivity
@@ -1378,7 +1387,6 @@ class ThreadActivity : AskingActivity() {
                 for (piece in line.pieces) addView(shownPiece(piece, at))
                 addView(
                     Look.words(context, under, size = 11f, muted = true).apply {
-                        setPadding(0, Look.dp(context, 2), 0, 0)
                         setOnClickListener { details(line) }
                         setOnLongClickListener { about(at) ; true }
                     },
@@ -1389,17 +1397,15 @@ class ThreadActivity : AskingActivity() {
             return LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = (if (line.incoming) Gravity.START else Gravity.END) or Gravity.CENTER_VERTICAL
-                setPadding(if (line.incoming) pad else pad * 5, pad / 3, if (line.incoming) pad * 5 else pad, pad / 3)
+                // A picture made wide takes the margin left on the far side.
+                val far = if (line.pieces.any { it.id in enlarged }) pad else pad * 5
+                setPadding(if (line.incoming) pad else far, pad / 3, if (line.incoming) far else pad, pad / 3)
                 val stripe = LinearLayout.LayoutParams(Look.dp(context, 4), ViewGroup.LayoutParams.MATCH_PARENT).apply {
                     marginStart = pad / 3 ; marginEnd = pad / 3
                 }
                 if (line.incoming) addView(mark, stripe)
                 addView(bubble, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
                 if (!line.incoming) addView(mark, stripe)
-                // The presses taken here, the whole row: a row holding a button -- a sound to play -- is no longer
-                // one the list hands its presses to, and a long press beside the button did nothing.
-                setOnClickListener { pressed(at) }
-                setOnLongClickListener { about(at) ; true }
             }
         }
     }
