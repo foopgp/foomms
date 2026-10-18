@@ -6,6 +6,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
+import org.openintents.openpgp.OpenPgpSignatureResult
 
 /**
  * Saying that a message has arrived: from whom, and its words -- or, for a
@@ -14,11 +16,16 @@ import android.content.Intent
  */
 object Notify {
 
-    /** [form]: what the message travelled as, told from [body] when not given -- an MMS carries it in its parts too. */
-    fun arrived(context: Context, number: String, body: String, form: Form = Form.of(body)) {
+    /**
+     * [form]: what the message travelled as, told from [body] when not given
+     * -- an MMS carries it in its parts too. [done] is called once nothing
+     * more is to be said of it: a signed message is verified after being
+     * announced, and the receiver keeps the process alive until then.
+     */
+    fun arrived(context: Context, number: String, body: String, form: Form = Form.of(body), done: () -> Unit = {}) {
         // Not announced: a sender the person asked not to hear of.
-        if (Marks.muted(context, number)) return
-        val manager = context.getSystemService(NotificationManager::class.java) ?: return
+        if (Marks.muted(context, number)) return done()
+        val manager = context.getSystemService(NotificationManager::class.java) ?: return done()
         manager.createNotificationChannel(
             NotificationChannel(CHANNEL, context.getString(R.string.channel_messages), NotificationManager.IMPORTANCE_HIGH),
         )
@@ -32,25 +39,60 @@ object Notify {
         val who = person?.name ?: number
         // The contact's picture, when the address book has one: read with the name, from the same card.
         val face = person?.let { runCatching { Book.face(context, it) }.getOrNull() }
-        val open = PendingIntent.getActivity(
-            context, number.hashCode(),
-            Intent(context, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, number)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
-        val shown = Notification.Builder(context, CHANNEL)
-            .setSmallIcon(R.drawable.mark)
-            .setContentTitle(who)
-            .setContentText(words)
-            .setStyle(Notification.BigTextStyle().bigText(words))
-            .setCategory(Notification.CATEGORY_MESSAGE)
-            .setContentIntent(open)
-            .setAutoCancel(true)
-            // The colour of the form, against the notifications' own background: the phone's theme, not this application's.
-            .setColor(Look.colour(form, dark = context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES))
-            .apply { face?.let { setLargeIcon(it) } }
-            .build()
-        runCatching { manager.notify(number.hashCode(), shown) }
+        // Against the notifications' own background: the phone's theme, not this application's.
+        val dark = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+        fun show(text: String, colour: Int) {
+            val open = PendingIntent.getActivity(
+                context, number.hashCode(),
+                Intent(context, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, number)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+            val shown = Notification.Builder(context, CHANNEL)
+                .setSmallIcon(R.drawable.mark)
+                .setContentTitle(who)
+                .setContentText(text)
+                .setStyle(Notification.BigTextStyle().bigText(text))
+                .setCategory(Notification.CATEGORY_MESSAGE)
+                .setContentIntent(open)
+                .setAutoCancel(true)
+                // Said again once verified: heard once.
+                .setOnlyAlertOnce(true)
+                .setColor(colour)
+                .apply { face?.let { setLargeIcon(it) } }
+                .build()
+            runCatching { manager.notify(number.hashCode(), shown) }
+        }
+        show(words, Look.colour(form, dark))
+        if (armor == null || Pgp.isLocked(armor)) return done()
+        // Signed only, foodjis reads it without the key: its words follow the glyph, in the colour of what the signature is worth.
+        verify(context.applicationContext, armor, done) { read, certified ->
+            show(context.getString(R.string.signed_words, read), Look.colour(if (certified) Verdict.BLUE else Verdict.RED, dark))
+        }
+    }
+
+    /** foodjis asked to verify [armor]; [then] hears its words when the signature holds; [done] in any case, and at the latest after [PATIENCE]. */
+    private fun verify(context: Context, armor: String, done: () -> Unit, then: (String, Boolean) -> Unit) {
+        val provider = Provider(context)
+        val over = java.util.concurrent.atomic.AtomicBoolean(false)
+        val main = android.os.Handler(android.os.Looper.getMainLooper())
+        fun end() {
+            if (!over.compareAndSet(false, true)) return
+            runCatching { provider.close() }
+            done()
+        }
+        main.postDelayed(::end, PATIENCE)
+        provider.ask(Intent(Provider.DECRYPT_VERIFY), armor.toByteArray()) { answer ->
+            if (answer is Provider.Answer.Done && !over.get()) {
+                // Kept as the conversation would keep it: opened there, it is read already.
+                val signature = runCatching { Signer.keep(context, armor, answer) }.getOrNull()
+                when (signature?.result) {
+                    OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED -> then(String(answer.bytes, Charsets.UTF_8), true)
+                    OpenPgpSignatureResult.RESULT_VALID_KEY_UNCONFIRMED -> then(String(answer.bytes, Charsets.UTF_8), false)
+                }
+            }
+            end()
+        }
     }
 
     fun seen(context: Context, number: String) {
@@ -58,4 +100,7 @@ object Notify {
     }
 
     private const val CHANNEL = "messages"
+
+    /** How long foodjis is waited for, in milliseconds: a receiver has ten seconds. */
+    private const val PATIENCE = 8_000L
 }

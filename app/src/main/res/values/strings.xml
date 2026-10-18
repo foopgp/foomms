@@ -23,6 +23,7 @@
     <string name="write">✎ New message</string>
     <string name="locked_message">⚿ Encrypted message</string>
     <string name="signed_message">✍ Signed message</string>
+    <string name="signed_words" translatable="false">✍ %1$s</string>
     <string name="signed_press">✍ Signed message — press to check it</string>
     <string name="foodjis_shut">foodjis has not let this application in yet</string>
     <string name="certificate_not_held">foodjis does not hold this certificate</string>

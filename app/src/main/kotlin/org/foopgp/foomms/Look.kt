@@ -48,7 +48,7 @@ object Look {
     private val HOLLOW: Int get() = if (dark) Color.rgb(0x2E, 0x2E, 0x33) else Color.rgb(0xEE, 0xEE, 0xEE)
 
     /** A verdict's colour, as foodjis paints its own: full for a mark, pale under a text. */
-    fun colour(verdict: Verdict): Int = when (verdict) {
+    fun colour(verdict: Verdict, dark: Boolean = this.dark): Int = when (verdict) {
         Verdict.RED -> Color.rgb(0xFF, 0x62, 0x7D)
         Verdict.YELLOW -> Color.rgb(0xFA, 0xCC, 0x15)
         Verdict.BLUE -> if (dark) Color.rgb(0x71, 0xBF, 0xFF) else Color.rgb(0x00, 0x68, 0xB2)
@@ -64,7 +64,7 @@ object Look {
     fun colour(form: Form, dark: Boolean = this.dark): Int = when (form) {
         Form.PLAIN -> if (dark) Color.rgb(0xF4, 0xF4, 0xF5) else Color.rgb(0x18, 0x18, 0x1B)
         Form.SIGNED -> Color.rgb(0xA8, 0x55, 0xF7)
-        Form.LOCKED -> Color.rgb(0x84, 0xCC, 0x16)
+        Form.LOCKED -> Color.rgb(0xBC, 0xD4, 0x16)
     }
 
     /** The same colour under a text: pale on a light page, deep on a dark one, the text legible on both. */

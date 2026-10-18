@@ -34,7 +34,9 @@ object Inbound {
             val subscription = intent.getIntExtra("subscription", -1)
             runCatching { Keep.smsReceived(context, from, body, pieces.first().timestampMillis, subscription) }
                 .onFailure { Log.e(TAG, "an SMS could not be written", it) }
-            runCatching { Notify.arrived(context, from, body) }
+            // Kept alive until a signed message has been verified for its notification.
+            val pending = goAsync()
+            runCatching { Notify.arrived(context, from, body) { pending.finish() } }.onFailure { pending.finish() }
         }
     }
 
@@ -82,7 +84,8 @@ object Inbound {
                 // Its form, of its parts: a PGP message carried whole, or in its words.
                 val sealed = message.parts.filter { !it.isText && (it.type == Pgp.TYPE || it.name.orEmpty().lowercase().let { n -> n.endsWith(".pgp") || n.endsWith(".gpg") || n.endsWith(".asc") }) }
                 val form = Form.of(Form.of(words) == Form.LOCKED || sealed.any { Pgp.isLocked(it.bytes) }, Form.of(words) != Form.PLAIN || sealed.isNotEmpty())
-                Notify.arrived(context, from, words, form)
+                val pending = goAsync()
+                runCatching { Notify.arrived(context, from, words, form) { pending.finish() } }.onFailure { pending.finish() }
             } catch (failed: Exception) {
                 Log.e(TAG, "an MMS could not be read or written", failed)
             } finally {
