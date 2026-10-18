@@ -196,4 +196,12 @@
     <string name="old_foodjis">%1$s %2$s ist älter, als foomms es braucht: Manches wird nicht funktionieren. Aktualisieren Sie es mindestens auf %3$s.</string>
     <string name="update_foodjis">%1$s aktualisieren</string>
     <string name="tie_ask_removed">Und dies wird aus dem Kontakt entfernt, da das Zertifikat es nicht mehr trägt:</string>
+    <string name="choose_face">Bild:</string>
+    <string name="face_contact">Im Kontakt</string>
+    <string name="face_certificate">Aus dem Zertifikat</string>
+    <string name="choose_note">Notiz:</string>
+    <string name="note_contact">Die des Kontakts behalten: %1$s</string>
+    <string name="note_certificate">Die des Zertifikats nehmen: %1$s</string>
+    <string name="note_both">Beide behalten</string>
+    <string name="note_size">(%1$d Zeichen)</string>
 </resources>

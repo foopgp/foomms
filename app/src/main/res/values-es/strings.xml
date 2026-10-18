@@ -196,4 +196,12 @@
     <string name="old_foodjis">%1$s %2$s es más antiguo de lo que foomms necesita: algunas cosas no funcionarán. Actualícelo, a %3$s como mínimo.</string>
     <string name="update_foodjis">Actualizar %1$s</string>
     <string name="tie_ask_removed">Y esto se quitará del contacto, pues el certificado ya no lo lleva:</string>
+    <string name="choose_face">Foto:</string>
+    <string name="face_contact">En el contacto</string>
+    <string name="face_certificate">Del certificado</string>
+    <string name="choose_note">Nota:</string>
+    <string name="note_contact">Conservar la del contacto: %1$s</string>
+    <string name="note_certificate">Tomar la del certificado: %1$s</string>
+    <string name="note_both">Conservar las dos</string>
+    <string name="note_size">(%1$d caracteres)</string>
 </resources>

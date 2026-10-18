@@ -196,4 +196,12 @@
     <string name="old_foodjis">%1$s %2$s старіший, ніж потрібно foomms: дещо не працюватиме. Оновіть його щонайменше до %3$s.</string>
     <string name="update_foodjis">Оновити %1$s</string>
     <string name="tie_ask_removed">А це буде вилучено з контакту, бо сертифікат цього більше не містить:</string>
+    <string name="choose_face">Фото:</string>
+    <string name="face_contact">У контакті</string>
+    <string name="face_certificate">Із сертифіката</string>
+    <string name="choose_note">Нотатка:</string>
+    <string name="note_contact">Залишити з контакту: %1$s</string>
+    <string name="note_certificate">Взяти із сертифіката: %1$s</string>
+    <string name="note_both">Залишити обидві</string>
+    <string name="note_size">(%1$d символів)</string>
 </resources>

@@ -101,7 +101,13 @@ object Book {
      * face -- where the contact does not say it already. A contact is made
      * when the number has none.
      */
-    fun tie(context: Context, number: String, card: Card, address: String, stale: List<Stale> = emptyList()) {
+    /** Which of two to keep, when the contact and the certificate say otherwise: the contact's, the certificate's, or both. */
+    enum class Pick { CONTACT, CERTIFICATE, BOTH }
+
+    fun tie(
+        context: Context, number: String, card: Card, address: String, stale: List<Stale> = emptyList(),
+        face: Pick = Pick.CONTACT, note: Pick = Pick.CONTACT,
+    ) {
         written++
         val known = who(context, number)
         val raw = known?.let { rawOf(context, it.contact) } ?: create(context, number, card.name ?: number)
@@ -151,19 +157,49 @@ object Book {
                 row(Website.CONTENT_ITEM_TYPE, Website.URL, site) { put(Website.TYPE, Website.TYPE_CUSTOM) ; put(Website.LABEL, MARK) }
             }
         }
-        for (note in card.notes) {
-            if (missing(Note.CONTENT_ITEM_TYPE, Note.NOTE, note)) row(Note.CONTENT_ITEM_TYPE, Note.NOTE, note)
+        // The certificate's note: written where the contact has none; where it has its own, as the person chose.
+        val notes = values(context, contact, Note.CONTENT_ITEM_TYPE, Note.NOTE).filter { it.isNotBlank() }
+        if (card.notes.isNotEmpty() && (notes.isEmpty() || note != Pick.CONTACT)) {
+            if (notes.isNotEmpty() && note == Pick.CERTIFICATE) gone(context, contact, Note.CONTENT_ITEM_TYPE)
+            for (said in card.notes) {
+                if (note == Pick.CERTIFICATE || missing(Note.CONTENT_ITEM_TYPE, Note.NOTE, said)) row(Note.CONTENT_ITEM_TYPE, Note.NOTE, said)
+            }
         }
-        // The face the certificate carries, when the contact has none of its own.
-        val face = card.photo
-        if (face != null && known?.photo == null) {
+        // The certificate's face: where the contact has none, or in place of its own when the person chose so.
+        val picture = card.photo
+        if (picture != null && (known?.photo == null || face == Pick.CERTIFICATE)) {
+            if (known?.photo != null) gone(context, contact, Photo.CONTENT_ITEM_TYPE)
             resolver.insert(
                 Data.CONTENT_URI,
                 ContentValues().apply {
-                    put(Data.RAW_CONTACT_ID, raw) ; put(Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE) ; put(Photo.PHOTO, face)
+                    put(Data.RAW_CONTACT_ID, raw) ; put(Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE) ; put(Photo.PHOTO, picture)
+                    // The one shown, of all the contact's.
+                    put(Data.IS_PRIMARY, 1) ; put(Data.IS_SUPER_PRIMARY, 1)
                 },
             )
         }
+    }
+
+    /** Every row of a [kind] the contact holds, gone. */
+    private fun gone(context: Context, contact: Long, kind: String) {
+        context.contentResolver.delete(Data.CONTENT_URI, "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ?", arrayOf(contact.toString(), kind))
+    }
+
+    /**
+     * Where the contact and the certificate each have a face, or a note, and
+     * they are not the same: the contact's, to set beside the certificate's.
+     * Faces are compared as a person would ([Likeness]), notes word for word.
+     */
+    class Differs(val face: android.graphics.Bitmap?, val note: String?)
+
+    fun differs(context: Context, number: String, card: Card): Differs {
+        val known = who(context, number) ?: return Differs(null, null)
+        val theirs = card.photo
+        val face = if (theirs == null) null else face(context, known)?.takeIf { !Likeness.alike(it, theirs) }
+        val mine = values(context, known.contact, Note.CONTENT_ITEM_TYPE, Note.NOTE).filter { it.isNotBlank() }.joinToString("\n\n")
+        val said = card.notes.joinToString("\n\n")
+        val note = mine.takeIf { it.isNotBlank() && said.isNotBlank() && it.trim() != said.trim() }
+        return Differs(face, note)
     }
 
     /**
@@ -180,7 +216,8 @@ object Book {
             card.phones.mapNotNull { Phone.plain(it) }.any { !Phone.same(it, number) && missing(PhoneRow.CONTENT_ITEM_TYPE, PhoneRow.NUMBER, it, Phone::same) } ||
             card.addresses.any { missing(StructuredPostal.CONTENT_ITEM_TYPE, StructuredPostal.FORMATTED_ADDRESS, it) } ||
             card.websites.any { missing(Website.CONTENT_ITEM_TYPE, Website.URL, it) } ||
-            card.notes.any { missing(Note.CONTENT_ITEM_TYPE, Note.NOTE, it) } ||
+            // A note where the contact has none: one beside its own is a choice, asked by [differs].
+            (card.notes.isNotEmpty() && values(context, known.contact, Note.CONTENT_ITEM_TYPE, Note.NOTE).none { it.isNotBlank() }) ||
             (card.photo != null && known.photo == null)
     }
 

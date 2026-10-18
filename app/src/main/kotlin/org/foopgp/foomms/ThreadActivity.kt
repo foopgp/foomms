@@ -1529,12 +1529,13 @@ class ThreadActivity : AskingActivity() {
             val lacks = card != null &&
                 Book.lacks(this, number, card, card.key?.takeIf { Fingerprint.of(it) == fingerprint } ?: Fingerprint.address(fingerprint))
             val stale = card?.let { Book.stale(this, number, it) }.orEmpty()
+            val differs = card?.let { Book.differs(this, number, it) }
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 when {
                     foodjis.shut -> say(getString(R.string.foodjis_shut))
                     whose == null -> say(getString(R.string.certificate_not_held))
-                    lacks || stale.isNotEmpty() -> offer(whose, stale)
+                    lacks || stale.isNotEmpty() || differs?.face != null || differs?.note != null -> offer(whose, stale)
                     else -> Toast.makeText(this, R.string.cert_refreshed, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -1549,20 +1550,76 @@ class ThreadActivity : AskingActivity() {
     private fun offer(whose: Foodjis.Cert, stale: List<Book.Stale> = emptyList()) {
         thread {
             val card = foodjis.vcard(whose.fingerprint)
+            // Where the contact has its own face or note, and the certificate another: the person chooses.
+            val differs = card?.takeIf { checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED }
+                ?.let { Book.differs(this, number, it) } ?: Book.Differs(null, null)
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 if (card == null) return@runOnUiThread say(getString(R.string.no_card, whose.name))
                 val told = card.told().joinToString("\n") { "•  $it" } +
                     (if (card.photo != null) "\n•  " + getString(R.string.card_photo) else "") +
                     "\n•  🔑 " + (card.key ?: Fingerprint.address(whose.fingerprint))
+                val pad = Look.dp(this, 20)
+                var face = Book.Pick.CONTACT
+                var note = Book.Pick.CONTACT
+                val column = LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(pad, pad / 2, pad, 0)
+                    addView(
+                        Look.words(
+                            context,
+                            android.text.SpannableStringBuilder(getString(R.string.tie_ask_before)).append(" ")
+                                .append(Look.standing(context, whose.validity)).append(getString(R.string.tie_ask_after)).append("\n\n").append(told)
+                                .apply { if (stale.isNotEmpty()) append("\n\n").append(getString(R.string.tie_ask_removed)).append("\n").append(stale.joinToString("\n") { "•  ${it.value}" }) },
+                            size = 15f,
+                        ),
+                    )
+                    // The two faces side by side, the contact's on the left: the one pressed is kept.
+                    val theirs = card.photo?.let { runCatching { android.graphics.BitmapFactory.decodeByteArray(it, 0, it.size) }.getOrNull() }
+                    if (differs.face != null && theirs != null) {
+                        addView(Look.words(context, getString(R.string.choose_face), size = 15f).apply { setPadding(0, pad, 0, pad / 3) })
+                        val faces = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL ; gravity = Gravity.CENTER }
+                        val frames = ArrayList<View>()
+                        fun choice(picture: Bitmap, said: Int, pick: Book.Pick) = LinearLayout(context).apply {
+                            orientation = LinearLayout.VERTICAL
+                            gravity = Gravity.CENTER_HORIZONTAL
+                            setPadding(pad / 3, pad / 3, pad / 3, pad / 3)
+                            addView(
+                                android.widget.ImageView(context).apply { setImageBitmap(picture) ; scaleType = android.widget.ImageView.ScaleType.CENTER_CROP },
+                                LinearLayout.LayoutParams(Look.dp(context, 96), Look.dp(context, 96)),
+                            )
+                            addView(Look.words(context, getString(said), size = 13f, muted = true))
+                            setOnClickListener { face = pick ; frames.forEach { it.background = null } ; background = Look.rounded(Look.ORANGE, Look.dp(context, 8)) }
+                        }.also { frames += it }
+                        faces.addView(choice(differs.face, R.string.face_contact, Book.Pick.CONTACT).apply { background = Look.rounded(Look.ORANGE, Look.dp(context, 8)) })
+                        faces.addView(View(context), LinearLayout.LayoutParams(pad, 1))
+                        faces.addView(choice(theirs, R.string.face_certificate, Book.Pick.CERTIFICATE))
+                        addView(faces)
+                    }
+                    // The two notes, cut when long, and both kept as a third way.
+                    if (differs.note != null) {
+                        addView(Look.words(context, getString(R.string.choose_note), size = 15f).apply { setPadding(0, pad, 0, pad / 3) })
+                        fun cut(text: String) = if (text.length <= NOTE_SHOWN) "« $text »" else "« ${text.take(NOTE_SHOWN).trimEnd()}… » " + getString(R.string.note_size, text.length)
+                        val picks = listOf(
+                            Book.Pick.CONTACT to getString(R.string.note_contact, cut(differs.note)),
+                            Book.Pick.CERTIFICATE to getString(R.string.note_certificate, cut(card.notes.joinToString("\n\n"))),
+                            Book.Pick.BOTH to getString(R.string.note_both),
+                        )
+                        addView(
+                            android.widget.RadioGroup(context).apply {
+                                for ((at, pick) in picks.withIndex()) {
+                                    addView(android.widget.RadioButton(context).apply { id = at + 1 ; text = pick.second ; textSize = 14f ; setTextColor(Look.INK) })
+                                }
+                                check(1)
+                                setOnCheckedChangeListener { _, id -> note = picks[id - 1].first }
+                            },
+                        )
+                    }
+                }
                 AlertDialog.Builder(this)
                     .setTitle(getString(R.string.tie_ask, number, whose.name))
-                    .setMessage(
-                        android.text.SpannableStringBuilder(getString(R.string.tie_ask_before)).append(" ")
-                            .append(Look.standing(this, whose.validity)).append(getString(R.string.tie_ask_after)).append("\n\n").append(told)
-                            .apply { if (stale.isNotEmpty()) append("\n\n").append(getString(R.string.tie_ask_removed)).append("\n").append(stale.joinToString("\n") { "•  ${it.value}" }) },
-                    )
-                    .setPositiveButton(R.string.tie_write) { _, _ -> write(whose, card, stale) }
+                    .setView(android.widget.ScrollView(this).apply { addView(column) })
+                    .setPositiveButton(R.string.tie_write) { _, _ -> write(whose, card, stale, face, note) }
                     .setNegativeButton(android.R.string.cancel, null)
                     .show()
             }
@@ -1571,14 +1628,17 @@ class ThreadActivity : AskingActivity() {
 
     private var waiting: (() -> Unit)? = null
 
-    private fun write(whose: Foodjis.Cert, vcard: Card, stale: List<Book.Stale> = emptyList()) {
+    private fun write(
+        whose: Foodjis.Cert, vcard: Card, stale: List<Book.Stale> = emptyList(),
+        face: Book.Pick = Book.Pick.CONTACT, note: Book.Pick = Book.Pick.CONTACT,
+    ) {
         if (NEEDED_TO_WRITE.any { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }) {
-            waiting = { write(whose, vcard, stale) }
+            waiting = { write(whose, vcard, stale, face, note) }
             return requestPermissions(NEEDED_TO_WRITE, 2)
         }
         thread {
             val outcome = runCatching {
-                Book.tie(this, number, vcard, vcard.key?.takeIf { Fingerprint.of(it) == whose.fingerprint } ?: Fingerprint.address(whose.fingerprint), stale)
+                Book.tie(this, number, vcard, vcard.key?.takeIf { Fingerprint.of(it) == whose.fingerprint } ?: Fingerprint.address(whose.fingerprint), stale, face, note)
                 getString(R.string.tied, whose.name)
             }.getOrElse { getString(R.string.failed, it.message) }
             runOnUiThread {
@@ -1630,6 +1690,9 @@ class ThreadActivity : AskingActivity() {
         private const val PLACE = 10
         private const val VOICE = 11
         private const val SAVE_PIECE = 12
+
+        /** How much of a note is shown when the person chooses between two. */
+        private const val NOTE_SHOWN = 160
 
         /** How soon a picture pressed again after growing gives its menu, in milliseconds. */
         private const val AGAIN = 300L
