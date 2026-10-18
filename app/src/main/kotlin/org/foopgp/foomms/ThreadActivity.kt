@@ -1237,9 +1237,44 @@ class ThreadActivity : AskingActivity() {
      * what the part is for, a long one asks what to do with it.
      */
     private fun shownPiece(piece: Store.Piece, at: Int): View = pieceView(piece, at).apply {
-        // A sound's button already plays it.
-        if (this !is android.widget.Button) setOnClickListener { pressedPiece(piece, at) }
-        setOnLongClickListener { about(at, piece) ; true }
+        when (this) {
+            // A sound's button already plays it.
+            is android.widget.Button -> setOnLongClickListener { about(at, piece) ; true }
+            // A picture pressed twice opens, as anything else pressed once.
+            is android.widget.ImageView -> presses(
+                once = { pressedPiece(piece, at) },
+                twice = { if (isSealed(piece) && Opened.piece(piece.id) == null) pressed(at) else handOver(piece, Intent.ACTION_VIEW) },
+                long = { about(at, piece) },
+            )
+            else -> {
+                setOnClickListener { pressedPiece(piece, at) }
+                setOnLongClickListener { about(at, piece) ; true }
+            }
+        }
+    }
+
+    /** Short, double and long presses told apart: a short one waits to know it is not the first of two. */
+    @android.annotation.SuppressLint("ClickableViewAccessibility")
+    private fun View.presses(once: () -> Unit, twice: () -> Unit, long: () -> Unit) {
+        val detector = android.view.GestureDetector(
+            context,
+            object : android.view.GestureDetector.SimpleOnGestureListener() {
+                override fun onDown(e: android.view.MotionEvent) = true
+                override fun onSingleTapConfirmed(e: android.view.MotionEvent): Boolean { once() ; return true }
+                override fun onDoubleTap(e: android.view.MotionEvent): Boolean { twice() ; return true }
+                override fun onLongPress(e: android.view.MotionEvent) = long()
+            },
+        )
+        setOnTouchListener { _, event -> detector.onTouchEvent(event) }
+    }
+
+    /** The first web address of [words] opened, as the selected text would; none, nothing happens. */
+    private fun followFirstLink(words: String) {
+        val linked = android.text.SpannableString(words)
+        android.text.util.Linkify.addLinks(linked, android.text.util.Linkify.WEB_URLS)
+        val first = linked.getSpans(0, linked.length, android.text.style.URLSpan::class.java).minByOrNull { linked.getSpanStart(it) } ?: return
+        runCatching { startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(first.url))) }
+            .onFailure { say(getString(R.string.failed, it.message)) }
     }
 
     /** A picture as wide as the conversation when it was pressed, small otherwise. */
@@ -1380,16 +1415,22 @@ class ThreadActivity : AskingActivity() {
                     )
                 } else if (words.isNotEmpty() || line.pieces.isEmpty()) {
                     // Open, the words are selected, links included: nothing is followed on a press alone.
-                    text.setOnClickListener { if (closed || words.isEmpty()) pressed(at) else select(words, armored = false) }
-                    text.setOnLongClickListener { about(at, words = true) ; true }
+                    // Pressed twice, the first link is followed: a choice made, not a slip of the finger.
+                    text.presses(
+                        once = { if (closed || words.isEmpty()) pressed(at) else select(words, armored = false) },
+                        twice = { if (closed || words.isEmpty()) pressed(at) else followFirstLink(words) },
+                        long = { about(at, words = true) },
+                    )
                     addView(text)
                 }
                 for (piece in line.pieces) addView(shownPiece(piece, at))
+                // As wide as its text only: the rest of the bubble's width takes no press.
                 addView(
                     Look.words(context, under, size = 11f, muted = true).apply {
                         setOnClickListener { details(line) }
                         setOnLongClickListener { about(at) ; true }
                     },
+                    LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT),
                 )
             }
             // A mark of the full colour on the side the message came from, the bubble itself on that side.
