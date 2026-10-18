@@ -64,7 +64,7 @@ object Look {
     fun colour(form: Form, dark: Boolean = this.dark): Int = when (form) {
         Form.PLAIN -> if (dark) Color.rgb(0xF4, 0xF4, 0xF5) else Color.rgb(0x18, 0x18, 0x1B)
         Form.SIGNED -> Color.rgb(0xA8, 0x55, 0xF7)
-        Form.LOCKED -> Color.rgb(0xBC, 0xD4, 0x16)
+        Form.LOCKED -> Color.rgb(0xD8, 0xD4, 0x16)
     }
 
     /** The same colour under a text: pale on a light page, deep on a dark one, the text legible on both. */
