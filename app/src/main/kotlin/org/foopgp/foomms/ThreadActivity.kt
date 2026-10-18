@@ -810,10 +810,14 @@ class ThreadActivity : AskingActivity() {
                     val why: (String) -> Unit = { words -> if (first is Job.Words) closed(first.armor, words) else say(words) }
                     ask(Intent(Provider.DECRYPT_VERIFY), input(first), why) { answer ->
                         done(first, answer)
+                        // A message alike byte for byte -- received twice, sent twice -- is one asking for foodjis, which
+                        // answers it once: those like the first take its answer, and the others are asked for once a kind.
+                        val alike = waiting.filter { input(it).contentEquals(input(first)) }
+                        alike.forEach { done(it, answer) }
                         // What the key answered for the others is waiting: each is asked for again, and says nothing if it is not.
-                        for (job in waiting) {
-                            provider.ask(Intent(Provider.DECRYPT_VERIFY), input(job)) { again ->
-                                if (again is Provider.Answer.Done && !isFinishing && !isDestroyed) done(job, again)
+                        for (kind in (waiting - alike.toSet()).groupBy { java.nio.ByteBuffer.wrap(input(it)) }.values) {
+                            provider.ask(Intent(Provider.DECRYPT_VERIFY), input(kind.first())) { again ->
+                                if (again is Provider.Answer.Done && !isFinishing && !isDestroyed) kind.forEach { done(it, again) }
                             }
                         }
                     }
