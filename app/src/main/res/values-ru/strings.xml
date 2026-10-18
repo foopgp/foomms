@@ -13,7 +13,7 @@
     <string name="failed">foodjis сообщает: %1$s</string>
     <string name="given_up">Отменено.</string>
     <string name="signed_certified">Подписано %1$s, заверено.</string>
-    <string name="signed_other">Подписано %1$s, не заверено.</string>
+    <string name="signed_other">Подписано %1$s, не заверено.</string>
     <string name="unsigned">Без подписи.</string>
     <string name="signed_unknown">Подписано ключом, которого нет в foodjis.</string>
     <string name="signed_broken">Подпись недействительна.</string>
@@ -34,7 +34,7 @@
     <string name="become_default">Сделать foomms приложением сообщений</string>
     <string name="configure">⚙️ Настройка</string>
     <string name="standing_certified">заверен</string>
-    <string name="standing_uncertified">не заверен</string>
+    <string name="standing_uncertified">не заверен</string>
     <string name="standing_expired">истёк</string>
     <string name="standing_revoked">отозван</string>
     <string name="standing_broken">повреждён</string>

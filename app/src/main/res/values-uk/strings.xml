@@ -13,7 +13,7 @@
     <string name="failed">foodjis повідомляє: %1$s</string>
     <string name="given_up">Скасовано.</string>
     <string name="signed_certified">Підписано %1$s, засвідчено.</string>
-    <string name="signed_other">Підписано %1$s, не засвідчено.</string>
+    <string name="signed_other">Підписано %1$s, не засвідчено.</string>
     <string name="unsigned">Без підпису.</string>
     <string name="signed_unknown">Підписано ключем, якого немає у foodjis.</string>
     <string name="signed_broken">Підпис недійсний.</string>

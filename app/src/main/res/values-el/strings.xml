@@ -13,7 +13,7 @@
     <string name="failed">Το foodjis λέει: %1$s</string>
     <string name="given_up">Ακυρώθηκε.</string>
     <string name="signed_certified">Υπογραφή από %1$s, πιστοποιημένο.</string>
-    <string name="signed_other">Υπογραφή από %1$s, μη πιστοποιημένο.</string>
+    <string name="signed_other">Υπογραφή από %1$s, μη πιστοποιημένο.</string>
     <string name="unsigned">Χωρίς υπογραφή.</string>
     <string name="signed_unknown">Υπογραφή με κλειδί που δεν έχει το foodjis.</string>
     <string name="signed_broken">Η υπογραφή δεν είναι έγκυρη.</string>
@@ -34,7 +34,7 @@
     <string name="become_default">Ορισμός του foomms ως εφαρμογής μηνυμάτων</string>
     <string name="configure">⚙️ Ρυθμίσεις</string>
     <string name="standing_certified">πιστοποιημένο</string>
-    <string name="standing_uncertified">μη πιστοποιημένο</string>
+    <string name="standing_uncertified">μη πιστοποιημένο</string>
     <string name="standing_expired">ληγμένο</string>
     <string name="standing_revoked">ανακληθέν</string>
     <string name="standing_broken">κατεστραμμένο</string>

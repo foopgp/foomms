@@ -15,7 +15,7 @@
     <string name="failed">foodjis says: %1$s</string>
     <string name="given_up">Given up.</string>
     <string name="signed_certified">Signed by %1$s, certified.</string>
-    <string name="signed_other">Signed by %1$s, not certified.</string>
+    <string name="signed_other">Signed by %1$s, not certified.</string>
     <string name="unsigned">Not signed.</string>
     <string name="signed_unknown">Signed by a key foodjis does not hold.</string>
     <string name="signed_broken">The signature does not hold.</string>
@@ -37,7 +37,7 @@
     <string name="become_default">Make foomms the messaging application</string>
     <string name="configure">⚙️ Configuration</string>
     <string name="standing_certified">certified</string>
-    <string name="standing_uncertified">not certified</string>
+    <string name="standing_uncertified">not certified</string>
     <string name="standing_expired">expired</string>
     <string name="standing_revoked">revoked</string>
     <string name="standing_broken">broken</string>

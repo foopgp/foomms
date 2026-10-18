@@ -13,7 +13,7 @@
     <string name="failed">foodjis dice: %1$s</string>
     <string name="given_up">Abandonado.</string>
     <string name="signed_certified">Firmado por %1$s, certificado.</string>
-    <string name="signed_other">Firmado por %1$s, sin certificar.</string>
+    <string name="signed_other">Firmado por %1$s, sin certificar.</string>
     <string name="unsigned">Sin firmar.</string>
     <string name="signed_unknown">Firmado con una llave que foodjis no tiene.</string>
     <string name="signed_broken">La firma no es válida.</string>
@@ -34,7 +34,7 @@
     <string name="become_default">Hacer de foomms la aplicación de mensajería</string>
     <string name="configure">⚙️ Configuración</string>
     <string name="standing_certified">certificado</string>
-    <string name="standing_uncertified">sin certificar</string>
+    <string name="standing_uncertified">sin certificar</string>
     <string name="standing_expired">caducado</string>
     <string name="standing_revoked">revocado</string>
     <string name="standing_broken">roto</string>

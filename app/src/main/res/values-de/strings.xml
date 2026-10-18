@@ -13,7 +13,7 @@
     <string name="failed">foodjis meldet: %1$s</string>
     <string name="given_up">Abgebrochen.</string>
     <string name="signed_certified">Signiert von %1$s, beglaubigt.</string>
-    <string name="signed_other">Signiert von %1$s, nicht beglaubigt.</string>
+    <string name="signed_other">Signiert von %1$s, nicht beglaubigt.</string>
     <string name="unsigned">Nicht signiert.</string>
     <string name="signed_unknown">Signiert mit einem Schlüssel, den foodjis nicht hat.</string>
     <string name="signed_broken">Die Signatur ist ungültig.</string>
@@ -34,7 +34,7 @@
     <string name="become_default">foomms zur Nachrichten-App machen</string>
     <string name="configure">⚙️ Konfiguration</string>
     <string name="standing_certified">beglaubigt</string>
-    <string name="standing_uncertified">nicht beglaubigt</string>
+    <string name="standing_uncertified">nicht beglaubigt</string>
     <string name="standing_expired">abgelaufen</string>
     <string name="standing_revoked">widerrufen</string>
     <string name="standing_broken">defekt</string>
