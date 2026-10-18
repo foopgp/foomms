@@ -40,7 +40,7 @@
     <string name="standing_broken">defeituoso</string>
     <string name="talks">Conversas</string>
     <string name="locked_for">⚿ Mensagem cifrada para</string>
-    <string name="forward">⧉ Reencaminhar</string>
+    <string name="share">⤴ Partilhar</string>
     <string name="save">↧ Guardar</string>
     <string name="saved">Guardado.</string>
     <string name="conf_theme">Tema</string>

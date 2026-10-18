@@ -40,7 +40,7 @@
     <string name="standing_broken">uszkodzony</string>
     <string name="talks">Rozmowy</string>
     <string name="locked_for">⚿ Wiadomość zaszyfrowana dla</string>
-    <string name="forward">⧉ Przekaż dalej</string>
+    <string name="share">⤴ Udostępnij</string>
     <string name="save">↧ Zapisz</string>
     <string name="saved">Zapisano.</string>
     <string name="conf_theme">Motyw</string>

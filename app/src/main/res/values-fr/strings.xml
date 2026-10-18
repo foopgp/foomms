@@ -40,7 +40,7 @@
     <string name="standing_broken">cassé</string>
     <string name="talks">Conversations</string>
     <string name="locked_for">⚿ Message chiffré pour</string>
-    <string name="forward">⧉ Transférer</string>
+    <string name="share">⤴ Partager</string>
     <string name="save">↧ Enregistrer</string>
     <string name="saved">Enregistré.</string>
     <string name="conf_theme">Thème</string>

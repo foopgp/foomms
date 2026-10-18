@@ -40,7 +40,7 @@
     <string name="standing_broken">κατεστραμμένο</string>
     <string name="talks">Συνομιλίες</string>
     <string name="locked_for">⚿ Κρυπτογραφημένο μήνυμα για</string>
-    <string name="forward">⧉ Προώθηση</string>
+    <string name="share">⤴ Κοινοποίηση</string>
     <string name="save">↧ Αποθήκευση</string>
     <string name="saved">Αποθηκεύτηκε.</string>
     <string name="conf_theme">Θέμα</string>

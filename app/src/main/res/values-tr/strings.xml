@@ -40,7 +40,7 @@
     <string name="standing_broken">bozuk</string>
     <string name="talks">Konuşmalar</string>
     <string name="locked_for">⚿ Şifreli mesaj, alıcı:</string>
-    <string name="forward">⧉ İlet</string>
+    <string name="share">⤴ Paylaş</string>
     <string name="save">↧ Kaydet</string>
     <string name="saved">Kaydedildi.</string>
     <string name="conf_theme">Tema</string>

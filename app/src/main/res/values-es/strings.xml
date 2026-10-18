@@ -40,7 +40,7 @@
     <string name="standing_broken">roto</string>
     <string name="talks">Conversaciones</string>
     <string name="locked_for">⚿ Mensaje cifrado para</string>
-    <string name="forward">⧉ Reenviar</string>
+    <string name="share">⤴ Compartir</string>
     <string name="save">↧ Guardar</string>
     <string name="saved">Guardado.</string>
     <string name="conf_theme">Tema</string>

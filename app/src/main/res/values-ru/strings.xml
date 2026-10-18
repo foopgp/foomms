@@ -40,7 +40,7 @@
     <string name="standing_broken">повреждён</string>
     <string name="talks">Переписки</string>
     <string name="locked_for">⚿ Зашифрованное сообщение для</string>
-    <string name="forward">⧉ Переслать</string>
+    <string name="share">⤴ Поделиться</string>
     <string name="save">↧ Сохранить</string>
     <string name="saved">Сохранено.</string>
     <string name="conf_theme">Тема</string>

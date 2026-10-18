@@ -306,6 +306,7 @@ class ThreadActivity : AskingActivity() {
         // Closed now: the bubbles show it, and the pictures opened from locked parts go with the rest.
         if (closes == null && wasOpen) {
             openedThumbs.clear()
+            bigs.clear()
             if (!Opened.anyOpen()) Outbox.shut(this)
             bubbles.notifyDataSetChanged()
         }
@@ -742,7 +743,7 @@ class ThreadActivity : AskingActivity() {
         val line = lines.getOrNull(at) ?: return
         // Nothing to unlock: what a message carries is opened, and failing that its text is shown to select from.
         if (!closed(line)) {
-            return if (line.pieces.isNotEmpty()) pick(line) { handOver(it, Intent.ACTION_VIEW) }
+            return if (line.pieces.isNotEmpty()) pick(line.pieces) { handOver(it, Intent.ACTION_VIEW) }
             else textOf(line).takeIf { it.isNotEmpty() }?.let { select(it, armored = false) } ?: Unit
         }
         // The messages shown around it, as many on each side as set; of those, the ones encrypted and still closed.
@@ -856,9 +857,8 @@ class ThreadActivity : AskingActivity() {
     /** The pictures opened from locked parts, small, by the part they were. */
     private val openedThumbs = HashMap<Long, Bitmap?>()
 
-    /** A picture opened from its lock, made small to sit in its bubble. */
-    private fun thumbnail(bytes: ByteArray): Bitmap? = runCatching {
-        val side = Look.dp(this, 200)
+    /** A picture opened from its lock, made small to sit in its bubble, or to the [side] asked. */
+    private fun thumbnail(bytes: ByteArray, side: Int = Look.dp(this, 200)): Bitmap? = runCatching {
         val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
         android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
         var sample = 1
@@ -873,7 +873,7 @@ class ThreadActivity : AskingActivity() {
     private fun closed(armor: String, why: String) {
         AlertDialog.Builder(this)
             .setMessage(why)
-            .setPositiveButton(R.string.forward) { _, _ ->
+            .setPositiveButton(R.string.share) { _, _ ->
                 startActivity(
                     Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, armor), null),
                 )
@@ -905,6 +905,22 @@ class ThreadActivity : AskingActivity() {
             data?.data?.takeIf { outcome == RESULT_OK }?.let { attached(request, it) }
             return
         }
+        if (request == SAVE_PIECE) {
+            val piece = savingPiece.also { savingPiece = null } ?: return
+            val where = data?.data?.takeIf { outcome == RESULT_OK } ?: return
+            thread {
+                val done = runCatching {
+                    val bytes = Opened.piece(piece.id)?.bytes ?: contentResolver.openInputStream(piece.uri)?.use { it.readBytes() } ?: error("nothing to read")
+                    contentResolver.openOutputStream(where)?.use { it.write(bytes) } ?: error("nowhere to write")
+                }
+                runOnUiThread {
+                    if (isFinishing || isDestroyed) return@runOnUiThread
+                    done.onSuccess { Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show() }
+                        .onFailure { say(getString(R.string.failed, it.message)) }
+                }
+            }
+            return
+        }
         if (request != SAVE) return
         val armor = saving.also { saving = null } ?: return
         val where = data?.data?.takeIf { outcome == RESULT_OK } ?: return
@@ -919,14 +935,18 @@ class ThreadActivity : AskingActivity() {
         return armor?.let { Opened.words(it)?.words } ?: line.body
     }
 
-    /** Pressed long, a message says what can be done with it. */
-    private fun about(at: Int) {
+    /**
+     * Pressed long, a message says what can be done with it: with the part
+     * pressed -- its [words], or a [piece] it carries --, and with the whole.
+     */
+    private fun about(at: Int, piece: Store.Piece? = null, words: Boolean = false) {
         val line = lines.getOrNull(at) ?: return
         val text = textOf(line)
+        val pieces = if (piece != null) listOf(piece) else if (words) emptyList() else line.pieces
         val choices = ArrayList<Pair<Int, () -> Unit>>()
         // Still locked: opening it comes first, as a press does.
         if (lockedAndClosed(line)) choices += R.string.decrypt_this to { pressed(at) }
-        if (text.isNotEmpty()) {
+        if (piece == null && text.isNotEmpty()) {
             choices += R.string.copy_text to {
                 getSystemService(android.content.ClipboardManager::class.java)
                     ?.setPrimaryClip(android.content.ClipData.newPlainText(getString(R.string.message), text))
@@ -934,12 +954,15 @@ class ThreadActivity : AskingActivity() {
             }
             choices += R.string.select_text to { select(text, armored = armorOf(line) != null && Opened.words(armorOf(line)!!) == null) }
         }
-        if (line.pieces.isNotEmpty()) choices += R.string.open_file to { pick(line) { handOver(it, Intent.ACTION_VIEW) } }
-        choices += R.string.forward to {
-            if (text.isNotEmpty() || line.pieces.isEmpty()) {
+        if (pieces.isNotEmpty()) {
+            choices += R.string.open_file to { pick(pieces) { handOver(it, Intent.ACTION_VIEW) } }
+            choices += R.string.save to { pick(pieces) { savePiece(it) } }
+        }
+        choices += R.string.share to {
+            if (piece == null && (text.isNotEmpty() || pieces.isEmpty())) {
                 startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text), null))
             } else {
-                pick(line) { handOver(it, Intent.ACTION_SEND) }
+                pick(pieces) { handOver(it, Intent.ACTION_SEND) }
             }
         }
         choices += R.string.details to { details(line) }
@@ -964,11 +987,59 @@ class ThreadActivity : AskingActivity() {
     }
 
     /** Which of the things a message carries: the only one, or the one the person names. */
-    private fun pick(line: Store.Line, then: (Store.Piece) -> Unit) {
-        if (line.pieces.size == 1) return then(line.pieces[0])
+    private fun pick(pieces: List<Store.Piece>, then: (Store.Piece) -> Unit) {
+        if (pieces.size == 1) return then(pieces[0])
         AlertDialog.Builder(this)
-            .setItems(line.pieces.map { it.name ?: it.type }.toTypedArray()) { _, which -> then(line.pieces[which]) }
+            .setItems(pieces.map { Opened.piece(it.id)?.name ?: it.name ?: it.type }.toTypedArray()) { _, which -> then(pieces[which]) }
             .show()
+    }
+
+    /** A part pressed: still locked, the key opens it; a picture grows in the conversation or goes back; anything else opens. */
+    private fun pressedPiece(piece: Store.Piece, at: Int) {
+        val opened = Opened.piece(piece.id)
+        if (isSealed(piece) && opened == null) return pressed(at)
+        if ((opened?.type ?: piece.type).startsWith("image/") && (openedThumbs[piece.id] ?: thumbs[piece.id]) != null) return enlarge(piece)
+        handOver(piece, Intent.ACTION_VIEW)
+    }
+
+    /** The pictures shown as wide as the conversation, by their part; they go back to small when the page goes. */
+    private val enlarged = HashSet<Long>()
+
+    /** Those pictures, made again at the size of the screen. */
+    private val bigs = HashMap<Long, Bitmap?>()
+
+    private fun enlarge(piece: Store.Piece) {
+        if (!enlarged.add(piece.id)) {
+            enlarged.remove(piece.id)
+            return bubbles.notifyDataSetChanged()
+        }
+        bubbles.notifyDataSetChanged()
+        if (bigs[piece.id] != null) return
+        // Made at least half the screen's width, at most all of it.
+        val side = resources.displayMetrics.widthPixels / 2
+        thread {
+            val opened = Opened.piece(piece.id)
+            val big = if (opened != null) thumbnail(opened.bytes, side) else Media.thumbnail(this, piece.uri, side)
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                bigs[piece.id] = big
+                bubbles.notifyDataSetChanged()
+            }
+        }
+    }
+
+    private var savingPiece: Store.Piece? = null
+
+    /** A part kept in a file the person chooses: as it was opened, or as it came. */
+    private fun savePiece(piece: Store.Piece) {
+        savingPiece = piece
+        val opened = Opened.piece(piece.id)
+        @Suppress("DEPRECATION")
+        startActivityForResult(
+            Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
+                .setType(opened?.type ?: piece.type).putExtra(Intent.EXTRA_TITLE, opened?.name ?: piece.name ?: "file"),
+            SAVE_PIECE,
+        )
     }
 
     /**
@@ -1163,8 +1234,28 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
+    /**
+     * One thing a message carries, taking its own presses: a short one does
+     * what the part is for, a long one asks what to do with it.
+     */
+    private fun shownPiece(piece: Store.Piece, at: Int): View = pieceView(piece, at).apply {
+        // A sound's button already plays it.
+        if (this !is android.widget.Button) setOnClickListener { pressedPiece(piece, at) }
+        setOnLongClickListener { about(at, piece) ; true }
+    }
+
+    /** A picture as wide as the conversation when it was pressed, small otherwise. */
+    private fun picture(piece: Store.Piece, small: Bitmap): View = android.widget.ImageView(this).apply {
+        val wide = piece.id in enlarged
+        setImageBitmap(if (wide) bigs[piece.id] ?: small else small)
+        adjustViewBounds = true
+        maxWidth = if (wide) resources.displayMetrics.widthPixels else Look.dp(context, 220)
+        maxHeight = if (wide) resources.displayMetrics.heightPixels * 3 / 4 else Look.dp(context, 220)
+        setPadding(0, Look.dp(context, 4), 0, Look.dp(context, 4))
+    }
+
     /** One thing a message carries: a picture shown small, a sound to play, or what it is called. */
-    private fun shownPiece(piece: Store.Piece, at: Int): View {
+    private fun pieceView(piece: Store.Piece, at: Int): View {
         val opened = Opened.piece(piece.id)
         if (opened != null) {
             // Opened: shown as if it had travelled in clear, under its own name.
@@ -1172,28 +1263,17 @@ class ThreadActivity : AskingActivity() {
             // finds its pictures still open, and they are to look it.
             val small = if (opened.type.startsWith("image/")) openedThumbs.getOrPut(piece.id) { thumbnail(opened.bytes) } else null
             return when {
-                small != null -> android.widget.ImageView(this).apply {
-                    setImageBitmap(small)
-                    adjustViewBounds = true
-                    maxWidth = Look.dp(context, 220) ; maxHeight = Look.dp(context, 220)
-                    setPadding(0, Look.dp(context, 4), 0, Look.dp(context, 4))
-                }
+                small != null -> picture(piece, small)
                 opened.type.startsWith("audio/") || opened.type == "video/3gpp" ->
-                    Look.button(this, "▶ ${opened.name}" + lasted(piece)) { play(piece) }.apply { setOnLongClickListener { about(at) ; true } }
+                    Look.button(this, "▶ ${opened.name}" + lasted(piece)) { play(piece) }
                 else -> Look.words(this, "📎 ${opened.name}", size = 15f)
             }
         }
         val small = thumbs[piece.id]
         val name = piece.name ?: piece.type
         return when {
-            small != null -> android.widget.ImageView(this).apply {
-                setImageBitmap(small)
-                adjustViewBounds = true
-                maxWidth = Look.dp(context, 220) ; maxHeight = Look.dp(context, 220)
-                setPadding(0, Look.dp(context, 4), 0, Look.dp(context, 4))
-            }
-            // The button takes the press, long ones too: a long one is handed to the message, whose menu it opens.
-            piece.type.startsWith("audio/") -> Look.button(this, "▶ $name" + lasted(piece)) { play(piece) }.apply { setOnLongClickListener { about(at) ; true } }
+            small != null -> picture(piece, small)
+            piece.type.startsWith("audio/") -> Look.button(this, "▶ $name" + lasted(piece)) { play(piece) }
             isSealed(piece) -> LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
@@ -1278,6 +1358,8 @@ class ThreadActivity : AskingActivity() {
                     // "Encrypted message for" and whom: a small face for each key the message names.
                     addView(
                         LinearLayout(context).apply {
+                            setOnClickListener { pressed(at) }
+                            setOnLongClickListener { about(at, words = true) ; true }
                             orientation = LinearLayout.HORIZONTAL
                             gravity = Gravity.CENTER_VERTICAL
                             addView(text)
@@ -1288,10 +1370,19 @@ class ThreadActivity : AskingActivity() {
                         },
                     )
                 } else if (words.isNotEmpty() || line.pieces.isEmpty()) {
+                    // Open, the words are selected, links included: nothing is followed on a press alone.
+                    text.setOnClickListener { if (closed || words.isEmpty()) pressed(at) else select(words, armored = false) }
+                    text.setOnLongClickListener { about(at, words = true) ; true }
                     addView(text)
                 }
                 for (piece in line.pieces) addView(shownPiece(piece, at))
-                addView(Look.words(context, under, size = 11f, muted = true))
+                addView(
+                    Look.words(context, under, size = 11f, muted = true).apply {
+                        setPadding(0, Look.dp(context, 2), 0, 0)
+                        setOnClickListener { details(line) }
+                        setOnLongClickListener { about(at) ; true }
+                    },
+                )
             }
             // A mark of the full colour on the side the message came from, the bubble itself on that side.
             val mark = View(context).apply { background = Look.rounded(Look.colour(verdict), Look.dp(context, 2)) }
@@ -1436,6 +1527,7 @@ class ThreadActivity : AskingActivity() {
         private const val FILE = 9
         private const val PLACE = 10
         private const val VOICE = 11
+        private const val SAVE_PIECE = 12
 
         /** How many of the latest messages have their pictures shown small. */
         private const val SHOWN_PICTURES = 40

@@ -40,7 +40,7 @@
     <string name="standing_broken">guasto</string>
     <string name="talks">Conversazioni</string>
     <string name="locked_for">⚿ Messaggio cifrato per</string>
-    <string name="forward">⧉ Inoltra</string>
+    <string name="share">⤴ Condividi</string>
     <string name="save">↧ Salva</string>
     <string name="saved">Salvato.</string>
     <string name="conf_theme">Tema</string>

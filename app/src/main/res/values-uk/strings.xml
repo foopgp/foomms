@@ -40,7 +40,7 @@
     <string name="standing_broken">пошкоджений</string>
     <string name="talks">Листування</string>
     <string name="locked_for">⚿ Зашифроване повідомлення для</string>
-    <string name="forward">⧉ Переслати</string>
+    <string name="share">⤴ Поділитися</string>
     <string name="save">↧ Зберегти</string>
     <string name="saved">Збережено.</string>
     <string name="conf_theme">Тема</string>
