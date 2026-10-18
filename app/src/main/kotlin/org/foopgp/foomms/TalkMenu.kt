@@ -14,6 +14,43 @@ import kotlin.concurrent.thread
  */
 object TalkMenu {
 
+    /**
+     * foodjis made to hold the certificate [fingerprint] names, then [then]:
+     * when it does not, it is asked to fetch it from its keyservers first --
+     * the number may mean a certificate this phone never had, or has lost.
+     * [changed] is told when it came, what shows the number's standing being
+     * out of date.
+     */
+    private fun holding(activity: Activity, fingerprint: String, changed: () -> Unit, then: () -> Unit) {
+        thread {
+            val held = runCatching { Foodjis.of(activity).card(fingerprint) }.getOrNull() != null
+            activity.runOnUiThread {
+                if (activity.isFinishing || activity.isDestroyed) return@runOnUiThread
+                if (held) return@runOnUiThread then()
+                val keyId = runCatching { java.lang.Long.parseUnsignedLong(fingerprint.takeLast(16), 16) }.getOrNull() ?: return@runOnUiThread then()
+                // Shown while foodjis looks, and gone when it answers.
+                val looking = AlertDialog.Builder(activity).setMessage(R.string.cert_fetching).setPositiveButton(R.string.close, null).show()
+                val provider = Provider(activity)
+                provider.ask(Intent(Provider.GET_KEY).putExtra(Provider.EXTRA_KEY_ID, keyId), null) { answer ->
+                    looking.dismiss()
+                    provider.close()
+                    if (activity.isFinishing || activity.isDestroyed) return@ask
+                    when (answer) {
+                        is Provider.Answer.Done -> {
+                            Foodjis.of(activity).fresh()
+                            changed()
+                            then()
+                        }
+                        // foodjis not letting this application in: the action itself says so, as before.
+                        is Provider.Answer.Ask -> then()
+                        is Provider.Answer.Failed ->
+                            AlertDialog.Builder(activity).setMessage(R.string.cert_not_found).setPositiveButton(R.string.close, null).show()
+                    }
+                }
+            }
+        }
+    }
+
     fun show(
         activity: Activity,
         name: String,
@@ -69,16 +106,18 @@ object TalkMenu {
         if (tied != null) {
             // A number that already means a certificate: see it, read it again, or let go of it.
             add(R.string.cert_show) {
-                val foodjis = Provider.foodjis(activity)
-                runCatching {
-                    activity.startActivity(
-                        Intent("org.foopgp.foodjis.action.SHOW_CERTIFICATE").setPackage(foodjis).putExtra("fingerprint", tied),
-                    )
-                }.onFailure {
-                    AlertDialog.Builder(activity).setMessage(R.string.no_provider).setPositiveButton(R.string.close, null).show()
+                holding(activity, tied, changed) {
+                    val foodjis = Provider.foodjis(activity)
+                    runCatching {
+                        activity.startActivity(
+                            Intent("org.foopgp.foodjis.action.SHOW_CERTIFICATE").setPackage(foodjis).putExtra("fingerprint", tied),
+                        )
+                    }.onFailure {
+                        AlertDialog.Builder(activity).setMessage(R.string.no_provider).setPositiveButton(R.string.close, null).show()
+                    }
                 }
             }
-            add(R.string.cert_refresh, refresh)
+            add(R.string.cert_refresh) { holding(activity, tied, changed, refresh) }
             add(R.string.cert_forget) {
                 thread {
                     runCatching { Book.untie(activity, person.contact) }
