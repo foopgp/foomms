@@ -79,7 +79,10 @@ object Inbound {
                 Keep.mmsReceived(context, message, pdu.size, intent.getIntExtra(EXTRA_SUBSCRIPTION, -1))
                 val words = message.parts.filter { it.isText }.joinToString("\n") { it.text() }
                     .ifEmpty { "📎".repeat(minOf(3, message.parts.count { it.type != "application/smil" })) }
-                Notify.arrived(context, from, words)
+                // Its form, of its parts: a PGP message carried whole, or in its words.
+                val sealed = message.parts.filter { !it.isText && (it.type == Pgp.TYPE || it.name.orEmpty().lowercase().let { n -> n.endsWith(".pgp") || n.endsWith(".gpg") || n.endsWith(".asc") }) }
+                val form = Form.of(Form.of(words) == Form.LOCKED || sealed.any { Pgp.isLocked(it.bytes) }, Form.of(words) != Form.PLAIN || sealed.isNotEmpty())
+                Notify.arrived(context, from, words, form)
             } catch (failed: Exception) {
                 Log.e(TAG, "an MMS could not be read or written", failed)
             } finally {

@@ -56,6 +56,17 @@ object Look {
         Verdict.GREY -> Color.rgb(0xA1, 0xA1, 0xAA)
     }
 
+    /**
+     * A form's colour: the ink of the page for a message in clear, violet --
+     * red and blue, what a signed one may be worth -- for one signed, and
+     * yellow-green -- yellow and green -- for one encrypted.
+     */
+    fun colour(form: Form, dark: Boolean = this.dark): Int = when (form) {
+        Form.PLAIN -> if (dark) Color.rgb(0xF4, 0xF4, 0xF5) else Color.rgb(0x18, 0x18, 0x1B)
+        Form.SIGNED -> Color.rgb(0xA8, 0x55, 0xF7)
+        Form.LOCKED -> Color.rgb(0x84, 0xCC, 0x16)
+    }
+
     /** The same colour under a text: pale on a light page, deep on a dark one, the text legible on both. */
     fun pale(verdict: Verdict): Int = if (dark) {
         when (verdict) {

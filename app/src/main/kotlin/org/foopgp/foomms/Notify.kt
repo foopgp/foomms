@@ -14,7 +14,8 @@ import android.content.Intent
  */
 object Notify {
 
-    fun arrived(context: Context, number: String, body: String) {
+    /** [form]: what the message travelled as, told from [body] when not given -- an MMS carries it in its parts too. */
+    fun arrived(context: Context, number: String, body: String, form: Form = Form.of(body)) {
         // Not announced: a sender the person asked not to hear of.
         if (Marks.muted(context, number)) return
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
@@ -27,7 +28,10 @@ object Notify {
             Pgp.isLocked(armor) -> context.getString(R.string.locked_message)
             else -> context.getString(R.string.signed_message)
         }
-        val who = runCatching { Book.who(context, number)?.name }.getOrNull() ?: number
+        val person = runCatching { Book.who(context, number) }.getOrNull()
+        val who = person?.name ?: number
+        // The contact's picture, when the address book has one: read with the name, from the same card.
+        val face = person?.let { runCatching { Book.face(context, it) }.getOrNull() }
         val open = PendingIntent.getActivity(
             context, number.hashCode(),
             Intent(context, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, number)
@@ -42,7 +46,9 @@ object Notify {
             .setCategory(Notification.CATEGORY_MESSAGE)
             .setContentIntent(open)
             .setAutoCancel(true)
-            .setColor(Look.INDIGO)
+            // The colour of the form, against the notifications' own background: the phone's theme, not this application's.
+            .setColor(Look.colour(form, dark = context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES))
+            .apply { face?.let { setLargeIcon(it) } }
             .build()
         runCatching { manager.notify(number.hashCode(), shown) }
     }

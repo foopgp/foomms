@@ -29,6 +29,28 @@ enum class Verdict(val encrypted: Boolean, val certified: Boolean) {
 }
 
 /**
+ * What a message is, known as soon as it arrives, without the key: in
+ * clear, signed in clear, or encrypted -- of its parts, the most guarded.
+ * Where the verdict says what a message is worth, once read, the form says
+ * what it travelled as: the colour of the marks beside the bubbles, and of
+ * the notifications, before anything is opened.
+ */
+enum class Form {
+    PLAIN, SIGNED, LOCKED;
+
+    companion object {
+        fun of(locked: Boolean, signed: Boolean): Form = when {
+            locked -> LOCKED
+            signed -> SIGNED
+            else -> PLAIN
+        }
+
+        /** The form of words as they travelled, an armored message in them or not. */
+        fun of(words: String): Form = Pgp.armorIn(words)?.let { of(Pgp.isLocked(it), true) } ?: PLAIN
+    }
+}
+
+/**
  * What was learnt of the PGP messages opened: their words, what carried
  * them, and what they are worth -- known from the key and held with the
  * words, in memory. What was encrypted is held for the time the person set,

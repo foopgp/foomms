@@ -499,8 +499,8 @@ class MainActivity : Activity() {
             return LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
-                // The colour of the last message, down the edge of the conversation.
-                addView(View(context).apply { background = Look.rounded(Look.colour(row.verdict), Look.dp(context, 3)) }, LinearLayout.LayoutParams(Look.dp(context, 6), Look.dp(context, 44)))
+                // The colour of what the last message travelled as, down the edge of the conversation.
+                addView(View(context).apply { background = Look.rounded(Look.colour(Form.of(row.talk.last)), Look.dp(context, 3)) }, LinearLayout.LayoutParams(Look.dp(context, 6), Look.dp(context, 44)))
                 addView(View(context), LinearLayout.LayoutParams(pad, 1))
                 addView(Look.face(context, 44, null, row.face))
                 addView(text, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))

@@ -1408,8 +1408,13 @@ class ThreadActivity : AskingActivity() {
                     },
                 )
             }
-            // A mark of the full colour on the side the message came from, the bubble itself on that side.
-            val mark = View(context).apply { background = Look.rounded(Look.colour(verdict), Look.dp(context, 2)) }
+            // A mark on the side the message came from, the bubble itself on that side: of the colour of what it travelled as.
+            val outer = Pgp.armorIn(line.body)
+            val form = Form.of(
+                locked = outer?.let(Pgp::isLocked) == true || line.pieces.any(::isLockedPiece),
+                signed = outer != null || line.pieces.any(::isSealed),
+            )
+            val mark = View(context).apply { background = Look.rounded(Look.colour(form), Look.dp(context, 2)) }
             return LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = (if (line.incoming) Gravity.START else Gravity.END) or Gravity.CENTER_VERTICAL
