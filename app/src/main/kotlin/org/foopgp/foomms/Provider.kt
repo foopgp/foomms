@@ -136,6 +136,21 @@ class Provider(private val context: Context) {
          * which a trial build of ours speaks to as well -- the store's page,
          * or that page on the web when the phone has no store.
          */
+        /**
+         * The version of the foodjis spoken to, when it is older than the one
+         * this build needs -- 1.4.3, the first to fetch a missing certificate
+         * --, or null: none to speak to, or recent enough.
+         */
+        fun outdated(context: Context): String? {
+            val found = whom(context)?.packageName ?: return null
+            val held = runCatching { context.packageManager.getPackageInfo(found, 0) }.getOrNull() ?: return null
+            return held.versionName?.takeIf { held.longVersionCode < NEEDED_CODE }
+        }
+
+        /** The first foodjis that answers all that this build asks of it. */
+        const val NEEDED_CODE = 51L
+        const val NEEDED_NAME = "1.4.3"
+
         fun install(context: Context) {
             val wanted = FOODJIS
             runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("market://details?id=$wanted"))) }

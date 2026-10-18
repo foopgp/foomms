@@ -193,4 +193,6 @@
     <string name="cert_fetched">Certyfikat znaleziony: wiadomość jest sprawdzana ponownie.</string>
     <string name="cert_fetched_reopen">Certyfikat znaleziony: otwórz ponownie zaszyfrowaną wiadomość, aby sprawdzić jej podpis.</string>
     <string name="cert_not_found">Żaden serwer kluczy nie ma tego certyfikatu.</string>
+    <string name="old_foodjis">%1$s %2$s jest starszy, niż potrzebuje foomms: niektóre rzeczy nie będą działać. Zaktualizuj go co najmniej do %3$s.</string>
+    <string name="update_foodjis">Zaktualizuj %1$s</string>
 </resources>

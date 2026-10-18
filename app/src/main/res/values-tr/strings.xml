@@ -193,4 +193,6 @@
     <string name="cert_fetched">Sertifika bulundu: mesaj yeniden doğrulanıyor.</string>
     <string name="cert_fetched_reopen">Sertifika bulundu: imzasını doğrulamak için şifreli mesajı yeniden açın.</string>
     <string name="cert_not_found">Hiçbir anahtar sunucusunda bu sertifika yok.</string>
+    <string name="old_foodjis">%1$s %2$s, foomms\'un ihtiyaç duyduğundan daha eski: bazı şeyler çalışmayacak. En az %3$s sürümüne güncelleyin.</string>
+    <string name="update_foodjis">%1$s\'i güncelle</string>
 </resources>

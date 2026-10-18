@@ -193,4 +193,6 @@
     <string name="cert_fetched">Сертифікат знайдено: повідомлення перевіряється знову.</string>
     <string name="cert_fetched_reopen">Сертифікат знайдено: відкрийте зашифроване повідомлення знову, щоб перевірити його підпис.</string>
     <string name="cert_not_found">Жоден сервер ключів не має цього сертифіката.</string>
+    <string name="old_foodjis">%1$s %2$s старіший, ніж потрібно foomms: дещо не працюватиме. Оновіть його щонайменше до %3$s.</string>
+    <string name="update_foodjis">Оновити %1$s</string>
 </resources>

@@ -193,4 +193,6 @@
     <string name="cert_fetched">Certificado encontrado: el mensaje se verifica de nuevo.</string>
     <string name="cert_fetched_reopen">Certificado encontrado: abra de nuevo el mensaje cifrado para verificar su firma.</string>
     <string name="cert_not_found">Ningún servidor de claves tiene este certificado.</string>
+    <string name="old_foodjis">%1$s %2$s es más antiguo de lo que foomms necesita: algunas cosas no funcionarán. Actualícelo, a %3$s como mínimo.</string>
+    <string name="update_foodjis">Actualizar %1$s</string>
 </resources>

@@ -193,4 +193,6 @@
     <string name="cert_fetched">Το πιστοποιητικό βρέθηκε: το μήνυμα ελέγχεται ξανά.</string>
     <string name="cert_fetched_reopen">Το πιστοποιητικό βρέθηκε: ανοίξτε ξανά το κρυπτογραφημένο μήνυμα για να ελέγξετε την υπογραφή του.</string>
     <string name="cert_not_found">Κανένας διακομιστής κλειδιών δεν έχει αυτό το πιστοποιητικό.</string>
+    <string name="old_foodjis">Το %1$s %2$s είναι παλαιότερο από όσο χρειάζεται το foomms: ορισμένα πράγματα δεν θα λειτουργούν. Ενημερώστε το, τουλάχιστον στην %3$s.</string>
+    <string name="update_foodjis">Ενημέρωση του %1$s</string>
 </resources>

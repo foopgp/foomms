@@ -193,4 +193,6 @@
     <string name="cert_fetched">Zertifikat gefunden: Die Nachricht wird erneut geprüft.</string>
     <string name="cert_fetched_reopen">Zertifikat gefunden: Öffnen Sie die verschlüsselte Nachricht erneut, um ihre Signatur zu prüfen.</string>
     <string name="cert_not_found">Kein Schlüsselserver hat dieses Zertifikat.</string>
+    <string name="old_foodjis">%1$s %2$s ist älter, als foomms es braucht: Manches wird nicht funktionieren. Aktualisieren Sie es mindestens auf %3$s.</string>
+    <string name="update_foodjis">%1$s aktualisieren</string>
 </resources>

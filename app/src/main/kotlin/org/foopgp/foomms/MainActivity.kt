@@ -236,6 +236,13 @@ class MainActivity : Activity() {
             asking.addView(Look.words(this, getString(R.string.no_foodjis, name), size = 14f, muted = true).apply { setPadding(0, 0, 0, Look.dp(context, 8)) })
             asking.addView(Look.button(this, getString(R.string.install_foodjis, name)) { Provider.install(this) })
         }
+        // There, but older than this build needs: some of what it is asked would fail.
+        Provider.outdated(this)?.let { held ->
+            val name = "foodjis"
+            asking.visibility = View.VISIBLE
+            asking.addView(Look.words(this, getString(R.string.old_foodjis, name, held, Provider.NEEDED_NAME), size = 14f, muted = true).apply { setPadding(0, 0, 0, Look.dp(context, 8)) })
+            asking.addView(Look.button(this, getString(R.string.update_foodjis, name)) { Provider.install(this) })
+        }
         // Not the phone's messaging application yet: it can be asked for, and until then another receives.
         if (!Keep.ours(this)) {
             asking.visibility = View.VISIBLE
