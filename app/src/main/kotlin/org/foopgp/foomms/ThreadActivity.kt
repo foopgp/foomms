@@ -997,9 +997,9 @@ class ThreadActivity : AskingActivity() {
         val opened = Opened.piece(piece.id)
         if (isSealed(piece) && opened == null) return pressed(at)
         if ((opened?.type ?: piece.type).startsWith("image/") && (openedThumbs[piece.id] ?: thumbs[piece.id]) != null) {
-            // Pressed again at once after growing, it opens rather than goes back.
+            // Pressed again at once after growing, it asks what to do with it rather than goes back.
             val grew = grownAt[piece.id]
-            if (piece.id in enlarged && grew != null && android.os.SystemClock.uptimeMillis() - grew < AGAIN) return handOver(piece, Intent.ACTION_VIEW)
+            if (piece.id in enlarged && grew != null && android.os.SystemClock.uptimeMillis() - grew < AGAIN) return about(at, piece)
             return enlarge(piece)
         }
         handOver(piece, Intent.ACTION_VIEW)
@@ -1551,7 +1551,7 @@ class ThreadActivity : AskingActivity() {
         private const val VOICE = 11
         private const val SAVE_PIECE = 12
 
-        /** How soon a picture pressed again after growing opens, in milliseconds. */
+        /** How soon a picture pressed again after growing gives its menu, in milliseconds. */
         private const val AGAIN = 300L
 
         /** How many of the latest messages have their pictures shown small. */
