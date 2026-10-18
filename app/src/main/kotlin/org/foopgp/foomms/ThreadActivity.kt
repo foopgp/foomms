@@ -1085,10 +1085,15 @@ class ThreadActivity : AskingActivity() {
     /** The signed messages whose key was missing, asked about again on this page. */
     private val rechecked = HashSet<String>()
 
+    /** The same, of the parts. */
+    private val recheckedParts = HashSet<Long>()
+
     /** Signed only, a message needs no key: it is verified as soon as it is shown, and never stays grey -- its words, and its parts. */
     private fun verifySigned() {
         for (piece in lines.flatMap { it.pieces }) {
-            if (!isSealed(piece) || pieceLocked[piece.id] != false || Opened.piece(piece.id) != null || !verifyingParts.add(piece.id)) continue
+            // A part whose signer's key was missing, too, once a page.
+            val missing = Opened.piece(piece.id)?.signed?.result == OpenPgpSignatureResult.RESULT_KEY_MISSING
+            if (!isSealed(piece) || pieceLocked[piece.id] != false || (Opened.piece(piece.id) != null && !(missing && recheckedParts.add(piece.id))) || !verifyingParts.add(piece.id)) continue
             thread {
                 val bytes = runCatching { contentResolver.openInputStream(piece.uri)?.use { it.readBytes() } }.getOrNull() ?: return@thread
                 runOnUiThread {
@@ -1210,6 +1215,7 @@ class ThreadActivity : AskingActivity() {
             val closed = Opened.forgetMissing()
             say(getString(if (closed) R.string.cert_fetched_reopen else R.string.cert_fetched))
             rechecked.clear()
+            recheckedParts.clear()
             verifySigned()
             bubbles.notifyDataSetChanged()
         }
@@ -1510,6 +1516,10 @@ class ThreadActivity : AskingActivity() {
      */
     private fun refreshed(fingerprint: String) {
         foodjis.fresh()
+        // What was judged without the certificate is judged again with it: signed only, as the page loads.
+        Opened.forgetMissing()
+        rechecked.clear()
+        recheckedParts.clear()
         load()
         thread {
             val whose = foodjis.card(fingerprint)
