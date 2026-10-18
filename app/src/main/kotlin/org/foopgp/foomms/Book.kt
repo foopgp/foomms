@@ -101,12 +101,15 @@ object Book {
      * face -- where the contact does not say it already. A contact is made
      * when the number has none.
      */
-    fun tie(context: Context, number: String, card: Card, address: String) {
+    fun tie(context: Context, number: String, card: Card, address: String, stale: List<Stale> = emptyList()) {
         written++
         val known = who(context, number)
         val raw = known?.let { rawOf(context, it.contact) } ?: create(context, number, card.name ?: number)
         val contact = known?.contact ?: contactOf(context, raw)
         val resolver = context.contentResolver
+
+        // What an earlier certificate said and this one no longer does: gone first.
+        for (old in stale) resolver.delete(android.content.ContentUris.withAppendedId(Data.CONTENT_URI, old.row), null, null)
 
         // One certificate a contact: the address of another is replaced, not kept beside.
         val former = values(context, contact, Website.CONTENT_ITEM_TYPE, Website.URL).filter { Fingerprint.of(it) != null }
@@ -125,27 +128,27 @@ object Book {
         fun missing(kind: String, column: String, value: String, same: (String, String) -> Boolean = { a, b -> a == b }) =
             missing(context, contact, kind, column, value, same)
 
-        row(Website.CONTENT_ITEM_TYPE, Website.URL, address) { put(Website.TYPE, Website.TYPE_CUSTOM) ; put(Website.LABEL, "PGP") }
+        row(Website.CONTENT_ITEM_TYPE, Website.URL, address) { put(Website.TYPE, Website.TYPE_CUSTOM) ; put(Website.LABEL, MARK) }
         for (email in card.emails) {
             if (missing(Email.CONTENT_ITEM_TYPE, Email.ADDRESS, email) { a, b -> a.equals(b, true) }) {
-                row(Email.CONTENT_ITEM_TYPE, Email.ADDRESS, email) { put(Email.TYPE, Email.TYPE_OTHER) }
+                row(Email.CONTENT_ITEM_TYPE, Email.ADDRESS, email) { put(Email.TYPE, Email.TYPE_CUSTOM) ; put(Email.LABEL, MARK) }
             }
         }
         for (phone in card.phones.mapNotNull { Phone.plain(it) }) {
             if (!Phone.same(phone, number) && missing(PhoneRow.CONTENT_ITEM_TYPE, PhoneRow.NUMBER, phone, Phone::same)) {
-                row(PhoneRow.CONTENT_ITEM_TYPE, PhoneRow.NUMBER, phone) { put(PhoneRow.TYPE, PhoneRow.TYPE_OTHER) }
+                row(PhoneRow.CONTENT_ITEM_TYPE, PhoneRow.NUMBER, phone) { put(PhoneRow.TYPE, PhoneRow.TYPE_CUSTOM) ; put(PhoneRow.LABEL, MARK) }
             }
         }
         for (postal in card.addresses) {
             if (missing(StructuredPostal.CONTENT_ITEM_TYPE, StructuredPostal.FORMATTED_ADDRESS, postal)) {
                 row(StructuredPostal.CONTENT_ITEM_TYPE, StructuredPostal.FORMATTED_ADDRESS, postal) {
-                    put(StructuredPostal.TYPE, StructuredPostal.TYPE_OTHER)
+                    put(StructuredPostal.TYPE, StructuredPostal.TYPE_CUSTOM) ; put(StructuredPostal.LABEL, MARK)
                 }
             }
         }
         for (site in card.websites) {
             if (missing(Website.CONTENT_ITEM_TYPE, Website.URL, site)) {
-                row(Website.CONTENT_ITEM_TYPE, Website.URL, site) { put(Website.TYPE, Website.TYPE_OTHER) }
+                row(Website.CONTENT_ITEM_TYPE, Website.URL, site) { put(Website.TYPE, Website.TYPE_CUSTOM) ; put(Website.LABEL, MARK) }
             }
         }
         for (note in card.notes) {
@@ -179,6 +182,45 @@ object Book {
             card.websites.any { missing(Website.CONTENT_ITEM_TYPE, Website.URL, it) } ||
             card.notes.any { missing(Note.CONTENT_ITEM_TYPE, Note.NOTE, it) } ||
             (card.photo != null && known.photo == null)
+    }
+
+    /**
+     * The label on what foomms writes from a certificate -- addresses,
+     * numbers, sites --, as on the certificate's own address: what it may
+     * take away again once the certificate no longer says it. A line without
+     * it is the person's, and is never touched.
+     */
+    const val MARK = "PGP"
+
+    /** A line foomms wrote from a certificate, by its row, and what it says. */
+    class Stale(val row: Long, val value: String)
+
+    /**
+     * The lines foomms wrote from a certificate that [card] no longer
+     * carries: revoked in it, or taken off. Marked ones only; the
+     * certificate's own address is replaced by [tie], never counted here.
+     */
+    fun stale(context: Context, number: String, card: Card): List<Stale> {
+        val known = who(context, number) ?: return emptyList()
+        val found = ArrayList<Stale>()
+        fun look(kind: String, column: String, carried: List<String>, same: (String, String) -> Boolean = { a, b -> a == b }) {
+            // TYPE and LABEL are DATA2 and DATA3 in every kind of row: a custom type, labelled with the mark.
+            context.contentResolver.query(
+                Data.CONTENT_URI, arrayOf(Data._ID, column),
+                "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ? AND ${Data.DATA2} = ? AND ${Data.DATA3} = ?",
+                arrayOf(known.contact.toString(), kind, ContactsContract.CommonDataKinds.BaseTypes.TYPE_CUSTOM.toString(), MARK), null,
+            )?.use { rows ->
+                while (rows.moveToNext()) {
+                    val value = rows.getString(1) ?: continue
+                    if (carried.none { same(it, value) }) found += Stale(rows.getLong(0), value)
+                }
+            }
+        }
+        look(Email.CONTENT_ITEM_TYPE, Email.ADDRESS, card.emails) { a, b -> a.equals(b, true) }
+        look(PhoneRow.CONTENT_ITEM_TYPE, PhoneRow.NUMBER, card.phones.mapNotNull { Phone.plain(it) }, Phone::same)
+        look(StructuredPostal.CONTENT_ITEM_TYPE, StructuredPostal.FORMATTED_ADDRESS, card.addresses)
+        look(Website.CONTENT_ITEM_TYPE, Website.URL, card.websites) { a, b -> a == b || Fingerprint.of(b) != null }
+        return found
     }
 
     private fun missing(context: Context, contact: Long, kind: String, column: String, value: String, same: (String, String) -> Boolean) =

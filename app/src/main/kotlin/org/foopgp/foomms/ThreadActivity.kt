@@ -1528,12 +1528,13 @@ class ThreadActivity : AskingActivity() {
             val card = whose?.let { foodjis.vcard(it.fingerprint) }
             val lacks = card != null &&
                 Book.lacks(this, number, card, card.key?.takeIf { Fingerprint.of(it) == fingerprint } ?: Fingerprint.address(fingerprint))
+            val stale = card?.let { Book.stale(this, number, it) }.orEmpty()
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 when {
                     foodjis.shut -> say(getString(R.string.foodjis_shut))
                     whose == null -> say(getString(R.string.certificate_not_held))
-                    lacks -> offer(whose)
+                    lacks || stale.isNotEmpty() -> offer(whose, stale)
                     else -> Toast.makeText(this, R.string.cert_refreshed, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -1542,9 +1543,10 @@ class ThreadActivity : AskingActivity() {
 
     /**
      * Nothing is written in the address book before the person has seen what
-     * would be: the card foodjis makes of the certificate, a line each.
+     * would be: the card foodjis makes of the certificate, a line each, and
+     * the [stale] lines an earlier one wrote, which go.
      */
-    private fun offer(whose: Foodjis.Cert) {
+    private fun offer(whose: Foodjis.Cert, stale: List<Book.Stale> = emptyList()) {
         thread {
             val card = foodjis.vcard(whose.fingerprint)
             runOnUiThread {
@@ -1557,9 +1559,10 @@ class ThreadActivity : AskingActivity() {
                     .setTitle(getString(R.string.tie_ask, number, whose.name))
                     .setMessage(
                         android.text.SpannableStringBuilder(getString(R.string.tie_ask_before)).append(" ")
-                            .append(Look.standing(this, whose.validity)).append(getString(R.string.tie_ask_after)).append("\n\n").append(told),
+                            .append(Look.standing(this, whose.validity)).append(getString(R.string.tie_ask_after)).append("\n\n").append(told)
+                            .apply { if (stale.isNotEmpty()) append("\n\n").append(getString(R.string.tie_ask_removed)).append("\n").append(stale.joinToString("\n") { "•  ${it.value}" }) },
                     )
-                    .setPositiveButton(R.string.tie_write) { _, _ -> write(whose, card) }
+                    .setPositiveButton(R.string.tie_write) { _, _ -> write(whose, card, stale) }
                     .setNegativeButton(android.R.string.cancel, null)
                     .show()
             }
@@ -1568,14 +1571,14 @@ class ThreadActivity : AskingActivity() {
 
     private var waiting: (() -> Unit)? = null
 
-    private fun write(whose: Foodjis.Cert, vcard: Card) {
+    private fun write(whose: Foodjis.Cert, vcard: Card, stale: List<Book.Stale> = emptyList()) {
         if (NEEDED_TO_WRITE.any { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }) {
-            waiting = { write(whose, vcard) }
+            waiting = { write(whose, vcard, stale) }
             return requestPermissions(NEEDED_TO_WRITE, 2)
         }
         thread {
             val outcome = runCatching {
-                Book.tie(this, number, vcard, vcard.key?.takeIf { Fingerprint.of(it) == whose.fingerprint } ?: Fingerprint.address(whose.fingerprint))
+                Book.tie(this, number, vcard, vcard.key?.takeIf { Fingerprint.of(it) == whose.fingerprint } ?: Fingerprint.address(whose.fingerprint), stale)
                 getString(R.string.tied, whose.name)
             }.getOrElse { getString(R.string.failed, it.message) }
             runOnUiThread {

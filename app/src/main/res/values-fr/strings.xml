@@ -195,4 +195,5 @@
     <string name="cert_not_found">Aucun serveur de clés n\'a ce certificat.</string>
     <string name="old_foodjis">%1$s %2$s est plus ancien que ce dont foomms a besoin : certaines choses ne fonctionneront pas. Mettez-le à jour, en %3$s au moins.</string>
     <string name="update_foodjis">Mettre à jour %1$s</string>
+    <string name="tie_ask_removed">Et ceci sera retiré de la fiche, le certificat ne le portant plus :</string>
 </resources>

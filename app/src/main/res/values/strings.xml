@@ -198,4 +198,5 @@
     <string name="cert_not_found">No keyserver has this certificate.</string>
     <string name="old_foodjis">%1$s %2$s is older than foomms needs: some things will not work. Update it to %3$s at least.</string>
     <string name="update_foodjis">Update %1$s</string>
+    <string name="tie_ask_removed">And this goes from the contact, the certificate no longer carrying it:</string>
 </resources>

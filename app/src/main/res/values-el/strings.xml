@@ -195,4 +195,5 @@
     <string name="cert_not_found">Κανένας διακομιστής κλειδιών δεν έχει αυτό το πιστοποιητικό.</string>
     <string name="old_foodjis">Το %1$s %2$s είναι παλαιότερο από όσο χρειάζεται το foomms: ορισμένα πράγματα δεν θα λειτουργούν. Ενημερώστε το, τουλάχιστον στην %3$s.</string>
     <string name="update_foodjis">Ενημέρωση του %1$s</string>
+    <string name="tie_ask_removed">Και αυτό θα αφαιρεθεί από την επαφή, αφού το πιστοποιητικό δεν το φέρει πια:</string>
 </resources>
