@@ -187,4 +187,8 @@
     <string name="restricted_hint">Εγκατεστημένο από αρχείο, το foomms μπορεί να διαβάζει και να στέλνει SMS μόνο όταν το επιτρέψει το Android: στις ρυθμίσεις του foomms, το μενού ⋮ πάνω δεξιά, επιλέξτε «Να επιτρέπονται οι περιορισμένες ρυθμίσεις», μετά επιστρέψτε εδώ και πατήστε Να επιτρέπεται.</string>
     <string name="restricted_open">Άνοιγμα ρυθμίσεων του foomms</string>
     <string name="copy">Αντιγραφή</string>
+    <string name="fetch_cert">🔑 Αναζήτηση του πιστοποιητικού</string>
+    <string name="cert_fetching">Αναζήτηση του πιστοποιητικού στους διακομιστές κλειδιών…</string>
+    <string name="cert_fetched">Το πιστοποιητικό βρέθηκε: το μήνυμα ελέγχεται ξανά.</string>
+    <string name="cert_not_found">Κανένας διακομιστής κλειδιών δεν έχει αυτό το πιστοποιητικό.</string>
 </resources>

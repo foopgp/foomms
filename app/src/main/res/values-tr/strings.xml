@@ -187,4 +187,8 @@
     <string name="restricted_hint">Bir dosyadan kurulan foomms, ancak Android izin verdiğinde SMS okuyup gönderebilir: foomms ayarlarında, sağ üstteki ⋮ menüsünden «Kısıtlanmış ayarlara izin ver»i seçin, sonra buraya dönüp İzin ver\'e basın.</string>
     <string name="restricted_open">foomms ayarlarını aç</string>
     <string name="copy">Kopyala</string>
+    <string name="fetch_cert">🔑 Sertifikayı ara</string>
+    <string name="cert_fetching">Sertifika anahtar sunucularında aranıyor…</string>
+    <string name="cert_fetched">Sertifika bulundu: mesaj yeniden doğrulanıyor.</string>
+    <string name="cert_not_found">Hiçbir anahtar sunucusunda bu sertifika yok.</string>
 </resources>

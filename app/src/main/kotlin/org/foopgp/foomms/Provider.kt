@@ -148,6 +148,7 @@ class Provider(private val context: Context) {
         // The words of the interface, as org.openintents.openpgp.util.OpenPgpApi names them.
         const val API_VERSION = 12
         const val GET_KEY_IDS = "org.openintents.openpgp.action.GET_KEY_IDS"
+        const val GET_KEY = "org.openintents.openpgp.action.GET_KEY"
         const val ENCRYPT = "org.openintents.openpgp.action.ENCRYPT"
         const val SIGN_AND_ENCRYPT = "org.openintents.openpgp.action.SIGN_AND_ENCRYPT"
         const val DECRYPT_VERIFY = "org.openintents.openpgp.action.DECRYPT_VERIFY"
@@ -156,6 +157,7 @@ class Provider(private val context: Context) {
         const val EXTRA_API_VERSION = "api_version"
         const val EXTRA_USER_IDS = "user_ids"
         const val EXTRA_KEY_IDS = "key_ids"
+        const val EXTRA_KEY_ID = "key_id"
         const val EXTRA_SIGN_KEY_ID = "sign_key_id"
 
         /** foodjis's own: one contact is wanted from its list, not several. */

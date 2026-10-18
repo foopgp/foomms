@@ -187,4 +187,8 @@
     <string name="restricted_hint">Zainstalowany z pliku foomms może czytać i wysyłać SMS-y dopiero, gdy Android na to pozwoli: w ustawieniach foomms, menu ⋮ w prawym górnym rogu, wybierz „Zezwól na ustawienia z ograniczeniami”, wróć tutaj i naciśnij Zezwól.</string>
     <string name="restricted_open">Otwórz ustawienia foomms</string>
     <string name="copy">Kopiuj</string>
+    <string name="fetch_cert">🔑 Szukaj certyfikatu</string>
+    <string name="cert_fetching">Szukanie certyfikatu na serwerach kluczy…</string>
+    <string name="cert_fetched">Certyfikat znaleziony: wiadomość jest sprawdzana ponownie.</string>
+    <string name="cert_not_found">Żaden serwer kluczy nie ma tego certyfikatu.</string>
 </resources>

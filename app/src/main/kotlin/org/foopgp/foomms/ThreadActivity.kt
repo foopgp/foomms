@@ -1181,11 +1181,29 @@ class ThreadActivity : AskingActivity() {
             }
             if (more.isNotEmpty()) text(more.trimEnd())
         }
+        // Signed by a key foodjis does not hold: it can look for the certificate on the keyservers.
+        val missing = sealOf(line)?.takeIf { it.signed?.result == OpenPgpSignatureResult.RESULT_KEY_MISSING }?.signer
         AlertDialog.Builder(this)
             .setTitle(R.string.details)
             .setView(android.widget.ScrollView(this).apply { addView(column) })
             .setPositiveButton(R.string.close, null)
+            .apply { if (missing != null) setNeutralButton(R.string.fetch_cert) { _, _ -> fetchCert(missing) } }
             .show()
+    }
+
+    /** foodjis asked for the certificate of [keyId], from its keyservers; found, the signed messages are verified again. */
+    private fun fetchCert(keyId: Long) {
+        say(getString(R.string.cert_fetching))
+        ask(
+            Intent(Provider.GET_KEY).putExtra(Provider.EXTRA_KEY_ID, keyId), null,
+            failed = { say(getString(R.string.cert_not_found)) },
+            // A screen of foodjis instead -- this application not let in: what it showed was the answer.
+            screened = { true },
+        ) {
+            say(getString(R.string.cert_fetched))
+            verifying.clear()
+            verifySigned()
+        }
     }
 
     /**
