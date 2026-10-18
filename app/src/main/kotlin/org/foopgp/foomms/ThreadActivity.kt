@@ -1394,9 +1394,11 @@ class ThreadActivity : AskingActivity() {
                     addView(text)
                 }
                 for (piece in line.pieces) addView(shownPiece(piece, at))
-                // The press on its text only, the rest of the bubble's width in a row that takes none.
+                // Its text shows the details; beside it, the rest of the line gives the menu its long press gives.
                 addView(
                     LinearLayout(context).apply {
+                        setOnClickListener { about(at) }
+                        setOnLongClickListener { about(at) ; true }
                         addView(
                             Look.words(context, under, size = 11f, muted = true).apply {
                                 setOnClickListener { details(line) }
