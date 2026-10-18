@@ -129,7 +129,8 @@
     <string name="switch_sign">İmzala</string>
     <string name="switch_lock">Şifrele</string>
     <string name="cert_show">🔑 Sertifikayı göster</string>
-    <string name="cert_refresh">⟳ Sertifikadan yenile</string>
+    <string name="cert_refresh">⟳ Sertifikayı yenile</string>
+    <string name="cert_refreshed">Sertifika yenilendi.</string>
     <string name="cert_forget">⌫ Sertifikayı unut</string>
     <string name="whom_so_far">Alıcı: %1$s   ✕</string>
     <string name="whom_write">✎ Yaz</string>

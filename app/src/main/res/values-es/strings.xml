@@ -129,7 +129,8 @@
     <string name="switch_sign">Firmar</string>
     <string name="switch_lock">Cifrar</string>
     <string name="cert_show">🔑 Mostrar el certificado</string>
-    <string name="cert_refresh">⟳ Actualizar desde el certificado</string>
+    <string name="cert_refresh">⟳ Actualizar el certificado</string>
+    <string name="cert_refreshed">Certificado actualizado.</string>
     <string name="cert_forget">⌫ Olvidar el certificado</string>
     <string name="whom_so_far">Para: %1$s   ✕</string>
     <string name="whom_write">✎ Escribir</string>

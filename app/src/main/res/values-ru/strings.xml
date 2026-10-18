@@ -129,7 +129,8 @@
     <string name="switch_sign">Подписать</string>
     <string name="switch_lock">Зашифровать</string>
     <string name="cert_show">🔑 Показать сертификат</string>
-    <string name="cert_refresh">⟳ Обновить из сертификата</string>
+    <string name="cert_refresh">⟳ Обновить сертификат</string>
+    <string name="cert_refreshed">Сертификат обновлён.</string>
     <string name="cert_forget">⌫ Забыть сертификат</string>
     <string name="whom_so_far">Кому: %1$s   ✕</string>
     <string name="whom_write">✎ Написать</string>

@@ -170,7 +170,7 @@ class ThreadActivity : AskingActivity() {
                 setOnClickListener {
                     TalkMenu.show(
                         this@ThreadActivity, person?.name ?: number, number, person, thread,
-                        tie = { tie() }, refresh = { person?.fingerprint?.let { found(it) } },
+                        tie = { tie() }, refresh = { person?.fingerprint?.let { refreshed(it) } },
                         changed = { person = null ; card = null ; load(first = true) }, gone = { finish() },
                         save = { Saving.save(this@ThreadActivity, thread, person?.name ?: number) },
                         // Only while foodjis keeps its door shut: once let in, there is nothing to ask.
@@ -469,7 +469,7 @@ class ThreadActivity : AskingActivity() {
                 // Asked from the list of conversations: whose certificate this number means.
                 when (intent.getStringExtra(EXTRA_ASK).also { intent.removeExtra(EXTRA_ASK) }) {
                     ASK_TIE -> tie()
-                    ASK_REFRESH -> who?.fingerprint?.let { found(it) }
+                    ASK_REFRESH -> who?.fingerprint?.let { refreshed(it) }
                 }
                 // Nothing can be written to a sender that is not a number.
                 val reachable = Phone.plain(number) != null
@@ -1498,6 +1498,31 @@ class ThreadActivity : AskingActivity() {
                     foodjis.shut -> say(getString(R.string.foodjis_shut))
                     whose == null -> say(getString(R.string.certificate_not_held))
                     else -> offer(whose)
+                }
+            }
+        }
+    }
+
+    /**
+     * The certificate refreshed by foodjis, the page drawn again: the contact
+     * is offered what the certificate says only when it says something the
+     * contact does not.
+     */
+    private fun refreshed(fingerprint: String) {
+        foodjis.fresh()
+        load()
+        thread {
+            val whose = foodjis.card(fingerprint)
+            val card = whose?.let { foodjis.vcard(it.fingerprint) }
+            val lacks = card != null &&
+                Book.lacks(this, number, card, card.key?.takeIf { Fingerprint.of(it) == fingerprint } ?: Fingerprint.address(fingerprint))
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                when {
+                    foodjis.shut -> say(getString(R.string.foodjis_shut))
+                    whose == null -> say(getString(R.string.certificate_not_held))
+                    lacks -> offer(whose)
+                    else -> Toast.makeText(this, R.string.cert_refreshed, Toast.LENGTH_SHORT).show()
                 }
             }
         }

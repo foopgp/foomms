@@ -129,7 +129,8 @@
     <string name="switch_sign">Υπογραφή</string>
     <string name="switch_lock">Κρυπτογράφηση</string>
     <string name="cert_show">🔑 Εμφάνιση του πιστοποιητικού</string>
-    <string name="cert_refresh">⟳ Ενημέρωση από το πιστοποιητικό</string>
+    <string name="cert_refresh">⟳ Ενημέρωση του πιστοποιητικού</string>
+    <string name="cert_refreshed">Το πιστοποιητικό ενημερώθηκε.</string>
     <string name="cert_forget">⌫ Λήθη του πιστοποιητικού</string>
     <string name="whom_so_far">Προς: %1$s   ✕</string>
     <string name="whom_write">✎ Σύνταξη</string>

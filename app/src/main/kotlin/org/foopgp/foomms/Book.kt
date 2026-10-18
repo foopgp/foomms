@@ -123,7 +123,7 @@ object Book {
             )
         }
         fun missing(kind: String, column: String, value: String, same: (String, String) -> Boolean = { a, b -> a == b }) =
-            values(context, contact, kind, column).none { same(it, value) }
+            missing(context, contact, kind, column, value, same)
 
         row(Website.CONTENT_ITEM_TYPE, Website.URL, address) { put(Website.TYPE, Website.TYPE_CUSTOM) ; put(Website.LABEL, "PGP") }
         for (email in card.emails) {
@@ -162,6 +162,27 @@ object Book {
             )
         }
     }
+
+    /**
+     * Whether [tie] would write anything the contact of [number] does not
+     * say already: the certificate's address, or a line of its card, or its
+     * face. Nothing, and there is nothing to ask the person.
+     */
+    fun lacks(context: Context, number: String, card: Card, address: String): Boolean {
+        val known = who(context, number) ?: return true
+        fun missing(kind: String, column: String, value: String, same: (String, String) -> Boolean = { a, b -> a == b }) =
+            missing(context, known.contact, kind, column, value, same)
+        return missing(Website.CONTENT_ITEM_TYPE, Website.URL, address) ||
+            card.emails.any { email -> missing(Email.CONTENT_ITEM_TYPE, Email.ADDRESS, email) { a, b -> a.equals(b, true) } } ||
+            card.phones.mapNotNull { Phone.plain(it) }.any { !Phone.same(it, number) && missing(PhoneRow.CONTENT_ITEM_TYPE, PhoneRow.NUMBER, it, Phone::same) } ||
+            card.addresses.any { missing(StructuredPostal.CONTENT_ITEM_TYPE, StructuredPostal.FORMATTED_ADDRESS, it) } ||
+            card.websites.any { missing(Website.CONTENT_ITEM_TYPE, Website.URL, it) } ||
+            card.notes.any { missing(Note.CONTENT_ITEM_TYPE, Note.NOTE, it) } ||
+            (card.photo != null && known.photo == null)
+    }
+
+    private fun missing(context: Context, contact: Long, kind: String, column: String, value: String, same: (String, String) -> Boolean) =
+        values(context, contact, kind, column).none { same(it, value) }
 
     private fun rawOf(context: Context, contact: Long): Long? =
         context.contentResolver.query(

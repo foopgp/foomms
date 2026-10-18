@@ -21,9 +21,10 @@ object TalkMenu {
      * [changed] is told when it came, what shows the number's standing being
      * out of date.
      */
-    private fun holding(activity: Activity, fingerprint: String, changed: () -> Unit, then: () -> Unit) {
+    private fun holding(activity: Activity, fingerprint: String, changed: () -> Unit, refresh: Boolean = false, then: () -> Unit) {
         thread {
-            val held = runCatching { Foodjis.of(activity).card(fingerprint) }.getOrNull() != null
+            // Asked to refresh, it is asked of the keyservers again even when held: it may have changed there.
+            val held = !refresh && runCatching { Foodjis.of(activity).card(fingerprint) }.getOrNull() != null
             activity.runOnUiThread {
                 if (activity.isFinishing || activity.isDestroyed) return@runOnUiThread
                 if (held) return@runOnUiThread then()
@@ -31,7 +32,7 @@ object TalkMenu {
                 // Shown while foodjis looks, and gone when it answers.
                 val looking = AlertDialog.Builder(activity).setMessage(R.string.cert_fetching).setPositiveButton(R.string.close, null).show()
                 val provider = Provider(activity)
-                provider.ask(Intent(Provider.GET_KEY).putExtra(Provider.EXTRA_KEY_ID, keyId), null) { answer ->
+                provider.ask(Intent(Provider.GET_KEY).putExtra(Provider.EXTRA_KEY_ID, keyId).putExtra(Provider.EXTRA_REFRESH, refresh), null) { answer ->
                     looking.dismiss()
                     provider.close()
                     if (activity.isFinishing || activity.isDestroyed) return@ask
@@ -117,7 +118,7 @@ object TalkMenu {
                     }
                 }
             }
-            add(R.string.cert_refresh) { holding(activity, tied, changed, refresh) }
+            add(R.string.cert_refresh) { holding(activity, tied, changed, refresh = true, then = refresh) }
             add(R.string.cert_forget) {
                 thread {
                     runCatching { Book.untie(activity, person.contact) }

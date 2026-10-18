@@ -129,7 +129,8 @@
     <string name="switch_sign">Підписати</string>
     <string name="switch_lock">Зашифрувати</string>
     <string name="cert_show">🔑 Показати сертифікат</string>
-    <string name="cert_refresh">⟳ Оновити з сертифіката</string>
+    <string name="cert_refresh">⟳ Оновити сертифікат</string>
+    <string name="cert_refreshed">Сертифікат оновлено.</string>
     <string name="cert_forget">⌫ Забути сертифікат</string>
     <string name="whom_so_far">Кому: %1$s   ✕</string>
     <string name="whom_write">✎ Написати</string>

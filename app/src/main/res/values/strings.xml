@@ -132,7 +132,8 @@
     <string name="switch_sign">Sign</string>
     <string name="switch_lock">Encrypt</string>
     <string name="cert_show">🔑 Show the certificate</string>
-    <string name="cert_refresh">⟳ Refresh from the certificate</string>
+    <string name="cert_refresh">⟳ Refresh the certificate</string>
+    <string name="cert_refreshed">Certificate refreshed.</string>
     <string name="cert_forget">⌫ Forget the certificate</string>
     <string name="whom_so_far">For: %1$s   ✕</string>
     <string name="whom_write">✎ Write</string>
