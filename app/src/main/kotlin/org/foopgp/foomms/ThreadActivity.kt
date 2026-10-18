@@ -1197,13 +1197,15 @@ class ThreadActivity : AskingActivity() {
 
     /** foodjis asked for the certificate of [keyId], from its keyservers; found, the signed messages are verified again. */
     private fun fetchCert(keyId: Long) {
-        say(getString(R.string.cert_fetching))
+        // Shown while foodjis looks, and gone when it answers, whatever it says.
+        val looking = AlertDialog.Builder(this).setMessage(R.string.cert_fetching).setPositiveButton(R.string.close, null).show()
         ask(
             Intent(Provider.GET_KEY).putExtra(Provider.EXTRA_KEY_ID, keyId), null,
-            failed = { say(getString(R.string.cert_not_found)) },
+            failed = { looking.dismiss() ; say(getString(R.string.cert_not_found)) },
             // A screen of foodjis instead -- this application not let in: what it showed was the answer.
-            screened = { true },
+            screened = { looking.dismiss() ; true },
         ) {
+            looking.dismiss()
             // What was judged without it is judged again: signed only, at once; encrypted, when opened again.
             val closed = Opened.forgetMissing()
             say(getString(if (closed) R.string.cert_fetched_reopen else R.string.cert_fetched))
