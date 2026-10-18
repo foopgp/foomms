@@ -1,0 +1,6 @@
+• Bir mesajın her parçası kendi dokunuşuna yanıt verir: metin seçilir, resim büyür, ek açılır.
+• «Paylaş», «İlet»in yerini alıyor ve bir ek kaydedilebilir.
+• Çubuklarda ve bildirimlerde ikinci bir renk kodu: açık, imzalı (mor), şifreli (sarı-yeşil).
+• Bildirimler kişinin fotoğrafını ve imzalı mesajların metnini gösterir.
+• Eksik bir sertifika anahtar sunucularında aranabilir.
+• foomms, foodjis çok eskiyse uyarır.

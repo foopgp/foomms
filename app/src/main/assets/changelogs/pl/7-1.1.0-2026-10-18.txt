@@ -1,0 +1,6 @@
+• Każda część wiadomości reaguje na własne dotknięcie: tekst się zaznacza, obraz powiększa, załącznik otwiera.
+• „Udostępnij” zastępuje „Przekaż dalej”, a załącznik można zapisać.
+• Drugi kod kolorów, na paskach i w powiadomieniach: jawna, podpisana (fiolet), zaszyfrowana (żółtozielony).
+• Powiadomienia pokazują zdjęcie kontaktu i tekst podpisanych wiadomości.
+• Brakującego certyfikatu można szukać na serwerach kluczy.
+• foomms ostrzega, gdy foodjis jest zbyt stary.

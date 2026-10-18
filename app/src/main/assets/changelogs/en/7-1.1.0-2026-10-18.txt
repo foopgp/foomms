@@ -1,0 +1,6 @@
+• Each part of a message takes its own press: the text is selected, a picture grows, an attachment opens.
+• "Share" replaces "Forward", and an attachment can be saved.
+• A second colour code, on the marks and notifications: in clear, signed (violet), encrypted (yellow-green).
+• Notifications show the contact's picture and the text of signed messages.
+• A missing certificate can be looked for on the keyservers.
+• foomms says when foodjis is too old.

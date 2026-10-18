@@ -1,0 +1,6 @@
+• Jeder Teil einer Nachricht reagiert für sich: Der Text wird markiert, ein Bild vergrößert, ein Anhang geöffnet.
+• „Teilen“ ersetzt „Weiterleiten“, und ein Anhang lässt sich speichern.
+• Ein zweiter Farbcode auf Leisten und Benachrichtigungen: unverschlüsselt, signiert (violett), verschlüsselt (gelbgrün).
+• Benachrichtigungen zeigen das Kontaktbild und den Text signierter Nachrichten.
+• Ein fehlendes Zertifikat lässt sich auf den Schlüsselservern suchen.
+• foomms warnt, wenn foodjis zu alt ist.
