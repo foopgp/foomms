@@ -1,0 +1,4 @@
+• „Zertifikat aktualisieren“ hält den Kontakt aktuell: Was foomms aus dem Zertifikat eingetragen hat, verschwindet, wenn das Zertifikat es nicht mehr trägt.
+• Bild oder Notiz unterscheiden sich zwischen Kontakt und Zertifikat: Sie wählen, was bleibt.
+• „Nicht beglaubigt“ fett, und nie am Zeilenende getrennt.
+• Eine zweimal empfangene Nachricht öffnet sich mit der anderen.

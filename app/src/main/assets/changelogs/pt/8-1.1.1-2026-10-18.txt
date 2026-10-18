@@ -1,0 +1,4 @@
+• «Atualizar o certificado» mantém o contacto em dia: o que o foomms lá escreveu a partir do certificado sai quando o certificado já não o tem.
+• Foto ou nota diferentes entre o contacto e o certificado: escolhe qual manter.
+• «Não certificado» a negrito, e nunca cortado no fim de uma linha.
+• Uma mensagem recebida duas vezes abre-se com a outra.

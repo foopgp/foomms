@@ -1,0 +1,4 @@
+• „Odśwież certyfikat” utrzymuje kontakt na bieżąco: to, co foomms wpisał z certyfikatu, znika, gdy certyfikat już tego nie zawiera.
+• Zdjęcie lub notatka różnią się między kontaktem a certyfikatem: wybierasz, co zachować.
+• „Niepoświadczone” pogrubione i nigdy nie dzielone na końcu wiersza.
+• Wiadomość odebrana dwa razy otwiera się razem z drugą.

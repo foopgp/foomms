@@ -1,0 +1,4 @@
+• «Sertifikayı yenile» kişiyi güncel tutar: foomms'un sertifikadan yazdıkları, sertifika artık taşımadığında silinir.
+• Kişideki ve sertifikadaki fotoğraf ya da not farklıysa hangisinin kalacağını siz seçersiniz.
+• «Sertifikasız» kalın yazılır ve satır sonunda bölünmez.
+• İki kez alınan bir mesaj diğeriyle birlikte açılır.
