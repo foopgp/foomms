@@ -23,6 +23,10 @@ import java.io.File
  * The camera at the back or the front, its light, and its focus where the
  * finger touches. 176×144 was too poor, 352×288 and 640×480 too short under
  * 300 kB: dropped.
+ *
+ * Held upright or on its side: the page stays upright -- turning it would
+ * stop the camera --, its words and buttons turn to face the person, and the
+ * video says, as it begins, which way up it was filmed. A player turns it so.
  */
 @Suppress("DEPRECATION")
 class VideoActivity : Activity(), SurfaceHolder.Callback {
@@ -30,6 +34,21 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     private var camera: Camera? = null
     private var facing = Camera.CameraInfo.CAMERA_FACING_BACK
     private var lit = false
+
+    /** How far the phone is turned from upright, clockwise, to the nearest quarter: 0, 90, 180 or 270. */
+    private var turned = 0
+    private val tilt by lazy {
+        object : android.view.OrientationEventListener(this) {
+            override fun onOrientationChanged(degrees: Int) {
+                if (degrees == ORIENTATION_UNKNOWN || recorder != null) return
+                val now = (degrees + 45) / 90 * 90 % 360
+                if (now == turned) return
+                turned = now
+                // What is read turns the other way, to stay level for the eyes.
+                for (shown in listOf(told, button, turn, light)) shown.animate().rotation(-now.toFloat()).setDuration(200).start()
+            }
+        }
+    }
     private var recorder: MediaRecorder? = null
     private var started = 0L
     private var began = 0L
@@ -190,7 +209,9 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
                 setAudioSamplingRate(16_000)
                 setAudioChannels(1)
                 setVideoFrameRate(15)
-                setOrientationHint(info(id).orientation)
+                // Which way up it was filmed: the sensor's own turn and the phone's, mirrored at the front.
+                val sensor = info(id).orientation
+                setOrientationHint(if (facing == Camera.CameraInfo.CAMERA_FACING_FRONT) (sensor - turned + 360) % 360 else (sensor + turned) % 360)
                 setMaxFileSize(most)
                 setOutputFile(out.path)
                 setPreviewDisplay(this@VideoActivity.surface.holder.surface)
@@ -230,8 +251,14 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
         camera = null
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (tilt.canDetectOrientation()) tilt.enable()
+    }
+
     override fun onPause() {
         super.onPause()
+        tilt.disable()
         if (recorder != null) stop(true)
     }
 

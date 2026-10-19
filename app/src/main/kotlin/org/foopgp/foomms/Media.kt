@@ -48,7 +48,13 @@ object Media {
         try {
             source(reader)
             if (reader.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO) != "yes") return@runCatching null
-            reader.getFrameAtTime(0)?.let { whole ->
+            reader.getFrameAtTime(0)?.let { taken ->
+                // Some phones hand the picture as it was recorded, not as it is to be seen: turned here when so.
+                val rotation = reader.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)?.toIntOrNull() ?: 0
+                val width = reader.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: taken.width
+                val whole = if ((rotation == 90 || rotation == 270) && taken.width == width && taken.width != taken.height) {
+                    Bitmap.createBitmap(taken, 0, 0, taken.width, taken.height, android.graphics.Matrix().apply { postRotate(rotation.toFloat()) }, true)
+                } else taken
                 val scale = side.toFloat() / maxOf(whole.width, whole.height)
                 if (scale >= 1f) whole else Bitmap.createScaledBitmap(whole, (whole.width * scale).toInt(), (whole.height * scale).toInt(), true)
             }
