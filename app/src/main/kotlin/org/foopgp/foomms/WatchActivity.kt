@@ -179,7 +179,13 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
     }
 
     /** The player's buttons in bold, so that thin characters weigh as much as a drawn icon. */
-    private fun bold(button: android.widget.Button) = button.apply { setTypeface(typeface, android.graphics.Typeface.BOLD) ; textSize = 18f }
+    private fun bold(button: android.widget.Button) = button.apply {
+        setTypeface(typeface, android.graphics.Typeface.BOLD)
+        textSize = 18f
+        // As narrow as what they say: the bar between them is where one moves in the video.
+        minWidth = 0 ; minimumWidth = 0
+        setPadding(Look.dp(context, 14), paddingTop, Look.dp(context, 14), paddingBottom)
+    }
 
     private fun toggle() {
         val player = player ?: return
