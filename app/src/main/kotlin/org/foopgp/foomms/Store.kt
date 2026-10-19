@@ -184,20 +184,25 @@ object Store {
                 )
             }
         }
+        // The MMS, then all their parts in one asking rather than one each: a conversation of many MMS opened in a
+        // fraction of the time. Who sent each is not asked here, being only shown in its details ([addressOf]).
+        class Head(val id: Long, val at: Long, val incoming: Boolean, val sentAt: Long)
+        val heads = ArrayList<Head>()
         context.contentResolver.query(
             MMS, arrayOf("_id", "date", "msg_box", "date_sent"), "thread_id = ?", arrayOf(thread.toString()), null,
         )?.use { rows ->
-            while (rows.moveToNext()) {
-                val (words, pieces) = parts(context, rows.getLong(0))
-                val incoming = rows.getInt(2) == MMS_INBOX
-                lines += Line(
-                    rows.getLong(1) * 1000, incoming, words, pieces,
-                    id = rows.getLong(0), mms = true, sentAt = rows.getLong(3) * 1000, address = number(context, rows.getLong(0), incoming),
-                )
-            }
+            while (rows.moveToNext()) heads += Head(rows.getLong(0), rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, rows.getLong(3) * 1000)
+        }
+        val parts = parts(context, heads.map { it.id })
+        for (head in heads) {
+            val (words, pieces) = parts[head.id] ?: ("" to emptyList())
+            lines += Line(head.at, head.incoming, words, pieces, id = head.id, mms = true, sentAt = head.sentAt)
         }
         return lines.sortedBy { it.at }
     }
+
+    /** Who sent a message, or whom it went to: as the network wrote it, an MMS's asked of the phone only now. */
+    fun addressOf(context: Context, line: Line): String? = line.address ?: if (line.mms) number(context, line.id, line.incoming) else null
 
     /**
      * The conversation a number has, or none: found among the SMS the phone
@@ -228,26 +233,34 @@ object Store {
     }
 
     /** The words of an MMS, and its parts that are something else. */
-    private fun parts(context: Context, message: Long): Pair<String, List<Piece>> {
-        val words = StringBuilder()
-        val pieces = ArrayList<Piece>()
-        context.contentResolver.query(PARTS, arrayOf("_id", "ct", "text", "name", "cl"), "mid = ?", arrayOf(message.toString()), null)?.use { rows ->
-            while (rows.moveToNext()) {
-                val type = rows.getString(1).orEmpty()
-                when {
-                    type == "application/smil" -> Unit
-                    type.startsWith("text/plain") -> {
-                        val text = rows.getString(2) ?: runCatching {
-                            context.contentResolver.openInputStream(Uri.withAppendedPath(PARTS, rows.getString(0)))
-                                ?.use { String(it.readBytes(), Charsets.UTF_8) }
-                        }.getOrNull()
-                        if (!text.isNullOrEmpty()) words.append(if (words.isEmpty()) "" else "\n").append(text)
+    private fun parts(context: Context, message: Long): Pair<String, List<Piece>> = parts(context, listOf(message))[message] ?: ("" to emptyList())
+
+    /** The words and the other parts of several MMS, by message, asked a few hundred at a time. */
+    private fun parts(context: Context, messages: List<Long>): Map<Long, Pair<String, List<Piece>>> {
+        val words = HashMap<Long, StringBuilder>()
+        val pieces = HashMap<Long, ArrayList<Piece>>()
+        for (some in messages.chunked(400)) {
+            context.contentResolver.query(
+                PARTS, arrayOf("_id", "ct", "text", "name", "cl", "mid"), "mid IN (${some.joinToString(",")})", null, "mid, _id",
+            )?.use { rows ->
+                while (rows.moveToNext()) {
+                    val mid = rows.getLong(5)
+                    val type = rows.getString(1).orEmpty()
+                    when {
+                        type == "application/smil" -> Unit
+                        type.startsWith("text/plain") -> {
+                            val text = rows.getString(2) ?: runCatching {
+                                context.contentResolver.openInputStream(Uri.withAppendedPath(PARTS, rows.getString(0)))
+                                    ?.use { String(it.readBytes(), Charsets.UTF_8) }
+                            }.getOrNull()
+                            if (!text.isNullOrEmpty()) words.getOrPut(mid) { StringBuilder() }.let { it.append(if (it.isEmpty()) "" else "\n").append(text) }
+                        }
+                        else -> pieces.getOrPut(mid) { ArrayList() } += Piece(rows.getLong(0), type, rows.getString(3) ?: rows.getString(4))
                     }
-                    else -> pieces += Piece(rows.getLong(0), type, rows.getString(3) ?: rows.getString(4))
                 }
             }
         }
-        return words.toString() to pieces
+        return messages.associateWith { (words[it]?.toString().orEmpty()) to pieces[it].orEmpty() }
     }
 
     fun counts(context: Context): Counts {

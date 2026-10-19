@@ -422,9 +422,15 @@ class ThreadActivity : AskingActivity() {
     private fun load(first: Boolean = false) {
         val contacts = checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
         thread {
-            val who = if (contacts) Book.who(this, number) else null
-            val whose = who?.fingerprint?.let { foodjis.card(it) }
-            val theirs = who?.let { Book.face(this, it) } ?: who?.fingerprint?.let { foodjis.face(it) }
+            // Who the number is, asked beside the messages being read rather than before: each takes its time.
+            var answered: Triple<Book.Person?, Foodjis.Cert?, Bitmap?> = Triple(null, null, null)
+            val asking = thread {
+                val person = if (contacts) Book.who(this, number) else null
+                answered = Triple(
+                    person, person?.fingerprint?.let { foodjis.card(it) },
+                    person?.let { Book.face(this, it) } ?: person?.fingerprint?.let { foodjis.face(it) },
+                )
+            }
             // The conversation it was opened from, when it was opened from one: a sender that is a name and not a
             // number -- a bank, a shop -- has a conversation all the same.
             val thread: Long? = intent.getLongExtra(EXTRA_THREAD, -1L).takeIf { it >= 0 } ?: runCatching { Store.thread(this, number) }.getOrNull()
@@ -446,7 +452,11 @@ class ThreadActivity : AskingActivity() {
             for (piece in found.flatMap { it.pieces }) {
                 if (piece.type.startsWith("audio/") && !lasts.containsKey(piece.id)) Media.lasting(this, piece.uri)?.let { lasts[piece.id] = it }
             }
-            val theirFaces = named.associateWith { id -> foodjis.signer(id)?.let { whose -> For(whose.name, foodjis.face(whose.fingerprint)) } }
+            // Each of those named asked of foodjis at once rather than one after the other.
+            val theirFaces = java.util.Collections.synchronizedMap(HashMap<Long, For?>())
+            named.map { id -> thread { theirFaces[id] = foodjis.signer(id)?.let { whose -> For(whose.name, foodjis.face(whose.fingerprint)) } } }.forEach { it.join() }
+            asking.join()
+            val (who, whose, theirs) = answered
             if (shown) {
                 thread?.let { Keep.read(this, it) }
                 Notify.seen(this, number)
@@ -1134,15 +1144,16 @@ class ThreadActivity : AskingActivity() {
             // Who signed, as foodjis knows them: the key named by the signature is all the message says.
             val signer = sealOf(line)?.signer?.let { foodjis.signer(it) }
             val signerFace = signer?.let { foodjis.face(it.fingerprint) }
-            runOnUiThread { if (!isFinishing && !isDestroyed) details(line, weights, signer, signerFace) }
+            val address = Store.addressOf(this, line)
+            runOnUiThread { if (!isFinishing && !isDestroyed) details(line, weights, signer, signerFace, address) }
         }
     }
 
-    private fun details(line: Store.Line, weights: Map<Long, Long>, signer: Foodjis.Cert?, signerFace: Bitmap?) {
+    private fun details(line: Store.Line, weights: Map<Long, Long>, signer: Foodjis.Cert?, signerFace: Bitmap?, address: String?) {
         val armor = armorOf(line)
         val precise = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM)
         val told = buildString {
-            append(getString(if (line.incoming) R.string.detail_from else R.string.detail_to, line.address ?: number)).append('\n')
+            append(getString(if (line.incoming) R.string.detail_from else R.string.detail_to, address ?: number)).append('\n')
             append(getString(if (line.incoming) R.string.detail_received else R.string.detail_handed, precise.format(java.util.Date(line.at)))).append('\n')
             if (line.sentAt > 0 && line.incoming) append(getString(R.string.detail_sent, precise.format(java.util.Date(line.sentAt)))).append('\n')
             append(getString(R.string.detail_kind, if (line.mms) "MMS" else "SMS"))
