@@ -65,7 +65,7 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
         }
         screen = TextureView(this).apply { surfaceTextureListener = this@WatchActivity }
         screen.setOnClickListener { val shown = over.firstOrNull()?.visibility != android.view.View.VISIBLE ; over.forEach { it.visibility = if (shown) android.view.View.VISIBLE else android.view.View.GONE } }
-        playing = bold(Look.button(this, "❚❚") { toggle() })
+        playing = knob("❚❚", R.string.listening_pause) { toggle() }
         where = SeekBar(this).apply {
             setOnSeekBarChangeListener(
                 object : SeekBar.OnSeekBarChangeListener {
@@ -76,50 +76,49 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
             )
         }
         val pad = Look.dp(this, 12)
+        fun shade(from: android.graphics.drawable.GradientDrawable.Orientation) =
+            android.graphics.drawable.GradientDrawable(from, intArrayOf(android.graphics.Color.argb(0xB0, 0, 0, 0), android.graphics.Color.TRANSPARENT))
         setContentView(
             FrameLayout(this).apply {
                 setBackgroundColor(android.graphics.Color.BLACK)
                 addView(screen, FrameLayout.LayoutParams(-1, -1))
-                // Whose it is, over the picture's top, on a shade that keeps it legible.
+                // Whose it is, over the picture's top, and the turn beside it: a setting, not a control of the playing.
                 addView(
                     LinearLayout(context).apply {
-                        orientation = LinearLayout.VERTICAL
-                        setPadding(Look.dp(context, 20), Look.dp(context, 28), Look.dp(context, 20), Look.dp(context, 20))
-                        background = android.graphics.drawable.GradientDrawable(
-                            android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
-                            intArrayOf(android.graphics.Color.argb(0xB0, 0, 0, 0), android.graphics.Color.TRANSPARENT),
+                        orientation = LinearLayout.HORIZONTAL
+                        gravity = Gravity.CENTER_VERTICAL
+                        setPadding(Look.dp(context, 20), Look.dp(context, 28), pad, Look.dp(context, 20))
+                        background = shade(android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM)
+                        addView(
+                            LinearLayout(context).apply {
+                                orientation = LinearLayout.VERTICAL
+                                addView(android.widget.TextView(context).apply {
+                                    text = intent.getStringExtra(EXTRA_TITLE).orEmpty() ; textSize = 18f
+                                    setTextColor(android.graphics.Color.WHITE) ; setTypeface(typeface, android.graphics.Typeface.BOLD)
+                                })
+                                addView(android.widget.TextView(context).apply {
+                                    text = intent.getStringExtra(EXTRA_SAID).orEmpty() ; textSize = 13f
+                                    setTextColor(android.graphics.Color.argb(0xCC, 0xFF, 0xFF, 0xFF))
+                                })
+                            },
+                            LinearLayout.LayoutParams(0, -2, 1f),
                         )
-                        addView(android.widget.TextView(context).apply {
-                            text = intent.getStringExtra(EXTRA_TITLE).orEmpty() ; textSize = 18f
-                            setTextColor(android.graphics.Color.WHITE) ; setTypeface(typeface, android.graphics.Typeface.BOLD)
-                        })
-                        addView(android.widget.TextView(context).apply {
-                            text = intent.getStringExtra(EXTRA_SAID).orEmpty() ; textSize = 13f
-                            setTextColor(android.graphics.Color.argb(0xCC, 0xFF, 0xFF, 0xFF))
-                        })
+                        // Upright to lying, in characters: a round arrow would read as "again".
+                        addView(knob("▯→▭", R.string.watch_turn) { turn() }, LinearLayout.LayoutParams(Look.dp(context, 64), Look.dp(context, 52)))
                     }.also { over += it },
                     FrameLayout.LayoutParams(-1, -2, Gravity.TOP),
                 )
+                // Play or pause, where it is, and stop at the other end: the one way out before the end, besides back.
                 addView(
                     LinearLayout(context).apply {
                         orientation = LinearLayout.HORIZONTAL
                         gravity = Gravity.CENTER_VERTICAL
                         setPadding(pad, pad, pad, Look.dp(context, 32))
-                        // Stopped, the page goes: the one way out before the end, besides the phone's own back.
-                        // Play or pause, then stop, of one size: the order and the look of every player.
-                        val side = LinearLayout.LayoutParams(Look.dp(context, 64), -2)
-                        addView(playing, side)
-                        addView(bold(Look.button(context, "■") { finish() }).apply { contentDescription = getString(R.string.listening_stop) }, LinearLayout.LayoutParams(side))
+                        background = shade(android.graphics.drawable.GradientDrawable.Orientation.BOTTOM_TOP)
+                        val round = Look.dp(context, 52)
+                        addView(playing, LinearLayout.LayoutParams(round, round))
                         addView(where, LinearLayout.LayoutParams(0, -2, 1f))
-                        // Upright to lying, in characters: a round arrow would read as "again".
-                        addView(
-                            bold(Look.button(context, "▯→▭") { turned = (turned + 90) % 360 ; fit() })
-                                .apply { contentDescription = getString(R.string.watch_turn) },
-                        )
-                        background = android.graphics.drawable.GradientDrawable(
-                            android.graphics.drawable.GradientDrawable.Orientation.BOTTOM_TOP,
-                            intArrayOf(android.graphics.Color.argb(0xB0, 0, 0, 0), android.graphics.Color.TRANSPARENT),
-                        )
+                        addView(knob("■", R.string.listening_stop) { finish() }, LinearLayout.LayoutParams(round, round))
                     }.also { over += it },
                     FrameLayout.LayoutParams(-1, -2, Gravity.BOTTOM),
                 )
@@ -181,12 +180,32 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
     }
 
     /** The player's buttons in bold, so that thin characters weigh as much as a drawn icon. */
-    private fun bold(button: android.widget.Button) = button.apply {
+    /**
+     * A control as players draw theirs over a picture: a white sign, bold, on
+     * a round shade -- not the pale buttons of the pages, which stood out of
+     * a video like stickers.
+     */
+    private fun knob(sign: String, said: Int, then: () -> Unit) = android.widget.TextView(this).apply {
+        text = sign
+        textSize = 20f
+        gravity = Gravity.CENTER
+        setTextColor(android.graphics.Color.WHITE)
         setTypeface(typeface, android.graphics.Typeface.BOLD)
-        textSize = 18f
-        // As narrow as what they say: the bar between them is where one moves in the video.
-        minWidth = 0 ; minimumWidth = 0
-        setPadding(Look.dp(context, 14), paddingTop, Look.dp(context, 14), paddingBottom)
+        background = android.graphics.drawable.GradientDrawable().apply {
+            shape = android.graphics.drawable.GradientDrawable.OVAL
+            setColor(android.graphics.Color.argb(0x66, 0, 0, 0))
+        }
+        contentDescription = getString(said)
+        isClickable = true
+        setOnClickListener { then() }
+    }
+
+    /** A quarter turn more; paused, the picture is drawn again, a texture showing its transform only with a new frame. */
+    private fun turn() {
+        turned = (turned + 90) % 360
+        fit()
+        player?.let { if (!it.isPlaying) it.seekTo(it.currentPosition) }
+        screen.invalidate()
     }
 
     private fun toggle() {
