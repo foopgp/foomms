@@ -93,7 +93,7 @@ class ThreadActivity : AskingActivity() {
             requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), VOICE)
             return true
         }
-        if (!voice.start(Outbox.heaviest(this) - 16 * 1024)) {
+        if (!voice.start(Outbox.heaviest(this) - Outbox.MARGIN)) {
             say(getString(R.string.voice_failed))
             return true
         }
@@ -717,7 +717,7 @@ class ThreadActivity : AskingActivity() {
 
     private fun attached(request: Int, from: android.net.Uri) {
         // Room for the message around it, and for what locking adds.
-        val most = Outbox.heaviest(this) - 16 * 1024
+        val most = Outbox.heaviest(this) - Outbox.MARGIN
         thread {
             val made = runCatching {
                 when (request) {

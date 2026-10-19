@@ -208,6 +208,6 @@
     <string name="listening_play">Oynat</string>
     <string name="listening_pause">Duraklat</string>
     <string name="listening_stop">Durdur</string>
-    <string name="conf_mms_size">Operatörün sınırını kullan: %1$d kB</string>
-    <string name="conf_mms_size_note">Bir MMS 300 kB altında kalır, her ağın kabul ettiği budur. Operatörünüz daha fazlasını bildiriyor; alıcınınki yine de daha ağırını reddedebilir.</string>
+    <string name="conf_mms_size">Operatörün sınırını kullan: %1$d kB, yani %2$d kB kullanılabilir</string>
+    <string name="conf_mms_size_note">MMS\'ler genellikle %1$d kB ile sınırlıdır. Operatörünüz daha fazlasını sunabilir, ama alıcının operatörü bu kadar ağır MMS\'leri reddedebilir.</string>
 </resources>

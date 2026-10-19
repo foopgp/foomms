@@ -101,7 +101,7 @@ class ManyActivity : AskingActivity() {
         // A picture made small enough for an MMS, any other file if it fits, as in a conversation.
         @Suppress("DEPRECATION")
         intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)?.let { shared ->
-            val most = Outbox.heaviest(this) - 16 * 1024
+            val most = Outbox.heaviest(this) - Outbox.MARGIN
             val picture = (intent.type ?: contentResolver.getType(shared).orEmpty()).startsWith("image/")
             thread {
                 val made = runCatching { if (picture) Media.picture(this, shared, most) else Media.file(this, shared, most) }.getOrNull()
