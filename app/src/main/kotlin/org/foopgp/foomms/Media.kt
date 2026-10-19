@@ -118,6 +118,18 @@ object Media {
             ?.use { BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = sample }) }
     }.getOrNull()
 
+    /** The same, of a picture held in memory: decoded at about the size it is shown, never whole. */
+    fun thumbnail(bytes: ByteArray, side: Int): Bitmap? = runCatching {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+        var sample = 1
+        while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 2 * side) sample *= 2
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, BitmapFactory.Options().apply { inSampleSize = sample })
+    }.getOrNull()
+
+    /** The side faces are decoded for, in pixels: the largest they are drawn, in a choice between two. */
+    const val FACE = 256
+
     /** The longest side a picture leaves with: enough for a phone's screen. */
     private const val LONGEST = 1600
 }

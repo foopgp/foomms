@@ -30,7 +30,7 @@ object Book {
 
     /** The contact's picture, small, read here rather than where it is drawn. */
     fun face(context: Context, person: Person): android.graphics.Bitmap? = person.photo?.let { uri ->
-        runCatching { context.contentResolver.openInputStream(uri)?.use { android.graphics.BitmapFactory.decodeStream(it) } }.getOrNull()
+        Media.thumbnail(context, uri, Media.FACE)
     }
 
     fun who(context: Context, number: String): Person? = runCatching {

@@ -1,7 +1,6 @@
 package org.foopgp.foomms
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 
 /**
  * Whether two pictures are the same picture, as a person would say: the one
@@ -17,7 +16,8 @@ object Likeness {
     private const val MARGIN = 10
 
     fun alike(mine: Bitmap, theirs: ByteArray): Boolean {
-        val other = runCatching { BitmapFactory.decodeByteArray(theirs, 0, theirs.size) }.getOrNull() ?: return false
+        // Nine points by eight need no more than a few dozen pixels a side.
+        val other = Media.thumbnail(theirs, 64) ?: return false
         return java.lang.Long.bitCount(hash(mine) xor hash(other)) <= MARGIN
     }
 

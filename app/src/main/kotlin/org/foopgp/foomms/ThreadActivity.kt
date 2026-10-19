@@ -862,13 +862,7 @@ class ThreadActivity : AskingActivity() {
     private val openedThumbs = HashMap<Long, Bitmap?>()
 
     /** A picture opened from its lock, made small to sit in its bubble, or to the [side] asked. */
-    private fun thumbnail(bytes: ByteArray, side: Int = Look.dp(this, 200)): Bitmap? = runCatching {
-        val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
-        var sample = 1
-        while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 2 * side) sample *= 2
-        android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample })
-    }.getOrNull()
+    private fun thumbnail(bytes: ByteArray, side: Int = Look.dp(this, 200)): Bitmap? = Media.thumbnail(bytes, side)
 
     /**
      * A message that did not open -- locked for somebody else, most often --
@@ -1586,7 +1580,7 @@ class ThreadActivity : AskingActivity() {
                         ),
                     )
                     // The two faces side by side, the contact's on the left: the one pressed is kept.
-                    val theirs = card.photo?.let { runCatching { android.graphics.BitmapFactory.decodeByteArray(it, 0, it.size) }.getOrNull() }
+                    val theirs = card.photo?.let { Media.thumbnail(it, Media.FACE) }
                     if (differs.face != null && theirs != null) {
                         addView(Look.words(context, getString(R.string.choose_face), size = 15f).apply { setPadding(0, pad, 0, pad / 3) })
                         val faces = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL ; gravity = Gravity.CENTER }

@@ -2,7 +2,6 @@ package org.foopgp.foomms
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 
 /**
@@ -51,7 +50,7 @@ class Foodjis(private val context: Context) {
 
     fun face(fingerprint: String): Bitmap? = synchronized(faces) {
         if (faces.containsKey(fingerprint)) return faces[fingerprint]
-        val face = avatar(fingerprint)?.let { runCatching { BitmapFactory.decodeByteArray(it, 0, it.size) }.getOrNull() }
+        val face = avatar(fingerprint)?.let { Media.thumbnail(it, Media.FACE) }
         if (!shut) faces[fingerprint] = face
         face
     }
