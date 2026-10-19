@@ -215,4 +215,5 @@
     <string name="watch_turn">Rodar o vídeo um quarto de volta</string>
     <string name="video_camera">Câmara traseira ou frontal</string>
     <string name="video_light">Luz</string>
+    <string name="video_sound">Só áudio (%1$s)</string>
 </resources>

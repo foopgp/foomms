@@ -36,6 +36,20 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
 
     /** How far the phone is turned from upright, clockwise, to the nearest quarter: 0, 90, 180 or 270. */
     private var turned = 0
+
+    /** What is recorded: its picture -- none for a sound alone --, what it weighs a second, and its file's first letter. */
+    private enum class Shape(val wide: Int, val high: Int, val video: Int, val audio: Int, val kind: String) {
+        CIF(352, 288, 416_000, 24_000, "v"),
+        QVGA(320, 240, 180_000, 24_000, "v"),
+        SOUND(0, 0, 0, 12_200, "a");
+
+        val bytesPerSecond: Int get() = (video + audio) / 8
+        val said: String get() = if (this == SOUND) "AMR · 8 kHz" else "$wide×$high · H.264 + AAC · 15 i/s"
+    }
+
+    private var shape = Shape.QVGA
+    private val shapes = HashMap<Shape, TextView>()
+    private lateinit var choosing: LinearLayout
     private val tilt by lazy {
         object : android.view.OrientationEventListener(this) {
             override fun onOrientationChanged(degrees: Int) {
@@ -57,7 +71,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     private val ticking = object : Runnable {
         override fun run() {
             if (recorder == null) return
-            told.text = "$SHAPE  ·  ${Media.clock(SystemClock.elapsedRealtime() - started)}  ·  ${file(this@VideoActivity).length() / 1024} / ${most / 1024} kB"
+            told.text = "${shape.said}  ·  ${Media.clock(SystemClock.elapsedRealtime() - started)}  ·  ${file(this@VideoActivity).length() / 1024} / ${most / 1024} kB"
             told.postDelayed(this, 500)
         }
     }
@@ -70,7 +84,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
             // Touched, the camera focuses there.
             setOnTouchListener { view, event -> if (event.action == MotionEvent.ACTION_UP) focus(event.x / view.width, event.y / view.height) ; true }
         }
-        told = TextView(this).apply { setTextColor(android.graphics.Color.argb(0xCC, 0xFF, 0xFF, 0xFF)) ; textSize = 13f ; text = SHAPE }
+        told = TextView(this).apply { setTextColor(android.graphics.Color.argb(0xCC, 0xFF, 0xFF, 0xFF)) ; textSize = 13f ; text = shape.said }
         button = Look.knob(this, "●", getString(R.string.attach_video)) { if (recorder == null) start() else stop(true) }.apply { textSize = 40f }
         turn = Look.knob(this, "↻", getString(R.string.video_camera)) { turn() }.apply { textSize = 26f }
         light = Look.knob(this, "☼", getString(R.string.video_light)) { light() }.apply { textSize = 26f }
@@ -100,17 +114,31 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
                     },
                     FrameLayout.LayoutParams(-1, -2, Gravity.TOP),
                 )
-                // Light, film, camera: the one that films in the middle, and the largest.
                 addView(
                     LinearLayout(context).apply {
-                        orientation = LinearLayout.HORIZONTAL
-                        gravity = Gravity.CENTER
+                        orientation = LinearLayout.VERTICAL
+                        gravity = Gravity.CENTER_HORIZONTAL
                         setPadding(0, Look.dp(context, 20), 0, Look.dp(context, 40))
                         background = Look.shade(android.graphics.drawable.GradientDrawable.Orientation.BOTTOM_TOP)
-                        val apart = Look.dp(context, 32)
-                        addView(light, LinearLayout.LayoutParams(round, round))
-                        addView(button, LinearLayout.LayoutParams(Look.dp(context, 92), Look.dp(context, 92)).apply { marginStart = apart ; marginEnd = apart })
-                        addView(turn, LinearLayout.LayoutParams(round, round))
+                        // What to record, chosen before: each with how long it may last under the size set for MMS.
+                        choosing = LinearLayout(context).apply {
+                            orientation = LinearLayout.HORIZONTAL
+                            gravity = Gravity.CENTER
+                            setPadding(0, 0, 0, Look.dp(context, 16))
+                            for (one in Shape.entries) addView(chip(one), LinearLayout.LayoutParams(-2, -2).apply { marginStart = Look.dp(context, 4) ; marginEnd = Look.dp(context, 4) })
+                        }
+                        addView(choosing)
+                        // Light, film, camera: the one that films in the middle, and the largest.
+                        addView(
+                            LinearLayout(context).apply {
+                                orientation = LinearLayout.HORIZONTAL
+                                gravity = Gravity.CENTER
+                                val apart = Look.dp(context, 32)
+                                addView(light, LinearLayout.LayoutParams(round, round))
+                                addView(button, LinearLayout.LayoutParams(Look.dp(context, 92), Look.dp(context, 92)).apply { marginStart = apart ; marginEnd = apart })
+                                addView(turn, LinearLayout.LayoutParams(round, round))
+                            },
+                        )
                     },
                     FrameLayout.LayoutParams(-1, -2, Gravity.BOTTOM),
                 )
@@ -157,6 +185,33 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     }
 
     private fun info(id: Int) = Camera.CameraInfo().also { Camera.getCameraInfo(id, it) }
+
+    /** One of the three things to record, with how long it may last: seconds, or minutes for a sound alone. */
+    private fun chip(one: Shape) = TextView(this).apply {
+        val lasting = most / one.bytesPerSecond
+        val long = if (lasting < 90) "≈\u00A0$lasting\u00A0s" else "≈\u00A0${(lasting + 30) / 60}\u00A0min"
+        text = if (one == Shape.SOUND) getString(R.string.video_sound, long) else "${one.wide}×${one.high} ($long)"
+        textSize = 14f
+        setTypeface(typeface, android.graphics.Typeface.BOLD)
+        val pad = Look.dp(context, 10)
+        setPadding(pad, pad / 2, pad, pad / 2)
+        setOnClickListener { shape = one ; chosen() }
+        shapes[one] = this
+        chosen()
+    }
+
+    /** The one chosen in our orange, the others pale on their shade. */
+    private fun chosen() {
+        for ((one, chip) in shapes) {
+            val on = one == shape
+            chip.setTextColor(if (on) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
+            chip.background = android.graphics.drawable.GradientDrawable().apply {
+                cornerRadius = Look.dp(chip.context, 16).toFloat()
+                setColor(if (on) Look.ORANGE else android.graphics.Color.argb(0x66, 0, 0, 0))
+            }
+        }
+        if (::told.isInitialized) told.text = shape.said
+    }
 
     /**
      * What is filmed is what is shown: the picture at 4:3, as large as the
@@ -238,6 +293,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     }
 
     private fun start() {
+        if (shape == Shape.SOUND) return listen()
         val camera = camera ?: return
         val out = file(this).apply { delete() }
         val id = (0 until Camera.getNumberOfCameras()).firstOrNull { info(it).facing == facing } ?: 0
@@ -250,9 +306,9 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
                 setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
                 setVideoEncoder(MediaRecorder.VideoEncoder.H264)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                setVideoSize(320, 240)
-                setVideoEncodingBitRate(180_000)
-                setAudioEncodingBitRate(24_000)
+                setVideoSize(shape.wide, shape.high)
+                setVideoEncodingBitRate(shape.video)
+                setAudioEncodingBitRate(shape.audio)
                 setAudioSamplingRate(16_000)
                 setAudioChannels(1)
                 setVideoFrameRate(15)
@@ -269,6 +325,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
             started = SystemClock.elapsedRealtime()
             began = System.currentTimeMillis()
             button.text = "■"
+            choosing.visibility = android.view.View.INVISIBLE
             // Once filming, the camera is the recorder's: what cannot be changed is not shown.
             turn.visibility = android.view.View.INVISIBLE
             light.visibility = android.view.View.INVISIBLE
@@ -281,13 +338,43 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
         }
     }
 
+    /** A sound alone: the microphone, as a voice message is recorded, under the same size. */
+    private fun listen() {
+        val out = file(this).apply { delete() }
+        runCatching {
+            recorder = MediaRecorder().apply {
+                setAudioSource(MediaRecorder.AudioSource.MIC)
+                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+                setAudioSamplingRate(8_000)
+                setAudioEncodingBitRate(shape.audio)
+                setMaxFileSize(most)
+                setOutputFile(out.path)
+                setOnInfoListener { _, what, _ -> if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) stop(true) }
+                prepare()
+                start()
+            }
+            started = SystemClock.elapsedRealtime()
+            began = System.currentTimeMillis()
+            button.text = "■"
+            choosing.visibility = android.view.View.INVISIBLE
+            turn.visibility = android.view.View.INVISIBLE
+            light.visibility = android.view.View.INVISIBLE
+            told.post(ticking)
+        }.onFailure { say("recorder: ${it.message}") ; recorder?.release() ; recorder = null }
+    }
+
     private fun stop(keep: Boolean) {
         val going = recorder ?: return
         recorder = null
         val ok = runCatching { going.stop() }.isSuccess
         going.release()
         runCatching { camera?.lock() }
-        if (keep && ok && file(this).length() > 0) setResult(RESULT_OK, android.content.Intent().putExtra(EXTRA_NAME, Media.named("v", began, "3gp")))
+        if (keep && ok && file(this).length() > 0) setResult(
+            RESULT_OK,
+            android.content.Intent().putExtra(EXTRA_NAME, Media.named(shape.kind, began, "3gp"))
+                .putExtra(EXTRA_TYPE, if (shape == Shape.SOUND) "audio/3gpp" else "video/3gpp"),
+        )
         finish()
     }
 
@@ -321,9 +408,9 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
 
     companion object {
         /** What is filmed, said under the title: the picture, the codecs, the pace. */
-        private const val SHAPE = "320×240 · H.264 + AAC · 15 i/s"
         const val EXTRA_MOST = "most"
         const val EXTRA_NAME = "name"
+        const val EXTRA_TYPE = "type"
         fun file(context: android.content.Context) = File(context.cacheDir, "video.3gp")
     }
 }

@@ -218,4 +218,5 @@
     <string name="watch_turn">Turn the video a quarter</string>
     <string name="video_camera">Camera at the back or the front</string>
     <string name="video_light">Light</string>
+    <string name="video_sound">Sound alone (%1$s)</string>
 </resources>

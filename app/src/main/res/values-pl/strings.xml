@@ -215,4 +215,5 @@
     <string name="watch_turn">Obróć film o ćwierć obrotu</string>
     <string name="video_camera">Aparat tylny lub przedni</string>
     <string name="video_light">Światło</string>
+    <string name="video_sound">Tylko dźwięk (%1$s)</string>
 </resources>

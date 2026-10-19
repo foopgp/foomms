@@ -215,4 +215,5 @@
     <string name="watch_turn">Videoyu çeyrek tur döndür</string>
     <string name="video_camera">Arka ya da ön kamera</string>
     <string name="video_light">Işık</string>
+    <string name="video_sound">Yalnızca ses (%1$s)</string>
 </resources>

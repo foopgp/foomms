@@ -30,6 +30,7 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
     private lateinit var screen: TextureView
     private lateinit var playing: android.widget.TextView
     private lateinit var where: SeekBar
+    private lateinit var elapsed: android.widget.TextView
     private var player: MediaPlayer? = null
     private var wide = 0
     private var high = 0
@@ -40,7 +41,10 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
     private val following = object : Runnable {
         override fun run() {
             val player = player ?: return
-            runCatching { where.progress = player.currentPosition }
+            runCatching {
+                where.progress = player.currentPosition
+                elapsed.text = "${Media.clock(player.currentPosition.toLong())} / ${Media.clock(player.duration.toLong())}"
+            }
             where.postDelayed(this, 250)
         }
     }
@@ -105,6 +109,12 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
                         val round = Look.dp(context, 52)
                         addView(playing, LinearLayout.LayoutParams(round, round))
                         addView(where, LinearLayout.LayoutParams(0, -2, 1f))
+                        // Where it is, out of how long it lasts.
+                        elapsed = android.widget.TextView(context).apply {
+                            textSize = 13f ; setTextColor(android.graphics.Color.WHITE) ; setTypeface(typeface, android.graphics.Typeface.BOLD)
+                            setPadding(0, 0, Look.dp(context, 10), 0)
+                        }
+                        addView(elapsed)
                         addView(knob("■", R.string.listening_stop) { finish() }, LinearLayout.LayoutParams(round, round))
                     }.also { over += it },
                     FrameLayout.LayoutParams(-1, -2, Gravity.BOTTOM),

@@ -215,4 +215,5 @@
     <string name="watch_turn">Περιστροφή του βίντεο κατά ένα τέταρτο</string>
     <string name="video_camera">Πίσω ή μπροστινή κάμερα</string>
     <string name="video_light">Φωτισμός</string>
+    <string name="video_sound">Μόνο ήχος (%1$s)</string>
 </resources>

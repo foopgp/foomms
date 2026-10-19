@@ -215,4 +215,5 @@
     <string name="watch_turn">Повернути відео на чверть оберту</string>
     <string name="video_camera">Задня або передня камера</string>
     <string name="video_light">Підсвічування</string>
+    <string name="video_sound">Лише звук (%1$s)</string>
 </resources>

@@ -215,4 +215,5 @@
     <string name="watch_turn">Video um eine Vierteldrehung drehen</string>
     <string name="video_camera">Kamera hinten oder vorne</string>
     <string name="video_light">Licht</string>
+    <string name="video_sound">Nur Ton (%1$s)</string>
 </resources>

@@ -968,7 +968,7 @@ class ThreadActivity : AskingActivity() {
             if (outcome == RESULT_OK) {
                 val filmed = VideoActivity.file(this)
                 val name = data?.getStringExtra(VideoActivity.EXTRA_NAME) ?: Media.named("v", System.currentTimeMillis(), "3gp")
-                runCatching { filmed.readBytes() }.getOrNull()?.let { carry(Media.Attachment("video/3gpp", name, it, Media.lasting(it))) }
+                runCatching { filmed.readBytes() }.getOrNull()?.let { carry(Media.Attachment(data?.getStringExtra(VideoActivity.EXTRA_TYPE) ?: "video/3gpp", name, it, Media.lasting(it))) }
                 filmed.delete()
             }
             return
