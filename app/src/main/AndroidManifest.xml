@@ -30,6 +30,9 @@
     <!-- TRIAL ONLY: filming a video for an MMS. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <!-- A long voice message goes on playing beyond the page, its controls in the notifications. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
@@ -165,6 +168,10 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".Inbound$Fetched" android:exported="false" />
+        <service
+            android:name=".Listening"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
         <service
             android:name=".Inbound$Respond"
             android:exported="true"

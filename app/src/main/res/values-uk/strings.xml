@@ -203,4 +203,9 @@
     <string name="note_contact">Залишити з контакту: %1$s</string>
     <string name="note_certificate">Взяти із сертифіката: %1$s</string>
     <string name="note_size">(%1$d символів)</string>
+    <string name="channel_listening">Голосові повідомлення</string>
+    <string name="listening_title">Голосове повідомлення від %1$s</string>
+    <string name="listening_play">Відтворити</string>
+    <string name="listening_pause">Пауза</string>
+    <string name="listening_stop">Зупинити</string>
 </resources>

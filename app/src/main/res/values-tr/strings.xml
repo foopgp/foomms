@@ -203,4 +203,9 @@
     <string name="note_contact">Kişidekini koru: %1$s</string>
     <string name="note_certificate">Sertifikadakini al: %1$s</string>
     <string name="note_size">(%1$d karakter)</string>
+    <string name="channel_listening">Sesli mesajlar</string>
+    <string name="listening_title">%1$s kişisinden sesli mesaj</string>
+    <string name="listening_play">Oynat</string>
+    <string name="listening_pause">Duraklat</string>
+    <string name="listening_stop">Durdur</string>
 </resources>

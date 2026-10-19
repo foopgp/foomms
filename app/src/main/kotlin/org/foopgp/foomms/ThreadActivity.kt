@@ -1366,6 +1366,19 @@ class ThreadActivity : AskingActivity() {
         val playing = player
         player = null
         if (playing != null) { runCatching { playing.stop() ; playing.release() } ; return }
+        // A long one is listened to beyond the page, with its controls in the notifications: pressed again, it stops.
+        if ((lasts[piece.id] ?: 0L) > Listening.LONG) {
+            if (Listening.playing == piece.id) return Listening.stop(this)
+            val title = getString(R.string.listening_title, person?.name ?: number)
+            thread {
+                val bytes = Opened.piece(piece.id)?.bytes ?: runCatching { contentResolver.openInputStream(piece.uri)?.use { it.readBytes() } }.getOrNull()
+                runOnUiThread {
+                    if (bytes == null) say(getString(R.string.failed, "nothing to read"))
+                    else runCatching { Listening.play(this, piece.id, title, bytes) }.onFailure { say(getString(R.string.failed, it.message)) }
+                }
+            }
+            return
+        }
         runCatching {
             player = android.media.MediaPlayer().apply {
                 val opened = Opened.piece(piece.id)

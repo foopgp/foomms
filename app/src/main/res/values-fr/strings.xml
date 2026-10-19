@@ -203,4 +203,9 @@
     <string name="note_contact">Garder celle de la fiche : %1$s</string>
     <string name="note_certificate">Prendre celle du certificat : %1$s</string>
     <string name="note_size">(%1$d caractères)</string>
+    <string name="channel_listening">Messages vocaux</string>
+    <string name="listening_title">Message vocal de %1$s</string>
+    <string name="listening_play">Lecture</string>
+    <string name="listening_pause">Pause</string>
+    <string name="listening_stop">Arrêter</string>
 </resources>

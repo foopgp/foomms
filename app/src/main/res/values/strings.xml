@@ -208,4 +208,9 @@
     <string name="note_size">(%1$d characters)</string>
     <string name="attach_video_qvga" translatable="false">🎥 Video 320×240 (H.264 + AAC)</string>
     <string name="attach_video_vga" translatable="false">🎥 Video 640×480 (H.264 + AAC)</string>
+    <string name="channel_listening">Voice messages</string>
+    <string name="listening_title">Voice message from %1$s</string>
+    <string name="listening_play">Play</string>
+    <string name="listening_pause">Pause</string>
+    <string name="listening_stop">Stop</string>
 </resources>
