@@ -195,7 +195,27 @@ class MainActivity : Activity() {
     override fun onActivityResult(request: Int, outcome: Int, data: android.content.Intent?) {
         super.onActivityResult(request, outcome, data)
         Saving.done(this, request, outcome, data) { android.widget.Toast.makeText(this, it, android.widget.Toast.LENGTH_LONG).show() }
+        // Asked to be the messaging application, whatever was answered: what is still missing is asked now.
+        if (request == ROLE) {
+            val still = (NEEDED + listOfNotNull(NOTIFY)).filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
+            if (still.isNotEmpty()) requestPermissions(still.toTypedArray(), 1)
+        }
     }
+
+    /**
+     * Allowed: first the phone is asked to make foomms its messaging
+     * application -- Play's rule for a default handler, whose prompt comes
+     * before any permission's; the role brings the SMS with it --, then what
+     * is still missing, the contacts and the notifications.
+     */
+    private fun allow(asked: List<String>) {
+        if (!Keep.ours(this) && roleAskable()) becomeDefault() else requestPermissions(asked.toTypedArray(), 1)
+    }
+
+    private fun roleAskable(): Boolean =
+        if (android.os.Build.VERSION.SDK_INT >= 29) {
+            getSystemService(android.app.role.RoleManager::class.java)?.let { it.isRoleAvailable(android.app.role.RoleManager.ROLE_SMS) && !it.isRoleHeld(android.app.role.RoleManager.ROLE_SMS) } == true
+        } else true
 
     override fun onSaveInstanceState(state: Bundle) {
         super.onSaveInstanceState(state)
@@ -217,7 +237,7 @@ class MainActivity : Activity() {
             // The notifications are asked with the rest: the messaging application of the phone has them anyway,
             // and until foomms is that application it would show nothing of what arrives.
             val asked = missing + listOfNotNull(NOTIFY.takeIf { it != null && checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED })
-            asking.addView(Look.button(this, getString(R.string.allow)) { requestPermissions(asked.toTypedArray(), 1) })
+            asking.addView(Look.button(this, getString(R.string.allow)) { allow(asked) })
             // Installed from a file, Android grants no SMS until the person allows the restricted settings in
             // foomms's page of the settings: asking here would end in silence.
             if (fromFile()) {
@@ -527,7 +547,7 @@ class MainActivity : Activity() {
                 .putExtra(android.provider.Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, packageName)
         }
         @Suppress("DEPRECATION")
-        startActivityForResult(ask, 3)
+        startActivityForResult(ask, ROLE)
     }
 
     private fun ago(at: Long): CharSequence =
@@ -543,6 +563,9 @@ class MainActivity : Activity() {
 
         /** How many conversations are shown before the rest is read. */
         const val FIRST = 20
+        /** The answer to being asked to be the messaging application. */
+        private const val ROLE = 3
+
         val NEEDED = listOf(Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS, Manifest.permission.READ_CONTACTS)
 
         /** Asked from Android 13 on; before, notifications need no permission. */
