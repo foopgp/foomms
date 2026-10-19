@@ -106,8 +106,10 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
                         gravity = Gravity.CENTER_VERTICAL
                         setPadding(pad, pad, pad, Look.dp(context, 32))
                         // Stopped, the page goes: the one way out before the end, besides the phone's own back.
-                        addView(bold(Look.button(context, "■") { finish() }).apply { contentDescription = getString(R.string.listening_stop) })
-                        addView(playing)
+                        // Play or pause, then stop, of one size: the order and the look of every player.
+                        val side = LinearLayout.LayoutParams(Look.dp(context, 64), -2)
+                        addView(playing, side)
+                        addView(bold(Look.button(context, "■") { finish() }).apply { contentDescription = getString(R.string.listening_stop) }, LinearLayout.LayoutParams(side))
                         addView(where, LinearLayout.LayoutParams(0, -2, 1f))
                         // Upright to lying, in characters: a round arrow would read as "again".
                         addView(

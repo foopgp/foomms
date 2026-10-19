@@ -448,6 +448,11 @@ class ThreadActivity : AskingActivity() {
                 .associate { piece -> piece.id to (thumbs[piece.id] ?: Media.thumbnail(this, piece.uri, Look.dp(this, 200))) }
             for (piece in found.flatMap { it.pieces }) {
                 if (piece.type.startsWith("audio/") && !lasts.containsKey(piece.id)) Media.lasting(this, piece.uri)?.let { lasts[piece.id] = it }
+                // What was opened on an earlier visit is still open: its length, and a video's picture, made again.
+                Opened.piece(piece.id)?.let { opened ->
+                    if ((opened.type.startsWith("audio/") || opened.type.startsWith("video/")) && !lasts.containsKey(piece.id)) Media.lasting(opened.bytes)?.let { lasts[piece.id] = it }
+                    if (opened.type.startsWith("video/") && framed.add(piece.id)) Media.frame(opened.bytes, Look.dp(this, 200))?.let { frames[piece.id] = it }
+                }
                 // TRIAL: a video shows its first picture, and plays on its own page.
                 if ((piece.type.startsWith("video/") || piece.type.startsWith("audio/3gp")) && framed.add(piece.id)) {
                     Media.frame(this, piece.uri, Look.dp(this, 200))?.let { first ->
