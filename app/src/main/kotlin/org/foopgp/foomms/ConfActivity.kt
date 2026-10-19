@@ -56,8 +56,10 @@ class ConfActivity : Activity() {
     private fun heading(words: Int) =
         column.addView(Look.words(this, getString(words), size = 19f).apply { setTypeface(typeface, Typeface.BOLD) ; setPadding(0, Look.dp(context, 18), 0, 0) })
 
-    private fun note(words: Int) =
-        column.addView(Look.words(this, getString(words), size = 14f, muted = true).apply { setPadding(0, 0, 0, Look.dp(context, 8)) })
+    private fun note(words: Int) = note(getString(words))
+
+    private fun note(words: String) =
+        column.addView(Look.words(this, words, size = 14f, muted = true).apply { setPadding(0, 0, 0, Look.dp(context, 8)) })
 
     private fun draw() {
         column.removeAllViews()
@@ -166,9 +168,9 @@ class ConfActivity : Activity() {
         val theirs = Outbox.operators(this)
         column.addView(
             flip(R.string.conf_mms_size, Conf.operatorSize(this), usable = (theirs ?: 0) > Outbox.STANDARD) { Conf.operatorSize(this, it) }
-                .apply { text = getString(R.string.conf_mms_size, (theirs ?: Outbox.STANDARD) / 1024) },
+                .apply { (theirs ?: Outbox.STANDARD).let { most -> text = getString(R.string.conf_mms_size, most / 1024, (most - Outbox.MARGIN) / 1024) } },
         )
-        note(R.string.conf_mms_size_note)
+        note(getString(R.string.conf_mms_size_note, Outbox.STANDARD / 1024))
         if (!Conf.preferMms(this)) {
             column.addView(flip(R.string.conf_warn_mms, Conf.warnMms(this)) { Conf.warnMms(this, it) })
             note(R.string.conf_warn_mms_note)

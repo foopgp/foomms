@@ -22,11 +22,19 @@ import java.io.File
 object Outbox {
 
     /**
-     * What every network takes: 300 kB, the "video basic" content class of
-     * OMA's MMS conformance document (OMA-TS-MMS_CONF). An operator may say
-     * more, but the one who receives may refuse more.
+     * What every network takes: 300 kB, the "Video Rich" content class of
+     * OMA's MMS conformance document (OMA-TS-MMS-CONF V1.3, table 1); its
+     * section 7.1.11 lets a client be set to exactly 300 or 600 kB. An
+     * operator may say more, but the one who receives may refuse more.
      */
     const val STANDARD = 300 * 1024
+
+    /**
+     * What a message needs beside what it carries: up to ten recipients and
+     * oneself locked for (some 90 bytes each with Curve25519), a signature,
+     * the MMS's own envelope, and a few kB of text armored beside a part.
+     */
+    const val MARGIN = 24 * 1024
 
     /** What the operator's settings say a message may weigh, when they say it. */
     fun operators(context: Context): Int? =

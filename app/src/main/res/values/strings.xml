@@ -211,6 +211,6 @@
     <string name="listening_play">Play</string>
     <string name="listening_pause">Pause</string>
     <string name="listening_stop">Stop</string>
-    <string name="conf_mms_size">Use the operator\'s limit: %1$d kB</string>
-    <string name="conf_mms_size_note">An MMS is kept under 300 kB, what every network takes. Your operator says it takes more; whoever receives may still refuse a heavier one.</string>
+    <string name="conf_mms_size">Use the operator\'s limit: %1$d kB, that is %2$d kB usable</string>
+    <string name="conf_mms_size_note">MMS are usually limited to %1$d kB. Your operator may offer more, but the operator of whoever receives them may refuse MMS that heavy.</string>
 </resources>
