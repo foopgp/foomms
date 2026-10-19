@@ -107,15 +107,10 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
                         setPadding(pad, pad, pad, Look.dp(context, 32))
                         addView(playing)
                         addView(where, LinearLayout.LayoutParams(0, -2, 1f))
-                        // A quarter turn drawn as such, bold as the button beside it: a round arrow reads as "again".
+                        // Upright to lying, in characters: a round arrow would read as "again".
                         addView(
-                            android.widget.ImageButton(context).apply {
-                                setImageResource(R.drawable.turn)
-                                setColorFilter(Look.INK)
-                                background = Look.buttonFace(context, Look.FACE)
-                                contentDescription = getString(R.string.watch_turn)
-                                setOnClickListener { turned = (turned + 90) % 360 ; fit() }
-                            },
+                            Look.button(context, "▯→▭") { turned = (turned + 90) % 360 ; fit() }
+                                .apply { contentDescription = getString(R.string.watch_turn) },
                         )
                         background = android.graphics.drawable.GradientDrawable(
                             android.graphics.drawable.GradientDrawable.Orientation.BOTTOM_TOP,
