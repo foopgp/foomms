@@ -107,6 +107,7 @@
 
         <!-- TRIAL ONLY: filming a video for an MMS. -->
         <activity android:name=".VideoActivity" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".WatchActivity" android:exported="false" />
 
         <!-- What the person sets. -->
         <activity

@@ -128,6 +128,9 @@ class ThreadActivity : AskingActivity() {
     /** How long each sound of this conversation lasts, by the part it is, as it came or as it was opened. */
     private val lasts = java.util.concurrent.ConcurrentHashMap<Long, Long>()
 
+    /** TRIAL: the first picture of each part that is a video, by part; null for a sound alone. */
+    private val frames = java.util.concurrent.ConcurrentHashMap<Long, Bitmap?>()
+
     /** The message to show first, when the page was opened from a search: its date, taken once. */
     private var wanted = 0L
 
@@ -442,6 +445,11 @@ class ThreadActivity : AskingActivity() {
                 .associate { piece -> piece.id to (thumbs[piece.id] ?: Media.thumbnail(this, piece.uri, Look.dp(this, 200))) }
             for (piece in found.flatMap { it.pieces }) {
                 if (piece.type.startsWith("audio/") && !lasts.containsKey(piece.id)) Media.lasting(this, piece.uri)?.let { lasts[piece.id] = it }
+                // TRIAL: a video shows its first picture, and plays on its own page.
+                if ((piece.type.startsWith("video/") || piece.type.startsWith("audio/3gp")) && !frames.containsKey(piece.id)) {
+                    frames[piece.id] = Media.frame(this, piece.uri, Look.dp(this, 200))
+                    if (frames[piece.id] != null && !lasts.containsKey(piece.id)) Media.lasting(this, piece.uri)?.let { lasts[piece.id] = it }
+                }
             }
             val theirFaces = named.associateWith { id -> foodjis.signer(id)?.let { whose -> For(whose.name, foodjis.face(whose.fingerprint)) } }
             if (shown) {
@@ -644,16 +652,13 @@ class ThreadActivity : AskingActivity() {
         choices += R.string.attach_file to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), FILE) }
         choices += R.string.attach_text to { paste() }
         // TRIAL ONLY: a video filmed in one of the two shapes an MMS has carried.
-        for ((label, vga) in listOf(R.string.attach_video_qvga to false, R.string.attach_video_vga to true)) {
-            choices += label to {
-                launch(
-                    // Room for the rest: up to ten recipients and oneself locked for (some 90 bytes each with
-                    // Curve25519), the signature, the MMS's own envelope, and a few kB of text armored beside it.
-                    Intent(this, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_VGA, vga)
-                        .putExtra(VideoActivity.EXTRA_MOST, (Outbox.heaviest(this) - 24 * 1024).toLong()),
-                    VIDEO,
-                )
-            }
+        choices += R.string.attach_video to {
+            launch(
+                // Room for the rest: up to ten recipients and oneself locked for (some 90 bytes each with
+                // Curve25519), the signature, the MMS's own envelope, and a few kB of text armored beside it.
+                Intent(this, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_MOST, (Outbox.heaviest(this) - 24 * 1024).toLong()),
+                VIDEO,
+            )
         }
         AlertDialog.Builder(this)
             .setItems(choices.map { getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }
@@ -866,6 +871,7 @@ class ThreadActivity : AskingActivity() {
             signed = Signer.of(signature), signer = signer?.keyId, eid = signer?.let { Signer.eid(it) }, thread = here(),
         )
         if (told.type.startsWith("audio/") || told.type == "video/3gpp") Media.lasting(answer.bytes)?.let { lasts[piece.id] = it }
+        if (told.type == "video/3gpp" || told.type.startsWith("video/")) frames[piece.id] = Media.frame(answer.bytes, Look.dp(this, 200))
         if (told.type.startsWith("image/")) openedThumbs[piece.id] = thumbnail(answer.bytes)
         bubbles.notifyDataSetChanged()
     }
@@ -914,7 +920,8 @@ class ThreadActivity : AskingActivity() {
         if (request == VIDEO) {
             if (outcome == RESULT_OK) {
                 val filmed = VideoActivity.file(this)
-                runCatching { filmed.readBytes() }.getOrNull()?.let { carry(Media.Attachment("video/3gpp", "video.3gp", it, Media.lasting(it))) }
+                val name = data?.getStringExtra(VideoActivity.EXTRA_NAME) ?: Media.named("v", System.currentTimeMillis(), "3gp")
+                runCatching { filmed.readBytes() }.getOrNull()?.let { carry(Media.Attachment("video/3gpp", name, it, Media.lasting(it))) }
                 filmed.delete()
             }
             return
@@ -1306,6 +1313,26 @@ class ThreadActivity : AskingActivity() {
         setOnLongClickListener { about(at, piece) ; true }
     }
 
+    /** TRIAL: a video, by its first picture with ▶ and its length over it; pressed, it plays on its own page. */
+    private fun movie(piece: Store.Piece, first: Bitmap, watch: () -> Unit): View = android.widget.FrameLayout(this).apply {
+        addView(
+            android.widget.ImageView(context).apply {
+                setImageBitmap(first)
+                adjustViewBounds = true
+                maxWidth = Look.dp(context, 220) ; maxHeight = Look.dp(context, 220)
+            },
+        )
+        addView(
+            Look.words(context, "▶" + lasted(piece), size = 18f).apply {
+                setTextColor(android.graphics.Color.WHITE)
+                setShadowLayer(6f, 0f, 0f, android.graphics.Color.BLACK)
+            },
+            android.widget.FrameLayout.LayoutParams(-2, -2, Gravity.CENTER),
+        )
+        setPadding(0, Look.dp(context, 4), 0, Look.dp(context, 4))
+        setOnClickListener { watch() }
+    }
+
     /** A picture as wide as the conversation when it was pressed, small otherwise. */
     private fun picture(piece: Store.Piece, small: Bitmap): View = android.widget.ImageView(this).apply {
         val wide = piece.id in enlarged
@@ -1332,6 +1359,7 @@ class ThreadActivity : AskingActivity() {
             val small = if (opened.type.startsWith("image/")) openedThumbs.getOrPut(piece.id) { thumbnail(opened.bytes) } else null
             return when {
                 small != null -> picture(piece, small)
+                frames[piece.id] != null -> movie(piece, frames[piece.id]!!) { WatchActivity.watch(this, opened.bytes, null) }
                 opened.type.startsWith("audio/") || opened.type == "video/3gpp" ->
                     Look.button(this, "▶ ${opened.name}" + lasted(piece)) { play(piece) }
                 else -> Look.words(this, "📎 ${opened.name}", size = 15f)
@@ -1341,6 +1369,7 @@ class ThreadActivity : AskingActivity() {
         val name = piece.name ?: piece.type
         return when {
             small != null -> picture(piece, small)
+            frames[piece.id] != null -> movie(piece, frames[piece.id]!!) { WatchActivity.watch(this, null, piece.uri) }
             piece.type.startsWith("audio/") -> Look.button(this, "▶ $name" + lasted(piece)) { play(piece) }
             isSealed(piece) -> LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL

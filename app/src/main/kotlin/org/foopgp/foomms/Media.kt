@@ -27,6 +27,34 @@ object Media {
         kind + java.text.SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'", java.util.Locale.ROOT)
             .apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }.format(java.util.Date(at)) + "." + extension
 
+    /** TRIAL: the first picture of a video, made small; null for a sound alone, which has none. */
+    fun frame(context: Context, uri: Uri, side: Int): Bitmap? = frame(side) { it.setDataSource(context, uri) }
+
+    fun frame(bytes: ByteArray, side: Int): Bitmap? = frame(side) {
+        it.setDataSource(object : android.media.MediaDataSource() {
+            override fun readAt(at: Long, into: ByteArray, offset: Int, size: Int): Int {
+                if (at >= bytes.size) return -1
+                val n = minOf(size.toLong(), bytes.size - at).toInt()
+                System.arraycopy(bytes, at.toInt(), into, offset, n)
+                return n
+            }
+            override fun getSize() = bytes.size.toLong()
+            override fun close() {}
+        })
+    }
+
+    private fun frame(side: Int, source: (android.media.MediaMetadataRetriever) -> Unit): Bitmap? = runCatching {
+        val reader = android.media.MediaMetadataRetriever()
+        try {
+            source(reader)
+            if (reader.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO) != "yes") return@runCatching null
+            reader.getFrameAtTime(0)?.let { whole ->
+                val scale = side.toFloat() / maxOf(whole.width, whole.height)
+                if (scale >= 1f) whole else Bitmap.createScaledBitmap(whole, (whole.width * scale).toInt(), (whole.height * scale).toInt(), true)
+            }
+        } finally { reader.release() }
+    }.getOrNull()
+
     /** A length of time as a clock says it: 0:07, 12:45, 3:05:00. */
     fun clock(millis: Long): String =
         if (millis >= 3_600_000) "%d:%02d:%02d".format(millis / 3_600_000, millis / 60_000 % 60, millis / 1000 % 60)
