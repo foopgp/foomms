@@ -71,16 +71,14 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
             setOnTouchListener { view, event -> if (event.action == MotionEvent.ACTION_UP) focus(event.x / view.width, event.y / view.height) ; true }
         }
         told = TextView(this).apply { setTextColor(android.graphics.Color.argb(0xCC, 0xFF, 0xFF, 0xFF)) ; textSize = 13f ; text = SHAPE }
-        button = Look.knob(this, "●", getString(R.string.attach_video)) { if (recorder == null) start() else stop(true) }.apply { textSize = 30f }
-        turn = Look.knob(this, "↻", getString(R.string.video_camera)) { turn() }
-        light = Look.knob(this, "☼", getString(R.string.video_light)) { light() }
-        // What is filmed is what is shown: the picture at 4:3, as wide as the screen, nothing out of its frame.
-        val wide = resources.displayMetrics.widthPixels
-        val round = Look.dp(this, 52)
+        button = Look.knob(this, "●", getString(R.string.attach_video)) { if (recorder == null) start() else stop(true) }.apply { textSize = 40f }
+        turn = Look.knob(this, "↻", getString(R.string.video_camera)) { turn() }.apply { textSize = 26f }
+        light = Look.knob(this, "☼", getString(R.string.video_light)) { light() }.apply { textSize = 26f }
+        val round = Look.dp(this, 64)
         setContentView(
             FrameLayout(this).apply {
                 setBackgroundColor(android.graphics.Color.BLACK)
-                addView(surface, FrameLayout.LayoutParams(wide, wide * 4 / 3, Gravity.CENTER))
+                addView(surface, framed())
                 // What is filmed and how, over the picture's top, and the camera's own settings beside it.
                 addView(
                     LinearLayout(context).apply {
@@ -99,17 +97,20 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
                             },
                             LinearLayout.LayoutParams(0, -2, 1f),
                         )
-                        addView(light, LinearLayout.LayoutParams(round, round))
-                        addView(android.view.View(context), LinearLayout.LayoutParams(Look.dp(context, 10), 1))
-                        addView(turn, LinearLayout.LayoutParams(round, round))
                     },
                     FrameLayout.LayoutParams(-1, -2, Gravity.TOP),
                 )
+                // Light, film, camera: the one that films in the middle, and the largest.
                 addView(
-                    FrameLayout(context).apply {
+                    LinearLayout(context).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        gravity = Gravity.CENTER
                         setPadding(0, Look.dp(context, 20), 0, Look.dp(context, 40))
                         background = Look.shade(android.graphics.drawable.GradientDrawable.Orientation.BOTTOM_TOP)
-                        addView(button, FrameLayout.LayoutParams(Look.dp(context, 76), Look.dp(context, 76), Gravity.CENTER))
+                        val apart = Look.dp(context, 32)
+                        addView(light, LinearLayout.LayoutParams(round, round))
+                        addView(button, LinearLayout.LayoutParams(Look.dp(context, 92), Look.dp(context, 92)).apply { marginStart = apart ; marginEnd = apart })
+                        addView(turn, LinearLayout.LayoutParams(round, round))
                     },
                     FrameLayout.LayoutParams(-1, -2, Gravity.BOTTOM),
                 )
@@ -139,8 +140,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
             val id = (0 until Camera.getNumberOfCameras()).firstOrNull { info(it).facing == facing } ?: 0
             val info = info(id)
             camera = Camera.open(id).apply {
-                // A camera at the front is seen as in a mirror: turned the other way.
-                setDisplayOrientation(if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) (360 - info.orientation) % 360 else info.orientation)
+                setDisplayOrientation(upright(info))
                 parameters = parameters.apply {
                     if (Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO in supportedFocusModes.orEmpty()) focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO
                     // Seen at 4:3, as it is filmed: the largest such picture up to 1280 wide.
@@ -157,6 +157,40 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     }
 
     private fun info(id: Int) = Camera.CameraInfo().also { Camera.getCameraInfo(id, it) }
+
+    /**
+     * What is filmed is what is shown: the picture at 4:3, as large as the
+     * screen allows, nothing out of its frame -- upright, four thirds as
+     * high as wide; on its side, four thirds as wide as high.
+     */
+    private fun framed(): FrameLayout.LayoutParams {
+        val w = resources.displayMetrics.widthPixels
+        val h = resources.displayMetrics.heightPixels
+        return if (h >= w) FrameLayout.LayoutParams(w, minOf(h, w * 4 / 3), Gravity.CENTER)
+        else FrameLayout.LayoutParams(minOf(w, h * 4 / 3), h, Gravity.CENTER)
+    }
+
+    /** How far the screen is turned, as the display says it: 0, 90, 180 or 270. */
+    @Suppress("DEPRECATION")
+    private fun screenTurn() = when (windowManager.defaultDisplay.rotation) {
+        android.view.Surface.ROTATION_90 -> 90
+        android.view.Surface.ROTATION_180 -> 180
+        android.view.Surface.ROTATION_270 -> 270
+        else -> 0
+    }
+
+    /** The camera's picture upright on the screen as it now stands; at the front, as in a mirror. */
+    private fun upright(info: Camera.CameraInfo): Int =
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) (360 - (info.orientation + screenTurn()) % 360) % 360
+        else (info.orientation - screenTurn() + 360) % 360
+
+    /** Turned, the page is not built again: the picture is fitted and set upright, the camera going on. */
+    override fun onConfigurationChanged(config: android.content.res.Configuration) {
+        super.onConfigurationChanged(config)
+        surface.layoutParams = framed()
+        val id = (0 until Camera.getNumberOfCameras()).firstOrNull { info(it).facing == facing } ?: return
+        runCatching { camera?.setDisplayOrientation(upright(info(id))) }
+    }
 
     private fun torchable() = Camera.Parameters.FLASH_MODE_TORCH in camera?.parameters?.supportedFlashModes.orEmpty()
 

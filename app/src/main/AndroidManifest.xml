@@ -106,7 +106,11 @@
             android:windowSoftInputMode="adjustResize" />
 
         <!-- TRIAL ONLY: filming a video for an MMS. -->
-        <activity android:name=".VideoActivity" android:exported="false" android:screenOrientation="portrait" />
+        <!-- Not locked upright, which large screens ignore: turned, the page follows without stopping the camera. -->
+        <activity
+            android:name=".VideoActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden" />
         <!-- Turned with the phone, it goes on playing: not rebuilt, the video in memory is not lost. -->
         <activity
             android:name=".WatchActivity"
