@@ -1,0 +1,6 @@
+• Kısa bir video (QVGA ya da CIF) veya ses, foomms'ta kaydedilir: arka ya da ön kamera, ışık.
+• Videolar foomms'ta tam ekran izlenir.
+• Uzun bir sesli mesaj konuşmanın dışında da çalmaya devam eder, denetimleri bildirimlerdedir.
+• MMS'ler 300 kB'ın ya da seçerseniz operatörünüzün sınırının altında kalır.
+• Konuşmalar daha hızlı açılır.
+• Şifre çözme penceresi 15 mesaja kadar çıkar.

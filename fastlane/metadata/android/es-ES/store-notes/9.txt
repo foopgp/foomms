@@ -1,0 +1,6 @@
+• Un vídeo corto (QVGA o CIF) o un sonido, grabados en foomms: cámara trasera o delantera, luz.
+• Los vídeos se ven en foomms, a pantalla completa.
+• Un mensaje de voz largo sigue sonando fuera de la conversación, con sus controles en las notificaciones.
+• Los MMS se quedan por debajo de 300 kB, o del límite de su operador si lo elige.
+• Las conversaciones se abren más rápido.
+• La ventana de descifrado llega hasta 15 mensajes.
