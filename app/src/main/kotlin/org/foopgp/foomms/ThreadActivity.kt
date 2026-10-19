@@ -660,10 +660,8 @@ class ThreadActivity : AskingActivity() {
         for ((label, cif) in listOf(R.string.attach_video to false, R.string.attach_video_cif to true)) {
             choices += label to {
                 launch(
-                    // Room for the rest: up to ten recipients and oneself locked for (some 90 bytes each with
-                    // Curve25519), the signature, the MMS's own envelope, and a few kB of text armored beside it.
                     Intent(this, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_CIF, cif)
-                        .putExtra(VideoActivity.EXTRA_MOST, (Outbox.heaviest(this) - 24 * 1024).toLong()),
+                        .putExtra(VideoActivity.EXTRA_MOST, (Outbox.heaviest(this) - Outbox.MARGIN).toLong()),
                     VIDEO,
                 )
             }

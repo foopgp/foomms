@@ -37,6 +37,8 @@ class WatchActivity : Activity() {
         }
         video.setMediaController(MediaController(this).apply { setAnchorView(video) })
         video.setOnPreparedListener { video.start() }
+        // Watched to the end, the page goes: back to the conversation.
+        video.setOnCompletionListener { finish() }
     }
 
     override fun onDestroy() {
