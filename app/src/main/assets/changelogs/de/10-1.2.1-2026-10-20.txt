@@ -1,0 +1,2 @@
+• foomms bittet zuerst darum, Ihre Nachrichten-App zu werden, und erst dann um die noch fehlenden Berechtigungen.
+• Ein verschlüsselter Anhang reist nur unter seiner Größe: was er ist und sein Datum bleiben verschlüsselt.

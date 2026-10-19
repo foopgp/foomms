@@ -1,0 +1,2 @@
+• foomms najpierw prosi o zostanie twoją aplikacją do wiadomości, a dopiero potem o brakujące uprawnienia.
+• Zaszyfrowany załącznik podróżuje tylko pod swoim rozmiarem: czym jest i jego data zostają w szyfrze.

@@ -1,0 +1,2 @@
+• O foomms pede primeiro para ser a sua aplicação de mensagens, e só depois as autorizações que ainda faltam.
+• Um anexo cifrado viaja só com o seu tamanho: o que é e a sua data ficam dentro da cifra.

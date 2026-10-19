@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="about">SMS und MMS, die nur die Person lesen kann, der Sie schreiben: verschlüsselt für den Schlüssel, für den ihre Telefonnummer steht, signiert mit Ihrem. Kein Konto, kein Server von uns – das Telefonnetz befördert sie und kann sie nicht öffnen.\n\nDiese Anwendung hält keinen Schlüssel und betreibt keine Kryptografie: Sie fragt foodjis, das installiert sein muss.</string>
-    <string name="why_read">Um Ihre Unterhaltungen anzuzeigen, muss diese Anwendung die Nachrichten auf diesem Telefon lesen, und Ihr Adressbuch, um die Gesprächspartner zu benennen.</string>
+    <string name="why_read">Um Ihre Unterhaltungen anzuzeigen, muss diese Anwendung die Nachrichten auf diesem Telefon lesen, und Ihre Kontakte, um sie zuzuordnen.</string>
     <string name="allow">Erlauben</string>
     <string name="unknown_number">eine unbekannte Nummer</string>
     <string name="number_hint">Telefonnummer</string>

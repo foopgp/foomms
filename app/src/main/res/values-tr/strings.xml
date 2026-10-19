@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="about">Yalnızca yazdığınız kişinin okuyabileceği SMS ve MMS: telefon numarasının karşılık geldiği anahtar için şifrelenmiş, sizinkiyle imzalanmış. Hesap yok, bize ait sunucu yok — telefon şebekesi onları taşır ve açamaz.\n\nBu uygulama hiçbir anahtar tutmaz ve şifreleme işi yapmaz: bunu yüklü olması gereken foodjis\'ten ister.</string>
-    <string name="why_read">Konuşmalarınızı göstermek için bu uygulamanın telefondaki mesajları ve kiminle konuştuğunuzu adlandırmak için adres defterinizi okuması gerekir.</string>
+    <string name="why_read">Konuşmalarınızı göstermek için bu uygulamanın telefondaki mesajları ve bunları eşleştirmek için kişilerinizi okuması gerekir.</string>
     <string name="allow">İzin ver</string>
     <string name="unknown_number">bilinmeyen bir numara</string>
     <string name="number_hint">Telefon numarası</string>

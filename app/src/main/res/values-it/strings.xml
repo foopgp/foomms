@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="about">SMS e MMS che può leggere solo la persona a cui scrivi: cifrati per la chiave che il suo numero di telefono rappresenta, firmati con la tua. Nessun account, nessun nostro server: la rete telefonica li trasporta e non può aprirli.\n\nQuesta applicazione non conserva chiavi e non fa crittografia: lo chiede a foodjis, che deve essere installato.</string>
-    <string name="why_read">Per mostrare le tue conversazioni, questa applicazione deve leggere i messaggi presenti sul telefono, e la tua rubrica per dare un nome agli interlocutori.</string>
+    <string name="why_read">Per mostrare le tue conversazioni, questa applicazione deve leggere i messaggi presenti sul telefono, e i tuoi contatti per associarli.</string>
     <string name="allow">Consenti</string>
     <string name="unknown_number">un numero sconosciuto</string>
     <string name="number_hint">Numero di telefono</string>

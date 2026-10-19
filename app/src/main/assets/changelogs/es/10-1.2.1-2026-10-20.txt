@@ -1,0 +1,2 @@
+• foomms pide primero ser su aplicación de mensajería, y solo después los permisos que aún faltan.
+• Un adjunto cifrado viaja solo con su tamaño: lo que es y su fecha quedan dentro del cifrado.

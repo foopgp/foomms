@@ -1,0 +1,2 @@
+• foomms first asks to become your messaging application, and only then for the permissions still missing.
+• An encrypted attachment travels under its size alone: what it is and its date stay inside the encryption.

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="about">SMS-y i MMS-y, które może przeczytać tylko osoba, do której piszesz: zaszyfrowane dla klucza, któremu odpowiada jej numer telefonu, podpisane twoim. Bez konta, bez naszego serwera — sieć telefoniczna je przenosi i nie może ich otworzyć.\n\nTa aplikacja nie przechowuje żadnego klucza i nie zajmuje się kryptografią: prosi o to foodjis, który musi być zainstalowany.</string>
-    <string name="why_read">Aby pokazać twoje rozmowy, ta aplikacja musi odczytać wiadomości zapisane w telefonie oraz twoją książkę adresową, by nazwać rozmówców.</string>
+    <string name="why_read">Aby pokazać twoje rozmowy, ta aplikacja musi odczytać wiadomości zapisane w telefonie oraz twoje kontakty, by je powiązać.</string>
     <string name="allow">Zezwól</string>
     <string name="unknown_number">nieznany numer</string>
     <string name="number_hint">Numer telefonu</string>
