@@ -316,6 +316,8 @@ class ThreadActivity : AskingActivity() {
             // A voice message opened from its lock and still playing beyond the page stops with the rest.
             val locked = lines.flatMap { it.pieces }.filter(::isSealed).map { it.id }.toSet()
             if (Listening.playing in locked) Listening.stop(this)
+            // TRIAL: a video opened from its lock leaves no picture of itself, nor its length.
+            for (id in locked) { frames.remove(id) ; framed.remove(id) ; lasts.remove(id) }
             if (!Opened.anyOpen()) Outbox.shut(this)
             bubbles.notifyDataSetChanged()
         }
