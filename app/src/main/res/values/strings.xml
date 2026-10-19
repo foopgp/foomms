@@ -206,6 +206,6 @@
     <string name="note_contact">Keep the contact\'s: %1$s</string>
     <string name="note_certificate">Take the certificate\'s: %1$s</string>
     <string name="note_size">(%1$d characters)</string>
-    <string name="attach_video_qcif" translatable="false">🎥 Video 176×144 (H.263 + AMR)</string>
     <string name="attach_video_qvga" translatable="false">🎥 Video 320×240 (H.264 + AAC)</string>
+    <string name="attach_video_vga" translatable="false">🎥 Video 640×480 (H.264 + AAC)</string>
 </resources>

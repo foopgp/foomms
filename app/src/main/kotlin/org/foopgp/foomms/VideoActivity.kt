@@ -15,9 +15,9 @@ import android.widget.TextView
 import java.io.File
 
 /**
- * TRIAL ONLY (branch mneme/video-trial): a video filmed here, in one of the
- * two shapes an MMS has carried -- 176×144 in H.263 with AMR, or 320×240 in
- * H.264 with AAC --, stopped by the operator's size before it is too heavy.
+ * TRIAL ONLY (branch mneme/video-trial): a video filmed here, in H.264 with
+ * AAC -- 320×240, or 640×480 --, stopped by the operator's size before it is
+ * too heavy. 176×144 in H.263 was tried and dropped: too poor to be worth it.
  */
 @Suppress("DEPRECATION")
 class VideoActivity : Activity(), SurfaceHolder.Callback {
@@ -28,7 +28,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     private lateinit var surface: SurfaceView
     private lateinit var button: TextView
     private lateinit var told: TextView
-    private val qvga by lazy { intent.getBooleanExtra(EXTRA_QVGA, false) }
+    private val vga by lazy { intent.getBooleanExtra(EXTRA_VGA, false) }
     private val most by lazy { intent.getLongExtra(EXTRA_MOST, 300 * 1024L) }
     private val ticking = object : Runnable {
         override fun run() {
@@ -44,7 +44,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
         told = TextView(this).apply {
             setTextColor(android.graphics.Color.WHITE)
             textSize = 16f
-            text = if (qvga) "320×240 · H.264 + AAC" else "176×144 · H.263 + AMR"
+            text = if (vga) "640×480 · H.264 + AAC" else "320×240 · H.264 + AAC"
         }
         button = Look.button(this, "● REC") { if (recorder == null) start() else stop(true) }
         setContentView(
@@ -101,21 +101,17 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
                 setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
                 setVideoSource(MediaRecorder.VideoSource.CAMERA)
                 setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-                if (qvga) {
-                    setVideoEncoder(MediaRecorder.VideoEncoder.H264)
-                    setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                setVideoEncoder(MediaRecorder.VideoEncoder.H264)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                if (vga) {
+                    setVideoSize(640, 480)
+                    setVideoEncodingBitRate(450_000)
+                } else {
                     setVideoSize(320, 240)
                     setVideoEncodingBitRate(180_000)
-                    setAudioEncodingBitRate(24_000)
-                    setAudioSamplingRate(16_000)
-                } else {
-                    setVideoEncoder(MediaRecorder.VideoEncoder.H263)
-                    setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-                    setVideoSize(176, 144)
-                    setVideoEncodingBitRate(64_000)
-                    setAudioEncodingBitRate(12_200)
-                    setAudioSamplingRate(8_000)
                 }
+                setAudioEncodingBitRate(24_000)
+                setAudioSamplingRate(16_000)
                 setAudioChannels(1)
                 setVideoFrameRate(15)
                 setOrientationHint(90)
@@ -170,7 +166,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     }
 
     companion object {
-        const val EXTRA_QVGA = "qvga"
+        const val EXTRA_VGA = "vga"
         const val EXTRA_MOST = "most"
         fun file(context: android.content.Context) = File(context.cacheDir, "video.3gp")
     }

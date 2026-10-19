@@ -644,11 +644,13 @@ class ThreadActivity : AskingActivity() {
         choices += R.string.attach_file to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), FILE) }
         choices += R.string.attach_text to { paste() }
         // TRIAL ONLY: a video filmed in one of the two shapes an MMS has carried.
-        for ((label, qvga) in listOf(R.string.attach_video_qcif to false, R.string.attach_video_qvga to true)) {
+        for ((label, vga) in listOf(R.string.attach_video_qvga to false, R.string.attach_video_vga to true)) {
             choices += label to {
                 launch(
-                    Intent(this, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_QVGA, qvga)
-                        .putExtra(VideoActivity.EXTRA_MOST, (Outbox.heaviest(this) - 16 * 1024).toLong()),
+                    // Room for the rest: up to ten recipients and oneself locked for (some 90 bytes each with
+                    // Curve25519), the signature, the MMS's own envelope, and a few kB of text armored beside it.
+                    Intent(this, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_VGA, vga)
+                        .putExtra(VideoActivity.EXTRA_MOST, (Outbox.heaviest(this) - 24 * 1024).toLong()),
                     VIDEO,
                 )
             }
