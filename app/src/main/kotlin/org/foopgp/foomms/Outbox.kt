@@ -47,6 +47,9 @@ object Outbox {
     }
 
     fun send(context: Context, to: String, pdu: ByteArray, transaction: String) {
+        // The last word on weight, whatever made the message: heavier than set, it does not leave.
+        val most = heaviest(context)
+        check(pdu.size <= most) { context.getString(R.string.too_heavy_sent, (pdu.size + 1023) / 1024, most / 1024) }
         File(context.cacheDir, DIR).mkdirs()
         file(context, transaction).writeBytes(pdu)
         journal(context).edit().putString(transaction, "${System.currentTimeMillis()}\t$to\t${pdu.size}\t$GOING").apply()
