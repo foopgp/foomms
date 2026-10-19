@@ -56,7 +56,7 @@ class Voice(private val context: Context) {
         if (!stopped || long < SHORTEST) { file.delete() ; return null }
         val bytes = runCatching { file.readBytes() }.getOrNull() ?: return null
         file.delete()
-        return Media.Attachment("audio/3gpp", "voice.3gp", bytes, long)
+        return Media.Attachment("audio/3gpp", Media.named("a", started, "3gp"), bytes, long)
     }
 
     /** Let go of the microphone, keeping nothing. */
