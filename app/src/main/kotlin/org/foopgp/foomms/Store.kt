@@ -86,13 +86,29 @@ object Store {
         }
     }.getOrNull()
 
-    /** The last SMS of a conversation, whole: the phone's list keeps only its first words. */
-    private fun last(context: Context, thread: Long): Line? =
-        context.contentResolver.query(
+    /**
+     * The last message of a conversation, whole -- the phone's list keeps only
+     * its first words --: the later of its last SMS and its last MMS. An MMS
+     * says its words, or what it carries when it has none.
+     */
+    private fun last(context: Context, thread: Long): Line? {
+        val sms = context.contentResolver.query(
             SMS, arrayOf("date", "body", "type"), "thread_id = ?", arrayOf(thread.toString()), "date DESC LIMIT 1",
         )?.use { rows ->
             if (rows.moveToFirst()) Line(rows.getLong(0), rows.getInt(2) == SMS_INBOX, rows.getString(1).orEmpty()) else null
         }
+        // An MMS's date is in seconds, an SMS's in milliseconds.
+        val mms = runCatching {
+            context.contentResolver.query(
+                MMS, arrayOf("_id", "date", "msg_box"), "thread_id = ?", arrayOf(thread.toString()), "date DESC LIMIT 1",
+            )?.use { rows ->
+                if (!rows.moveToFirst()) return@use null
+                val (words, pieces) = parts(context, rows.getLong(0))
+                Line(rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, words.ifEmpty { pieces.joinToString(" ") { "📎 " + (it.name ?: it.type) } }, pieces, mms = true)
+            }
+        }.getOrNull()
+        return listOfNotNull(sms, mms).maxByOrNull { it.at }
+    }
 
     /** The same found the long way, for a phone that keeps no such list. */
     private fun everyTalk(context: Context): List<Talk> {
