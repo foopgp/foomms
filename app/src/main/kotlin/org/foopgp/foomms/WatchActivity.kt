@@ -102,20 +102,26 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
                 // Play or pause, where it is, and stop at the other end: the one way out before the end, besides back.
                 addView(
                     LinearLayout(context).apply {
-                        orientation = LinearLayout.HORIZONTAL
-                        gravity = Gravity.CENTER_VERTICAL
+                        orientation = LinearLayout.VERTICAL
                         setPadding(pad, pad, pad, Look.dp(context, 32))
                         background = shade(android.graphics.drawable.GradientDrawable.Orientation.BOTTOM_TOP)
-                        val round = Look.dp(context, 52)
-                        addView(playing, LinearLayout.LayoutParams(round, round))
-                        addView(where, LinearLayout.LayoutParams(0, -2, 1f))
-                        // Where it is, out of how long it lasts.
+                        // Where it is, out of how long it lasts: above the stop, leaving the bar its width.
                         elapsed = android.widget.TextView(context).apply {
                             textSize = 13f ; setTextColor(android.graphics.Color.WHITE) ; setTypeface(typeface, android.graphics.Typeface.BOLD)
-                            setPadding(0, 0, Look.dp(context, 10), 0)
+                            gravity = Gravity.END
+                            setPadding(0, 0, 0, Look.dp(context, 4))
                         }
-                        addView(elapsed)
-                        addView(knob("■", R.string.listening_stop) { finish() }, LinearLayout.LayoutParams(round, round))
+                        addView(elapsed, LinearLayout.LayoutParams(-1, -2))
+                        addView(
+                            LinearLayout(context).apply {
+                                orientation = LinearLayout.HORIZONTAL
+                                gravity = Gravity.CENTER_VERTICAL
+                                val round = Look.dp(context, 52)
+                                addView(playing, LinearLayout.LayoutParams(round, round))
+                                addView(where, LinearLayout.LayoutParams(0, -2, 1f))
+                                addView(knob("■", R.string.listening_stop) { finish() }, LinearLayout.LayoutParams(round, round))
+                            },
+                        )
                     }.also { over += it },
                     FrameLayout.LayoutParams(-1, -2, Gravity.BOTTOM),
                 )

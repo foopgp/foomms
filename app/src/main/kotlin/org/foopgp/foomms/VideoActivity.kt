@@ -39,12 +39,18 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
 
     /** What is recorded: its picture -- none for a sound alone --, what it weighs a second, and its file's first letter. */
     private enum class Shape(val wide: Int, val high: Int, val video: Int, val audio: Int, val kind: String) {
-        CIF(352, 288, 416_000, 24_000, "v"),
+        CIF(352, 288, 240_000, 24_000, "v"),
         QVGA(320, 240, 180_000, 24_000, "v"),
-        SOUND(0, 0, 0, 12_200, "a");
+        // The sound of the videos, AAC, not the AMR of voice messages: a sound alone is chosen to be heard well.
+        SOUND(0, 0, 0, 24_000, "a");
 
-        val bytesPerSecond: Int get() = (video + audio) / 8
-        val said: String get() = if (this == SOUND) "AMR · 8 kHz" else "$wide×$high · H.264 + AAC · 15 i/s"
+        /**
+         * What it weighs a second, as filmed rather than as asked: an encoder
+         * gives a video a tenth more than its rate -- measured, 320×240 lasts
+         * about 10 s under 276 kB, where its rate alone says 11.
+         */
+        val bytesPerSecond: Int get() = (video + audio) / 8 * (if (video > 0) 11 else 10) / 10
+        val said: String get() = if (this == SOUND) "AAC · 16 kHz" else "$wide×$high · H.264 + AAC · 15 i/s"
     }
 
     private var shape = Shape.QVGA
@@ -189,7 +195,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     /** One of the three things to record, with how long it may last: seconds, or minutes for a sound alone. */
     private fun chip(one: Shape) = TextView(this).apply {
         val lasting = most / one.bytesPerSecond
-        val long = if (lasting < 90) "≈\u00A0$lasting\u00A0s" else "≈\u00A0${(lasting + 30) / 60}\u00A0min"
+        val long = if (lasting < 60) "≈\u00A0$lasting\u00A0s" else "≈\u00A0" + Media.clock(lasting * 1000L)
         text = if (one == Shape.SOUND) getString(R.string.video_sound, long) else "${one.wide}×${one.high} ($long)"
         textSize = 14f
         setTypeface(typeface, android.graphics.Typeface.BOLD)
@@ -338,15 +344,16 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
         }
     }
 
-    /** A sound alone: the microphone, as a voice message is recorded, under the same size. */
+    /** A sound alone: the microphone, in the AAC of the videos, under the same size. */
     private fun listen() {
         val out = file(this).apply { delete() }
         runCatching {
             recorder = MediaRecorder().apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
                 setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-                setAudioSamplingRate(8_000)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                setAudioSamplingRate(16_000)
+                setAudioChannels(1)
                 setAudioEncodingBitRate(shape.audio)
                 setMaxFileSize(most)
                 setOutputFile(out.path)
