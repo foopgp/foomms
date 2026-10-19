@@ -38,6 +38,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     private lateinit var light: TextView
     private lateinit var told: TextView
     private val most by lazy { intent.getLongExtra(EXTRA_MOST, 300 * 1024L) }
+    private val cif by lazy { intent.getBooleanExtra(EXTRA_CIF, false) }
     private val ticking = object : Runnable {
         override fun run() {
             if (recorder == null) return
@@ -53,7 +54,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
             // Touched, the camera focuses there.
             setOnTouchListener { view, event -> if (event.action == MotionEvent.ACTION_UP) focus(event.x / view.width, event.y / view.height) ; true }
         }
-        told = TextView(this).apply { setTextColor(android.graphics.Color.WHITE) ; textSize = 16f ; text = "320×240 · H.264 + AAC" }
+        told = TextView(this).apply { setTextColor(android.graphics.Color.WHITE) ; textSize = 16f ; text = if (cif) "352×288 · H.264 + AAC" else "320×240 · H.264 + AAC" }
         button = Look.button(this, "● REC") { if (recorder == null) start() else stop(true) }
         turn = Look.button(this, "↻") { turn() }
         light = Look.button(this, "☼") { light() }
@@ -183,7 +184,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
                 setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
                 setVideoEncoder(MediaRecorder.VideoEncoder.H264)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                setVideoSize(320, 240)
+                if (cif) setVideoSize(352, 288) else setVideoSize(320, 240)
                 setVideoEncodingBitRate(180_000)
                 setAudioEncodingBitRate(24_000)
                 setAudioSamplingRate(16_000)
@@ -200,6 +201,9 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
             started = SystemClock.elapsedRealtime()
             began = System.currentTimeMillis()
             button.text = "■ STOP"
+            // Once filming, the camera is the recorder's: what cannot be changed is not shown.
+            turn.visibility = android.view.View.INVISIBLE
+            light.visibility = android.view.View.INVISIBLE
             told.post(ticking)
         }.onFailure {
             say("recorder: ${it.message}")
@@ -243,6 +247,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
 
     companion object {
         const val EXTRA_MOST = "most"
+        const val EXTRA_CIF = "cif"
         const val EXTRA_NAME = "name"
         fun file(context: android.content.Context) = File(context.cacheDir, "video.3gp")
     }

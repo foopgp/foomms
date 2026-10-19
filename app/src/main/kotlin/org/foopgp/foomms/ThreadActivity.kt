@@ -657,13 +657,16 @@ class ThreadActivity : AskingActivity() {
         choices += R.string.attach_file to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), FILE) }
         choices += R.string.attach_text to { paste() }
         // TRIAL ONLY: a video filmed in one of the two shapes an MMS has carried.
-        choices += R.string.attach_video to {
-            launch(
-                // Room for the rest: up to ten recipients and oneself locked for (some 90 bytes each with
-                // Curve25519), the signature, the MMS's own envelope, and a few kB of text armored beside it.
-                Intent(this, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_MOST, (Outbox.heaviest(this) - 24 * 1024).toLong()),
-                VIDEO,
-            )
+        for ((label, cif) in listOf(R.string.attach_video to false, R.string.attach_video_cif to true)) {
+            choices += label to {
+                launch(
+                    // Room for the rest: up to ten recipients and oneself locked for (some 90 bytes each with
+                    // Curve25519), the signature, the MMS's own envelope, and a few kB of text armored beside it.
+                    Intent(this, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_CIF, cif)
+                        .putExtra(VideoActivity.EXTRA_MOST, (Outbox.heaviest(this) - 24 * 1024).toLong()),
+                    VIDEO,
+                )
+            }
         }
         AlertDialog.Builder(this)
             .setItems(choices.map { getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }
@@ -1025,6 +1028,8 @@ class ThreadActivity : AskingActivity() {
     private fun pressedPiece(piece: Store.Piece, at: Int) {
         val opened = Opened.piece(piece.id)
         if (isSealed(piece) && opened == null) return pressed(at)
+        // TRIAL: a video plays on its own page.
+        if (frames.containsKey(piece.id)) return WatchActivity.watch(this, opened?.bytes, if (opened == null) piece.uri else null)
         if ((opened?.type ?: piece.type).startsWith("image/") && (openedThumbs[piece.id] ?: thumbs[piece.id]) != null) {
             // Pressed again at once after growing, it asks what to do with it rather than goes back.
             val grew = grownAt[piece.id]

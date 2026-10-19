@@ -206,7 +206,8 @@
     <string name="note_contact">Keep the contact\'s: %1$s</string>
     <string name="note_certificate">Take the certificate\'s: %1$s</string>
     <string name="note_size">(%1$d characters)</string>
-    <string name="attach_video" translatable="false">🎥 Video (320×240, H.264 + AAC)</string>
+    <string name="attach_video" translatable="false">🎥 Video 320×240 (H.264 + AAC)</string>
+    <string name="attach_video_cif" translatable="false">🎥 Video 352×288 (H.264 + AAC)</string>
     <string name="channel_listening">Voice messages</string>
     <string name="listening_title">Voice message from %1$s</string>
     <string name="listening_play">Play</string>
