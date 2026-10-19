@@ -18,8 +18,8 @@ object Conf {
         TWELVE_HOURS(43200),
     }
 
-    const val MOST_AROUND = 10
-    private const val USUAL_AROUND = 3
+    const val MOST_AROUND = 15
+    private const val USUAL_AROUND = 7
 
     /** How many messages shown before the one pressed, and as many after, a use of the key tries to open with it; none, and it opens alone. */
     fun around(context: Context): Int = kept(context).getInt("before", USUAL_AROUND).coerceIn(0, MOST_AROUND)
