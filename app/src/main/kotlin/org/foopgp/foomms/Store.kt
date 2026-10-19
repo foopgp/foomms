@@ -10,11 +10,16 @@ import android.net.Uri
  */
 object Store {
 
-    class Talk(val thread: Long, val number: String?, val at: Long, val last: String, val incoming: Boolean, val unread: Boolean)
+    /** [form]: what the last message travelled as -- its words, or a PGP message it carries as a part. */
+    class Talk(val thread: Long, val number: String?, val at: Long, val last: String, val incoming: Boolean, val unread: Boolean, val form: Form = Form.of(last))
 
     /** What an MMS carries beside its words: a picture, a sound, a file. */
     class Piece(val id: Long, val type: String, val name: String?) {
         val uri: Uri get() = Uri.withAppendedPath(PARTS, id.toString())
+
+        /** A part that is itself a PGP message: by its label, or by the name given to what was locked. */
+        val sealed: Boolean
+            get() = name.orEmpty().lowercase().let { type == Pgp.TYPE || it.endsWith(".pgp") || it.endsWith(".gpg") || it.endsWith(".asc") }
     }
 
     class Line(
@@ -70,14 +75,37 @@ object Store {
                 val thread = rows.getLong(0)
                 val number = rows.getString(3)?.trim()?.split(' ')?.firstOrNull()?.toLongOrNull()?.let { address(context, it) }
                 val last = last(context, thread)
+                val words = last?.body ?: rows.getString(2).orEmpty()
                 talks += Talk(
                     thread, number ?: number(context, thread), last?.at ?: rows.getLong(1),
-                    last?.body ?: rows.getString(2).orEmpty(), last?.incoming ?: true, rows.getInt(4) == 0,
+                    words, last?.incoming ?: true, rows.getInt(4) == 0, formOf(context, words, last?.pieces.orEmpty()),
                 )
             }
         }
         return talks
     }
+
+    /**
+     * What a message travelled as, its parts included: a PGP part says
+     * whether it is locked in its first bytes, read without the rest.
+     */
+    private fun formOf(context: Context, words: String, pieces: List<Piece>): Form {
+        val sealed = pieces.filter { it.sealed }
+        if (sealed.isEmpty()) return Form.of(words)
+        val locked = sealed.any { piece ->
+            runCatching {
+                context.contentResolver.openInputStream(piece.uri)?.use { from ->
+                    val head = ByteArray(HEAD)
+                    val read = from.read(head)
+                    read > 0 && Pgp.isLocked(head.copyOf(read))
+                }
+            }.getOrNull() == true
+        }
+        return Form.of(locked || Form.of(words) == Form.LOCKED, true)
+    }
+
+    /** Enough of a PGP part to tell locked from signed: an armor's headers and its first line, or a packet's head. */
+    private const val HEAD = 512
 
     /** The address the phone's list of conversations names by a number of its own. */
     private fun address(context: Context, id: Long): String? = runCatching {

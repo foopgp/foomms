@@ -857,10 +857,7 @@ class ThreadActivity : AskingActivity() {
     }
 
     /** A part of an MMS that is itself a PGP message: by its label, or by the name given to what was locked. */
-    private fun isSealed(piece: Store.Piece): Boolean {
-        val name = piece.name.orEmpty().lowercase()
-        return piece.type == Pgp.TYPE || name.endsWith(".pgp") || name.endsWith(".gpg") || name.endsWith(".asc")
-    }
+    private fun isSealed(piece: Store.Piece): Boolean = piece.sealed
 
     /** A locked part, opened: kept with what it is, and a picture made small to sit in its bubble. */
     private fun got(piece: Store.Piece, answer: Provider.Answer.Done) {

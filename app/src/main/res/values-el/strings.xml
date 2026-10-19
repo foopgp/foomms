@@ -208,4 +208,6 @@
     <string name="listening_play">Αναπαραγωγή</string>
     <string name="listening_pause">Παύση</string>
     <string name="listening_stop">Διακοπή</string>
+    <string name="conf_mms_size">Χρήση του ορίου του παρόχου: %1$d kB</string>
+    <string name="conf_mms_size_note">Ένα MMS μένει κάτω από 300 kB, όσο δέχεται κάθε δίκτυο. Ο πάροχός σας δηλώνει περισσότερα· του παραλήπτη μπορεί πάλι να αρνηθεί βαρύτερο.</string>
 </resources>

@@ -21,10 +21,22 @@ import java.io.File
  */
 object Outbox {
 
-    /** The heaviest message the network takes, by what the operator's settings say; 300 kB when they say nothing. */
-    fun heaviest(context: Context): Int =
-        runCatching { manager(context).carrierConfigValues.getInt(SmsManager.MMS_CONFIG_MAX_MESSAGE_SIZE, 0) }
-            .getOrDefault(0).takeIf { it > 0 } ?: (300 * 1024)
+    /**
+     * What every network takes: 300 kB, the "video basic" content class of
+     * OMA's MMS conformance document (OMA-TS-MMS_CONF). An operator may say
+     * more, but the one who receives may refuse more.
+     */
+    const val STANDARD = 300 * 1024
+
+    /** What the operator's settings say a message may weigh, when they say it. */
+    fun operators(context: Context): Int? =
+        runCatching { manager(context).carrierConfigValues.getInt(SmsManager.MMS_CONFIG_MAX_MESSAGE_SIZE, 0) }.getOrDefault(0).takeIf { it > 0 }
+
+    /** The heaviest message sent: the lesser of the standard and the operator's, the operator's when the person chose it. */
+    fun heaviest(context: Context): Int {
+        val theirs = operators(context) ?: return STANDARD
+        return if (theirs > STANDARD && Conf.operatorSize(context)) theirs else minOf(theirs, STANDARD)
+    }
 
     fun send(context: Context, to: String, pdu: ByteArray, transaction: String) {
         File(context.cacheDir, DIR).mkdirs()

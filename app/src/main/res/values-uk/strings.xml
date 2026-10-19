@@ -208,4 +208,6 @@
     <string name="listening_play">Відтворити</string>
     <string name="listening_pause">Пауза</string>
     <string name="listening_stop">Зупинити</string>
+    <string name="conf_mms_size">Використовувати межу оператора: %1$d КБ</string>
+    <string name="conf_mms_size_note">MMS лишається меншим за 300 КБ — стільки приймає будь-яка мережа. Ваш оператор заявляє більше; оператор отримувача все одно може відхилити важче.</string>
 </resources>
