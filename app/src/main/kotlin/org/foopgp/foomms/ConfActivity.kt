@@ -170,7 +170,7 @@ class ConfActivity : Activity() {
             flip(R.string.conf_mms_size, Conf.operatorSize(this), usable = (theirs ?: 0) > Outbox.STANDARD) { Conf.operatorSize(this, it) }
                 .apply { (theirs ?: Outbox.STANDARD).let { most -> text = getString(R.string.conf_mms_size, most / 1024, (most - Outbox.MARGIN) / 1024) } },
         )
-        note(getString(R.string.conf_mms_size_note, Outbox.STANDARD / 1024))
+        note(getString(R.string.conf_mms_size_note, Outbox.STANDARD / 1024, (Outbox.STANDARD - Outbox.MARGIN) / 1024))
         if (!Conf.preferMms(this)) {
             column.addView(flip(R.string.conf_warn_mms, Conf.warnMms(this)) { Conf.warnMms(this, it) })
             note(R.string.conf_warn_mms_note)

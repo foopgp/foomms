@@ -209,5 +209,6 @@
     <string name="listening_pause">Пауза</string>
     <string name="listening_stop">Зупинити</string>
     <string name="conf_mms_size">Використовувати межу оператора: %1$d КБ, тобто %2$d КБ корисних</string>
-    <string name="conf_mms_size_note">MMS зазвичай обмежені %1$d КБ. Ваш оператор може дозволяти більше, але оператор отримувача може відхилити такі важкі MMS.</string>
+    <string name="conf_mms_size_note">MMS зазвичай обмежені %1$d КБ, тобто %2$d КБ корисних. Ваш оператор може дозволяти більше, але оператор отримувача може відхилити такі щедрі MMS.</string>
+    <string name="too_heavy_sent">Це повідомлення важить %1$d КБ, більше за встановлені для MMS %2$d КБ: його не надіслано.</string>
 </resources>

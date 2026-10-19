@@ -209,5 +209,6 @@
     <string name="listening_pause">Pause</string>
     <string name="listening_stop">Beenden</string>
     <string name="conf_mms_size">Grenze des Betreibers verwenden: %1$d kB, also %2$d kB nutzbar</string>
-    <string name="conf_mms_size_note">MMS sind meist auf %1$d kB begrenzt. Ihr Betreiber bietet vielleicht mehr, doch der Betreiber des Empfängers kann so schwere MMS ablehnen.</string>
+    <string name="conf_mms_size_note">MMS sind meist auf %1$d kB begrenzt, also %2$d kB nutzbar. Ihr Betreiber bietet vielleicht mehr, doch der Betreiber des Empfängers kann so großzügige MMS ablehnen.</string>
+    <string name="too_heavy_sent">Diese Nachricht wiegt %1$d kB, mehr als die für MMS festgelegten %2$d kB: Sie wurde nicht gesendet.</string>
 </resources>

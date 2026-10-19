@@ -209,5 +209,6 @@
     <string name="listening_pause">Pause</string>
     <string name="listening_stop">Arrêter</string>
     <string name="conf_mms_size">Utiliser la limite de l\'opérateur : %1$d Ko, soit %2$d Ko utilisables</string>
-    <string name="conf_mms_size_note">Les MMS sont généralement limités à %1$d Ko. Votre opérateur peut offrir davantage, mais l\'opérateur de votre correspondant risque de refuser des MMS aussi lourds.</string>
+    <string name="conf_mms_size_note">Les MMS sont généralement limités à %1$d Ko, soit %2$d Ko utilisables. Votre opérateur peut offrir davantage, mais l\'opérateur de votre correspondant risque de refuser des MMS aussi généreux.</string>
+    <string name="too_heavy_sent">Ce message pèse %1$d Ko, plus que les %2$d Ko fixés pour les MMS : il n\'est pas parti.</string>
 </resources>
