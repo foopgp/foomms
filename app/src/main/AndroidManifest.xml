@@ -27,7 +27,7 @@
 
     <!-- A few words spoken, while a finger stays on the empty field. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <!-- TRIAL ONLY: filming a video for an MMS. -->
+    <!-- Filming a short video for an MMS. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <!-- A long voice message goes on playing beyond the page, its controls in the notifications. -->
@@ -105,7 +105,7 @@
             android:parentActivityName=".MainActivity"
             android:windowSoftInputMode="adjustResize" />
 
-        <!-- TRIAL ONLY: filming a video for an MMS. -->
+        <!-- Filming a short video for an MMS. -->
         <!-- Not locked upright, which large screens ignore: turned, the page follows without stopping the camera. -->
         <activity
             android:name=".VideoActivity"

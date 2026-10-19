@@ -65,7 +65,7 @@ object Look {
     }
 
     /**
-     * TRIAL: a control as players draw theirs over a picture -- a sign in our
+     * A control as players draw theirs over a picture -- a sign in our
      * orange, bold, on a round shade --, for the pages that film and that play.
      */
     fun knob(context: Context, sign: String, said: String, then: () -> Unit) = TextView(context).apply {
@@ -80,7 +80,7 @@ object Look {
         setOnClickListener { then() }
     }
 
-    /** TRIAL: the whole screen to a picture -- no title bar, the phone's own bars away until swiped back. */
+    /** the whole screen to a picture -- no title bar, the phone's own bars away until swiped back. */
     fun fullScreen(activity: Activity) {
         activity.actionBar?.hide()
         val window = activity.window
@@ -100,7 +100,7 @@ object Look {
         }
     }
 
-    /** TRIAL: the shade under what lies over a picture, dark at the edge [from]. */
+    /** the shade under what lies over a picture, dark at the edge [from]. */
     fun shade(from: GradientDrawable.Orientation) = GradientDrawable(from, intArrayOf(Color.argb(0xB0, 0, 0, 0), Color.TRANSPARENT))
 
     /** A verdict's colour, as foodjis paints its own: full for a mark, pale under a text. */

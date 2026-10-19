@@ -27,7 +27,7 @@ object Media {
         kind + java.text.SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'", java.util.Locale.ROOT)
             .apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }.format(java.util.Date(at)) + "." + extension
 
-    /** TRIAL: the first picture of a video, made small; null for a sound alone, which has none. */
+    /** the first picture of a video, made small; null for a sound alone, which has none. */
     fun frame(context: Context, uri: Uri, side: Int): Bitmap? = frame(side) { it.setDataSource(context, uri) }
 
     fun frame(bytes: ByteArray, side: Int): Bitmap? = frame(side) {

@@ -18,14 +18,15 @@ import android.widget.TextView
 import java.io.File
 
 /**
- * TRIAL ONLY (branch mneme/video-trial): a video filmed for an MMS, 320×240
- * in H.264 with AAC, stopped by the operator's size before it is too heavy.
- * The camera at the back or the front, its light, and its focus where the
- * finger touches. 176×144 was too poor, 352×288 and 640×480 too short under
- * 300 kB: dropped.
+ * A short video or a sound for an MMS, recorded here, stopped at the size
+ * set for MMS: QVGA (320×240) or CIF (352×288) in H.264 with AAC, or the AAC
+ * alone, each offered with how long it may last. The camera at the back or
+ * the front, its light, and its focus where the finger touches; the picture
+ * seen at 4:3, as filmed. 176×144 was too poor and 640×480 too short.
  *
  * Held upright or on its side, the video says in its file, as it begins,
- * which way up it was filmed; the page itself stays as it is.
+ * which way up it was filmed; the page follows the screen's turns without
+ * stopping the camera.
  */
 @Suppress("DEPRECATION")
 class VideoActivity : Activity(), SurfaceHolder.Callback {

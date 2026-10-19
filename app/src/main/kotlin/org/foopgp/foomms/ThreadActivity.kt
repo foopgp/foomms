@@ -128,7 +128,7 @@ class ThreadActivity : AskingActivity() {
     /** How long each sound of this conversation lasts, by the part it is, as it came or as it was opened. */
     private val lasts = java.util.concurrent.ConcurrentHashMap<Long, Long>()
 
-    /** TRIAL: the first picture of each part that is a video, by part; a sound alone has none. */
+    /** the first picture of each part that is a video, by part; a sound alone has none. */
     private val frames = java.util.concurrent.ConcurrentHashMap<Long, Bitmap>()
 
     /** The parts already looked at for a picture, with one or not: a map of pictures holds no "none". */
@@ -316,7 +316,7 @@ class ThreadActivity : AskingActivity() {
             // A voice message opened from its lock and still playing beyond the page stops with the rest.
             val locked = lines.flatMap { it.pieces }.filter(::isSealed).map { it.id }.toSet()
             if (Listening.playing in locked) Listening.stop(this)
-            // TRIAL: a video opened from its lock leaves no picture of itself, nor its length.
+            // a video opened from its lock leaves no picture of itself, nor its length.
             for (id in locked) { frames.remove(id) ; framed.remove(id) ; lasts.remove(id) }
             if (!Opened.anyOpen()) Outbox.shut(this)
             bubbles.notifyDataSetChanged()
@@ -482,7 +482,7 @@ class ThreadActivity : AskingActivity() {
                         if ((opened.type.startsWith("audio/") || opened.type.startsWith("video/")) && !lasts.containsKey(piece.id)) Media.lasting(opened.bytes)?.let { lasts[piece.id] = it ; drip() }
                         if (opened.type.startsWith("video/") && framed.add(piece.id)) Media.frame(opened.bytes, Look.dp(this, 200))?.let { frames[piece.id] = it ; drip() }
                     }
-                    // TRIAL: a video shows its first picture, and plays on its own page.
+                    // a video shows its first picture, and plays on its own page.
                     if ((piece.type.startsWith("video/") || piece.type.startsWith("audio/3gp")) && framed.add(piece.id)) {
                         Media.frame(this, piece.uri, Look.dp(this, 200))?.let { first ->
                             frames[piece.id] = first
@@ -709,7 +709,6 @@ class ThreadActivity : AskingActivity() {
         choices += R.string.attach_place to { place() }
         choices += R.string.attach_file to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), FILE) }
         choices += R.string.attach_text to { paste() }
-        // TRIAL ONLY: a video filmed in one of the two shapes an MMS has carried.
         AlertDialog.Builder(this)
             .setItems(choices.map { getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }
             .show()
@@ -1070,7 +1069,7 @@ class ThreadActivity : AskingActivity() {
     private fun pressedPiece(piece: Store.Piece, at: Int) {
         val opened = Opened.piece(piece.id)
         if (isSealed(piece) && opened == null) return pressed(at)
-        // TRIAL: a video plays on its own page.
+        // a video plays on its own page.
         if (frames.containsKey(piece.id)) return watch(piece, at)
         if ((opened?.type ?: piece.type).startsWith("image/") && (openedThumbs[piece.id] ?: thumbs[piece.id]) != null) {
             // Pressed again at once after growing, it asks what to do with it rather than goes back.
@@ -1363,7 +1362,7 @@ class ThreadActivity : AskingActivity() {
         setOnLongClickListener { about(at, piece) ; true }
     }
 
-    /** TRIAL: a video watched on its own page, said there by whose conversation it is, its name and when it came. */
+    /** a video watched on its own page, said there by whose conversation it is, its name and when it came. */
     private fun watch(piece: Store.Piece, at: Int) {
         val opened = Opened.piece(piece.id)
         val line = lines.getOrNull(at)
@@ -1372,7 +1371,7 @@ class ThreadActivity : AskingActivity() {
         WatchActivity.watch(this, opened?.bytes, if (opened == null) piece.uri else null, person?.name ?: number, listOfNotNull(name, then).joinToString("  ·  "))
     }
 
-    /** TRIAL: a video, by its first picture with ▶ and its length over it; pressed, it plays on its own page. */
+    /** a video, by its first picture with ▶ and its length over it; pressed, it plays on its own page. */
     private fun movie(piece: Store.Piece, first: Bitmap, watch: () -> Unit): View = android.widget.FrameLayout(this).apply {
         addView(
             android.widget.ImageView(context).apply {

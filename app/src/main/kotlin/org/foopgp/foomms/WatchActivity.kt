@@ -15,7 +15,7 @@ import android.widget.SeekBar
 import java.io.File
 
 /**
- * TRIAL ONLY (branch mneme/video-trial): a video a message carries, watched
+ * A video a message carries, watched
  * here, the screen upright or on its side, the picture never stretched. A
  * button turns it a quarter at a time: what the file says of which way up it
  * is may be wrong, or missing. One opened from its lock is in memory only:
