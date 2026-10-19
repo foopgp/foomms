@@ -138,6 +138,7 @@
     <string name="many_sent">Παραδόθηκε στο τηλέφωνο, για %1$d άτομα.</string>
     <string name="many_failed">Δεν στάλθηκε σε: %1$s</string>
     <string name="attach_photo">📷 Λήψη φωτογραφίας</string>
+    <string name="attach_video">🎥 Ένα μικρό βίντεο</string>
     <string name="attach_picture">🖼 Μια εικόνα</string>
     <string name="attach_contact">👤 Μια επαφή</string>
     <string name="attach_place">📍 Η θέση μου</string>
@@ -211,4 +212,8 @@
     <string name="conf_mms_size">Χρήση του ορίου του παρόχου: %1$d kB, δηλαδή %2$d kB αξιοποιήσιμα</string>
     <string name="conf_mms_size_note">Τα MMS περιορίζονται συνήθως στα %1$d kB, δηλαδή %2$d kB αξιοποιήσιμα. Ο πάροχός σας μπορεί να προσφέρει περισσότερα, αλλά ο πάροχος του παραλήπτη μπορεί να απορρίψει τόσο γενναιόδωρα MMS.</string>
     <string name="too_heavy_sent">Αυτό το μήνυμα ζυγίζει %1$d kB, περισσότερο από τα %2$d kB που ορίστηκαν για τα MMS: δεν στάλθηκε.</string>
+    <string name="watch_turn">Περιστροφή του βίντεο κατά ένα τέταρτο</string>
+    <string name="video_camera">Πίσω ή μπροστινή κάμερα</string>
+    <string name="video_light">Φωτισμός</string>
+    <string name="video_sound">Μόνο ήχος (%1$s)</string>
 </resources>

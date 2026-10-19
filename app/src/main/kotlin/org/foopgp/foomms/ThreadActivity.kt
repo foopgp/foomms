@@ -128,6 +128,12 @@ class ThreadActivity : AskingActivity() {
     /** How long each sound of this conversation lasts, by the part it is, as it came or as it was opened. */
     private val lasts = java.util.concurrent.ConcurrentHashMap<Long, Long>()
 
+    /** TRIAL: the first picture of each part that is a video, by part; a sound alone has none. */
+    private val frames = java.util.concurrent.ConcurrentHashMap<Long, Bitmap>()
+
+    /** The parts already looked at for a picture, with one or not: a map of pictures holds no "none". */
+    private val framed = java.util.concurrent.ConcurrentHashMap.newKeySet<Long>()
+
     /** The message to show first, when the page was opened from a search: its date, taken once. */
     private var wanted = 0L
 
@@ -310,6 +316,8 @@ class ThreadActivity : AskingActivity() {
             // A voice message opened from its lock and still playing beyond the page stops with the rest.
             val locked = lines.flatMap { it.pieces }.filter(::isSealed).map { it.id }.toSet()
             if (Listening.playing in locked) Listening.stop(this)
+            // TRIAL: a video opened from its lock leaves no picture of itself, nor its length.
+            for (id in locked) { frames.remove(id) ; framed.remove(id) ; lasts.remove(id) }
             if (!Opened.anyOpen()) Outbox.shut(this)
             bubbles.notifyDataSetChanged()
         }
@@ -469,6 +477,19 @@ class ThreadActivity : AskingActivity() {
             val lengths = thread {
                 for (piece in pieces) {
                     if (piece.type.startsWith("audio/") && !lasts.containsKey(piece.id)) Media.lasting(this, piece.uri)?.let { lasts[piece.id] = it ; drip() }
+                    // What was opened on an earlier visit is still open: its length, and a video's picture, made again.
+                    Opened.piece(piece.id)?.let { opened ->
+                        if ((opened.type.startsWith("audio/") || opened.type.startsWith("video/")) && !lasts.containsKey(piece.id)) Media.lasting(opened.bytes)?.let { lasts[piece.id] = it ; drip() }
+                        if (opened.type.startsWith("video/") && framed.add(piece.id)) Media.frame(opened.bytes, Look.dp(this, 200))?.let { frames[piece.id] = it ; drip() }
+                    }
+                    // TRIAL: a video shows its first picture, and plays on its own page.
+                    if ((piece.type.startsWith("video/") || piece.type.startsWith("audio/3gp")) && framed.add(piece.id)) {
+                        Media.frame(this, piece.uri, Look.dp(this, 200))?.let { first ->
+                            frames[piece.id] = first
+                            if (!lasts.containsKey(piece.id)) Media.lasting(this, piece.uri)?.let { lasts[piece.id] = it }
+                            drip()
+                        }
+                    }
                 }
             }
             for (piece in pieces.filter(::isSealed)) {
@@ -679,11 +700,16 @@ class ThreadActivity : AskingActivity() {
                 )
             }
         }
+        // A short video, filmed here, under the photograph.
+        choices += R.string.attach_video to {
+            launch(Intent(this, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_MOST, (Outbox.heaviest(this) - Outbox.MARGIN).toLong()), VIDEO)
+        }
         choices += R.string.attach_picture to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*"), PICTURE) }
         choices += R.string.attach_contact to { launch(Intent(Intent.ACTION_PICK, android.provider.ContactsContract.Contacts.CONTENT_URI), CONTACT) }
         choices += R.string.attach_place to { place() }
         choices += R.string.attach_file to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), FILE) }
         choices += R.string.attach_text to { paste() }
+        // TRIAL ONLY: a video filmed in one of the two shapes an MMS has carried.
         AlertDialog.Builder(this)
             .setItems(choices.map { getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }
             .show()
@@ -892,6 +918,7 @@ class ThreadActivity : AskingActivity() {
             signed = Signer.of(signature), signer = signer?.keyId, eid = signer?.let { Signer.eid(it) }, thread = here(),
         )
         if (told.type.startsWith("audio/") || told.type == "video/3gpp") Media.lasting(answer.bytes)?.let { lasts[piece.id] = it }
+        if (told.type == "video/3gpp" || told.type.startsWith("video/")) Media.frame(answer.bytes, Look.dp(this, 200))?.let { frames[piece.id] = it }
         if (told.type.startsWith("image/")) openedThumbs[piece.id] = thumbnail(answer.bytes)
         bubbles.notifyDataSetChanged()
     }
@@ -935,6 +962,15 @@ class ThreadActivity : AskingActivity() {
         if (request == SHOT) {
             // The camera wrote where it was told: read it from there, without clearing it first.
             if (outcome == RESULT_OK) attached(SHOT, android.net.Uri.parse("content://$packageName.pdu/shot/photo.jpg"))
+            return
+        }
+        if (request == VIDEO) {
+            if (outcome == RESULT_OK) {
+                val filmed = VideoActivity.file(this)
+                val name = data?.getStringExtra(VideoActivity.EXTRA_NAME) ?: Media.named("v", System.currentTimeMillis(), "3gp")
+                runCatching { filmed.readBytes() }.getOrNull()?.let { carry(Media.Attachment(data?.getStringExtra(VideoActivity.EXTRA_TYPE) ?: "video/3gpp", name, it, Media.lasting(it))) }
+                filmed.delete()
+            }
             return
         }
         if (request == PICTURE || request == CONTACT || request == FILE) {
@@ -1034,6 +1070,8 @@ class ThreadActivity : AskingActivity() {
     private fun pressedPiece(piece: Store.Piece, at: Int) {
         val opened = Opened.piece(piece.id)
         if (isSealed(piece) && opened == null) return pressed(at)
+        // TRIAL: a video plays on its own page.
+        if (frames.containsKey(piece.id)) return watch(piece, at)
         if ((opened?.type ?: piece.type).startsWith("image/") && (openedThumbs[piece.id] ?: thumbs[piece.id]) != null) {
             // Pressed again at once after growing, it asks what to do with it rather than goes back.
             val grew = grownAt[piece.id]
@@ -1325,6 +1363,35 @@ class ThreadActivity : AskingActivity() {
         setOnLongClickListener { about(at, piece) ; true }
     }
 
+    /** TRIAL: a video watched on its own page, said there by whose conversation it is, its name and when it came. */
+    private fun watch(piece: Store.Piece, at: Int) {
+        val opened = Opened.piece(piece.id)
+        val line = lines.getOrNull(at)
+        val name = opened?.name ?: piece.name ?: piece.type
+        val then = line?.let { DateUtils.getRelativeTimeSpanString(it.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL) }
+        WatchActivity.watch(this, opened?.bytes, if (opened == null) piece.uri else null, person?.name ?: number, listOfNotNull(name, then).joinToString("  ·  "))
+    }
+
+    /** TRIAL: a video, by its first picture with ▶ and its length over it; pressed, it plays on its own page. */
+    private fun movie(piece: Store.Piece, first: Bitmap, watch: () -> Unit): View = android.widget.FrameLayout(this).apply {
+        addView(
+            android.widget.ImageView(context).apply {
+                setImageBitmap(first)
+                adjustViewBounds = true
+                maxWidth = Look.dp(context, 220) ; maxHeight = Look.dp(context, 220)
+            },
+        )
+        addView(
+            Look.words(context, "▶" + lasted(piece), size = 18f).apply {
+                setTextColor(android.graphics.Color.WHITE)
+                setShadowLayer(6f, 0f, 0f, android.graphics.Color.BLACK)
+            },
+            android.widget.FrameLayout.LayoutParams(-2, -2, Gravity.CENTER),
+        )
+        setPadding(0, Look.dp(context, 4), 0, Look.dp(context, 4))
+        setOnClickListener { watch() }
+    }
+
     /** A picture as wide as the conversation when it was pressed, small otherwise. */
     private fun picture(piece: Store.Piece, small: Bitmap): View = android.widget.ImageView(this).apply {
         val wide = piece.id in enlarged
@@ -1351,6 +1418,7 @@ class ThreadActivity : AskingActivity() {
             val small = if (opened.type.startsWith("image/")) openedThumbs.getOrPut(piece.id) { thumbnail(opened.bytes) } else null
             return when {
                 small != null -> picture(piece, small)
+                frames[piece.id] != null -> movie(piece, frames[piece.id]!!) { watch(piece, at) }
                 opened.type.startsWith("audio/") || opened.type == "video/3gpp" ->
                     Look.button(this, "▶ ${opened.name}" + lasted(piece)) { play(piece) }
                 else -> Look.words(this, "📎 ${opened.name}", size = 15f)
@@ -1360,6 +1428,7 @@ class ThreadActivity : AskingActivity() {
         val name = piece.name ?: piece.type
         return when {
             small != null -> picture(piece, small)
+            frames[piece.id] != null -> movie(piece, frames[piece.id]!!) { watch(piece, at) }
             piece.type.startsWith("audio/") -> Look.button(this, "▶ $name" + lasted(piece)) { play(piece) }
             isSealed(piece) -> LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -1746,6 +1815,7 @@ class ThreadActivity : AskingActivity() {
         private const val PLACE = 10
         private const val VOICE = 11
         private const val SAVE_PIECE = 12
+        private const val VIDEO = 13
 
         /** How much of a note is shown when the person chooses between two. */
         private const val NOTE_SHOWN = 160

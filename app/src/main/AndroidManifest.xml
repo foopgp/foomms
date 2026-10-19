@@ -27,6 +27,9 @@
 
     <!-- A few words spoken, while a finger stays on the empty field. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- TRIAL ONLY: filming a video for an MMS. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
     <!-- A long voice message goes on playing beyond the page, its controls in the notifications. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
@@ -101,6 +104,18 @@
             android:exported="false"
             android:parentActivityName=".MainActivity"
             android:windowSoftInputMode="adjustResize" />
+
+        <!-- TRIAL ONLY: filming a video for an MMS. -->
+        <!-- Not locked upright, which large screens ignore: turned, the page follows without stopping the camera. -->
+        <activity
+            android:name=".VideoActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden" />
+        <!-- Turned with the phone, it goes on playing: not rebuilt, the video in memory is not lost. -->
+        <activity
+            android:name=".WatchActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize" />
 
         <!-- What the person sets. -->
         <activity

@@ -138,6 +138,7 @@
     <string name="many_sent">Передано телефону, для %1$d человек.</string>
     <string name="many_failed">Не отправлено: %1$s</string>
     <string name="attach_photo">📷 Сделать фото</string>
+    <string name="attach_video">🎥 Короткое видео</string>
     <string name="attach_picture">🖼 Изображение</string>
     <string name="attach_contact">👤 Контакт</string>
     <string name="attach_place">📍 Моё местоположение</string>
@@ -211,4 +212,8 @@
     <string name="conf_mms_size">Использовать предел оператора: %1$d КБ, то есть %2$d КБ полезных</string>
     <string name="conf_mms_size_note">MMS обычно ограничены %1$d КБ, то есть %2$d КБ полезных. Ваш оператор может позволять больше, но оператор получателя может отклонить столь щедрые MMS.</string>
     <string name="too_heavy_sent">Это сообщение весит %1$d КБ, больше установленных для MMS %2$d КБ: оно не отправлено.</string>
+    <string name="watch_turn">Повернуть видео на четверть оборота</string>
+    <string name="video_camera">Задняя или передняя камера</string>
+    <string name="video_light">Подсветка</string>
+    <string name="video_sound">Только звук (%1$s)</string>
 </resources>

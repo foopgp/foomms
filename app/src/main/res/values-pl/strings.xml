@@ -138,6 +138,7 @@
     <string name="many_sent">Przekazano telefonowi, dla %1$d osób.</string>
     <string name="many_failed">Nie wysłano do: %1$s</string>
     <string name="attach_photo">📷 Zrób zdjęcie</string>
+    <string name="attach_video">🎥 Krótki film</string>
     <string name="attach_picture">🖼 Obraz</string>
     <string name="attach_contact">👤 Kontakt</string>
     <string name="attach_place">📍 Moje położenie</string>
@@ -211,4 +212,8 @@
     <string name="conf_mms_size">Użyj limitu operatora: %1$d kB, czyli %2$d kB do wykorzystania</string>
     <string name="conf_mms_size_note">MMS są zwykle ograniczone do %1$d kB, czyli %2$d kB do wykorzystania. Twój operator może oferować więcej, ale operator odbiorcy może odrzucić tak hojne MMS.</string>
     <string name="too_heavy_sent">Ta wiadomość waży %1$d kB, więcej niż %2$d kB ustalone dla MMS: nie została wysłana.</string>
+    <string name="watch_turn">Obróć film o ćwierć obrotu</string>
+    <string name="video_camera">Aparat tylny lub przedni</string>
+    <string name="video_light">Światło</string>
+    <string name="video_sound">Tylko dźwięk (%1$s)</string>
 </resources>

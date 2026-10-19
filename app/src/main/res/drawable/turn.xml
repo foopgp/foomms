@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A quarter turn, clockwise, over a picture upright: what turns the video
+     being watched. Not the round arrow of "refresh", which reads as "again". -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M4,9.5 h8 a1,1 0 0 1 1,1 v9.5 a1,1 0 0 1 -1,1 h-8 a1,1 0 0 1 -1,-1 v-9.5 a1,1 0 0 1 1,-1 z"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.4"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M9,5 A10,10 0 0 1 19,14.5"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.6"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M15,13.5 L23,13.5 L19,19 Z"
+        android:fillColor="#FFFFFFFF" />
+</vector>

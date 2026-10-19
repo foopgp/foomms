@@ -138,6 +138,7 @@
     <string name="many_sent">Confié au téléphone, pour %1$d personnes.</string>
     <string name="many_failed">Non envoyé à : %1$s</string>
     <string name="attach_photo">📷 Prendre une photo</string>
+    <string name="attach_video">🎥 Une petite vidéo</string>
     <string name="attach_picture">🖼 Une image</string>
     <string name="attach_contact">👤 Un contact</string>
     <string name="attach_place">📍 Ma position</string>
@@ -211,4 +212,8 @@
     <string name="conf_mms_size">Utiliser la limite de l\'opérateur : %1$d Ko, soit %2$d Ko utilisables</string>
     <string name="conf_mms_size_note">Les MMS sont généralement limités à %1$d Ko, soit %2$d Ko utilisables. Votre opérateur peut offrir davantage, mais l\'opérateur de votre correspondant risque de refuser des MMS aussi généreux.</string>
     <string name="too_heavy_sent">Ce message pèse %1$d Ko, plus que les %2$d Ko fixés pour les MMS : il n\'est pas parti.</string>
+    <string name="watch_turn">Tourner la vidéo d\'un quart de tour</string>
+    <string name="video_camera">Caméra arrière ou avant</string>
+    <string name="video_light">Éclairage</string>
+    <string name="video_sound">Audio seul (%1$s)</string>
 </resources>
