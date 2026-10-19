@@ -54,7 +54,7 @@ class ThreadActivity : AskingActivity() {
     /** Who a key a message names belongs to, as far as foodjis knows. */
     private class For(val name: String, val face: Bitmap?)
 
-    private var meant: Map<Long, For?> = emptyMap()
+    private val meant: MutableMap<Long, For?> = java.util.Collections.synchronizedMap(HashMap())
 
     /** Whom each locked part of an MMS is for, by the keys it names, by the part it is. */
     private val sealedFor = java.util.concurrent.ConcurrentHashMap<Long, List<Long>>()
@@ -123,7 +123,7 @@ class ThreadActivity : AskingActivity() {
     private var carried: Media.Attachment? = null
 
     /** The pictures of this conversation, small, by the part they are. */
-    private var thumbs: Map<Long, Bitmap?> = emptyMap()
+    private val thumbs = java.util.concurrent.ConcurrentHashMap<Long, Bitmap>()
 
     /** How long each sound of this conversation lasts, by the part it is, as it came or as it was opened. */
     private val lasts = java.util.concurrent.ConcurrentHashMap<Long, Long>()
@@ -419,83 +419,33 @@ class ThreadActivity : AskingActivity() {
     }
 
     /** Who this is, what foodjis says of their certificate, and the messages. */
+    /**
+     * The conversation read and shown as it comes: its messages at once,
+     * then -- each found side by side -- who it is with, the pictures, the
+     * lengths, whom locked parts are for, and the faces of those named, the
+     * page drawn again as each arrives. Something moves at once; the page
+     * fills before the eyes.
+     */
     private fun load(first: Boolean = false) {
         val contacts = checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
         thread {
-            // Who the number is, asked beside the messages being read rather than before: each takes its time.
-            var answered: Triple<Book.Person?, Foodjis.Cert?, Bitmap?> = Triple(null, null, null)
-            val asking = thread {
-                val person = if (contacts) Book.who(this, number) else null
-                answered = Triple(
-                    person, person?.fingerprint?.let { foodjis.card(it) },
-                    person?.let { Book.face(this, it) } ?: person?.fingerprint?.let { foodjis.face(it) },
-                )
+            // Who the number is, beside the messages: its head drawn as soon as known.
+            thread {
+                val who = if (contacts) Book.who(this, number) else null
+                val whose = who?.fingerprint?.let { foodjis.card(it) }
+                val theirs = who?.let { Book.face(this, it) } ?: who?.fingerprint?.let { foodjis.face(it) }
+                runOnUiThread { if (!isFinishing && !isDestroyed) head(who, whose, theirs, first) }
             }
             // The conversation it was opened from, when it was opened from one: a sender that is a name and not a
             // number -- a bank, a shop -- has a conversation all the same.
             val thread: Long? = intent.getLongExtra(EXTRA_THREAD, -1L).takeIf { it >= 0 } ?: runCatching { Store.thread(this, number) }.getOrNull()
             val found = runCatching { thread?.let { Store.lines(this, it) } }.getOrNull().orEmpty()
-            // Whom each locked message is for, by the keys it names: a face each, asked of foodjis once.
-            // A locked part says it too, at the head of its bytes.
-            // Whether it is locked at all, too: a part may be only signed, readable by anyone, and is not to be shown locked.
-            for (piece in found.flatMap { it.pieces }.filter(::isSealed)) {
-                if (!sealedFor.containsKey(piece.id)) {
-                    val bytes = runCatching { contentResolver.openInputStream(piece.uri)?.use { it.readBytes() } }.getOrNull()
-                    sealedFor[piece.id] = bytes?.let { Pgp.recipients(it) }.orEmpty()
-                    bytes?.let { pieceLocked[piece.id] = Pgp.isLocked(it) }
-                }
-            }
-            val named = (found.mapNotNull { armorOf(it) }.filter { Pgp.isLocked(it) }.flatMap { Pgp.recipients(it) } +
-                found.flatMap { it.pieces }.flatMap { sealedFor[it.id].orEmpty() }).distinct()
-            val small = found.takeLast(SHOWN_PICTURES).flatMap { it.pieces }.filter { it.type.startsWith("image/") }
-                .associate { piece -> piece.id to (thumbs[piece.id] ?: Media.thumbnail(this, piece.uri, Look.dp(this, 200))) }
-            for (piece in found.flatMap { it.pieces }) {
-                if (piece.type.startsWith("audio/") && !lasts.containsKey(piece.id)) Media.lasting(this, piece.uri)?.let { lasts[piece.id] = it }
-            }
-            // Each of those named asked of foodjis at once rather than one after the other.
-            val theirFaces = java.util.Collections.synchronizedMap(HashMap<Long, For?>())
-            named.map { id -> thread { theirFaces[id] = foodjis.signer(id)?.let { whose -> For(whose.name, foodjis.face(whose.fingerprint)) } } }.forEach { it.join() }
-            asking.join()
-            val (who, whose, theirs) = answered
-            if (shown) {
-                thread?.let { Keep.read(this, it) }
-                Notify.seen(this, number)
-            }
+            // The messages shown at once; signed ones verified from now.
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
-                person = who ; card = whose ; face = theirs ; lines = found ; meant = theirFaces ; thumbs = small
+                lines = found
                 hits = null
                 this.thread = thread
-                thread?.let { Opened.title(it, who?.name ?: number, number) }
-                // A conversation is with a number: the name it has in the address book, and under it the number
-                // and what its certificate is worth. With no name, the number is the title.
-                title = who?.name ?: number
-                whoIs.text = who?.name ?: number
-                portrait.removeAllViews()
-                portrait.addView(Look.face(this, 38, null, theirs))
-                val standing: CharSequence = when {
-                    who?.fingerprint == null -> getString(R.string.no_certificate)
-                    foodjis.shut -> getString(R.string.foodjis_shut)
-                    whose == null -> getString(R.string.certificate_not_held)
-                    else -> android.text.SpannableStringBuilder("🔑 ").append(Look.standing(this, whose.validity))
-                }
-                under.text =
-                    if (who?.name != null && who.name != number) android.text.SpannableStringBuilder("$number — ").append(standing) else standing
-                // Asked from the list of conversations: whose certificate this number means.
-                when (intent.getStringExtra(EXTRA_ASK).also { intent.removeExtra(EXTRA_ASK) }) {
-                    ASK_TIE -> tie()
-                    ASK_REFRESH -> who?.fingerprint?.let { refreshed(it) }
-                }
-                // Nothing can be written to a sender that is not a number.
-                val reachable = Phone.plain(number) != null
-                field.isEnabled = reachable
-                // Nothing to attach to, either: the "+" is greyed as the field is.
-                adding.isEnabled = reachable
-                adding.alpha = if (reachable) 1f else 0.38f
-                if (!reachable) field.setHint(R.string.no_answer)
-                // With a certificate that can be locked for, that is how a message leaves unless told otherwise.
-                if (first) { locks.isChecked = whose?.usable == true ; signs.isChecked = whose?.usable == true }
-                paint()
                 bubbles.notifyDataSetChanged()
                 verifySigned()
                 if (wanted > 0) {
@@ -503,7 +453,85 @@ class ThreadActivity : AskingActivity() {
                     wanted = 0
                 }
             }
+            if (shown) {
+                thread?.let { Keep.read(this, it) }
+                Notify.seen(this, number)
+            }
+            val pieces = found.flatMap { it.pieces }
+            // The pictures, the lengths, and whom each locked part is for -- at the head of its bytes, and whether it
+            // is locked at all: a part may be only signed --, side by side.
+            val pictures = thread {
+                for (piece in found.takeLast(SHOWN_PICTURES).flatMap { it.pieces }.filter { it.type.startsWith("image/") }) {
+                    if (thumbs.containsKey(piece.id)) continue
+                    Media.thumbnail(this, piece.uri, Look.dp(this, 200))?.let { thumbs[piece.id] = it ; drip() }
+                }
+            }
+            val lengths = thread {
+                for (piece in pieces) {
+                    if (piece.type.startsWith("audio/") && !lasts.containsKey(piece.id)) Media.lasting(this, piece.uri)?.let { lasts[piece.id] = it ; drip() }
+                }
+            }
+            for (piece in pieces.filter(::isSealed)) {
+                if (sealedFor.containsKey(piece.id)) continue
+                val bytes = runCatching { contentResolver.openInputStream(piece.uri)?.use { it.readBytes() } }.getOrNull()
+                sealedFor[piece.id] = bytes?.let { Pgp.recipients(it) }.orEmpty()
+                bytes?.let { pieceLocked[piece.id] = Pgp.isLocked(it) }
+                drip()
+            }
+            // Those named, each asked of foodjis at once, their faces drawn as they come.
+            val named = (found.mapNotNull { armorOf(it) }.filter { Pgp.isLocked(it) }.flatMap { Pgp.recipients(it) } +
+                pieces.flatMap { sealedFor[it.id].orEmpty() }).distinct()
+            val faces = named.filter { !meant.containsKey(it) }.map { id ->
+                thread { meant[id] = foodjis.signer(id)?.let { whose -> For(whose.name, foodjis.face(whose.fingerprint)) } ; drip() }
+            }
+            (faces + pictures + lengths).forEach { it.join() }
+            // What the locked parts said known: those signed only are verified now.
+            runOnUiThread { if (!isFinishing && !isDestroyed) { bubbles.notifyDataSetChanged() ; verifySigned() } }
         }
+    }
+
+    /** The page drawn again soon, once for all that arrived meanwhile: not once per picture. */
+    private val dripping = java.util.concurrent.atomic.AtomicBoolean(false)
+
+    private fun drip() {
+        if (!dripping.compareAndSet(false, true)) return
+        list.postDelayed({ dripping.set(false) ; if (!isFinishing && !isDestroyed) bubbles.notifyDataSetChanged() }, DRIP_MS)
+    }
+
+    /** Who the conversation is with, in its head: name, face, what their certificate is worth, and what follows from it. */
+    private fun head(who: Book.Person?, whose: Foodjis.Cert?, theirs: Bitmap?, first: Boolean) {
+        person = who ; card = whose ; face = theirs
+        thread?.let { Opened.title(it, who?.name ?: number, number) }
+        // A conversation is with a number: the name it has in the address book, and under it the number
+        // and what its certificate is worth. With no name, the number is the title.
+        title = who?.name ?: number
+        whoIs.text = who?.name ?: number
+        portrait.removeAllViews()
+        portrait.addView(Look.face(this, 38, null, theirs))
+        val standing: CharSequence = when {
+            who?.fingerprint == null -> getString(R.string.no_certificate)
+            foodjis.shut -> getString(R.string.foodjis_shut)
+            whose == null -> getString(R.string.certificate_not_held)
+            else -> android.text.SpannableStringBuilder("🔑 ").append(Look.standing(this, whose.validity))
+        }
+        under.text =
+            if (who?.name != null && who.name != number) android.text.SpannableStringBuilder("$number — ").append(standing) else standing
+        // Asked from the list of conversations: whose certificate this number means.
+        when (intent.getStringExtra(EXTRA_ASK).also { intent.removeExtra(EXTRA_ASK) }) {
+            ASK_TIE -> tie()
+            ASK_REFRESH -> who?.fingerprint?.let { refreshed(it) }
+        }
+        // Nothing can be written to a sender that is not a number.
+        val reachable = Phone.plain(number) != null
+        field.isEnabled = reachable
+        // Nothing to attach to, either: the "+" is greyed as the field is.
+        adding.isEnabled = reachable
+        adding.alpha = if (reachable) 1f else 0.38f
+        if (!reachable) field.setHint(R.string.no_answer)
+        // With a certificate that can be locked for, that is how a message leaves unless told otherwise.
+        if (first) { locks.isChecked = whose?.usable == true ; signs.isChecked = whose?.usable == true }
+        paint()
+        bubbles.notifyDataSetChanged()
     }
 
     /** The key of the identity foodjis holds, by the id the interface names it with; none until foodjis has said. */
@@ -1727,6 +1755,9 @@ class ThreadActivity : AskingActivity() {
 
         /** How many of the latest messages have their pictures shown small. */
         private const val SHOWN_PICTURES = 40
+
+        /** How long the page waits to be drawn again, gathering what arrives meanwhile. */
+        private const val DRIP_MS = 120L
         private val MESSAGES = android.net.Uri.parse("content://mms-sms/")
         private val NEEDED_TO_WRITE = arrayOf(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS)
         private val VALID = setOf(

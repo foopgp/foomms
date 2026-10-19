@@ -30,6 +30,8 @@ object Notify {
             NotificationChannel(CHANNEL, context.getString(R.string.channel_messages), NotificationManager.IMPORTANCE_HIGH),
         )
         val armor = Pgp.armorIn(body)
+        // A PGP message arrived is likely opened soon: foodjis woken for it.
+        if (form != Form.PLAIN) Foodjis.of(context).wake()
         val words = when {
             armor == null -> body
             Pgp.isLocked(armor) -> context.getString(R.string.locked_message)
