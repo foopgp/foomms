@@ -65,7 +65,7 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
         }
         screen = TextureView(this).apply { surfaceTextureListener = this@WatchActivity }
         screen.setOnClickListener { val shown = over.firstOrNull()?.visibility != android.view.View.VISIBLE ; over.forEach { it.visibility = if (shown) android.view.View.VISIBLE else android.view.View.GONE } }
-        playing = Look.button(this, "❚❚") { toggle() }
+        playing = bold(Look.button(this, "❚❚") { toggle() })
         where = SeekBar(this).apply {
             setOnSeekBarChangeListener(
                 object : SeekBar.OnSeekBarChangeListener {
@@ -105,11 +105,13 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
                         orientation = LinearLayout.HORIZONTAL
                         gravity = Gravity.CENTER_VERTICAL
                         setPadding(pad, pad, pad, Look.dp(context, 32))
+                        // Stopped, the page goes: the one way out before the end, besides the phone's own back.
+                        addView(bold(Look.button(context, "■") { finish() }).apply { contentDescription = getString(R.string.listening_stop) })
                         addView(playing)
                         addView(where, LinearLayout.LayoutParams(0, -2, 1f))
                         // Upright to lying, in characters: a round arrow would read as "again".
                         addView(
-                            Look.button(context, "▯→▭") { turned = (turned + 90) % 360 ; fit() }
+                            bold(Look.button(context, "▯→▭") { turned = (turned + 90) % 360 ; fit() })
                                 .apply { contentDescription = getString(R.string.watch_turn) },
                         )
                         background = android.graphics.drawable.GradientDrawable(
@@ -175,6 +177,9 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
             },
         )
     }
+
+    /** The player's buttons in bold, so that thin characters weigh as much as a drawn icon. */
+    private fun bold(button: android.widget.Button) = button.apply { setTypeface(typeface, android.graphics.Typeface.BOLD) ; textSize = 18f }
 
     private fun toggle() {
         val player = player ?: return
