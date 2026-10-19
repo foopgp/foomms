@@ -203,4 +203,9 @@
     <string name="note_contact">Διατήρηση αυτής της επαφής: %1$s</string>
     <string name="note_certificate">Λήψη αυτής του πιστοποιητικού: %1$s</string>
     <string name="note_size">(%1$d χαρακτήρες)</string>
+    <string name="channel_listening">Φωνητικά μηνύματα</string>
+    <string name="listening_title">Φωνητικό μήνυμα από %1$s</string>
+    <string name="listening_play">Αναπαραγωγή</string>
+    <string name="listening_pause">Παύση</string>
+    <string name="listening_stop">Διακοπή</string>
 </resources>

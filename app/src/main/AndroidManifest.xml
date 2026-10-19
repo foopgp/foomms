@@ -27,6 +27,9 @@
 
     <!-- A few words spoken, while a finger stays on the empty field. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- A long voice message goes on playing beyond the page, its controls in the notifications. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
@@ -159,6 +162,10 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".Inbound$Fetched" android:exported="false" />
+        <service
+            android:name=".Listening"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
         <service
             android:name=".Inbound$Respond"
             android:exported="true"

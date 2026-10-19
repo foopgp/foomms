@@ -206,4 +206,9 @@
     <string name="note_contact">Keep the contact\'s: %1$s</string>
     <string name="note_certificate">Take the certificate\'s: %1$s</string>
     <string name="note_size">(%1$d characters)</string>
+    <string name="channel_listening">Voice messages</string>
+    <string name="listening_title">Voice message from %1$s</string>
+    <string name="listening_play">Play</string>
+    <string name="listening_pause">Pause</string>
+    <string name="listening_stop">Stop</string>
 </resources>

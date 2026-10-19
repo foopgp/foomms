@@ -203,4 +203,9 @@
     <string name="note_contact">Conservar la del contacto: %1$s</string>
     <string name="note_certificate">Tomar la del certificado: %1$s</string>
     <string name="note_size">(%1$d caracteres)</string>
+    <string name="channel_listening">Mensajes de voz</string>
+    <string name="listening_title">Mensaje de voz de %1$s</string>
+    <string name="listening_play">Reproducir</string>
+    <string name="listening_pause">Pausa</string>
+    <string name="listening_stop">Detener</string>
 </resources>
