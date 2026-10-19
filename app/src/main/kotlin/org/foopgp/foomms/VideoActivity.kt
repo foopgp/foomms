@@ -38,18 +38,20 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     private var turned = 0
 
     /** What is recorded: its picture -- none for a sound alone --, what it weighs a second, and its file's first letter. */
-    private enum class Shape(val wide: Int, val high: Int, val video: Int, val audio: Int, val kind: String) {
-        CIF(352, 288, 240_000, 24_000, "v"),
-        QVGA(320, 240, 180_000, 24_000, "v"),
+    private enum class Shape(val wide: Int, val high: Int, val video: Int, val audio: Int, val kind: String, val over: Int) {
+        CIF(352, 288, 180_000, 24_000, "v", 17),
+        QVGA(320, 240, 180_000, 24_000, "v", 11),
         // The sound of the videos, AAC, not the AMR of voice messages: a sound alone is chosen to be heard well.
-        SOUND(0, 0, 0, 24_000, "a");
+        SOUND(0, 0, 0, 24_000, "a", 10);
 
         /**
-         * What it weighs a second, as filmed rather than as asked: an encoder
-         * gives a video a tenth more than its rate -- measured, 320×240 lasts
-         * about 10 s under 276 kB, where its rate alone says 11.
+         * What it weighs a second, as filmed rather than as asked, [over] in
+         * tenths of its rate: measured under 276 kB, 320×240 at 180 kbit/s
+         * lasts about 10 s where its rate says 11; 352×288 at 240 kbit/s
+         * lasted 5 s where its rate said 8.5 -- the encoder keeps a floor of
+         * its own at that size.
          */
-        val bytesPerSecond: Int get() = (video + audio) / 8 * (if (video > 0) 11 else 10) / 10
+        val bytesPerSecond: Int get() = (video + audio) / 8 * over / 10
         val said: String get() = if (this == SOUND) "AAC · 16 kHz" else "$wide×$high · H.264 + AAC · 15 i/s"
     }
 
