@@ -23,6 +23,9 @@ import java.io.File
  */
 class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
 
+    /** What lies over the picture: whose it is above, the controls below; a press on the picture shows or hides them. */
+    private val over = ArrayList<android.view.View>()
+
     private val watching by lazy { File(cacheDir, "watching.3gp") }
     private lateinit var screen: TextureView
     private lateinit var playing: android.widget.TextView
@@ -44,7 +47,24 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
+        // The whole screen to the picture: no title bar, the phone's own bars away until swiped back.
+        actionBar?.hide()
+        if (android.os.Build.VERSION.SDK_INT >= 30) {
+            window.setDecorFitsSystemWindows(false)
+            window.insetsController?.let {
+                it.hide(android.view.WindowInsets.Type.systemBars())
+                it.systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = android.view.View.SYSTEM_UI_FLAG_FULLSCREEN or android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        }
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+            window.attributes = window.attributes.apply { layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES }
+        }
         screen = TextureView(this).apply { surfaceTextureListener = this@WatchActivity }
+        screen.setOnClickListener { val shown = over.firstOrNull()?.visibility != android.view.View.VISIBLE ; over.forEach { it.visibility = if (shown) android.view.View.VISIBLE else android.view.View.GONE } }
         playing = Look.button(this, "❚❚") { toggle() }
         where = SeekBar(this).apply {
             setOnSeekBarChangeListener(
@@ -60,6 +80,26 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
             FrameLayout(this).apply {
                 setBackgroundColor(android.graphics.Color.BLACK)
                 addView(screen, FrameLayout.LayoutParams(-1, -1))
+                // Whose it is, over the picture's top, on a shade that keeps it legible.
+                addView(
+                    LinearLayout(context).apply {
+                        orientation = LinearLayout.VERTICAL
+                        setPadding(Look.dp(context, 20), Look.dp(context, 28), Look.dp(context, 20), Look.dp(context, 20))
+                        background = android.graphics.drawable.GradientDrawable(
+                            android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+                            intArrayOf(android.graphics.Color.argb(0xB0, 0, 0, 0), android.graphics.Color.TRANSPARENT),
+                        )
+                        addView(android.widget.TextView(context).apply {
+                            text = intent.getStringExtra(EXTRA_TITLE).orEmpty() ; textSize = 18f
+                            setTextColor(android.graphics.Color.WHITE) ; setTypeface(typeface, android.graphics.Typeface.BOLD)
+                        })
+                        addView(android.widget.TextView(context).apply {
+                            text = intent.getStringExtra(EXTRA_SAID).orEmpty() ; textSize = 13f
+                            setTextColor(android.graphics.Color.argb(0xCC, 0xFF, 0xFF, 0xFF))
+                        })
+                    }.also { over += it },
+                    FrameLayout.LayoutParams(-1, -2, Gravity.TOP),
+                )
                 addView(
                     LinearLayout(context).apply {
                         orientation = LinearLayout.HORIZONTAL
@@ -68,7 +108,11 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
                         addView(playing)
                         addView(where, LinearLayout.LayoutParams(0, -2, 1f))
                         addView(Look.button(context, "⟳") { turned = (turned + 90) % 360 ; fit() })
-                    },
+                        background = android.graphics.drawable.GradientDrawable(
+                            android.graphics.drawable.GradientDrawable.Orientation.BOTTOM_TOP,
+                            intArrayOf(android.graphics.Color.argb(0xB0, 0, 0, 0), android.graphics.Color.TRANSPARENT),
+                        )
+                    }.also { over += it },
                     FrameLayout.LayoutParams(-1, -2, Gravity.BOTTOM),
                 )
             },
@@ -150,9 +194,15 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
         /** A video opened from its lock, handed over in memory. */
         @Volatile var held: ByteArray? = null
 
-        fun watch(activity: Activity, bytes: ByteArray?, uri: Uri?) {
+        private const val EXTRA_TITLE = "title"
+        private const val EXTRA_SAID = "said"
+
+        /** [title]: whose conversation; [said]: the video's name and when it came. */
+        fun watch(activity: Activity, bytes: ByteArray?, uri: Uri?, title: String, said: String) {
             held = bytes
-            activity.startActivity(android.content.Intent(activity, WatchActivity::class.java).setData(uri))
+            activity.startActivity(
+                android.content.Intent(activity, WatchActivity::class.java).setData(uri).putExtra(EXTRA_TITLE, title).putExtra(EXTRA_SAID, said),
+            )
         }
     }
 }

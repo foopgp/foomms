@@ -1022,7 +1022,7 @@ class ThreadActivity : AskingActivity() {
         val opened = Opened.piece(piece.id)
         if (isSealed(piece) && opened == null) return pressed(at)
         // TRIAL: a video plays on its own page.
-        if (frames.containsKey(piece.id)) return WatchActivity.watch(this, opened?.bytes, if (opened == null) piece.uri else null)
+        if (frames.containsKey(piece.id)) return watch(piece, at)
         if ((opened?.type ?: piece.type).startsWith("image/") && (openedThumbs[piece.id] ?: thumbs[piece.id]) != null) {
             // Pressed again at once after growing, it asks what to do with it rather than goes back.
             val grew = grownAt[piece.id]
@@ -1313,6 +1313,15 @@ class ThreadActivity : AskingActivity() {
         setOnLongClickListener { about(at, piece) ; true }
     }
 
+    /** TRIAL: a video watched on its own page, said there by whose conversation it is, its name and when it came. */
+    private fun watch(piece: Store.Piece, at: Int) {
+        val opened = Opened.piece(piece.id)
+        val line = lines.getOrNull(at)
+        val name = opened?.name ?: piece.name ?: piece.type
+        val then = line?.let { DateUtils.getRelativeTimeSpanString(it.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL) }
+        WatchActivity.watch(this, opened?.bytes, if (opened == null) piece.uri else null, person?.name ?: number, listOfNotNull(name, then).joinToString("  ·  "))
+    }
+
     /** TRIAL: a video, by its first picture with ▶ and its length over it; pressed, it plays on its own page. */
     private fun movie(piece: Store.Piece, first: Bitmap, watch: () -> Unit): View = android.widget.FrameLayout(this).apply {
         addView(
@@ -1359,7 +1368,7 @@ class ThreadActivity : AskingActivity() {
             val small = if (opened.type.startsWith("image/")) openedThumbs.getOrPut(piece.id) { thumbnail(opened.bytes) } else null
             return when {
                 small != null -> picture(piece, small)
-                frames[piece.id] != null -> movie(piece, frames[piece.id]!!) { WatchActivity.watch(this, opened.bytes, null) }
+                frames[piece.id] != null -> movie(piece, frames[piece.id]!!) { watch(piece, at) }
                 opened.type.startsWith("audio/") || opened.type == "video/3gpp" ->
                     Look.button(this, "▶ ${opened.name}" + lasted(piece)) { play(piece) }
                 else -> Look.words(this, "📎 ${opened.name}", size = 15f)
@@ -1369,7 +1378,7 @@ class ThreadActivity : AskingActivity() {
         val name = piece.name ?: piece.type
         return when {
             small != null -> picture(piece, small)
-            frames[piece.id] != null -> movie(piece, frames[piece.id]!!) { WatchActivity.watch(this, null, piece.uri) }
+            frames[piece.id] != null -> movie(piece, frames[piece.id]!!) { watch(piece, at) }
             piece.type.startsWith("audio/") -> Look.button(this, "▶ $name" + lasted(piece)) { play(piece) }
             isSealed(piece) -> LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
