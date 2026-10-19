@@ -128,8 +128,11 @@ class ThreadActivity : AskingActivity() {
     /** How long each sound of this conversation lasts, by the part it is, as it came or as it was opened. */
     private val lasts = java.util.concurrent.ConcurrentHashMap<Long, Long>()
 
-    /** TRIAL: the first picture of each part that is a video, by part; null for a sound alone. */
-    private val frames = java.util.concurrent.ConcurrentHashMap<Long, Bitmap?>()
+    /** TRIAL: the first picture of each part that is a video, by part; a sound alone has none. */
+    private val frames = java.util.concurrent.ConcurrentHashMap<Long, Bitmap>()
+
+    /** The parts already looked at for a picture, with one or not: a map of pictures holds no "none". */
+    private val framed = java.util.concurrent.ConcurrentHashMap.newKeySet<Long>()
 
     /** The message to show first, when the page was opened from a search: its date, taken once. */
     private var wanted = 0L
@@ -446,9 +449,11 @@ class ThreadActivity : AskingActivity() {
             for (piece in found.flatMap { it.pieces }) {
                 if (piece.type.startsWith("audio/") && !lasts.containsKey(piece.id)) Media.lasting(this, piece.uri)?.let { lasts[piece.id] = it }
                 // TRIAL: a video shows its first picture, and plays on its own page.
-                if ((piece.type.startsWith("video/") || piece.type.startsWith("audio/3gp")) && !frames.containsKey(piece.id)) {
-                    frames[piece.id] = Media.frame(this, piece.uri, Look.dp(this, 200))
-                    if (frames[piece.id] != null && !lasts.containsKey(piece.id)) Media.lasting(this, piece.uri)?.let { lasts[piece.id] = it }
+                if ((piece.type.startsWith("video/") || piece.type.startsWith("audio/3gp")) && framed.add(piece.id)) {
+                    Media.frame(this, piece.uri, Look.dp(this, 200))?.let { first ->
+                        frames[piece.id] = first
+                        if (!lasts.containsKey(piece.id)) Media.lasting(this, piece.uri)?.let { lasts[piece.id] = it }
+                    }
                 }
             }
             val theirFaces = named.associateWith { id -> foodjis.signer(id)?.let { whose -> For(whose.name, foodjis.face(whose.fingerprint)) } }
@@ -871,7 +876,7 @@ class ThreadActivity : AskingActivity() {
             signed = Signer.of(signature), signer = signer?.keyId, eid = signer?.let { Signer.eid(it) }, thread = here(),
         )
         if (told.type.startsWith("audio/") || told.type == "video/3gpp") Media.lasting(answer.bytes)?.let { lasts[piece.id] = it }
-        if (told.type == "video/3gpp" || told.type.startsWith("video/")) frames[piece.id] = Media.frame(answer.bytes, Look.dp(this, 200))
+        if (told.type == "video/3gpp" || told.type.startsWith("video/")) Media.frame(answer.bytes, Look.dp(this, 200))?.let { frames[piece.id] = it }
         if (told.type.startsWith("image/")) openedThumbs[piece.id] = thumbnail(answer.bytes)
         bubbles.notifyDataSetChanged()
     }
