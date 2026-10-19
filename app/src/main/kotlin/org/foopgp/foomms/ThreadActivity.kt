@@ -313,6 +313,9 @@ class ThreadActivity : AskingActivity() {
         if (closes == null && wasOpen) {
             openedThumbs.clear()
             bigs.clear()
+            // A voice message opened from its lock and still playing beyond the page stops with the rest.
+            val locked = lines.flatMap { it.pieces }.filter(::isSealed).map { it.id }.toSet()
+            if (Listening.playing in locked) Listening.stop(this)
             if (!Opened.anyOpen()) Outbox.shut(this)
             bubbles.notifyDataSetChanged()
         }
