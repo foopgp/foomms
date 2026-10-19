@@ -27,6 +27,9 @@
 
     <!-- A few words spoken, while a finger stays on the empty field. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- TRIAL ONLY: filming a video for an MMS. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
@@ -98,6 +101,9 @@
             android:exported="false"
             android:parentActivityName=".MainActivity"
             android:windowSoftInputMode="adjustResize" />
+
+        <!-- TRIAL ONLY: filming a video for an MMS. -->
+        <activity android:name=".VideoActivity" android:exported="false" android:screenOrientation="portrait" />
 
         <!-- What the person sets. -->
         <activity

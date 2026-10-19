@@ -643,6 +643,16 @@ class ThreadActivity : AskingActivity() {
         choices += R.string.attach_place to { place() }
         choices += R.string.attach_file to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), FILE) }
         choices += R.string.attach_text to { paste() }
+        // TRIAL ONLY: a video filmed in one of the two shapes an MMS has carried.
+        for ((label, qvga) in listOf(R.string.attach_video_qcif to false, R.string.attach_video_qvga to true)) {
+            choices += label to {
+                launch(
+                    Intent(this, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_QVGA, qvga)
+                        .putExtra(VideoActivity.EXTRA_MOST, (Outbox.heaviest(this) - 16 * 1024).toLong()),
+                    VIDEO,
+                )
+            }
+        }
         AlertDialog.Builder(this)
             .setItems(choices.map { getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }
             .show()
@@ -897,6 +907,14 @@ class ThreadActivity : AskingActivity() {
         if (request == SHOT) {
             // The camera wrote where it was told: read it from there, without clearing it first.
             if (outcome == RESULT_OK) attached(SHOT, android.net.Uri.parse("content://$packageName.pdu/shot/photo.jpg"))
+            return
+        }
+        if (request == VIDEO) {
+            if (outcome == RESULT_OK) {
+                val filmed = VideoActivity.file(this)
+                runCatching { filmed.readBytes() }.getOrNull()?.let { carry(Media.Attachment("video/3gpp", "video.3gp", it, Media.lasting(it))) }
+                filmed.delete()
+            }
             return
         }
         if (request == PICTURE || request == CONTACT || request == FILE) {
@@ -1694,6 +1712,7 @@ class ThreadActivity : AskingActivity() {
         private const val PLACE = 10
         private const val VOICE = 11
         private const val SAVE_PIECE = 12
+        private const val VIDEO = 13
 
         /** How much of a note is shown when the person chooses between two. */
         private const val NOTE_SHOWN = 160
