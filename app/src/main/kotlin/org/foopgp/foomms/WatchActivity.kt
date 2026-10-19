@@ -47,26 +47,14 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
-        // The whole screen to the picture: no title bar, the phone's own bars away until swiped back.
-        actionBar?.hide()
-        if (android.os.Build.VERSION.SDK_INT >= 30) {
-            window.setDecorFitsSystemWindows(false)
-            window.insetsController?.let {
-                it.hide(android.view.WindowInsets.Type.systemBars())
-                it.systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = android.view.View.SYSTEM_UI_FLAG_FULLSCREEN or android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-        }
-        if (android.os.Build.VERSION.SDK_INT >= 28) {
-            window.attributes = window.attributes.apply { layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES }
-        }
+        Look.fullScreen(this)
         screen = TextureView(this).apply { surfaceTextureListener = this@WatchActivity }
         screen.setOnClickListener { val shown = over.firstOrNull()?.visibility != android.view.View.VISIBLE ; over.forEach { it.visibility = if (shown) android.view.View.VISIBLE else android.view.View.GONE } }
         playing = knob("❚❚", R.string.listening_pause) { toggle() }
         where = SeekBar(this).apply {
+            // The very orange of the signs beside it.
+            progressTintList = android.content.res.ColorStateList.valueOf(Look.ORANGE)
+            thumbTintList = android.content.res.ColorStateList.valueOf(Look.ORANGE)
             setOnSeekBarChangeListener(
                 object : SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(bar: SeekBar, at: Int, byPerson: Boolean) { if (byPerson) player?.seekTo(at) }
@@ -76,8 +64,7 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
             )
         }
         val pad = Look.dp(this, 12)
-        fun shade(from: android.graphics.drawable.GradientDrawable.Orientation) =
-            android.graphics.drawable.GradientDrawable(from, intArrayOf(android.graphics.Color.argb(0xB0, 0, 0, 0), android.graphics.Color.TRANSPARENT))
+        fun shade(from: android.graphics.drawable.GradientDrawable.Orientation) = Look.shade(from)
         setContentView(
             FrameLayout(this).apply {
                 setBackgroundColor(android.graphics.Color.BLACK)
@@ -180,26 +167,7 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
     }
 
     /** The player's buttons in bold, so that thin characters weigh as much as a drawn icon. */
-    /**
-     * A control as players draw theirs over a picture: a white sign, bold, on
-     * a round shade -- not the pale buttons of the pages, which stood out of
-     * a video like stickers.
-     */
-    private fun knob(sign: String, said: Int, then: () -> Unit) = android.widget.TextView(this).apply {
-        text = sign
-        textSize = 20f
-        gravity = Gravity.CENTER
-        // White warmed by our orange, the bar's colour: one with it, and still bright on any picture.
-        setTextColor(android.graphics.Color.rgb(0xFF, 0xC8, 0x90))
-        setTypeface(typeface, android.graphics.Typeface.BOLD)
-        background = android.graphics.drawable.GradientDrawable().apply {
-            shape = android.graphics.drawable.GradientDrawable.OVAL
-            setColor(android.graphics.Color.argb(0x66, 0, 0, 0))
-        }
-        contentDescription = getString(said)
-        isClickable = true
-        setOnClickListener { then() }
-    }
+    private fun knob(sign: String, said: Int, then: () -> Unit) = Look.knob(this, sign, getString(said), then)
 
     /** A quarter turn more; paused, the picture is drawn again, a texture showing its transform only with a new frame. */
     private fun turn() {

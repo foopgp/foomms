@@ -213,4 +213,6 @@
     <string name="conf_mms_size_note">MMS обычно ограничены %1$d КБ, то есть %2$d КБ полезных. Ваш оператор может позволять больше, но оператор получателя может отклонить столь щедрые MMS.</string>
     <string name="too_heavy_sent">Это сообщение весит %1$d КБ, больше установленных для MMS %2$d КБ: оно не отправлено.</string>
     <string name="watch_turn">Повернуть видео на четверть оборота</string>
+    <string name="video_camera">Задняя или передняя камера</string>
+    <string name="video_light">Подсветка</string>
 </resources>

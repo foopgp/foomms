@@ -213,4 +213,6 @@
     <string name="conf_mms_size_note">MMS są zwykle ograniczone do %1$d kB, czyli %2$d kB do wykorzystania. Twój operator może oferować więcej, ale operator odbiorcy może odrzucić tak hojne MMS.</string>
     <string name="too_heavy_sent">Ta wiadomość waży %1$d kB, więcej niż %2$d kB ustalone dla MMS: nie została wysłana.</string>
     <string name="watch_turn">Obróć film o ćwierć obrotu</string>
+    <string name="video_camera">Aparat tylny lub przedni</string>
+    <string name="video_light">Światło</string>
 </resources>

@@ -64,6 +64,45 @@ object Look {
         return out
     }
 
+    /**
+     * TRIAL: a control as players draw theirs over a picture -- a sign in our
+     * orange, bold, on a round shade --, for the pages that film and that play.
+     */
+    fun knob(context: Context, sign: String, said: String, then: () -> Unit) = TextView(context).apply {
+        text = sign
+        textSize = 20f
+        gravity = android.view.Gravity.CENTER
+        setTextColor(ORANGE)
+        setTypeface(typeface, android.graphics.Typeface.BOLD)
+        background = GradientDrawable().apply { shape = GradientDrawable.OVAL ; setColor(Color.argb(0x66, 0, 0, 0)) }
+        contentDescription = said
+        isClickable = true
+        setOnClickListener { then() }
+    }
+
+    /** TRIAL: the whole screen to a picture -- no title bar, the phone's own bars away until swiped back. */
+    fun fullScreen(activity: Activity) {
+        activity.actionBar?.hide()
+        val window = activity.window
+        if (android.os.Build.VERSION.SDK_INT >= 30) {
+            window.setDecorFitsSystemWindows(false)
+            window.insetsController?.let {
+                it.hide(android.view.WindowInsets.Type.systemBars())
+                it.systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        }
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+            window.attributes = window.attributes.apply { layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES }
+        }
+    }
+
+    /** TRIAL: the shade under what lies over a picture, dark at the edge [from]. */
+    fun shade(from: GradientDrawable.Orientation) = GradientDrawable(from, intArrayOf(Color.argb(0xB0, 0, 0, 0), Color.TRANSPARENT))
+
     /** A verdict's colour, as foodjis paints its own: full for a mark, pale under a text. */
     fun colour(verdict: Verdict, dark: Boolean = this.dark): Int = when (verdict) {
         Verdict.RED -> Color.rgb(0xFF, 0x62, 0x7D)

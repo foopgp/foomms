@@ -213,4 +213,6 @@
     <string name="conf_mms_size_note">MMS\'ler genellikle %1$d kB ile sınırlıdır, yani %2$d kB kullanılabilir. Operatörünüz daha fazlasını sunabilir, ama alıcının operatörü bu kadar cömert MMS\'leri reddedebilir.</string>
     <string name="too_heavy_sent">Bu mesaj %1$d kB ağırlığında, MMS için belirlenen %2$d kB\'tan fazla: gönderilmedi.</string>
     <string name="watch_turn">Videoyu çeyrek tur döndür</string>
+    <string name="video_camera">Arka ya da ön kamera</string>
+    <string name="video_light">Işık</string>
 </resources>

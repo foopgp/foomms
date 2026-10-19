@@ -57,45 +57,59 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     private val ticking = object : Runnable {
         override fun run() {
             if (recorder == null) return
-            told.text = "${Media.clock(SystemClock.elapsedRealtime() - started)}  ·  ${file(this@VideoActivity).length() / 1024} / ${most / 1024} kB"
+            told.text = "$SHAPE  ·  ${Media.clock(SystemClock.elapsedRealtime() - started)}  ·  ${file(this@VideoActivity).length() / 1024} / ${most / 1024} kB"
             told.postDelayed(this, 500)
         }
     }
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
+        Look.fullScreen(this)
         surface = SurfaceView(this).apply {
             holder.addCallback(this@VideoActivity)
             // Touched, the camera focuses there.
             setOnTouchListener { view, event -> if (event.action == MotionEvent.ACTION_UP) focus(event.x / view.width, event.y / view.height) ; true }
         }
-        told = TextView(this).apply { setTextColor(android.graphics.Color.WHITE) ; textSize = 16f ; text = "320×240 · H.264 + AAC" }
-        button = Look.button(this, "● REC") { if (recorder == null) start() else stop(true) }
-        turn = Look.button(this, "↻") { turn() }
-        light = Look.button(this, "☼") { light() }
+        told = TextView(this).apply { setTextColor(android.graphics.Color.argb(0xCC, 0xFF, 0xFF, 0xFF)) ; textSize = 13f ; text = SHAPE }
+        button = Look.knob(this, "●", getString(R.string.attach_video)) { if (recorder == null) start() else stop(true) }.apply { textSize = 30f }
+        turn = Look.knob(this, "↻", getString(R.string.video_camera)) { turn() }
+        light = Look.knob(this, "☼", getString(R.string.video_light)) { light() }
+        // What is filmed is what is shown: the picture at 4:3, as wide as the screen, nothing out of its frame.
+        val wide = resources.displayMetrics.widthPixels
+        val round = Look.dp(this, 52)
         setContentView(
             FrameLayout(this).apply {
                 setBackgroundColor(android.graphics.Color.BLACK)
-                addView(surface, FrameLayout.LayoutParams(-1, -1))
+                addView(surface, FrameLayout.LayoutParams(wide, wide * 4 / 3, Gravity.CENTER))
+                // What is filmed and how, over the picture's top, and the camera's own settings beside it.
                 addView(
                     LinearLayout(context).apply {
                         orientation = LinearLayout.HORIZONTAL
-                        gravity = Gravity.END
-                        val pad = Look.dp(context, 16)
-                        setPadding(pad, Look.dp(context, 40), pad, 0)
-                        addView(light)
-                        addView(android.view.View(context), LinearLayout.LayoutParams(pad, 1))
-                        addView(turn)
+                        gravity = Gravity.CENTER_VERTICAL
+                        setPadding(Look.dp(context, 20), Look.dp(context, 28), Look.dp(context, 12), Look.dp(context, 20))
+                        background = Look.shade(android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM)
+                        addView(
+                            LinearLayout(context).apply {
+                                orientation = LinearLayout.VERTICAL
+                                addView(TextView(context).apply {
+                                    text = getString(R.string.attach_video) ; textSize = 18f
+                                    setTextColor(android.graphics.Color.WHITE) ; setTypeface(typeface, android.graphics.Typeface.BOLD)
+                                })
+                                addView(told)
+                            },
+                            LinearLayout.LayoutParams(0, -2, 1f),
+                        )
+                        addView(light, LinearLayout.LayoutParams(round, round))
+                        addView(android.view.View(context), LinearLayout.LayoutParams(Look.dp(context, 10), 1))
+                        addView(turn, LinearLayout.LayoutParams(round, round))
                     },
                     FrameLayout.LayoutParams(-1, -2, Gravity.TOP),
                 )
                 addView(
-                    LinearLayout(context).apply {
-                        orientation = LinearLayout.VERTICAL
-                        gravity = Gravity.CENTER_HORIZONTAL
-                        setPadding(0, 0, 0, Look.dp(context, 48))
-                        addView(told)
-                        addView(button)
+                    FrameLayout(context).apply {
+                        setPadding(0, Look.dp(context, 20), 0, Look.dp(context, 40))
+                        background = Look.shade(android.graphics.drawable.GradientDrawable.Orientation.BOTTOM_TOP)
+                        addView(button, FrameLayout.LayoutParams(Look.dp(context, 76), Look.dp(context, 76), Gravity.CENTER))
                     },
                     FrameLayout.LayoutParams(-1, -2, Gravity.BOTTOM),
                 )
@@ -129,6 +143,9 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
                 setDisplayOrientation(if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) (360 - info.orientation) % 360 else info.orientation)
                 parameters = parameters.apply {
                     if (Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO in supportedFocusModes.orEmpty()) focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO
+                    // Seen at 4:3, as it is filmed: the largest such picture up to 1280 wide.
+                    supportedPreviewSizes.orEmpty().filter { it.width * 3 == it.height * 4 && it.width <= 1280 }.maxByOrNull { it.width }
+                        ?.let { setPreviewSize(it.width, it.height) }
                 }
                 setPreviewDisplay(surface.holder)
                 startPreview()
@@ -217,7 +234,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
             }
             started = SystemClock.elapsedRealtime()
             began = System.currentTimeMillis()
-            button.text = "■ STOP"
+            button.text = "■"
             // Once filming, the camera is the recorder's: what cannot be changed is not shown.
             turn.visibility = android.view.View.INVISIBLE
             light.visibility = android.view.View.INVISIBLE
@@ -269,6 +286,8 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     }
 
     companion object {
+        /** What is filmed, said under the title: the picture, the codecs, the pace. */
+        private const val SHAPE = "320×240 · H.264 + AAC · 15 i/s"
         const val EXTRA_MOST = "most"
         const val EXTRA_NAME = "name"
         fun file(context: android.content.Context) = File(context.cacheDir, "video.3gp")
