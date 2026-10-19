@@ -94,6 +94,17 @@ class Foodjis(private val context: Context) {
         }
     }
 
+    /**
+     * foodjis woken, out of the way, with a question that costs it nothing: its
+     * process started -- what takes the longest the first time it is asked --
+     * before a page needs its answers. Nothing is kept of the answer.
+     */
+    fun wake() {
+        kotlin.concurrent.thread {
+            runCatching { context.contentResolver.query(Uri.parse("$door/cert/${"0".repeat(40)}"), null, null, null, null)?.close() }
+        }
+    }
+
     private fun <T> asked(question: () -> T?): T? = try {
         question().also { shut = false }
     } catch (refused: SecurityException) {

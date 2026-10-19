@@ -48,6 +48,8 @@ class MainActivity : Activity() {
         Look.dress(this)
         dressed = Look.dark
         super.onCreate(state)
+        // foodjis started now, while the list is drawn, rather than when a conversation first needs it.
+        Foodjis.of(this).wake()
         title = getString(R.string.app_title)
         // The counts of last time, until those of now are worked out.
         if (counts == null) {
