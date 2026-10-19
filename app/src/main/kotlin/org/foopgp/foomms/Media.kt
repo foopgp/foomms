@@ -61,6 +61,32 @@ object Media {
         } finally { reader.release() }
     }.getOrNull()
 
+    /**
+     * When a sound or a video was recorded, as its file says inside, and
+     * whether it has a picture; null for anything that says no such date.
+     */
+    fun recorded(bytes: ByteArray): Pair<Long, Boolean>? = runCatching {
+        val reader = android.media.MediaMetadataRetriever()
+        try {
+            reader.setDataSource(object : android.media.MediaDataSource() {
+                override fun readAt(at: Long, into: ByteArray, offset: Int, size: Int): Int {
+                    if (at >= bytes.size) return -1
+                    val n = minOf(size.toLong(), bytes.size - at).toInt()
+                    System.arraycopy(bytes, at.toInt(), into, offset, n)
+                    return n
+                }
+                override fun getSize() = bytes.size.toLong()
+                override fun close() {}
+            })
+            // Written as 20261019T210406.000Z; a file that says none, or the epoch of an unset clock, says nothing.
+            val said = reader.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DATE) ?: return@runCatching null
+            val at = java.text.SimpleDateFormat("yyyyMMdd'T'HHmmss", java.util.Locale.ROOT)
+                .apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }.parse(said.take(15))?.time ?: return@runCatching null
+            if (at < 946_684_800_000L) return@runCatching null
+            at to (reader.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO) == "yes")
+        } finally { reader.release() }
+    }.getOrNull()
+
     /** A length of time as a clock says it: 0:07, 12:45, 3:05:00. */
     fun clock(millis: Long): String =
         if (millis >= 3_600_000) "%d:%02d:%02d".format(millis / 3_600_000, millis / 60_000 % 60, millis / 1000 % 60)

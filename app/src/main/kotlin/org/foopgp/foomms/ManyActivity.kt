@@ -178,7 +178,7 @@ class ManyActivity : AskingActivity() {
                     putExtra(Provider.EXTRA_KEY_IDS, keys.toLongArray())
                 }
             }
-        fun piece(sealed: Provider.Answer.Done) = Pdu.Part(Pgp.TYPE, with!!.name + ".pgp", sealed.bytes)
+        fun piece(sealed: Provider.Answer.Done) = Pdu.Part(Pgp.TYPE, Pgp.outerName(sealed.bytes), sealed.bytes)
         if (with == null) {
             return ask(request(true), written.toByteArray(), ::say) { answer ->
                 val armor = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))

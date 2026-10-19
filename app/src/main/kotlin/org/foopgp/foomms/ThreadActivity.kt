@@ -640,7 +640,7 @@ class ThreadActivity : AskingActivity() {
             list.postDelayed({ if (shown) load() }, 1500)
         }
         if (mode == Mode.PLAIN) return post(written.takeIf { it.isNotBlank() }, Pdu.Part(with.type, with.name, with.bytes), null)
-        fun piece(sealed: Provider.Answer.Done) = Pdu.Part(Pgp.TYPE, with.name + ".pgp", sealed.bytes)
+        fun piece(sealed: Provider.Answer.Done) = Pdu.Part(Pgp.TYPE, Pgp.outerName(sealed.bytes), sealed.bytes)
         if (written.isBlank()) return ask(request(mode, armored = false), with.bytes, ::say) { post(null, piece(it), worth(mode)) }
         // Two things for foodjis to do, and one presentation of the key for
         // both: it is told of the file first, so that it knows what waits;
@@ -910,7 +910,7 @@ class ThreadActivity : AskingActivity() {
         val signature = answer.says.getParcelableExtra<OpenPgpSignatureResult>(Provider.RESULT_SIGNATURE)
         val certified = signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED
         val told = Kind.of(answer.bytes.copyOf(minOf(answer.bytes.size, 32)), null)
-        val name = piece.name.orEmpty().removeSuffix(".pgp").removeSuffix(".gpg").removeSuffix(".asc").ifEmpty { "file.${told.extension}" }
+        val name = Pgp.innerName(piece.name, answer.bytes, told.extension)
         val signer = signature?.takeIf { it.result != OpenPgpSignatureResult.RESULT_NO_SIGNATURE }
         Opened.keepPiece(
             this, piece.id, told.type, name, answer.bytes, Verdict.of(pieceLocked[piece.id] != false, certified),

@@ -15,6 +15,27 @@ object Pgp {
     const val TYPE = "application/pgp-encrypted"
     const val NAME = "message.pgp"
 
+    /**
+     * The name a PGP part travels under, in clear in the MMS: its size and
+     * nothing else -- what the network sees anyway, and enough to tell two
+     * apart in a list. What it is and when it was made stay inside.
+     */
+    fun outerName(sealed: ByteArray): String = "${sealed.size}.pgp"
+
+    /**
+     * The name of what a PGP part held, once opened. Under its size alone, the
+     * name is found inside: a sound or a video says when it was recorded, and
+     * whether it has a picture -- `v20261019T210406Z.3gp`, `a….3gp`; anything
+     * else is named by its kind. Under an older name, that name less ".pgp".
+     */
+    fun innerName(outer: String?, opened: ByteArray, extension: String): String {
+        val given = outer.orEmpty()
+        if (!Regex("^\\d+\\.(pgp|gpg|asc)$").matches(given)) {
+            given.removeSuffix(".pgp").removeSuffix(".gpg").removeSuffix(".asc").takeIf { it.isNotEmpty() }?.let { return it }
+        }
+        return Media.recorded(opened)?.let { (at, picture) -> Media.named(if (picture) "v" else "a", at, extension) } ?: "file.$extension"
+    }
+
     fun isMessage(start: ByteArray): Boolean {
         if (start.isEmpty()) return false
         val first = start[0].toInt() and 0xFF
