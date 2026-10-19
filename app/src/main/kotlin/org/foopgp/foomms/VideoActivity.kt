@@ -38,21 +38,22 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     private var turned = 0
 
     /** What is recorded: its picture -- none for a sound alone --, what it weighs a second, and its file's first letter. */
-    private enum class Shape(val wide: Int, val high: Int, val video: Int, val audio: Int, val kind: String, val over: Int) {
-        CIF(352, 288, 180_000, 24_000, "v", 17),
-        QVGA(320, 240, 180_000, 24_000, "v", 11),
+    private enum class Shape(val named: String, val wide: Int, val high: Int, val video: Int, val audio: Int, val kind: String, val over: Int) {
+        CIF("CIF", 352, 288, 180_000, 24_000, "v", 22),
+        QVGA("QVGA", 320, 240, 180_000, 24_000, "v", 11),
         // The sound of the videos, AAC, not the AMR of voice messages: a sound alone is chosen to be heard well.
-        SOUND(0, 0, 0, 24_000, "a", 10);
+        SOUND("", 0, 0, 0, 24_000, "a", 10);
 
         /**
          * What it weighs a second, as filmed rather than as asked, [over] in
-         * tenths of its rate: measured under 276 kB, 320×240 at 180 kbit/s
-         * lasts about 10 s where its rate says 11; 352×288 at 240 kbit/s
-         * lasted 5 s where its rate said 8.5 -- the encoder keeps a floor of
-         * its own at that size.
+         * tenths of its rate. Read off videos sent, on the Samsung: QVGA keeps
+         * near its 180 kbit/s, lasting about 10 s under 276 kB; CIF is given
+         * some 420 kbit/s whatever is asked -- the encoder keeps a floor of its
+         * own at that size -- and lasts about 5 s. The camera gives 24 frames
+         * a second whatever is asked too.
          */
         val bytesPerSecond: Int get() = (video + audio) / 8 * over / 10
-        val said: String get() = if (this == SOUND) "AAC · 16 kHz" else "$wide×$high · H.264 + AAC · 15 i/s"
+        val said: String get() = if (this == SOUND) "AAC · 16 kHz" else "$named · $wide×$high · H.264 + AAC"
     }
 
     private var shape = Shape.QVGA
@@ -198,7 +199,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     private fun chip(one: Shape) = TextView(this).apply {
         val lasting = most / one.bytesPerSecond
         val long = if (lasting < 60) "≈\u00A0$lasting\u00A0s" else "≈\u00A0" + Media.clock(lasting * 1000L)
-        text = if (one == Shape.SOUND) getString(R.string.video_sound, long) else "${one.wide}×${one.high} ($long)"
+        text = if (one == Shape.SOUND) getString(R.string.video_sound, long) else "${one.named} ($long)"
         textSize = 14f
         setTypeface(typeface, android.graphics.Typeface.BOLD)
         val pad = Look.dp(context, 10)
