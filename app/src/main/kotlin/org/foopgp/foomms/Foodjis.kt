@@ -29,8 +29,9 @@ class Foodjis(private val context: Context) {
     private val cards = HashMap<String, Cert?>()
     private val faces = HashMap<String, Bitmap?>()
 
-    fun card(fingerprint: String): Cert? = synchronized(cards) {
-        if (cards.containsKey(fingerprint)) return cards[fingerprint]
+    // Held for reading and writing what is known, not while foodjis is asked: several askings go side by side.
+    fun card(fingerprint: String): Cert? {
+        synchronized(cards) { if (cards.containsKey(fingerprint)) return cards[fingerprint] }
         val card = asked {
             context.contentResolver.query(Uri.parse("$door/cert/$fingerprint"), null, null, null, null)?.use { rows ->
                 if (!rows.moveToFirst()) null
@@ -40,19 +41,19 @@ class Foodjis(private val context: Context) {
                 )
             }
         }
-        if (!shut) cards[fingerprint] = card
-        card
+        if (!shut) synchronized(cards) { cards[fingerprint] = card }
+        return card
     }
 
     fun avatar(fingerprint: String): ByteArray? = asked {
         context.contentResolver.openInputStream(Uri.parse("$door/avatar/$fingerprint"))?.use { it.readBytes() }
     }
 
-    fun face(fingerprint: String): Bitmap? = synchronized(faces) {
-        if (faces.containsKey(fingerprint)) return faces[fingerprint]
+    fun face(fingerprint: String): Bitmap? {
+        synchronized(faces) { if (faces.containsKey(fingerprint)) return faces[fingerprint] }
         val face = avatar(fingerprint)?.let { Media.thumbnail(it, Media.FACE) }
-        if (!shut) faces[fingerprint] = face
-        face
+        if (!shut) synchronized(faces) { faces[fingerprint] = face }
+        return face
     }
 
     /** The vCard foodjis shares for this certificate; asks the network for the key server it names. */
