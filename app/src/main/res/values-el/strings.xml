@@ -138,6 +138,7 @@
     <string name="many_sent">Παραδόθηκε στο τηλέφωνο, για %1$d άτομα.</string>
     <string name="many_failed">Δεν στάλθηκε σε: %1$s</string>
     <string name="attach_photo">📷 Λήψη φωτογραφίας</string>
+    <string name="attach_video">🎥 Ένα μικρό βίντεο</string>
     <string name="attach_picture">🖼 Μια εικόνα</string>
     <string name="attach_contact">👤 Μια επαφή</string>
     <string name="attach_place">📍 Η θέση μου</string>

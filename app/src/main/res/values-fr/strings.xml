@@ -138,6 +138,7 @@
     <string name="many_sent">Confié au téléphone, pour %1$d personnes.</string>
     <string name="many_failed">Non envoyé à : %1$s</string>
     <string name="attach_photo">📷 Prendre une photo</string>
+    <string name="attach_video">🎥 Une petite vidéo</string>
     <string name="attach_picture">🖼 Une image</string>
     <string name="attach_contact">👤 Un contact</string>
     <string name="attach_place">📍 Ma position</string>

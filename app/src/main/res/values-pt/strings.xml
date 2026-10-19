@@ -138,6 +138,7 @@
     <string name="many_sent">Entregue ao telemóvel, para %1$d pessoas.</string>
     <string name="many_failed">Não enviado para: %1$s</string>
     <string name="attach_photo">📷 Tirar uma fotografia</string>
+    <string name="attach_video">🎥 Um pequeno vídeo</string>
     <string name="attach_picture">🖼 Uma imagem</string>
     <string name="attach_contact">👤 Um contacto</string>
     <string name="attach_place">📍 A minha localização</string>

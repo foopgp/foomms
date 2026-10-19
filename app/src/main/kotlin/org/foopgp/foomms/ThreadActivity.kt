@@ -651,21 +651,16 @@ class ThreadActivity : AskingActivity() {
                 )
             }
         }
+        // A short video, filmed here, under the photograph.
+        choices += R.string.attach_video to {
+            launch(Intent(this, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_MOST, (Outbox.heaviest(this) - Outbox.MARGIN).toLong()), VIDEO)
+        }
         choices += R.string.attach_picture to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*"), PICTURE) }
         choices += R.string.attach_contact to { launch(Intent(Intent.ACTION_PICK, android.provider.ContactsContract.Contacts.CONTENT_URI), CONTACT) }
         choices += R.string.attach_place to { place() }
         choices += R.string.attach_file to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), FILE) }
         choices += R.string.attach_text to { paste() }
         // TRIAL ONLY: a video filmed in one of the two shapes an MMS has carried.
-        for ((label, cif) in listOf(R.string.attach_video to false, R.string.attach_video_cif to true)) {
-            choices += label to {
-                launch(
-                    Intent(this, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_CIF, cif)
-                        .putExtra(VideoActivity.EXTRA_MOST, (Outbox.heaviest(this) - Outbox.MARGIN).toLong()),
-                    VIDEO,
-                )
-            }
-        }
         AlertDialog.Builder(this)
             .setItems(choices.map { getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }
             .show()

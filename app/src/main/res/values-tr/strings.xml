@@ -138,6 +138,7 @@
     <string name="many_sent">Telefona teslim edildi, %1$d kişi için.</string>
     <string name="many_failed">Gönderilemedi: %1$s</string>
     <string name="attach_photo">📷 Fotoğraf çek</string>
+    <string name="attach_video">🎥 Kısa bir video</string>
     <string name="attach_picture">🖼 Bir resim</string>
     <string name="attach_contact">👤 Bir kişi</string>
     <string name="attach_place">📍 Konumum</string>

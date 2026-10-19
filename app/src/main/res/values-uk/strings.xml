@@ -138,6 +138,7 @@
     <string name="many_sent">Передано телефону, для %1$d осіб.</string>
     <string name="many_failed">Не надіслано: %1$s</string>
     <string name="attach_photo">📷 Зробити фото</string>
+    <string name="attach_video">🎥 Коротке відео</string>
     <string name="attach_picture">🖼 Зображення</string>
     <string name="attach_contact">👤 Контакт</string>
     <string name="attach_place">📍 Моє місцезнаходження</string>

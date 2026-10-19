@@ -21,7 +21,8 @@ import java.io.File
  * TRIAL ONLY (branch mneme/video-trial): a video filmed for an MMS, 320×240
  * in H.264 with AAC, stopped by the operator's size before it is too heavy.
  * The camera at the back or the front, its light, and its focus where the
- * finger touches. 176×144 was too poor and 640×480 too short: both dropped.
+ * finger touches. 176×144 was too poor, 352×288 and 640×480 too short under
+ * 300 kB: dropped.
  */
 @Suppress("DEPRECATION")
 class VideoActivity : Activity(), SurfaceHolder.Callback {
@@ -38,7 +39,6 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     private lateinit var light: TextView
     private lateinit var told: TextView
     private val most by lazy { intent.getLongExtra(EXTRA_MOST, 300 * 1024L) }
-    private val cif by lazy { intent.getBooleanExtra(EXTRA_CIF, false) }
     private val ticking = object : Runnable {
         override fun run() {
             if (recorder == null) return
@@ -54,7 +54,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
             // Touched, the camera focuses there.
             setOnTouchListener { view, event -> if (event.action == MotionEvent.ACTION_UP) focus(event.x / view.width, event.y / view.height) ; true }
         }
-        told = TextView(this).apply { setTextColor(android.graphics.Color.WHITE) ; textSize = 16f ; text = if (cif) "352×288 · H.264 + AAC" else "320×240 · H.264 + AAC" }
+        told = TextView(this).apply { setTextColor(android.graphics.Color.WHITE) ; textSize = 16f ; text = "320×240 · H.264 + AAC" }
         button = Look.button(this, "● REC") { if (recorder == null) start() else stop(true) }
         turn = Look.button(this, "↻") { turn() }
         light = Look.button(this, "☼") { light() }
@@ -184,7 +184,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
                 setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
                 setVideoEncoder(MediaRecorder.VideoEncoder.H264)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                if (cif) setVideoSize(352, 288) else setVideoSize(320, 240)
+                setVideoSize(320, 240)
                 setVideoEncodingBitRate(180_000)
                 setAudioEncodingBitRate(24_000)
                 setAudioSamplingRate(16_000)
@@ -247,7 +247,6 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
 
     companion object {
         const val EXTRA_MOST = "most"
-        const val EXTRA_CIF = "cif"
         const val EXTRA_NAME = "name"
         fun file(context: android.content.Context) = File(context.cacheDir, "video.3gp")
     }
