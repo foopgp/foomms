@@ -17,6 +17,16 @@ object Media {
     /** [millis]: how long a sound lasts, when it is known. */
     class Attachment(val type: String, val name: String, val bytes: ByteArray, val millis: Long? = null)
 
+    /**
+     * The name of a recording: what it is -- `a` for a sound alone, `v` for a
+     * video --, and when it began, in ISO 8601's basic form and in UTC:
+     * `a20261019T145503Z.3gp`. Sorted by name, recordings sort by time, and
+     * two from different phones do not take each other's name.
+     */
+    fun named(kind: String, at: Long, extension: String): String =
+        kind + java.text.SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'", java.util.Locale.ROOT)
+            .apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }.format(java.util.Date(at)) + "." + extension
+
     /** A length of time as a clock says it: 0:07, 12:45, 3:05:00. */
     fun clock(millis: Long): String =
         if (millis >= 3_600_000) "%d:%02d:%02d".format(millis / 3_600_000, millis / 60_000 % 60, millis / 1000 % 60)
