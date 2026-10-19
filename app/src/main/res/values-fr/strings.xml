@@ -208,4 +208,6 @@
     <string name="listening_play">Lecture</string>
     <string name="listening_pause">Pause</string>
     <string name="listening_stop">Arrêter</string>
+    <string name="conf_mms_size">Utiliser la limite de l\'opérateur : %1$d Ko</string>
+    <string name="conf_mms_size_note">Un MMS reste sous 300 Ko, ce que tous les réseaux acceptent. Votre opérateur en annonce davantage ; celui de votre correspondant peut quand même refuser plus lourd.</string>
 </resources>

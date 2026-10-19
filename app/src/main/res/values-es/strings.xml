@@ -208,4 +208,6 @@
     <string name="listening_play">Reproducir</string>
     <string name="listening_pause">Pausa</string>
     <string name="listening_stop">Detener</string>
+    <string name="conf_mms_size">Usar el límite del operador: %1$d kB</string>
+    <string name="conf_mms_size_note">Un MMS se queda por debajo de 300 kB, lo que aceptan todas las redes. Su operador anuncia más; el de quien lo recibe puede rechazar uno más pesado.</string>
 </resources>

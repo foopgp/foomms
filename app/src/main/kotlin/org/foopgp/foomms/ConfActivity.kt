@@ -162,6 +162,13 @@ class ConfActivity : Activity() {
         column.addView(flip(R.string.conf_prefer_mms, Conf.preferMms(this)) { Conf.preferMms(this, it) ; draw() })
         note(R.string.conf_prefer_mms_note)
         // Left to itself, a long text still becomes an MMS: then one can ask to be told first.
+        // Heavier than the standard only where the operator says it takes more: greyed, and off, otherwise.
+        val theirs = Outbox.operators(this)
+        column.addView(
+            flip(R.string.conf_mms_size, Conf.operatorSize(this), usable = (theirs ?: 0) > Outbox.STANDARD) { Conf.operatorSize(this, it) }
+                .apply { text = getString(R.string.conf_mms_size, (theirs ?: Outbox.STANDARD) / 1024) },
+        )
+        note(R.string.conf_mms_size_note)
         if (!Conf.preferMms(this)) {
             column.addView(flip(R.string.conf_warn_mms, Conf.warnMms(this)) { Conf.warnMms(this, it) })
             note(R.string.conf_warn_mms_note)

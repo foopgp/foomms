@@ -208,4 +208,6 @@
     <string name="listening_play">Abspielen</string>
     <string name="listening_pause">Pause</string>
     <string name="listening_stop">Beenden</string>
+    <string name="conf_mms_size">Grenze des Betreibers verwenden: %1$d kB</string>
+    <string name="conf_mms_size_note">Eine MMS bleibt unter 300 kB, was jedes Netz annimmt. Ihr Betreiber nennt mehr; der des Empfängers kann Schwereres trotzdem ablehnen.</string>
 </resources>

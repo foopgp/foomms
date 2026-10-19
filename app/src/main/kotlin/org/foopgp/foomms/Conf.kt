@@ -49,6 +49,11 @@ object Conf {
 
     fun preferMms(context: Context, on: Boolean) = kept(context).edit().putBoolean("prefer_mms", on).apply()
 
+    /** Send MMS as heavy as the operator says it takes, beyond the standard's 300 kB. */
+    fun operatorSize(context: Context): Boolean = kept(context).getBoolean("operator_size", false)
+
+    fun operatorSize(context: Context, on: Boolean) = kept(context).edit().putBoolean("operator_size", on).apply()
+
     /** Ask before a message leaves as an MMS, which an operator may charge for. */
     fun warnMms(context: Context): Boolean = kept(context).getBoolean("warn_mms", false)
 
