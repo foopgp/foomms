@@ -189,7 +189,8 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
         text = sign
         textSize = 20f
         gravity = Gravity.CENTER
-        setTextColor(android.graphics.Color.WHITE)
+        // White warmed by our orange, the bar's colour: one with it, and still bright on any picture.
+        setTextColor(android.graphics.Color.rgb(0xFF, 0xC8, 0x90))
         setTypeface(typeface, android.graphics.Typeface.BOLD)
         background = android.graphics.drawable.GradientDrawable().apply {
             shape = android.graphics.drawable.GradientDrawable.OVAL
