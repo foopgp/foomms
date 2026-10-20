@@ -1455,8 +1455,8 @@ class ThreadActivity : AskingActivity() {
     /** The part the page plays itself, while it does. */
     private var playingPiece: Long? = null
 
-    /** What a sound's button says: ▶ to play it, ■ while it plays -- pressed again, it stops, in its bubble or beyond the page. */
-    private fun sign(piece: Store.Piece) = if (playingPiece == piece.id || Listening.playing == piece.id) "■" else "▶"
+    /** What a sound's button says: ▶ to play it, ■ while it plays -- pressed again, it stops, in its bubble or beyond the page. ■ has no side bearing of its own: a thin space keeps it off the edge, as ▶ is. */
+    private fun sign(piece: Store.Piece) = if (playingPiece == piece.id || Listening.playing == piece.id) "\u2009■" else "▶"
 
     /** Play a sound, or stop the one that plays: as it came, or as it was opened from its lock. */
     private fun play(piece: Store.Piece) {
