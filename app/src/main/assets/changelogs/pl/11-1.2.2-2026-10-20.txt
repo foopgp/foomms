@@ -1,0 +1,1 @@
+• Przycisk dźwięku pokazuje ■, gdy dźwięk gra: naciśnięcie go zatrzymuje.

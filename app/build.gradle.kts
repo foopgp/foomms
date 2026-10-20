@@ -5,8 +5,8 @@ plugins {
 }
 
 // One per build that leaves this machine.
-val appVersionCode = 10
-val appVersionName = "1.2.1"
+val appVersionCode = 11
+val appVersionName = "1.2.2"
 
 // A build made only to be tried on a phone: -Ptry=d1 gives 0.0.1d1.
 val trial = (findProperty("try") as String?).orEmpty()

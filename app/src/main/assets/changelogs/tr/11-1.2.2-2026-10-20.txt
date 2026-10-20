@@ -1,0 +1,1 @@
+• Bir sesin düğmesi çalarken ■ gösterir: bir dokunuş onu durdurur.
