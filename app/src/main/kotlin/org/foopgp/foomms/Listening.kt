@@ -48,6 +48,7 @@ class Listening : Service() {
         player?.let { runCatching { it.stop() } ; it.release() }
         track = what
         playing = what.part
+        onChange?.invoke()
         val sound = java.io.File(cacheDir, "listening").apply { writeBytes(what.bytes) }
         player = runCatching {
             MediaPlayer().apply {
@@ -116,6 +117,7 @@ class Listening : Service() {
         session = null
         track = null
         playing = null
+        onChange?.invoke()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
@@ -141,6 +143,9 @@ class Listening : Service() {
         /** The part being listened to, while one is. */
         @Volatile var playing: Long? = null
             private set
+
+        /** Told when a sound begins or ends here: the page that shows its button. */
+        @Volatile var onChange: (() -> Unit)? = null
 
         fun play(context: Context, part: Long, title: String, bytes: ByteArray) {
             next = Track(part, title, bytes)

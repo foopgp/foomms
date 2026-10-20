@@ -409,6 +409,8 @@ class ThreadActivity : AskingActivity() {
         if (Look.wantsDark(this) != dressed) return recreate()
         Look.dress(this)
         shown = true
+        // A long voice message starting or ending beyond the page: its button says so.
+        Listening.onChange = { runOnUiThread { if (!isFinishing && !isDestroyed) bubbles.notifyDataSetChanged() } }
         foodjis.fresh()
         whoAmI()
         contentResolver.registerContentObserver(MESSAGES, true, arrivals)
@@ -419,6 +421,8 @@ class ThreadActivity : AskingActivity() {
 
     override fun onPause() {
         shown = false
+        Listening.onChange = null
+        playingPiece = null
         if (voice.recording) voice.drop()
         player?.let { runCatching { it.stop() ; it.release() } }
         player = null
@@ -1419,7 +1423,7 @@ class ThreadActivity : AskingActivity() {
                 small != null -> picture(piece, small)
                 frames[piece.id] != null -> movie(piece, frames[piece.id]!!) { watch(piece, at) }
                 opened.type.startsWith("audio/") || opened.type == "video/3gpp" ->
-                    Look.button(this, "▶ ${opened.name}" + lasted(piece)) { play(piece) }
+                    Look.button(this, "${sign(piece)} ${opened.name}" + lasted(piece)) { play(piece) }
                 else -> Look.words(this, "📎 ${opened.name}", size = 15f)
             }
         }
@@ -1428,7 +1432,7 @@ class ThreadActivity : AskingActivity() {
         return when {
             small != null -> picture(piece, small)
             frames[piece.id] != null -> movie(piece, frames[piece.id]!!) { watch(piece, at) }
-            piece.type.startsWith("audio/") -> Look.button(this, "▶ $name" + lasted(piece)) { play(piece) }
+            piece.type.startsWith("audio/") -> Look.button(this, "${sign(piece)} $name" + lasted(piece)) { play(piece) }
             isSealed(piece) -> LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
@@ -1448,11 +1452,24 @@ class ThreadActivity : AskingActivity() {
 
     private var player: android.media.MediaPlayer? = null
 
+    /** The part the page plays itself, while it does. */
+    private var playingPiece: Long? = null
+
+    /** What a sound's button says: ▶ to play it, ■ while it plays -- pressed again, it stops, in its bubble or beyond the page. */
+    private fun sign(piece: Store.Piece) = if (playingPiece == piece.id || Listening.playing == piece.id) "■" else "▶"
+
     /** Play a sound, or stop the one that plays: as it came, or as it was opened from its lock. */
     private fun play(piece: Store.Piece) {
         val playing = player
+        val wasThis = playingPiece == piece.id
         player = null
-        if (playing != null) { runCatching { playing.stop() ; playing.release() } ; return }
+        playingPiece = null
+        if (playing != null) {
+            runCatching { playing.stop() ; playing.release() }
+            bubbles.notifyDataSetChanged()
+            // Pressed again, it stops; another pressed, that one plays instead.
+            if (wasThis) return
+        }
         // A long one is listened to beyond the page, with its controls in the notifications: pressed again, it stops.
         if ((lasts[piece.id] ?: 0L) > Listening.LONG) {
             if (Listening.playing == piece.id) return Listening.stop(this)
@@ -1477,11 +1494,16 @@ class ThreadActivity : AskingActivity() {
                 } else {
                     setDataSource(this@ThreadActivity, piece.uri)
                 }
-                setOnCompletionListener { release() ; if (player === it) player = null }
+                setOnCompletionListener {
+                    release()
+                    if (player === it) { player = null ; playingPiece = null ; bubbles.notifyDataSetChanged() }
+                }
                 prepare()
                 start()
             }
-        }.onFailure { player = null ; say(getString(R.string.failed, it.message)) }
+            playingPiece = piece.id
+            bubbles.notifyDataSetChanged()
+        }.onFailure { player = null ; playingPiece = null ; say(getString(R.string.failed, it.message)) }
     }
 
     private val bubbles = object : BaseAdapter() {
