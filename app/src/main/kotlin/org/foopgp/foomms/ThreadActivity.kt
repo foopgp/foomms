@@ -76,9 +76,9 @@ class ThreadActivity : AskingActivity() {
     private lateinit var adding: android.widget.Button
     private lateinit var chip: android.widget.TextView
 
-    /** [chip] and, beside it, the cross that alone takes the attachment off. */
-    private lateinit var chipRow: LinearLayout
-    private lateinit var drop: android.widget.TextView
+    /** [chip] between its paper clip and the cross that alone takes the attachment off. */
+    private lateinit var carriedRow: Look.Carried
+    private val chipRow get() = carriedRow.row
     private lateinit var whoIs: android.widget.TextView
     private lateinit var under: android.widget.TextView
     private lateinit var portrait: android.widget.FrameLayout
@@ -103,7 +103,7 @@ class ThreadActivity : AskingActivity() {
         }
         field.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
         chipRow.visibility = View.VISIBLE
-        drop.visibility = View.GONE
+        carriedRow.attached(false)
         // The time it has been recording, said each second for as long as it records.
         val tick = object : Runnable {
             override fun run() {
@@ -225,7 +225,8 @@ class ThreadActivity : AskingActivity() {
         adding = Look.button(this, "+") { attach() }.apply { textSize = 22f }
         val add = adding
         // What is attached, said above the field; only its cross takes it off.
-        Look.carried(this) { carry(null) }.let { chipRow = it.row ; chip = it.words ; drop = it.cross }
+        carriedRow = Look.carried(this) { carry(null) }
+        chip = carriedRow.words
         val bar = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.BOTTOM
@@ -674,7 +675,7 @@ class ThreadActivity : AskingActivity() {
     private fun carry(what: Media.Attachment?) {
         carried = what
         chipRow.visibility = if (what == null) View.GONE else View.VISIBLE
-        drop.visibility = View.VISIBLE
+        carriedRow.attached(true)
         chip.text = what?.let {
             val weight = it.bytes.size / 1024 + 1
             it.millis?.let { long -> getString(R.string.carrying_long, it.name, Media.clock(long), weight) } ?: getString(R.string.carrying, it.name, weight)

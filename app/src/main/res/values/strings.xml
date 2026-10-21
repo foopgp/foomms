@@ -87,7 +87,7 @@
     <string name="hit_to">to %1$s</string>
     <string name="count_all">%1$d/%2$d PGP messages</string>
     <string name="count_unread">%1$d/%2$d unread</string>
-    <string name="carrying">📎 %1$s\n%2$d kB</string>
+    <string name="carrying">%1$s\n%2$d kB</string>
     <string name="too_heavy">Too heavy for an MMS on this network (%1$d kB at most), or not something that can be read.</string>
     <string name="handed_mms">MMS handed to the phone: %1$s</string>
     <string name="conf_crypto">Encryption</string>
@@ -176,7 +176,7 @@
     <string name="contact_show">👤 Show the contact</string>
     <string name="contact_add">👤 Add to contacts</string>
     <string name="voice_recording">● Recording %1$s — let go to stop</string>
-    <string name="carrying_long">📎 %1$s\n%2$s — %3$d kB</string>
+    <string name="carrying_long">%1$s\n%2$s — %3$d kB</string>
     <string name="drop_attachment">Take the attachment off</string>
     <string name="language_tag">en</string>
     <string name="about_title">About</string>

@@ -261,32 +261,45 @@ object Look {
         setPadding(pad, pad, pad, pad)
     }
 
-    /** What is attached, said above the field, and beside it its cross: red, bold, with room around it, and alone in taking it off. */
-    class Carried(val row: LinearLayout, val words: TextView, val cross: TextView)
+    /**
+     * What is attached, said above the field between a paper clip and its
+     * cross, both as tall and with as much room on each side; the cross,
+     * red and bold, alone takes it off. Neither shows while the field records.
+     */
+    class Carried(val row: LinearLayout, val words: TextView, val clip: TextView, val cross: TextView) {
+        fun attached(on: Boolean) {
+            clip.visibility = if (on) View.VISIBLE else View.GONE
+            cross.visibility = clip.visibility
+        }
+    }
 
     fun carried(context: Context, drop: () -> Unit): Carried {
         val pad = dp(context, 6)
         val said = words(context, "", size = 16f, muted = true).apply {
-            setPadding(pad * 3, pad, 0, 0)
             gravity = Gravity.CENTER
             setTypeface(typeface, Typeface.BOLD)
         }
-        val cross = words(context, "✕", size = 22f).apply {
-            setTextColor(Color.rgb(0xE5, 0x39, 0x35))
+        fun glyph(text: String) = words(context, text, size = 22f).apply {
             setTypeface(typeface, Typeface.BOLD)
-            setPadding(pad * 4, pad, pad * 4, 0)
+            setPadding(pad * 4, 0, pad * 4, 0)
+        }
+        val clip = glyph("📎")
+        val cross = glyph("✕").apply {
+            setTextColor(Color.rgb(0xE5, 0x39, 0x35))
             contentDescription = context.getString(R.string.drop_attachment)
             setOnClickListener { drop() }
         }
         val row = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, pad, 0, 0)
             visibility = View.GONE
-            // The words take what the cross leaves, so that it never goes past the edge.
+            // The words take what the two leave, so that the cross never goes past the edge.
+            addView(clip)
             addView(said, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
             addView(cross)
         }
-        return Carried(row, said, cross)
+        return Carried(row, said, clip, cross)
     }
 
     fun words(context: Context, text: CharSequence, size: Float = 16f, muted: Boolean = false): TextView =
