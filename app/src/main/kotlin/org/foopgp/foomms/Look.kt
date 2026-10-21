@@ -282,7 +282,8 @@ object Look {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
             visibility = View.GONE
-            addView(said)
+            // The words take what the cross leaves, so that it never goes past the edge.
+            addView(said, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
             addView(cross)
         }
         return Carried(row, said, cross)
