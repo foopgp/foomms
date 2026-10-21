@@ -170,11 +170,10 @@ object Outbox {
             if (uri.pathSegments.firstOrNull() == OPENED) {
                 return ParcelFileDescriptor.open(opened(context, uri.lastPathSegment ?: return null), ParcelFileDescriptor.MODE_READ_ONLY)
             }
-            // The photograph being taken: written by the camera, read back here.
+            // The photograph being taken: written by the camera, read back here. Open Camera writes it
+            // ("w"), then opens it again to add its EXIF ("rw"): that second opening must not empty it.
             if (uri.pathSegments.firstOrNull() == SHOT) {
-                val how = if ('w' in mode) ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE or ParcelFileDescriptor.MODE_TRUNCATE
-                else ParcelFileDescriptor.MODE_READ_ONLY
-                return ParcelFileDescriptor.open(shotFile(context), how)
+                return ParcelFileDescriptor.open(shotFile(context), ParcelFileDescriptor.parseMode(mode))
             }
             val transaction = uri.lastPathSegment ?: return null
             // Read by the service for a message that leaves, written by it for one it fetched.
