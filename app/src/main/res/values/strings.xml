@@ -52,8 +52,8 @@
     <string name="theme_light">Light</string>
     <string name="conf_around">Decrypt the previous messages</string>
     <string name="conf_around_note">Most messages to decrypt, where possible, before the selected encrypted message.</string>
-    <string name="conf_unread_all">Decrypt all unread messages</string>
-    <string name="conf_unread_all_note">Maximum number of unread messages to decrypt, if possible, in every conversation.</string>
+    <string name="conf_unread_all">Decrypt other unread messages</string>
+    <string name="conf_unread_all_note">When decrypting in a conversation, number of unread messages from other conversations to decrypt as well.</string>
     <string name="conf_hold">Close encrypted messages</string>
     <string name="conf_hold_note">How long encrypted messages stay open, or visible, in a conversation.</string>
     <string name="conf_hold_after">Close encrypted messages after</string>

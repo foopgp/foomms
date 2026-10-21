@@ -11,6 +11,9 @@ import org.openintents.openpgp.OpenPgpSignatureResult
  */
 object Unlocking {
 
+    /** The most the list's button opens with one use of the key, whatever is set for a conversation. */
+    const val MOST_AT_ONCE = 10
+
     /** Something a message holds that the key is to open: its words, or one of the parts it carries. */
     sealed class Job {
         abstract val line: Store.Line

@@ -49,8 +49,8 @@
     <string name="theme_light">Açık</string>
     <string name="conf_around">Önceki mesajların şifresini çöz</string>
     <string name="conf_around_note">Seçilen şifreli mesajdan önce, mümkünse çözülecek en fazla mesaj sayısı.</string>
-    <string name="conf_unread_all">Okunmamış tüm mesajların şifresini çöz</string>
-    <string name="conf_unread_all_note">Mümkünse tüm konuşmalarda şifresi çözülecek en fazla okunmamış mesaj sayısı.</string>
+    <string name="conf_unread_all">Diğer okunmamış mesajların şifresini çöz</string>
+    <string name="conf_unread_all_note">Bir konuşmada şifre çözülürken, diğer konuşmalardan şifresi de çözülecek okunmamış mesaj sayısı.</string>
     <string name="conf_hold">Şifreli mesajları kapat</string>
     <string name="conf_hold_note">Şifreli mesajların bir konuşmada ne kadar süre açık ya da görünür kalacağı.</string>
     <string name="conf_hold_after">Şifreli mesajları şu süre sonra kapat</string>

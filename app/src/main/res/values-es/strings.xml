@@ -49,8 +49,8 @@
     <string name="theme_light">Claro</string>
     <string name="conf_around">Descifrar los mensajes anteriores</string>
     <string name="conf_around_note">Número máximo de mensajes que descifrar, si es posible, antes del mensaje cifrado seleccionado.</string>
-    <string name="conf_unread_all">Descifrar todos los mensajes no leídos</string>
-    <string name="conf_unread_all_note">Número máximo de mensajes no leídos que descifrar, si es posible, en todas las conversaciones.</string>
+    <string name="conf_unread_all">Descifrar otros mensajes no leídos</string>
+    <string name="conf_unread_all_note">Al descifrar en una conversación, número de mensajes no leídos de otras conversaciones que descifrar también.</string>
     <string name="conf_hold">Cerrar los mensajes cifrados</string>
     <string name="conf_hold_note">Tiempo que los mensajes cifrados permanecen abiertos o visibles en una conversación.</string>
     <string name="conf_hold_after">Cerrar los mensajes cifrados al cabo de</string>

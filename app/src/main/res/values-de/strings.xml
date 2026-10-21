@@ -49,8 +49,8 @@
     <string name="theme_light">Hell</string>
     <string name="conf_around">Vorherige Nachrichten entschlüsseln</string>
     <string name="conf_around_note">Höchstzahl der Nachrichten, die nach Möglichkeit vor der ausgewählten verschlüsselten Nachricht entschlüsselt werden.</string>
-    <string name="conf_unread_all">Alle ungelesenen Nachrichten entschlüsseln</string>
-    <string name="conf_unread_all_note">Höchstzahl ungelesener Nachrichten, die nach Möglichkeit in allen Unterhaltungen entschlüsselt werden.</string>
+    <string name="conf_unread_all">Weitere ungelesene Nachrichten entschlüsseln</string>
+    <string name="conf_unread_all_note">Beim Entschlüsseln in einer Unterhaltung: Anzahl ungelesener Nachrichten aus anderen Unterhaltungen, die ebenfalls entschlüsselt werden.</string>
     <string name="conf_hold">Verschlüsselte Nachrichten schließen</string>
     <string name="conf_hold_note">Wie lange verschlüsselte Nachrichten in einer Unterhaltung geöffnet oder sichtbar bleiben.</string>
     <string name="conf_hold_after">Verschlüsselte Nachrichten schließen nach</string>

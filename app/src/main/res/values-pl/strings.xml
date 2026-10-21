@@ -49,8 +49,8 @@
     <string name="theme_light">Jasny</string>
     <string name="conf_around">Odszyfrowywać poprzednie wiadomości</string>
     <string name="conf_around_note">Największa liczba wiadomości do odszyfrowania, jeśli to możliwe, przed wybraną zaszyfrowaną wiadomością.</string>
-    <string name="conf_unread_all">Odszyfrowywać wszystkie nieprzeczytane wiadomości</string>
-    <string name="conf_unread_all_note">Maksymalna liczba nieprzeczytanych wiadomości do odszyfrowania, jeśli to możliwe, we wszystkich rozmowach.</string>
+    <string name="conf_unread_all">Odszyfrowywać inne nieprzeczytane wiadomości</string>
+    <string name="conf_unread_all_note">Przy odszyfrowywaniu w rozmowie: liczba nieprzeczytanych wiadomości z innych rozmów, które również zostaną odszyfrowane.</string>
     <string name="conf_hold">Zamykanie zaszyfrowanych wiadomości</string>
     <string name="conf_hold_note">Jak długo zaszyfrowane wiadomości pozostają otwarte lub widoczne w rozmowie.</string>
     <string name="conf_hold_after">Zamykaj zaszyfrowane wiadomości po</string>

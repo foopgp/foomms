@@ -49,8 +49,8 @@
     <string name="theme_light">Clair</string>
     <string name="conf_around">Déchiffrer les messages précédents</string>
     <string name="conf_around_note">Nombre maximum de messages à déchiffrer, si possible, précédant le message chiffré sélectionné.</string>
-    <string name="conf_unread_all">Déchiffrer tous les messages non lus</string>
-    <string name="conf_unread_all_note">Nombre maximum de messages non lus à déchiffrer, si possible, dans toutes les conversations.</string>
+    <string name="conf_unread_all">Déchiffrer les autres messages non lus</string>
+    <string name="conf_unread_all_note">Lors du déchiffrement dans une conversation, nombre de messages non lus d\'autres conversations à déchiffrer également.</string>
     <string name="conf_hold">Refermer les messages chiffrés</string>
     <string name="conf_hold_note">Le temps que les messages chiffrés restent ouverts ou visibles dans une conversation.</string>
     <string name="conf_hold_after">Refermer les messages chiffrés au bout de</string>

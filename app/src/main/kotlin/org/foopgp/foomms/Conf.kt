@@ -27,7 +27,7 @@ object Conf {
 
     fun around(context: Context, most: Int) = kept(context).edit().putInt("before", most.coerceIn(0, MOST_AROUND)).apply()
 
-    /** How many messages not read yet, in every conversation, a use of the key tries to open beside the one pressed. */
+    /** How many messages not read yet, in the other conversations, a use of the key in one tries to open as well. */
     fun unreadAll(context: Context): Int = kept(context).getInt("unread_all", USUAL_UNREAD_ALL).coerceIn(0, MOST_AROUND)
 
     fun unreadAll(context: Context, most: Int) = kept(context).edit().putInt("unread_all", most.coerceIn(0, MOST_AROUND)).apply()
