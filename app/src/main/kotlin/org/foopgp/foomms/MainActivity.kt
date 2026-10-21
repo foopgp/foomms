@@ -481,7 +481,7 @@ class MainActivity : AskingActivity() {
         // Nothing to do, greyed rather than gone: the line does not jump.
         usable(markAll, (known?.unread ?: 0) > 0)
         usable(decryptAll, locked > 0)
-        val most = Unlocking.MOST_AT_ONCE
+        val most = Conf.MOST_UNREAD
         decryptAll.text = if (locked <= most) getString(R.string.decrypt_every) else resources.getQuantityString(R.plurals.decrypt_some, most, most)
         shower.text = getString(if (onlyUnread) R.string.show_all else R.string.show_unread)
     }
@@ -524,7 +524,7 @@ class MainActivity : AskingActivity() {
      */
     private fun decryptAll() {
         thread {
-            val jobs = Unlocking.waiting(this, Unlocking.MOST_AT_ONCE).flatMap { Unlocking.jobs(this, it) }
+            val jobs = Unlocking.waiting(this, Conf.MOST_UNREAD).flatMap { Unlocking.jobs(this, it) }
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 val first = jobs.firstOrNull() ?: return@runOnUiThread

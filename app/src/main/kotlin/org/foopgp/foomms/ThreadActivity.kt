@@ -75,6 +75,10 @@ class ThreadActivity : AskingActivity() {
     /** The button that attaches: greyed with the field when the sender cannot be answered. */
     private lateinit var adding: android.widget.Button
     private lateinit var chip: android.widget.TextView
+
+    /** [chip] and, beside it, the cross that alone takes the attachment off. */
+    private lateinit var chipRow: LinearLayout
+    private lateinit var drop: android.widget.TextView
     private lateinit var whoIs: android.widget.TextView
     private lateinit var under: android.widget.TextView
     private lateinit var portrait: android.widget.FrameLayout
@@ -98,7 +102,8 @@ class ThreadActivity : AskingActivity() {
             return true
         }
         field.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
-        chip.visibility = View.VISIBLE
+        chipRow.visibility = View.VISIBLE
+        drop.visibility = View.GONE
         // The time it has been recording, said each second for as long as it records.
         val tick = object : Runnable {
             override fun run() {
@@ -219,14 +224,8 @@ class ThreadActivity : AskingActivity() {
         val pad = Look.dp(this, 6)
         adding = Look.button(this, "+") { attach() }.apply { textSize = 22f }
         val add = adding
-        // What is attached, said above the field; pressed, it is taken off.
-        chip = Look.words(this, "", size = 16f, muted = true).apply {
-            setPadding(pad * 3, pad, pad * 3, 0)
-            gravity = Gravity.CENTER
-            setTypeface(typeface, android.graphics.Typeface.BOLD)
-            visibility = View.GONE
-            setOnClickListener { carry(null) }
-        }
+        // What is attached, said above the field; only its cross takes it off.
+        Look.carried(this) { carry(null) }.let { chipRow = it.row ; chip = it.words ; drop = it.cross }
         val bar = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.BOTTOM
@@ -253,7 +252,7 @@ class ThreadActivity : AskingActivity() {
                 }
                 writing = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
-                    addView(chip)
+                    addView(chipRow)
                     addView(options)
                     addView(bar)
                 }
@@ -674,7 +673,8 @@ class ThreadActivity : AskingActivity() {
 
     private fun carry(what: Media.Attachment?) {
         carried = what
-        chip.visibility = if (what == null) View.GONE else View.VISIBLE
+        chipRow.visibility = if (what == null) View.GONE else View.VISIBLE
+        drop.visibility = View.VISIBLE
         chip.text = what?.let {
             val weight = it.bytes.size / 1024 + 1
             it.millis?.let { long -> getString(R.string.carrying_long, it.name, Media.clock(long), weight) } ?: getString(R.string.carrying, it.name, weight)

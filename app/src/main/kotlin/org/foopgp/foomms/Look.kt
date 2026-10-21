@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Outline
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.util.TypedValue
@@ -258,6 +259,33 @@ object Look {
         orientation = LinearLayout.VERTICAL
         val pad = dp(activity, 20)
         setPadding(pad, pad, pad, pad)
+    }
+
+    /** What is attached, said above the field, and beside it its cross: red, bold, with room around it, and alone in taking it off. */
+    class Carried(val row: LinearLayout, val words: TextView, val cross: TextView)
+
+    fun carried(context: Context, drop: () -> Unit): Carried {
+        val pad = dp(context, 6)
+        val said = words(context, "", size = 16f, muted = true).apply {
+            setPadding(pad * 3, pad, 0, 0)
+            gravity = Gravity.CENTER
+            setTypeface(typeface, Typeface.BOLD)
+        }
+        val cross = words(context, "✕", size = 22f).apply {
+            setTextColor(Color.rgb(0xE5, 0x39, 0x35))
+            setTypeface(typeface, Typeface.BOLD)
+            setPadding(pad * 4, pad, pad * 4, 0)
+            contentDescription = context.getString(R.string.drop_attachment)
+            setOnClickListener { drop() }
+        }
+        val row = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            visibility = View.GONE
+            addView(said)
+            addView(cross)
+        }
+        return Carried(row, said, cross)
     }
 
     fun words(context: Context, text: CharSequence, size: Float = 16f, muted: Boolean = false): TextView =

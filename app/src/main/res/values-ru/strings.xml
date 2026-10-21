@@ -84,7 +84,7 @@
     <string name="hit_to">для %1$s</string>
     <string name="count_all">%1$d/%2$d сообщений PGP</string>
     <string name="count_unread">%1$d/%2$d непрочитанных</string>
-    <string name="carrying">📎 %1$s — %2$d КБ   ✕</string>
+    <string name="carrying">📎 %1$s — %2$d КБ</string>
     <string name="too_heavy">Слишком большой для MMS в этой сети (не более %1$d КБ) или нечитаемый.</string>
     <string name="handed_mms">MMS передано телефону: %1$s</string>
     <string name="conf_crypto">Шифрование</string>
@@ -175,7 +175,8 @@
     <string name="contact_show">👤 Показать контакт</string>
     <string name="contact_add">👤 Добавить в контакты</string>
     <string name="voice_recording">● Запись %1$s — отпустите, чтобы остановить</string>
-    <string name="carrying_long">📎 %1$s — %2$s — %3$d КБ   ✕</string>
+    <string name="carrying_long">📎 %1$s — %2$s — %3$d КБ</string>
+    <string name="drop_attachment">Убрать вложение</string>
     <string name="language_tag">ru</string>
     <string name="about_title">О программе</string>
     <string name="about_news">Что нового</string>

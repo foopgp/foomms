@@ -84,7 +84,7 @@
     <string name="hit_to">do %1$s</string>
     <string name="count_all">%1$d/%2$d wiadomości PGP</string>
     <string name="count_unread">%1$d/%2$d nieprzeczytanych</string>
-    <string name="carrying">📎 %1$s — %2$d kB   ✕</string>
+    <string name="carrying">📎 %1$s — %2$d kB</string>
     <string name="too_heavy">Za duże na MMS w tej sieci (najwyżej %1$d kB) lub nieczytelne.</string>
     <string name="handed_mms">MMS przekazany telefonowi: %1$s</string>
     <string name="conf_crypto">Szyfrowanie</string>
@@ -175,7 +175,8 @@
     <string name="contact_show">👤 Pokaż kontakt</string>
     <string name="contact_add">👤 Dodaj do kontaktów</string>
     <string name="voice_recording">● Nagrywanie %1$s — puść, aby zakończyć</string>
-    <string name="carrying_long">📎 %1$s — %2$s — %3$d kB   ✕</string>
+    <string name="carrying_long">📎 %1$s — %2$s — %3$d kB</string>
+    <string name="drop_attachment">Usuń załącznik</string>
     <string name="language_tag">pl</string>
     <string name="about_title">O programie</string>
     <string name="about_news">Nowości</string>

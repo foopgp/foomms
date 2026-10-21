@@ -60,8 +60,8 @@ class ConfActivity : Activity() {
     private fun subheading(words: Int) =
         column.addView(Look.words(this, getString(words), size = 17f).apply { setPadding(0, Look.dp(context, 12), 0, 0) })
 
-    /** A number from 0 to [Conf.MOST_AROUND], set by sliding, shown beside. */
-    private fun slider(now: Int, set: (Int) -> Unit) {
+    /** A number from 0 to [most], set by sliding, shown beside. */
+    private fun slider(now: Int, most: Int, set: (Int) -> Unit) {
         val shown = Look.words(this, now.toString(), size = 18f)
         column.addView(
             LinearLayout(this).apply {
@@ -69,7 +69,7 @@ class ConfActivity : Activity() {
                 gravity = android.view.Gravity.CENTER_VERTICAL
                 addView(
                     SeekBar(context).apply {
-                        max = Conf.MOST_AROUND
+                        max = most
                         progress = now
                         setOnSeekBarChangeListener(
                             object : SeekBar.OnSeekBarChangeListener {
@@ -140,10 +140,10 @@ class ConfActivity : Activity() {
         heading(R.string.conf_crypto)
         subheading(R.string.conf_around)
         note(R.string.conf_around_note)
-        slider(Conf.around(this)) { Conf.around(this, it) }
+        slider(Conf.around(this), Conf.MOST_AROUND) { Conf.around(this, it) }
         subheading(R.string.conf_unread_all)
         note(R.string.conf_unread_all_note)
-        slider(Conf.unreadAll(this)) { Conf.unreadAll(this, it) }
+        slider(Conf.unreadAll(this), Conf.MOST_UNREAD) { Conf.unreadAll(this, it) }
 
         subheading(R.string.conf_hold)
         note(R.string.conf_hold_note)

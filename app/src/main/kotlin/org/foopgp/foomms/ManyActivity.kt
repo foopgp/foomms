@@ -43,6 +43,7 @@ class ManyActivity : AskingActivity() {
     /** What goes with the words to each, when something was shared: made ready once, sent to each in an MMS of their own. */
     private var carried: Media.Attachment? = null
     private lateinit var chip: android.widget.TextView
+    private lateinit var chipRow: LinearLayout
 
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
@@ -70,16 +71,13 @@ class ManyActivity : AskingActivity() {
             LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 addView(ScrollView(context).apply { addView(people) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
-                chip = Look.words(context, "", size = 16f, muted = true).apply {
-                    setPadding(pad * 3, pad, pad * 3, 0)
-                    gravity = Gravity.CENTER
-                    setTypeface(typeface, android.graphics.Typeface.BOLD)
-                    visibility = View.GONE
-                    setOnClickListener { carried = null ; visibility = View.GONE }
-                }
+                // What is attached, said above the field; only its cross takes it off.
+                val shown = Look.carried(context) { carried = null ; chipRow.visibility = View.GONE }
+                chip = shown.words
+                chipRow = shown.row
                 writing = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
-                    addView(chip)
+                    addView(chipRow)
                     addView(options)
                     addView(
                         LinearLayout(context).apply {
@@ -110,7 +108,7 @@ class ManyActivity : AskingActivity() {
                     if (made == null) return@runOnUiThread say(getString(R.string.too_heavy, most / 1024))
                     carried = made
                     chip.text = getString(R.string.carrying, made.name, made.bytes.size / 1024 + 1)
-                    chip.visibility = View.VISIBLE
+                    chipRow.visibility = View.VISIBLE
                 }
             }
         }
