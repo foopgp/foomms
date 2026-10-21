@@ -1,0 +1,5 @@
+• Hacer una foto funciona también con la cámara de /e/OS (Murena).
+• Un mensaje cifrado sigue sin leer hasta que se descifra; «Marcar como leído / no leído» en el menú de un mensaje.
+• Página de no leídos («Detallar»): descifrarlos todos o marcar todo como leído.
+• Configuración: una sección «Cifrado» y el descifrado de los no leídos de otras conversaciones.
+• Un adjunto ya solo se quita con su cruz roja.

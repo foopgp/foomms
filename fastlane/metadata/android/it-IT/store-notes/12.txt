@@ -1,0 +1,5 @@
+• Scattare una foto funziona anche con la fotocamera di /e/OS (Murena).
+• Un messaggio cifrato resta non letto finché non è decifrato; «Segna come letto / non letto» nel menu di un messaggio.
+• Pagina dei non letti («Dettagli»): decifrarli tutti o segnare tutto come letto.
+• Configurazione: una sezione «Cifratura» e la decifratura dei non letti delle altre conversazioni.
+• Un allegato si rimuove ormai solo con la sua croce rossa.

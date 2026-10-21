@@ -1,0 +1,5 @@
+• Ein Foto aufnehmen funktioniert auch mit der Kamera von /e/OS (Murena).
+• Eine verschlüsselte Nachricht bleibt ungelesen, bis sie entschlüsselt ist; „Als gelesen / ungelesen markieren“ im Menü einer Nachricht.
+• Seite der Ungelesenen („Details“): alle entschlüsseln oder alle als gelesen markieren.
+• Einstellungen: ein Abschnitt „Verschlüsselung“ und das Entschlüsseln der Ungelesenen anderer Unterhaltungen.
+• Ein Anhang wird nur noch über sein rotes Kreuz entfernt.
