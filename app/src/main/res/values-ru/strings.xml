@@ -124,10 +124,11 @@
     <string name="tie_ask_after">. Это будет записано в вашу адресную книгу, где у контакта этого ещё нет:</string>
     <string name="whom_hint">Имя или номер телефона</string>
     <string name="show_unread">Подробнее</string>
-    <string name="mark_all_read">Отметить всё как прочитанное</string>
+    <string name="mark_all_read">○ Отметить всё как прочитанное</string>
     <string name="mark_all_read_ask">Отметить непрочитанные сообщения (%1$d) как прочитанные?</string>
     <string name="decrypt_unread">⚿ Расшифровать непрочитанные</string>
-    <string name="mark_read">Отметить как прочитанное</string>
+    <string name="mark_read">○ Отметить как прочитанное</string>
+    <string name="mark_unread">● Отметить как непрочитанное</string>
     <string name="show_all">Показать все</string>
     <string name="count_detail">%1$d сообщений: %2$d SMS + %3$d MMS\nиз них %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d переписок — %8$s байт</string>
     <string name="count_detail_unread">%1$d непрочитанных</string>

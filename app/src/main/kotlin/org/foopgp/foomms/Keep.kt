@@ -152,6 +152,12 @@ object Keep {
         runCatching { context.contentResolver.update(line.uri, ContentValues().apply { put("read", 1) ; put("seen", 1) }, "read = 0", null) }
     }
 
+    /** One message not read again, as the person asked: seen all the same, it is not announced a second time. */
+    fun unread(context: Context, line: Store.Line) {
+        if (!ours(context) || line.id < 0) return
+        runCatching { context.contentResolver.update(line.uri, ContentValues().apply { put("read", 0) }, null, null) }
+    }
+
     /** Everything read, locked or not: asked for by the person. */
     fun readAll(context: Context) {
         if (!ours(context)) return

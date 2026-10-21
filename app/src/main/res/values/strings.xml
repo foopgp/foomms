@@ -127,10 +127,11 @@
     <string name="tie_ask_after">. This will be written in your address book, where the contact does not say it already:</string>
     <string name="whom_hint">A name, or a phone number</string>
     <string name="show_unread">Details</string>
-    <string name="mark_all_read">Mark all as read</string>
+    <string name="mark_all_read">○ Mark all as read</string>
     <string name="mark_all_read_ask">Mark the %1$d unread messages as read?</string>
     <string name="decrypt_unread">⚿ Decrypt the unread</string>
-    <string name="mark_read">Mark as read</string>
+    <string name="mark_read">○ Mark as read</string>
+    <string name="mark_unread">● Mark as unread</string>
     <string name="show_all">Show all</string>
     <string name="count_detail">%1$d messages: %2$d SMS + %3$d MMS\n%4$d of them PGP: %5$d SMS + %6$d MMS\n\n%7$d conversations — %8$s bytes</string>
     <string name="count_detail_unread">%1$d unread</string>

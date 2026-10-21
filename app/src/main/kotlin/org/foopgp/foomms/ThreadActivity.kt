@@ -466,8 +466,8 @@ class ThreadActivity : AskingActivity() {
                 }
             }
             if (shown) {
-                // Read, but for what is still locked: that waits to be opened.
-                thread?.let { Keep.read(this, it, found.filter(::lockedAndClosed)) }
+                // Read, but for what is still locked, which waits to be opened, and what the person made unread again.
+                thread?.let { Keep.read(this, it, found.filter { line -> lockedAndClosed(line) || line.key in keptUnread }) }
                 Notify.seen(this, number)
             }
             val pieces = found.flatMap { it.pieces }
@@ -869,6 +869,11 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
+    /** The messages the person made unread again: left so while the page stands, however often it is read again. */
+    private val keptUnread = HashSet<String>()
+
+    private val Store.Line.key: String get() = (if (mms) "m" else "s") + id
+
     /** A message of this conversation read, while it is on screen. */
     private fun read(line: Store.Line) {
         if (!line.unread || !shown) return
@@ -1002,7 +1007,17 @@ class ThreadActivity : AskingActivity() {
             }
         }
         choices += R.string.details to { details(line) }
-        if (line.unread) choices += R.string.mark_read to { thread { Keep.read(this, line) ; runOnUiThread { if (!isFinishing && !isDestroyed) load() } } }
+        if (line.unread) {
+            choices += R.string.mark_read to {
+                keptUnread -= line.key
+                thread { Keep.read(this, line) ; runOnUiThread { if (!isFinishing && !isDestroyed) load() } }
+            }
+        } else {
+            choices += R.string.mark_unread to {
+                keptUnread += line.key
+                thread { Keep.unread(this, line) ; runOnUiThread { if (!isFinishing && !isDestroyed) load() } }
+            }
+        }
         choices += R.string.forget_message to {
             AlertDialog.Builder(this)
                 .setMessage(R.string.forget_message_ask)

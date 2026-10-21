@@ -124,10 +124,11 @@
     <string name="tie_ask_after">. Αυτό θα γραφτεί στο βιβλίο διευθύνσεών σας, όπου η επαφή δεν το αναφέρει ακόμη:</string>
     <string name="whom_hint">Ένα όνομα ή ένας αριθμός τηλεφώνου</string>
     <string name="show_unread">Λεπτομέρειες</string>
-    <string name="mark_all_read">Σήμανση όλων ως αναγνωσμένα</string>
+    <string name="mark_all_read">○ Σήμανση όλων ως αναγνωσμένα</string>
     <string name="mark_all_read_ask">Σήμανση των %1$d μη αναγνωσμένων μηνυμάτων ως αναγνωσμένων;</string>
     <string name="decrypt_unread">⚿ Αποκρυπτογράφηση μη αναγνωσμένων</string>
-    <string name="mark_read">Σήμανση ως αναγνωσμένο</string>
+    <string name="mark_read">○ Σήμανση ως αναγνωσμένο</string>
+    <string name="mark_unread">● Σήμανση ως μη αναγνωσμένο</string>
     <string name="show_all">Εμφάνιση όλων</string>
     <string name="count_detail">%1$d μηνύματα: %2$d SMS + %3$d MMS\nαπό τα οποία %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d συνομιλίες — %8$s byte</string>
     <string name="count_detail_unread">%1$d μη αναγνωσμένα</string>

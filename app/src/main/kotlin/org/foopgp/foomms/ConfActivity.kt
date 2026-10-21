@@ -56,9 +56,9 @@ class ConfActivity : Activity() {
     private fun heading(words: Int) =
         column.addView(Look.words(this, getString(words), size = 19f).apply { setTypeface(typeface, Typeface.BOLD) ; setPadding(0, Look.dp(context, 18), 0, 0) })
 
-    /** A setting among others under one heading. */
+    /** A setting among others under one heading: worded as a switch's, and as far from what is above it. */
     private fun subheading(words: Int) =
-        column.addView(Look.words(this, getString(words), size = 16f).apply { setTypeface(typeface, Typeface.BOLD) ; setPadding(0, Look.dp(context, 12), 0, 0) })
+        column.addView(Look.words(this, getString(words), size = 17f).apply { setPadding(0, Look.dp(context, 12), 0, 0) })
 
     /** A number from 0 to [Conf.MOST_AROUND], set by sliding, shown beside. */
     private fun slider(now: Int, set: (Int) -> Unit) {
@@ -163,7 +163,10 @@ class ConfActivity : Activity() {
             },
         )
 
-        column.addView(flip(R.string.conf_to_myself, Conf.toMyself(this), usable = holdsOne != false) { Conf.toMyself(this, it) })
+        column.addView(
+            flip(R.string.conf_to_myself, Conf.toMyself(this), usable = holdsOne != false) { Conf.toMyself(this, it) },
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = Look.dp(this@ConfActivity, 12) },
+        )
         note(R.string.conf_to_myself_note)
 
         heading(R.string.backup_all)

@@ -124,10 +124,11 @@
     <string name="tie_ask_after">. Zostanie to zapisane w twojej książce adresowej, tam gdzie kontakt jeszcze tego nie podaje:</string>
     <string name="whom_hint">Imię lub numer telefonu</string>
     <string name="show_unread">Szczegóły</string>
-    <string name="mark_all_read">Oznacz wszystko jako przeczytane</string>
+    <string name="mark_all_read">○ Oznacz wszystko jako przeczytane</string>
     <string name="mark_all_read_ask">Oznaczyć nieprzeczytane wiadomości (%1$d) jako przeczytane?</string>
     <string name="decrypt_unread">⚿ Odszyfruj nieprzeczytane</string>
-    <string name="mark_read">Oznacz jako przeczytane</string>
+    <string name="mark_read">○ Oznacz jako przeczytane</string>
+    <string name="mark_unread">● Oznacz jako nieprzeczytane</string>
     <string name="show_all">Pokaż wszystko</string>
     <string name="count_detail">%1$d wiadomości: %2$d SMS + %3$d MMS\nw tym %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d rozmów — %8$s bajtów</string>
     <string name="count_detail_unread">%1$d nieprzeczytanych</string>

@@ -124,10 +124,11 @@
     <string name="tie_ask_after">. Dies wird in Ihr Adressbuch eingetragen, wo der Kontakt es noch nicht enthält:</string>
     <string name="whom_hint">Ein Name oder eine Telefonnummer</string>
     <string name="show_unread">Details</string>
-    <string name="mark_all_read">Alle als gelesen markieren</string>
+    <string name="mark_all_read">○ Alle als gelesen markieren</string>
     <string name="mark_all_read_ask">Die %1$d ungelesenen Nachrichten als gelesen markieren?</string>
     <string name="decrypt_unread">⚿ Ungelesene entschlüsseln</string>
-    <string name="mark_read">Als gelesen markieren</string>
+    <string name="mark_read">○ Als gelesen markieren</string>
+    <string name="mark_unread">● Als ungelesen markieren</string>
     <string name="show_all">Alle anzeigen</string>
     <string name="count_detail">%1$d Nachrichten: %2$d SMS + %3$d MMS\ndavon %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d Unterhaltungen – %8$s Bytes</string>
     <string name="count_detail_unread">%1$d ungelesen</string>

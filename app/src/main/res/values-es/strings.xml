@@ -124,10 +124,11 @@
     <string name="tie_ask_after">. Esto se escribirá en su libreta de direcciones, donde el contacto aún no lo indica:</string>
     <string name="whom_hint">Un nombre o un número de teléfono</string>
     <string name="show_unread">Detallar</string>
-    <string name="mark_all_read">Marcar todo como leído</string>
+    <string name="mark_all_read">○ Marcar todo como leído</string>
     <string name="mark_all_read_ask">¿Marcar los %1$d mensajes no leídos como leídos?</string>
     <string name="decrypt_unread">⚿ Descifrar los no leídos</string>
-    <string name="mark_read">Marcar como leído</string>
+    <string name="mark_read">○ Marcar como leído</string>
+    <string name="mark_unread">● Marcar como no leído</string>
     <string name="show_all">Mostrar todo</string>
     <string name="count_detail">%1$d mensajes: %2$d SMS + %3$d MMS\nde ellos %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d conversaciones — %8$s bytes</string>
     <string name="count_detail_unread">%1$d sin leer</string>

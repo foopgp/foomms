@@ -124,10 +124,11 @@
     <string name="tie_ask_after">. Це буде записано у вашу адресну книгу, де в контакті цього ще немає:</string>
     <string name="whom_hint">Ім\'я або номер телефону</string>
     <string name="show_unread">Докладніше</string>
-    <string name="mark_all_read">Позначити все як прочитане</string>
+    <string name="mark_all_read">○ Позначити все як прочитане</string>
     <string name="mark_all_read_ask">Позначити непрочитані повідомлення (%1$d) як прочитані?</string>
     <string name="decrypt_unread">⚿ Розшифрувати непрочитані</string>
-    <string name="mark_read">Позначити як прочитане</string>
+    <string name="mark_read">○ Позначити як прочитане</string>
+    <string name="mark_unread">● Позначити як непрочитане</string>
     <string name="show_all">Показати все</string>
     <string name="count_detail">%1$d повідомлень: %2$d SMS + %3$d MMS\nз них %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d листувань — %8$s байтів</string>
     <string name="count_detail_unread">%1$d непрочитаних</string>
