@@ -26,6 +26,11 @@ object Conf {
 
     fun around(context: Context, most: Int) = kept(context).edit().putInt("before", most.coerceIn(0, MOST_AROUND)).apply()
 
+    /** How many messages not read yet, in every conversation, a use of the key tries to open beside the one pressed; none, by default. */
+    fun unreadAll(context: Context): Int = kept(context).getInt("unread_all", 0).coerceIn(0, MOST_AROUND)
+
+    fun unreadAll(context: Context, most: Int) = kept(context).edit().putInt("unread_all", most.coerceIn(0, MOST_AROUND)).apply()
+
     fun theme(context: Context): Theme = named(kept(context).getString("theme", null), Theme.SYSTEM)
 
     fun theme(context: Context, theme: Theme) = kept(context).edit().putString("theme", theme.name).apply()

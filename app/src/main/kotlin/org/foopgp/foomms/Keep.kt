@@ -135,13 +135,30 @@ object Keep {
         context.contentResolver.delete(Uri.parse("content://mms-sms/conversations/$thread"), null, null) > 0
     }.getOrDefault(false)
 
-    /** Opening a conversation reads it. */
-    fun read(context: Context, thread: Long) {
+    /** Opening a conversation reads it, but for what is still locked: that is read once opened ([read] of a line). */
+    fun read(context: Context, thread: Long, locked: List<Store.Line> = emptyList()) {
+        if (!ours(context)) return
+        val seen = ContentValues().apply { put("read", 1) ; put("seen", 1) }
+        fun but(mms: Boolean) = locked.filter { it.mms == mms }.joinToString(",") { it.id.toString() }.let { if (it.isEmpty()) "" else " AND _id NOT IN ($it)" }
+        runCatching {
+            context.contentResolver.update(Telephony.Sms.CONTENT_URI, seen, "thread_id = ? AND read = 0" + but(false), arrayOf(thread.toString()))
+            context.contentResolver.update(Telephony.Mms.CONTENT_URI, seen, "thread_id = ? AND read = 0" + but(true), arrayOf(thread.toString()))
+        }
+    }
+
+    /** One message read: opened from its lock, refused by foodjis before the person's eyes, or said read by them. */
+    fun read(context: Context, line: Store.Line) {
+        if (!ours(context) || line.id < 0) return
+        runCatching { context.contentResolver.update(line.uri, ContentValues().apply { put("read", 1) ; put("seen", 1) }, "read = 0", null) }
+    }
+
+    /** Everything read, locked or not: asked for by the person. */
+    fun readAll(context: Context) {
         if (!ours(context)) return
         val seen = ContentValues().apply { put("read", 1) ; put("seen", 1) }
         runCatching {
-            context.contentResolver.update(Telephony.Sms.CONTENT_URI, seen, "thread_id = ? AND read = 0", arrayOf(thread.toString()))
-            context.contentResolver.update(Telephony.Mms.CONTENT_URI, seen, "thread_id = ? AND read = 0", arrayOf(thread.toString()))
+            context.contentResolver.update(Telephony.Sms.CONTENT_URI, seen, "read = 0", null)
+            context.contentResolver.update(Telephony.Mms.CONTENT_URI, seen, "read = 0", null)
         }
     }
 

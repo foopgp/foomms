@@ -1,7 +1,6 @@
 package org.foopgp.foomms
 
 import android.Manifest
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -22,7 +21,10 @@ import kotlin.concurrent.thread
  * The conversations the phone holds, newest first: who, the last words, when,
  * and down the edge the colour of the last message.
  */
-class MainActivity : Activity() {
+class MainActivity : AskingActivity() {
+
+    /** The list is the page every other is left for: no swipe leaves it. */
+    override val leftByTheTop = false
 
     class Row(val talk: Store.Talk, val person: Book.Person?, val face: Bitmap?, val name: String, val verdict: Verdict, val last: String, val standing: String? = null)
 
@@ -42,6 +44,14 @@ class MainActivity : Activity() {
     private lateinit var all: android.widget.TextView
     private lateinit var unread: android.widget.TextView
     private lateinit var shower: android.widget.Button
+
+    /** Under the counts in detail: everything read at once, and what is still locked opened by one use of the key. */
+    private lateinit var tools: LinearLayout
+    private lateinit var markAll: android.widget.Button
+    private lateinit var decryptAll: android.widget.Button
+
+    /** How many messages not read yet are still locked, as last counted. */
+    private var locked = 0
     private var rows: List<Row> = emptyList()
 
     override fun onCreate(state: Bundle?) {
@@ -118,6 +128,17 @@ class MainActivity : Activity() {
             setOnClickListener { filter(false) }
         }
         column.addView(detail)
+        markAll = Look.small(this, getString(R.string.mark_all_read)) { markAll() }
+        decryptAll = Look.small(this, getString(R.string.decrypt_unread)) { decryptAll() }
+        tools = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            val side = Look.dp(context, 16)
+            setPadding(side, 0, side, side / 2)
+            visibility = View.GONE
+            addView(markAll)
+            addView(decryptAll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginStart = Look.dp(context, 10) })
+        }
+        column.addView(tools)
         column.addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         val pad = Look.dp(this, 8)
         column.addView(
@@ -130,8 +151,6 @@ class MainActivity : Activity() {
     }
 
     private var dressed = false
-
-    private val provider by lazy { Provider(this) }
 
     /** The signed messages being verified, or that could not be: not asked again while the page stands. */
     private val verifying = HashSet<String>()
@@ -153,11 +172,6 @@ class MainActivity : Activity() {
                 if (--left == 0 && any) fill()
             }
         }
-    }
-
-    override fun onDestroy() {
-        provider.close()
-        super.onDestroy()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -185,6 +199,7 @@ class MainActivity : Activity() {
         if (only == onlyUnread) return
         onlyUnread = only
         unreadRows = null
+        if (onlyUnread) countLocked()
         // Called by its own name: inside the bar's code, "show()" was the bar's, which shows the bar.
         redraw()
         // In: the unread are read for themselves. Out: what was read of the rest is shown at once,
@@ -462,7 +477,71 @@ class MainActivity : Activity() {
             ).append(getString(R.string.count_detail_unread_rest, known.unreadPgp, known.unreadTalks))
         }
         detail.visibility = if (onlyUnread && known != null) View.VISIBLE else View.GONE
+        tools.visibility = detail.visibility
+        // Nothing to do, greyed rather than gone: the line does not jump.
+        usable(markAll, (known?.unread ?: 0) > 0)
+        usable(decryptAll, locked > 0)
         shower.text = getString(if (onlyUnread) R.string.show_all else R.string.show_unread)
+    }
+
+    private fun usable(button: android.widget.Button, on: Boolean) {
+        button.isEnabled = on
+        button.alpha = if (on) 1f else 0.38f
+    }
+
+    /** How many unread messages are still locked, counted away from the main thread. */
+    private fun countLocked() {
+        thread {
+            val found = Unlocking.waiting(this, Int.MAX_VALUE).size
+            runOnUiThread { if (!isFinishing && !isDestroyed) { locked = found ; redraw() } }
+        }
+    }
+
+    /** Every message read, locked or not, once the person has said so. */
+    private fun markAll() {
+        AlertDialog.Builder(this)
+            .setMessage(getString(R.string.mark_all_read_ask, counts?.unread ?: 0))
+            .setPositiveButton(R.string.mark_all_read) { _, _ ->
+                thread {
+                    Keep.readAll(this)
+                    Notify.seenAll(this)
+                    runOnUiThread { if (!isFinishing && !isDestroyed) { locked = 0 ; fill() } }
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    /** Counted again a moment after the last message opened, rather than once for each. */
+    private val recount = Runnable { if (!isFinishing && !isDestroyed) { countLocked() ; fill() } }
+
+    /**
+     * The unread messages still locked, in every conversation, opened by one
+     * use of the key: kept for when their conversation is opened, and unread
+     * till then.
+     */
+    private fun decryptAll() {
+        thread {
+            val jobs = Unlocking.waiting(this, Conf.MOST_AROUND).flatMap { Unlocking.jobs(this, it) }
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                val first = jobs.firstOrNull() ?: return@runOnUiThread
+                val opened = HashSet<Store.Line>()
+                Unlocking.open(
+                    provider, first, jobs.drop(1),
+                    ask = { input, then ->
+                        ask(Intent(Provider.DECRYPT_VERIFY), input, { android.widget.Toast.makeText(this, it, android.widget.Toast.LENGTH_LONG).show() }, done = then)
+                    },
+                    alive = { !isFinishing && !isDestroyed },
+                ) { job, answer ->
+                    Unlocking.keep(this, job, answer)
+                    if (opened.add(job.line)) {
+                        list.removeCallbacks(recount)
+                        list.postDelayed(recount, 800)
+                    }
+                }
+            }
+        }
     }
 
     /** Which filling is the latest asked for: an older one that finishes late shows nothing. */

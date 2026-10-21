@@ -47,8 +47,10 @@
     <string name="theme_dark">Dunkel</string>
     <string name="theme_system">System</string>
     <string name="theme_light">Hell</string>
-    <string name="conf_around">Entschlüsselungsfenster</string>
+    <string name="conf_around">Vorherige Nachrichten entschlüsseln</string>
     <string name="conf_around_note">Höchstzahl der Nachrichten, die nach Möglichkeit vor der ausgewählten verschlüsselten Nachricht entschlüsselt werden.</string>
+    <string name="conf_unread_all">Alle ungelesenen Nachrichten entschlüsseln</string>
+    <string name="conf_unread_all_note">Höchstzahl ungelesener Nachrichten, die nach Möglichkeit in allen Unterhaltungen entschlüsselt werden.</string>
     <string name="conf_hold">Verschlüsselte Nachrichten schließen</string>
     <string name="conf_hold_note">Wie lange verschlüsselte Nachrichten in einer Unterhaltung geöffnet oder sichtbar bleiben.</string>
     <string name="conf_hold_after">Verschlüsselte Nachrichten schließen nach</string>
@@ -85,7 +87,7 @@
     <string name="carrying">📎 %1$s – %2$d kB   ✕</string>
     <string name="too_heavy">Zu groß für eine MMS in diesem Netz (höchstens %1$d kB) oder nicht lesbar.</string>
     <string name="handed_mms">MMS an das Telefon übergeben: %1$s</string>
-    <string name="conf_myself">Verschlüsselte Nachrichten</string>
+    <string name="conf_crypto">Verschlüsselung</string>
     <string name="conf_to_myself">Auch an mich selbst verschlüsseln</string>
     <string name="conf_to_myself_note">Beim Senden verschlüsselter Nachrichten mich zu den Empfängern zählen, damit ich sie wieder lesen kann.</string>
     <string name="no_answer">Diesem Absender kann nicht geantwortet werden</string>
@@ -121,7 +123,11 @@
     <string name="tie_ask_before">Das Zertifikat ist</string>
     <string name="tie_ask_after">. Dies wird in Ihr Adressbuch eingetragen, wo der Kontakt es noch nicht enthält:</string>
     <string name="whom_hint">Ein Name oder eine Telefonnummer</string>
-    <string name="show_unread">Anzeigen</string>
+    <string name="show_unread">Details</string>
+    <string name="mark_all_read">Alle als gelesen markieren</string>
+    <string name="mark_all_read_ask">Die %1$d ungelesenen Nachrichten als gelesen markieren?</string>
+    <string name="decrypt_unread">⚿ Ungelesene entschlüsseln</string>
+    <string name="mark_read">Als gelesen markieren</string>
     <string name="show_all">Alle anzeigen</string>
     <string name="count_detail">%1$d Nachrichten: %2$d SMS + %3$d MMS\ndavon %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d Unterhaltungen – %8$s Bytes</string>
     <string name="count_detail_unread">%1$d ungelesen</string>

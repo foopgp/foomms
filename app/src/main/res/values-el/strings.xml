@@ -47,8 +47,10 @@
     <string name="theme_dark">Σκούρο</string>
     <string name="theme_system">Συστήματος</string>
     <string name="theme_light">Ανοιχτό</string>
-    <string name="conf_around">Παράθυρο αποκρυπτογράφησης</string>
+    <string name="conf_around">Αποκρυπτογράφηση των προηγούμενων μηνυμάτων</string>
     <string name="conf_around_note">Μέγιστος αριθμός μηνυμάτων προς αποκρυπτογράφηση, αν είναι δυνατόν, πριν από το επιλεγμένο κρυπτογραφημένο μήνυμα.</string>
+    <string name="conf_unread_all">Αποκρυπτογράφηση όλων των μη αναγνωσμένων μηνυμάτων</string>
+    <string name="conf_unread_all_note">Μέγιστος αριθμός μη αναγνωσμένων μηνυμάτων προς αποκρυπτογράφηση, αν είναι δυνατόν, σε όλες τις συνομιλίες.</string>
     <string name="conf_hold">Κλείσιμο κρυπτογραφημένων μηνυμάτων</string>
     <string name="conf_hold_note">Πόσο χρόνο τα κρυπτογραφημένα μηνύματα μένουν ανοιχτά ή ορατά σε μια συνομιλία.</string>
     <string name="conf_hold_after">Κλείσιμο κρυπτογραφημένων μηνυμάτων μετά από</string>
@@ -85,7 +87,7 @@
     <string name="carrying">📎 %1$s — %2$d kB   ✕</string>
     <string name="too_heavy">Πολύ μεγάλο για MMS σε αυτό το δίκτυο (το πολύ %1$d kB) ή μη αναγνώσιμο.</string>
     <string name="handed_mms">Το MMS παραδόθηκε στο τηλέφωνο: %1$s</string>
-    <string name="conf_myself">Κρυπτογραφημένα μηνύματα</string>
+    <string name="conf_crypto">Κρυπτογράφηση</string>
     <string name="conf_to_myself">Κρυπτογράφηση και για μένα</string>
     <string name="conf_to_myself_note">Κατά την αποστολή κρυπτογραφημένων μηνυμάτων, να συμπεριλαμβάνομαι στους παραλήπτες, ώστε να μπορώ να τα ξαναδιαβάσω.</string>
     <string name="no_answer">Δεν είναι δυνατή η απάντηση σε αυτόν τον αποστολέα</string>
@@ -121,7 +123,11 @@
     <string name="tie_ask_before">Το πιστοποιητικό του είναι</string>
     <string name="tie_ask_after">. Αυτό θα γραφτεί στο βιβλίο διευθύνσεών σας, όπου η επαφή δεν το αναφέρει ακόμη:</string>
     <string name="whom_hint">Ένα όνομα ή ένας αριθμός τηλεφώνου</string>
-    <string name="show_unread">Εμφάνιση</string>
+    <string name="show_unread">Λεπτομέρειες</string>
+    <string name="mark_all_read">Σήμανση όλων ως αναγνωσμένα</string>
+    <string name="mark_all_read_ask">Σήμανση των %1$d μη αναγνωσμένων μηνυμάτων ως αναγνωσμένων;</string>
+    <string name="decrypt_unread">⚿ Αποκρυπτογράφηση μη αναγνωσμένων</string>
+    <string name="mark_read">Σήμανση ως αναγνωσμένο</string>
     <string name="show_all">Εμφάνιση όλων</string>
     <string name="count_detail">%1$d μηνύματα: %2$d SMS + %3$d MMS\nαπό τα οποία %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d συνομιλίες — %8$s byte</string>
     <string name="count_detail_unread">%1$d μη αναγνωσμένα</string>

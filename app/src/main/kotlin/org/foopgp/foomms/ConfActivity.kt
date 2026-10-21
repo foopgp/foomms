@@ -56,6 +56,39 @@ class ConfActivity : Activity() {
     private fun heading(words: Int) =
         column.addView(Look.words(this, getString(words), size = 19f).apply { setTypeface(typeface, Typeface.BOLD) ; setPadding(0, Look.dp(context, 18), 0, 0) })
 
+    /** A setting among others under one heading. */
+    private fun subheading(words: Int) =
+        column.addView(Look.words(this, getString(words), size = 16f).apply { setTypeface(typeface, Typeface.BOLD) ; setPadding(0, Look.dp(context, 12), 0, 0) })
+
+    /** A number from 0 to [Conf.MOST_AROUND], set by sliding, shown beside. */
+    private fun slider(now: Int, set: (Int) -> Unit) {
+        val shown = Look.words(this, now.toString(), size = 18f)
+        column.addView(
+            LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                addView(
+                    SeekBar(context).apply {
+                        max = Conf.MOST_AROUND
+                        progress = now
+                        setOnSeekBarChangeListener(
+                            object : SeekBar.OnSeekBarChangeListener {
+                                override fun onProgressChanged(bar: SeekBar?, value: Int, byHand: Boolean) {
+                                    set(value)
+                                    shown.text = value.toString()
+                                }
+                                override fun onStartTrackingTouch(bar: SeekBar?) = Unit
+                                override fun onStopTrackingTouch(bar: SeekBar?) = Unit
+                            },
+                        )
+                    },
+                    LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+                )
+                addView(shown, LinearLayout.LayoutParams(Look.dp(context, 36), ViewGroup.LayoutParams.WRAP_CONTENT))
+            },
+        )
+    }
+
     private fun note(words: Int) = note(getString(words))
 
     private fun note(words: String) =
@@ -103,36 +136,16 @@ class ConfActivity : Activity() {
             },
         )
 
-        heading(R.string.conf_around)
+        // What is locked: how much one use of the key opens, how long it stays open, and for whom it is locked.
+        heading(R.string.conf_crypto)
+        subheading(R.string.conf_around)
         note(R.string.conf_around_note)
-        // How many before the one selected, 0 to 10.
-        val shown = Look.words(this, Conf.around(this).toString(), size = 18f)
-        column.addView(
-            LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = android.view.Gravity.CENTER_VERTICAL
-                addView(
-                    SeekBar(context).apply {
-                        max = Conf.MOST_AROUND
-                        progress = Conf.around(context)
-                        setOnSeekBarChangeListener(
-                            object : SeekBar.OnSeekBarChangeListener {
-                                override fun onProgressChanged(bar: SeekBar?, value: Int, byHand: Boolean) {
-                                    Conf.around(context, value)
-                                    shown.text = value.toString()
-                                }
-                                override fun onStartTrackingTouch(bar: SeekBar?) = Unit
-                                override fun onStopTrackingTouch(bar: SeekBar?) = Unit
-                            },
-                        )
-                    },
-                    LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
-                )
-                addView(shown, LinearLayout.LayoutParams(Look.dp(context, 36), ViewGroup.LayoutParams.WRAP_CONTENT))
-            },
-        )
+        slider(Conf.around(this)) { Conf.around(this, it) }
+        subheading(R.string.conf_unread_all)
+        note(R.string.conf_unread_all_note)
+        slider(Conf.unreadAll(this)) { Conf.unreadAll(this, it) }
 
-        heading(R.string.conf_hold)
+        subheading(R.string.conf_hold)
         note(R.string.conf_hold_note)
         val choices = Conf.Hold.entries
         val current = Conf.hold(this)
@@ -150,7 +163,6 @@ class ConfActivity : Activity() {
             },
         )
 
-        heading(R.string.conf_myself)
         column.addView(flip(R.string.conf_to_myself, Conf.toMyself(this), usable = holdsOne != false) { Conf.toMyself(this, it) })
         note(R.string.conf_to_myself_note)
 

@@ -50,8 +50,10 @@
     <string name="theme_dark">Dark</string>
     <string name="theme_system">System</string>
     <string name="theme_light">Light</string>
-    <string name="conf_around">Decryption window</string>
+    <string name="conf_around">Decrypt the previous messages</string>
     <string name="conf_around_note">Most messages to decrypt, where possible, before the selected encrypted message.</string>
+    <string name="conf_unread_all">Decrypt all unread messages</string>
+    <string name="conf_unread_all_note">Maximum number of unread messages to decrypt, if possible, in every conversation.</string>
     <string name="conf_hold">Close encrypted messages</string>
     <string name="conf_hold_note">How long encrypted messages stay open, or visible, in a conversation.</string>
     <string name="conf_hold_after">Close encrypted messages after</string>
@@ -88,7 +90,7 @@
     <string name="carrying">📎 %1$s — %2$d kB   ✕</string>
     <string name="too_heavy">Too heavy for an MMS on this network (%1$d kB at most), or not something that can be read.</string>
     <string name="handed_mms">MMS handed to the phone: %1$s</string>
-    <string name="conf_myself">Encrypted messages</string>
+    <string name="conf_crypto">Encryption</string>
     <string name="conf_to_myself">Also encrypt to myself</string>
     <string name="conf_to_myself_note">When sending encrypted messages, include me among the recipients, so that I can read them again.</string>
     <string name="no_answer">This sender cannot be answered</string>
@@ -124,7 +126,11 @@
     <string name="tie_ask_before">Their certificate is</string>
     <string name="tie_ask_after">. This will be written in your address book, where the contact does not say it already:</string>
     <string name="whom_hint">A name, or a phone number</string>
-    <string name="show_unread">Show</string>
+    <string name="show_unread">Details</string>
+    <string name="mark_all_read">Mark all as read</string>
+    <string name="mark_all_read_ask">Mark the %1$d unread messages as read?</string>
+    <string name="decrypt_unread">⚿ Decrypt the unread</string>
+    <string name="mark_read">Mark as read</string>
     <string name="show_all">Show all</string>
     <string name="count_detail">%1$d messages: %2$d SMS + %3$d MMS\n%4$d of them PGP: %5$d SMS + %6$d MMS\n\n%7$d conversations — %8$s bytes</string>
     <string name="count_detail_unread">%1$d unread</string>

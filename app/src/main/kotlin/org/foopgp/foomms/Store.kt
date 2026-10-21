@@ -28,6 +28,8 @@ object Store {
         val id: Long = -1, val mms: Boolean = false,
         /** When it left its sender, when the phone knows; who that was, as the network wrote it. */
         val sentAt: Long = 0, val address: String? = null,
+        /** Not read yet; and the conversation it belongs to. */
+        val unread: Boolean = false, val thread: Long = -1,
     ) {
         val attachments: Int get() = pieces.size
         val uri: Uri get() = Uri.parse(if (mms) "content://mms/$id" else "content://sms/$id")
@@ -175,31 +177,41 @@ object Store {
     fun lines(context: Context, thread: Long): List<Line> {
         val lines = ArrayList<Line>()
         context.contentResolver.query(
-            SMS, arrayOf("date", "body", "type", "_id", "date_sent", "address"), "thread_id = ?", arrayOf(thread.toString()), null,
+            SMS, arrayOf("date", "body", "type", "_id", "date_sent", "address", "read"), "thread_id = ?", arrayOf(thread.toString()), null,
         )?.use { rows ->
             while (rows.moveToNext()) {
                 lines += Line(
                     rows.getLong(0), rows.getInt(2) == SMS_INBOX, rows.getString(1).orEmpty(),
                     id = rows.getLong(3), sentAt = rows.getLong(4), address = rows.getString(5),
+                    unread = rows.getInt(6) == 0, thread = thread,
                 )
             }
         }
         // The MMS, then all their parts in one asking rather than one each: a conversation of many MMS opened in a
         // fraction of the time. Who sent each is not asked here, being only shown in its details ([addressOf]).
-        class Head(val id: Long, val at: Long, val incoming: Boolean, val sentAt: Long)
+        class Head(val id: Long, val at: Long, val incoming: Boolean, val sentAt: Long, val unread: Boolean)
         val heads = ArrayList<Head>()
         context.contentResolver.query(
-            MMS, arrayOf("_id", "date", "msg_box", "date_sent"), "thread_id = ?", arrayOf(thread.toString()), null,
+            MMS, arrayOf("_id", "date", "msg_box", "date_sent", "read"), "thread_id = ?", arrayOf(thread.toString()), null,
         )?.use { rows ->
-            while (rows.moveToNext()) heads += Head(rows.getLong(0), rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, rows.getLong(3) * 1000)
+            while (rows.moveToNext()) {
+                heads += Head(rows.getLong(0), rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, rows.getLong(3) * 1000, rows.getInt(4) == 0)
+            }
         }
         val parts = parts(context, heads.map { it.id })
         for (head in heads) {
             val (words, pieces) = parts[head.id] ?: ("" to emptyList())
-            lines += Line(head.at, head.incoming, words, pieces, id = head.id, mms = true, sentAt = head.sentAt)
+            lines += Line(head.at, head.incoming, words, pieces, id = head.id, mms = true, sentAt = head.sentAt, unread = head.unread, thread = thread)
         }
         return lines.sortedBy { it.at }
     }
+
+    /** The conversations holding something not read yet. */
+    fun unreadThreads(context: Context): List<Long> = runCatching {
+        context.contentResolver.query(THREADS, arrayOf("_id"), "read = 0", null, "date DESC")?.use { rows ->
+            buildList { while (rows.moveToNext()) add(rows.getLong(0)) }
+        }
+    }.getOrNull().orEmpty()
 
     /** Who sent a message, or whom it went to: as the network wrote it, an MMS's asked of the phone only now. */
     fun addressOf(context: Context, line: Line): String? = line.address ?: if (line.mms) number(context, line.id, line.incoming) else null

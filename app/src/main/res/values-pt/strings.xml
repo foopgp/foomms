@@ -47,8 +47,10 @@
     <string name="theme_dark">Escuro</string>
     <string name="theme_system">Sistema</string>
     <string name="theme_light">Claro</string>
-    <string name="conf_around">Janela de decifragem</string>
+    <string name="conf_around">Decifrar as mensagens anteriores</string>
     <string name="conf_around_note">Número máximo de mensagens a decifrar, se possível, antes da mensagem cifrada selecionada.</string>
+    <string name="conf_unread_all">Decifrar todas as mensagens não lidas</string>
+    <string name="conf_unread_all_note">Número máximo de mensagens não lidas a decifrar, se possível, em todas as conversas.</string>
     <string name="conf_hold">Fechar as mensagens cifradas</string>
     <string name="conf_hold_note">O tempo durante o qual as mensagens cifradas ficam abertas ou visíveis numa conversa.</string>
     <string name="conf_hold_after">Fechar as mensagens cifradas ao fim de</string>
@@ -85,7 +87,7 @@
     <string name="carrying">📎 %1$s — %2$d kB   ✕</string>
     <string name="too_heavy">Demasiado pesado para um MMS nesta rede (%1$d kB no máximo), ou impossível de ler.</string>
     <string name="handed_mms">MMS entregue ao telemóvel: %1$s</string>
-    <string name="conf_myself">Mensagens cifradas</string>
+    <string name="conf_crypto">Cifragem</string>
     <string name="conf_to_myself">Cifrar também para mim</string>
     <string name="conf_to_myself_note">Ao enviar mensagens cifradas, incluir-me entre os destinatários, para as poder voltar a ler.</string>
     <string name="no_answer">Não é possível responder a este remetente</string>
@@ -121,7 +123,11 @@
     <string name="tie_ask_before">O certificado está</string>
     <string name="tie_ask_after">. Isto será escrito na sua lista de contactos, onde o contacto ainda não o indica:</string>
     <string name="whom_hint">Um nome ou um número de telemóvel</string>
-    <string name="show_unread">Mostrar</string>
+    <string name="show_unread">Detalhar</string>
+    <string name="mark_all_read">Marcar tudo como lido</string>
+    <string name="mark_all_read_ask">Marcar as %1$d mensagens não lidas como lidas?</string>
+    <string name="decrypt_unread">⚿ Decifrar as não lidas</string>
+    <string name="mark_read">Marcar como lida</string>
     <string name="show_all">Mostrar tudo</string>
     <string name="count_detail">%1$d mensagens: %2$d SMS + %3$d MMS\ndas quais %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d conversas — %8$s bytes</string>
     <string name="count_detail_unread">%1$d por ler</string>

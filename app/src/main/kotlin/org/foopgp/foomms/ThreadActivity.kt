@@ -466,7 +466,8 @@ class ThreadActivity : AskingActivity() {
                 }
             }
             if (shown) {
-                thread?.let { Keep.read(this, it) }
+                // Read, but for what is still locked: that waits to be opened.
+                thread?.let { Keep.read(this, it, found.filter(::lockedAndClosed)) }
                 Notify.seen(this, number)
             }
             val pieces = found.flatMap { it.pieces }
@@ -821,20 +822,8 @@ class ThreadActivity : AskingActivity() {
         openAll(line, near)
     }
 
-    /** Something a message holds that the key is to open: its words, or one of the parts it carries. */
-    private sealed class Job {
-        abstract val line: Store.Line
-        class Words(override val line: Store.Line, val armor: String) : Job()
-        class Part(override val line: Store.Line, val piece: Store.Piece, val bytes: ByteArray) : Job()
-    }
-
-    /**
-     * A line's PGP message: the innermost opened so far ([Opened.inner]), or
-     * none. One envelope opened onto another shows that one, closed, as a
-     * message of its own -- grey, "encrypted for" --, and the person opens it
-     * or not: nothing is opened further behind their back.
-     */
-    private fun armorOf(line: Store.Line): String? = Pgp.armorIn(line.body)?.let { Opened.inner(it) }
+    /** A line's PGP message, as far as it has been opened ([Unlocking.armorOf]). */
+    private fun armorOf(line: Store.Line): String? = Unlocking.armorOf(line)
 
     /** Whether a message holds something encrypted still closed: its words, or a part. */
     private fun lockedAndClosed(line: Store.Line): Boolean =
@@ -848,60 +837,42 @@ class ThreadActivity : AskingActivity() {
 
     /**
      * A message pressed, and the closed ones near it, opened by one use of the
-     * key: foodjis is told of everything first -- the words and every locked
-     * part of each --, so that it knows what waits; then asked for the first
-     * thing of the message pressed, which is when it asks for the key; and
-     * what the key did for the rest is collected after. A signed message
-     * needs no key and is read as soon as it is told of.
+     * key ([Unlocking.open]); with them, as many not read yet in the other
+     * conversations as the person set, kept for when theirs is opened. What
+     * opens here is read; what foodjis refuses outright, before the person's
+     * eyes, is read too.
      */
     private fun openAll(chosen: Store.Line, near: List<Store.Line>) {
+        val elsewhere = Conf.unreadAll(this)
+        val here = here()
         thread {
-            fun jobs(line: Store.Line): List<Job> {
-                val found = ArrayList<Job>()
-                armorOf(line)?.takeIf { Opened.words(it) == null }?.let { found += Job.Words(line, it) }
-                for (piece in line.pieces.filter { isSealed(it) && Opened.piece(it.id) == null }) {
-                    runCatching { contentResolver.openInputStream(piece.uri)?.use { it.readBytes() } }.getOrNull()
-                        ?.let { found += Job.Part(line, piece, it) }
-                }
-                return found
-            }
-            val mine = jobs(chosen)
-            val rest = mine.drop(1) + near.flatMap(::jobs)
+            val mine = Unlocking.jobs(this, chosen)
+            val rest = mine.drop(1) + near.flatMap { Unlocking.jobs(this, it) } +
+                Unlocking.waiting(this, elsewhere, besides = here).flatMap { Unlocking.jobs(this, it) }
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 val first = mine.firstOrNull() ?: return@runOnUiThread
-                fun input(job: Job) = when (job) { is Job.Words -> job.armor.toByteArray() ; is Job.Part -> job.bytes }
-                fun done(job: Job, answer: Provider.Answer.Done) = when (job) {
-                    is Job.Words -> opened(job.armor, answer, offer = job.line === chosen && job.line.incoming)
-                    is Job.Part -> got(job.piece, answer)
-                }
-                val waiting = rest.toMutableList()
-                fun theFirst() {
-                    val why: (String) -> Unit = { words -> if (first is Job.Words) closed(first.armor, words) else say(words) }
-                    ask(Intent(Provider.DECRYPT_VERIFY), input(first), why) { answer ->
-                        done(first, answer)
-                        // A message alike byte for byte -- received twice, sent twice -- is one asking for foodjis, which
-                        // answers it once: those like the first take its answer, and the others are asked for once a kind.
-                        val alike = waiting.filter { input(it).contentEquals(input(first)) }
-                        alike.forEach { done(it, answer) }
-                        // What the key answered for the others is waiting: each is asked for again, and says nothing if it is not.
-                        for (kind in (waiting - alike.toSet()).groupBy { java.nio.ByteBuffer.wrap(input(it)) }.values) {
-                            provider.ask(Intent(Provider.DECRYPT_VERIFY), input(kind.first())) { again ->
-                                if (again is Provider.Answer.Done && !isFinishing && !isDestroyed) kind.forEach { done(it, again) }
-                            }
-                        }
+                val why: (String) -> Unit = { words -> if (first is Unlocking.Job.Words) closed(first.armor, words) else say(words) }
+                Unlocking.open(
+                    provider, first, rest,
+                    ask = { input, then -> ask(Intent(Provider.DECRYPT_VERIFY), input, why, refused = { read(chosen) }, done = then) },
+                    alive = { !isFinishing && !isDestroyed },
+                ) { job, answer ->
+                    if (job.line.thread != here) return@open Unlocking.keep(this, job, answer)
+                    when (job) {
+                        is Unlocking.Job.Words -> opened(job.armor, answer, offer = job.line === chosen && job.line.incoming)
+                        is Unlocking.Job.Part -> got(job.piece, answer)
                     }
-                }
-                var left = rest.size
-                if (left == 0) return@runOnUiThread theFirst()
-                for (job in rest) {
-                    provider.ask(Intent(Provider.DECRYPT_VERIFY), input(job)) { answer ->
-                        if (answer is Provider.Answer.Done && !isFinishing && !isDestroyed) { done(job, answer) ; waiting.remove(job) }
-                        if (--left == 0 && !isFinishing && !isDestroyed) theFirst()
-                    }
+                    read(job.line)
                 }
             }
         }
+    }
+
+    /** A message of this conversation read, while it is on screen. */
+    private fun read(line: Store.Line) {
+        if (!line.unread || !shown) return
+        thread { Keep.read(this, line) }
     }
 
     /** A part of an MMS that is itself a PGP message: by its label, or by the name given to what was locked. */
@@ -909,17 +880,7 @@ class ThreadActivity : AskingActivity() {
 
     /** A locked part, opened: kept with what it is, and a picture made small to sit in its bubble. */
     private fun got(piece: Store.Piece, answer: Provider.Answer.Done) {
-        answer.says.setExtrasClassLoader(OpenPgpSignatureResult::class.java.classLoader)
-        @Suppress("DEPRECATION")
-        val signature = answer.says.getParcelableExtra<OpenPgpSignatureResult>(Provider.RESULT_SIGNATURE)
-        val certified = signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED
-        val told = Kind.of(answer.bytes.copyOf(minOf(answer.bytes.size, 32)), null)
-        val name = Pgp.innerName(piece.name, answer.bytes, told.extension)
-        val signer = signature?.takeIf { it.result != OpenPgpSignatureResult.RESULT_NO_SIGNATURE }
-        Opened.keepPiece(
-            this, piece.id, told.type, name, answer.bytes, Verdict.of(pieceLocked[piece.id] != false, certified),
-            signed = Signer.of(signature), signer = signer?.keyId, eid = signer?.let { Signer.eid(it) }, thread = here(),
-        )
+        val told = Unlocking.keepPiece(this, piece, answer, pieceLocked[piece.id] != false, here())
         if (told.type.startsWith("audio/") || told.type == "video/3gpp") Media.lasting(answer.bytes)?.let { lasts[piece.id] = it }
         if (told.type == "video/3gpp" || told.type.startsWith("video/")) Media.frame(answer.bytes, Look.dp(this, 200))?.let { frames[piece.id] = it }
         if (told.type.startsWith("image/")) openedThumbs[piece.id] = thumbnail(answer.bytes)
@@ -1041,6 +1002,7 @@ class ThreadActivity : AskingActivity() {
             }
         }
         choices += R.string.details to { details(line) }
+        if (line.unread) choices += R.string.mark_read to { thread { Keep.read(this, line) ; runOnUiThread { if (!isFinishing && !isDestroyed) load() } } }
         choices += R.string.forget_message to {
             AlertDialog.Builder(this)
                 .setMessage(R.string.forget_message_ask)

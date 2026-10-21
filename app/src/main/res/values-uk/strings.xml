@@ -47,8 +47,10 @@
     <string name="theme_dark">Темна</string>
     <string name="theme_system">Системна</string>
     <string name="theme_light">Світла</string>
-    <string name="conf_around">Вікно розшифрування</string>
+    <string name="conf_around">Розшифровувати попередні повідомлення</string>
     <string name="conf_around_note">Найбільша кількість повідомлень, які за можливості буде розшифровано перед вибраним зашифрованим повідомленням.</string>
+    <string name="conf_unread_all">Розшифровувати всі непрочитані повідомлення</string>
+    <string name="conf_unread_all_note">Найбільша кількість непрочитаних повідомлень, які за можливості розшифровуються в усіх розмовах.</string>
     <string name="conf_hold">Закривати зашифровані повідомлення</string>
     <string name="conf_hold_note">Скільки часу зашифровані повідомлення залишаються відкритими або видимими в листуванні.</string>
     <string name="conf_hold_after">Закривати зашифровані повідомлення через</string>
@@ -85,7 +87,7 @@
     <string name="carrying">📎 %1$s — %2$d КБ   ✕</string>
     <string name="too_heavy">Завеликий для MMS у цій мережі (не більше %1$d КБ) або нечитабельний.</string>
     <string name="handed_mms">MMS передано телефону: %1$s</string>
-    <string name="conf_myself">Зашифровані повідомлення</string>
+    <string name="conf_crypto">Шифрування</string>
     <string name="conf_to_myself">Шифрувати також для себе</string>
     <string name="conf_to_myself_note">Під час надсилання зашифрованих повідомлень додавати мене до одержувачів, щоб я міг перечитати їх.</string>
     <string name="no_answer">Цьому відправникові не можна відповісти</string>
@@ -121,7 +123,11 @@
     <string name="tie_ask_before">Його сертифікат</string>
     <string name="tie_ask_after">. Це буде записано у вашу адресну книгу, де в контакті цього ще немає:</string>
     <string name="whom_hint">Ім\'я або номер телефону</string>
-    <string name="show_unread">Показати</string>
+    <string name="show_unread">Докладніше</string>
+    <string name="mark_all_read">Позначити все як прочитане</string>
+    <string name="mark_all_read_ask">Позначити непрочитані повідомлення (%1$d) як прочитані?</string>
+    <string name="decrypt_unread">⚿ Розшифрувати непрочитані</string>
+    <string name="mark_read">Позначити як прочитане</string>
     <string name="show_all">Показати все</string>
     <string name="count_detail">%1$d повідомлень: %2$d SMS + %3$d MMS\nз них %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d листувань — %8$s байтів</string>
     <string name="count_detail_unread">%1$d непрочитаних</string>

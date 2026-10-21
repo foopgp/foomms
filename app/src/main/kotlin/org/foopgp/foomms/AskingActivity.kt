@@ -15,15 +15,19 @@ abstract class AskingActivity : Activity() {
     protected val provider by lazy { Provider(this) }
 
     /** Left by the top, as every page but the list. */
+    protected open val leftByTheTop = true
+
     private val swipes by lazy { Swipes.watch(this) }
 
-    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean = swipes.feed(event) || super.dispatchTouchEvent(event)
+    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean =
+        (leftByTheTop && swipes.feed(event)) || super.dispatchTouchEvent(event)
 
     private class Errand(
         val request: Intent,
         val input: ByteArray?,
         val failed: (String) -> Unit,
         val shown: (Intent?) -> Boolean,
+        val refused: () -> Unit,
         val done: (Provider.Answer.Done) -> Unit,
     )
 
@@ -51,10 +55,11 @@ abstract class AskingActivity : Activity() {
         input: ByteArray?,
         failed: (String) -> Unit,
         screened: (Intent?) -> Boolean = { false },
+        refused: () -> Unit = {},
         done: (Provider.Answer.Done) -> Unit,
     ) {
         shown = 0
-        errand = Errand(request, input, failed, screened, done)
+        errand = Errand(request, input, failed, screened, refused, done)
         again(null)
     }
 
@@ -67,7 +72,8 @@ abstract class AskingActivity : Activity() {
             if (isFinishing || isDestroyed) return@ask
             when (answer) {
                 is Provider.Answer.Done -> { this.errand = null ; errand.done(answer) }
-                is Provider.Answer.Failed -> { this.errand = null ; errand.failed(getString(R.string.failed, answer.says)) }
+                // Refused by foodjis itself -- not given up by the person in front of one of its screens.
+                is Provider.Answer.Failed -> { this.errand = null ; errand.refused() ; errand.failed(getString(R.string.failed, answer.says)) }
                 is Provider.Answer.Ask ->
                     if (++shown > MOST) {
                         this.errand = null

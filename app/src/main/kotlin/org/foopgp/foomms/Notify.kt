@@ -101,6 +101,12 @@ object Notify {
         context.getSystemService(NotificationManager::class.java)?.cancel(number.hashCode())
     }
 
+    /** Every message's notification taken away: everything was just read. */
+    fun seenAll(context: Context) {
+        val manager = context.getSystemService(NotificationManager::class.java) ?: return
+        manager.activeNotifications.filter { it.notification.channelId == CHANNEL }.forEach { manager.cancel(it.tag, it.id) }
+    }
+
     private const val CHANNEL = "messages"
 
     /** How long foodjis is waited for, in milliseconds: a receiver has ten seconds. */

@@ -47,8 +47,10 @@
     <string name="theme_dark">Koyu</string>
     <string name="theme_system">Sistem</string>
     <string name="theme_light">Açık</string>
-    <string name="conf_around">Şifre çözme penceresi</string>
+    <string name="conf_around">Önceki mesajların şifresini çöz</string>
     <string name="conf_around_note">Seçilen şifreli mesajdan önce, mümkünse çözülecek en fazla mesaj sayısı.</string>
+    <string name="conf_unread_all">Okunmamış tüm mesajların şifresini çöz</string>
+    <string name="conf_unread_all_note">Mümkünse tüm konuşmalarda şifresi çözülecek en fazla okunmamış mesaj sayısı.</string>
     <string name="conf_hold">Şifreli mesajları kapat</string>
     <string name="conf_hold_note">Şifreli mesajların bir konuşmada ne kadar süre açık ya da görünür kalacağı.</string>
     <string name="conf_hold_after">Şifreli mesajları şu süre sonra kapat</string>
@@ -85,7 +87,7 @@
     <string name="carrying">📎 %1$s — %2$d kB   ✕</string>
     <string name="too_heavy">Bu şebekede bir MMS için fazla büyük (en çok %1$d kB) ya da okunamıyor.</string>
     <string name="handed_mms">MMS telefona teslim edildi: %1$s</string>
-    <string name="conf_myself">Şifreli mesajlar</string>
+    <string name="conf_crypto">Şifreleme</string>
     <string name="conf_to_myself">Kendim için de şifrele</string>
     <string name="conf_to_myself_note">Şifreli mesaj gönderirken, onları yeniden okuyabilmem için beni de alıcılar arasına ekle.</string>
     <string name="no_answer">Bu gönderene yanıt verilemez</string>
@@ -121,7 +123,11 @@
     <string name="tie_ask_before">Sertifikası</string>
     <string name="tie_ask_after">. Bu, kişide henüz yazmıyorsa adres defterinize kaydedilecek:</string>
     <string name="whom_hint">Bir ad ya da telefon numarası</string>
-    <string name="show_unread">Göster</string>
+    <string name="show_unread">Ayrıntılar</string>
+    <string name="mark_all_read">Tümünü okundu olarak işaretle</string>
+    <string name="mark_all_read_ask">%1$d okunmamış mesaj okundu olarak işaretlensin mi?</string>
+    <string name="decrypt_unread">⚿ Okunmamışların şifresini çöz</string>
+    <string name="mark_read">Okundu olarak işaretle</string>
     <string name="show_all">Tümünü göster</string>
     <string name="count_detail">%1$d mesaj: %2$d SMS + %3$d MMS\nbunların %4$d tanesi PGP: %5$d SMS + %6$d MMS\n\n%7$d konuşma — %8$s bayt</string>
     <string name="count_detail_unread">%1$d okunmamış</string>
