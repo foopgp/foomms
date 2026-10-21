@@ -126,7 +126,13 @@
     <string name="show_unread">Докладніше</string>
     <string name="mark_all_read">○ Позначити все як прочитане</string>
     <string name="mark_all_read_ask">Позначити непрочитані повідомлення (%1$d) як прочитані?</string>
-    <string name="decrypt_unread">⚿ Розшифрувати непрочитані</string>
+    <string name="decrypt_every">⚿ Розшифрувати все</string>
+    <plurals name="decrypt_some">
+        <item quantity="one">⚿ Розшифрувати %d непрочитане</item>
+        <item quantity="few">⚿ Розшифрувати %d непрочитані</item>
+        <item quantity="many">⚿ Розшифрувати %d непрочитаних</item>
+        <item quantity="other">⚿ Розшифрувати %d непрочитаних</item>
+    </plurals>
     <string name="mark_read">○ Позначити як прочитане</string>
     <string name="mark_unread">● Позначити як непрочитане</string>
     <string name="show_all">Показати все</string>

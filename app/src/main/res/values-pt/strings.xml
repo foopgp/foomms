@@ -126,7 +126,11 @@
     <string name="show_unread">Detalhar</string>
     <string name="mark_all_read">○ Marcar tudo como lido</string>
     <string name="mark_all_read_ask">Marcar as %1$d mensagens não lidas como lidas?</string>
-    <string name="decrypt_unread">⚿ Decifrar as não lidas</string>
+    <string name="decrypt_every">⚿ Decifrar tudo</string>
+    <plurals name="decrypt_some">
+        <item quantity="one">⚿ Decifrar %d não lida</item>
+        <item quantity="other">⚿ Decifrar %d não lidas</item>
+    </plurals>
     <string name="mark_read">○ Marcar como lida</string>
     <string name="mark_unread">● Marcar como não lida</string>
     <string name="show_all">Mostrar tudo</string>

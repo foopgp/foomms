@@ -129,14 +129,14 @@ class MainActivity : AskingActivity() {
         }
         column.addView(detail)
         markAll = Look.small(this, getString(R.string.mark_all_read)) { markAll() }
-        decryptAll = Look.small(this, getString(R.string.decrypt_unread)) { decryptAll() }
+        decryptAll = Look.small(this, "") { decryptAll() }
         tools = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             val side = Look.dp(context, 16)
             setPadding(side, 0, side, side / 2)
             visibility = View.GONE
-            addView(markAll)
-            addView(decryptAll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginStart = Look.dp(context, 10) })
+            addView(decryptAll)
+            addView(markAll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginStart = Look.dp(context, 10) })
         }
         column.addView(tools)
         column.addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
@@ -481,6 +481,8 @@ class MainActivity : AskingActivity() {
         // Nothing to do, greyed rather than gone: the line does not jump.
         usable(markAll, (known?.unread ?: 0) > 0)
         usable(decryptAll, locked > 0)
+        val most = decryptMost()
+        decryptAll.text = if (locked <= most) getString(R.string.decrypt_every) else resources.getQuantityString(R.plurals.decrypt_some, most, most)
         shower.text = getString(if (onlyUnread) R.string.show_all else R.string.show_unread)
     }
 
@@ -512,6 +514,13 @@ class MainActivity : AskingActivity() {
             .show()
     }
 
+    /**
+     * How many the button opens: as many as set for every conversation; set
+     * to none, which only stops their opening beside a message pressed, as
+     * many as can be set.
+     */
+    private fun decryptMost(): Int = Conf.unreadAll(this).takeIf { it > 0 } ?: Conf.MOST_AROUND
+
     /** Counted again a moment after the last message opened, rather than once for each. */
     private val recount = Runnable { if (!isFinishing && !isDestroyed) { countLocked() ; fill() } }
 
@@ -522,7 +531,7 @@ class MainActivity : AskingActivity() {
      */
     private fun decryptAll() {
         thread {
-            val jobs = Unlocking.waiting(this, Conf.MOST_AROUND).flatMap { Unlocking.jobs(this, it) }
+            val jobs = Unlocking.waiting(this, decryptMost()).flatMap { Unlocking.jobs(this, it) }
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 val first = jobs.firstOrNull() ?: return@runOnUiThread

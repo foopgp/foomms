@@ -20,14 +20,15 @@ object Conf {
 
     const val MOST_AROUND = 15
     private const val USUAL_AROUND = 7
+    private const val USUAL_UNREAD_ALL = 3
 
     /** How many messages shown before the one pressed, and as many after, a use of the key tries to open with it; none, and it opens alone. */
     fun around(context: Context): Int = kept(context).getInt("before", USUAL_AROUND).coerceIn(0, MOST_AROUND)
 
     fun around(context: Context, most: Int) = kept(context).edit().putInt("before", most.coerceIn(0, MOST_AROUND)).apply()
 
-    /** How many messages not read yet, in every conversation, a use of the key tries to open beside the one pressed; none, by default. */
-    fun unreadAll(context: Context): Int = kept(context).getInt("unread_all", 0).coerceIn(0, MOST_AROUND)
+    /** How many messages not read yet, in every conversation, a use of the key tries to open beside the one pressed. */
+    fun unreadAll(context: Context): Int = kept(context).getInt("unread_all", USUAL_UNREAD_ALL).coerceIn(0, MOST_AROUND)
 
     fun unreadAll(context: Context, most: Int) = kept(context).edit().putInt("unread_all", most.coerceIn(0, MOST_AROUND)).apply()
 

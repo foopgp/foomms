@@ -126,7 +126,11 @@
     <string name="show_unread">Details</string>
     <string name="mark_all_read">○ Alle als gelesen markieren</string>
     <string name="mark_all_read_ask">Die %1$d ungelesenen Nachrichten als gelesen markieren?</string>
-    <string name="decrypt_unread">⚿ Ungelesene entschlüsseln</string>
+    <string name="decrypt_every">⚿ Alle entschlüsseln</string>
+    <plurals name="decrypt_some">
+        <item quantity="one">⚿ %d Ungelesene entschlüsseln</item>
+        <item quantity="other">⚿ %d Ungelesene entschlüsseln</item>
+    </plurals>
     <string name="mark_read">○ Als gelesen markieren</string>
     <string name="mark_unread">● Als ungelesen markieren</string>
     <string name="show_all">Alle anzeigen</string>
