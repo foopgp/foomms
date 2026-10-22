@@ -75,6 +75,9 @@
     <string name="conf_warn_mms">Warn me before sending any MMS</string>
     <string name="conf_warn_mms_note">A text longer than five SMS is sent as an MMS. Being asked first spares you a charge your operator might apply.</string>
     <string name="mms_ask">This message is long: it will be sent as an MMS, which your operator may charge for.</string>
+    <string name="plain_ask">Encryption is possible in this conversation but switched off. Send this message unencrypted?</string>
+    <string name="plain_send">Send unencrypted</string>
+    <string name="plain_lock">⚿ Encrypt and send</string>
     <string name="mms_send">Send</string>
     <string name="language_name">English</string>
     <string name="conf_language">Language</string>

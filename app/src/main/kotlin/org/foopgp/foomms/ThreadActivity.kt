@@ -587,13 +587,24 @@ class ThreadActivity : AskingActivity() {
         sender.setTextColor(if (worth == Verdict.BLUE && !Look.dark) android.graphics.Color.WHITE else Look.INDIGO)
     }
 
-    private fun send() {
+    /** [plainSaid]: the person was asked, and said it may leave unencrypted. */
+    private fun send(plainSaid: Boolean = false) {
         val written = field.text.toString()
         val with = carried
         if (written.isBlank() && with == null) return
         if (Phone.plain(number) == null) return
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)
+        }
+        // Encrypting could be done here and is off: asked before it leaves readable, with the way to encrypt it after all.
+        if (!plainSaid && locks.isEnabled && !locks.isChecked) {
+            AlertDialog.Builder(this)
+                .setMessage(R.string.plain_ask)
+                .setPositiveButton(R.string.plain_send) { _, _ -> send(plainSaid = true) }
+                .setNeutralButton(R.string.plain_lock) { _, _ -> locks.isChecked = true ; paint() ; send(plainSaid = true) }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+            return
         }
         val mode = mode
         if (with != null) return sendWith(with, written, mode)

@@ -72,6 +72,9 @@
     <string name="conf_warn_mms">Предупреждать перед отправкой MMS</string>
     <string name="conf_warn_mms_note">Текст длиннее пяти SMS отправляется как MMS. Предупреждение избавит вас от платы, которую может взять оператор.</string>
     <string name="mms_ask">Это сообщение длинное: оно будет отправлено как MMS, за который оператор может взять плату.</string>
+    <string name="plain_ask">В этом разговоре возможно шифрование, но оно выключено. Отправить сообщение без шифрования?</string>
+    <string name="plain_send">Отправить без шифрования</string>
+    <string name="plain_lock">⚿ Зашифровать и отправить</string>
     <string name="mms_send">Отправить</string>
     <string name="language_name">русский</string>
     <string name="conf_language">Язык</string>

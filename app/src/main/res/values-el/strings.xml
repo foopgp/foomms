@@ -72,6 +72,9 @@
     <string name="conf_warn_mms">Προειδοποίηση πριν από κάθε αποστολή MMS</string>
     <string name="conf_warn_mms_note">Ένα κείμενο μεγαλύτερο από πέντε SMS στέλνεται ως MMS. Μια ερώτηση πριν σας γλιτώνει από χρέωση που μπορεί να εφαρμόσει ο πάροχός σας.</string>
     <string name="mms_ask">Αυτό το μήνυμα είναι μεγάλο: θα σταλεί ως MMS, που ο πάροχός σας μπορεί να χρεώσει.</string>
+    <string name="plain_ask">Η κρυπτογράφηση είναι δυνατή σε αυτή τη συνομιλία, αλλά είναι απενεργοποιημένη. Αποστολή του μηνύματος χωρίς κρυπτογράφηση;</string>
+    <string name="plain_send">Αποστολή χωρίς κρυπτογράφηση</string>
+    <string name="plain_lock">⚿ Κρυπτογράφηση και αποστολή</string>
     <string name="mms_send">Αποστολή</string>
     <string name="language_name">Ελληνικά</string>
     <string name="conf_language">Γλώσσα</string>

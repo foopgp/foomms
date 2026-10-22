@@ -72,6 +72,9 @@
     <string name="conf_warn_mms">Avisarme antes de enviar un MMS</string>
     <string name="conf_warn_mms_note">Un texto más largo que cinco SMS se envía como MMS. Que se le pregunte antes le evita un cargo que su operador podría aplicar.</string>
     <string name="mms_ask">Este mensaje es largo: se enviará como MMS, que su operador puede cobrar.</string>
+    <string name="plain_ask">El cifrado es posible en esta conversación, pero está desactivado. ¿Enviar este mensaje sin cifrar?</string>
+    <string name="plain_send">Enviar sin cifrar</string>
+    <string name="plain_lock">⚿ Cifrar y enviar</string>
     <string name="mms_send">Enviar</string>
     <string name="language_name">español</string>
     <string name="conf_language">Idioma</string>

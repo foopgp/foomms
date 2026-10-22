@@ -72,6 +72,9 @@
     <string name="conf_warn_mms">Vor jedem MMS-Versand warnen</string>
     <string name="conf_warn_mms_note">Ein Text, der länger als fünf SMS ist, wird als MMS gesendet. Eine Rückfrage erspart Ihnen Gebühren, die Ihr Anbieter berechnen könnte.</string>
     <string name="mms_ask">Diese Nachricht ist lang: Sie wird als MMS gesendet, wofür Ihr Anbieter Gebühren berechnen kann.</string>
+    <string name="plain_ask">Verschlüsselung ist in dieser Unterhaltung möglich, aber ausgeschaltet. Diese Nachricht unverschlüsselt senden?</string>
+    <string name="plain_send">Unverschlüsselt senden</string>
+    <string name="plain_lock">⚿ Verschlüsseln und senden</string>
     <string name="mms_send">Senden</string>
     <string name="language_name">Deutsch</string>
     <string name="conf_language">Sprache</string>

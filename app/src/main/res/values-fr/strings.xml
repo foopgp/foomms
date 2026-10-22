@@ -72,6 +72,9 @@
     <string name="conf_warn_mms">M\'avertir avant tout envoi de MMS</string>
     <string name="conf_warn_mms_note">Un texte plus long que cinq SMS part en MMS. Être prévenu avant évite des frais supplémentaires que votre opérateur pourrait appliquer.</string>
     <string name="mms_ask">Ce message est long : il partira en MMS, que votre opérateur peut facturer.</string>
+    <string name="plain_ask">Le chiffrement est possible dans cette conversation, mais désactivé. Envoyer ce message sans le chiffrer ?</string>
+    <string name="plain_send">Envoyer sans chiffrer</string>
+    <string name="plain_lock">⚿ Chiffrer et envoyer</string>
     <string name="mms_send">Envoyer</string>
     <string name="language_name">français</string>
     <string name="conf_language">Langue</string>

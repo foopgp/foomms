@@ -72,6 +72,9 @@
     <string name="conf_warn_mms">Her MMS gönderiminden önce beni uyar</string>
     <string name="conf_warn_mms_note">Beş SMS\'ten uzun bir metin MMS olarak gönderilir. Önceden sorulmak, operatörünüzün uygulayabileceği bir ücretten sizi korur.</string>
     <string name="mms_ask">Bu mesaj uzun: MMS olarak gönderilecek ve operatörünüz ücret alabilir.</string>
+    <string name="plain_ask">Bu konuşmada şifreleme mümkün, ancak kapalı. Bu mesaj şifrelenmeden gönderilsin mi?</string>
+    <string name="plain_send">Şifrelemeden gönder</string>
+    <string name="plain_lock">⚿ Şifrele ve gönder</string>
     <string name="mms_send">Gönder</string>
     <string name="language_name">Türkçe</string>
     <string name="conf_language">Dil</string>

@@ -72,6 +72,9 @@
     <string name="conf_warn_mms">Попереджати перед надсиланням MMS</string>
     <string name="conf_warn_mms_note">Текст, довший за п\'ять SMS, надсилається як MMS. Попередження вбереже вас від плати, яку може стягнути оператор.</string>
     <string name="mms_ask">Це повідомлення довге: його буде надіслано як MMS, за який оператор може стягнути плату.</string>
+    <string name="plain_ask">У цій розмові можливе шифрування, але його вимкнено. Надіслати повідомлення без шифрування?</string>
+    <string name="plain_send">Надіслати без шифрування</string>
+    <string name="plain_lock">⚿ Зашифрувати й надіслати</string>
     <string name="mms_send">Надіслати</string>
     <string name="language_name">українська</string>
     <string name="conf_language">Мова</string>
