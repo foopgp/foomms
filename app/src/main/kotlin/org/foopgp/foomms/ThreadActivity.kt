@@ -596,16 +596,7 @@ class ThreadActivity : AskingActivity() {
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)
         }
-        // Encrypting could be done here and is off: asked before it leaves readable, with the way to encrypt it after all.
-        if (!plainSaid && locks.isEnabled && !locks.isChecked) {
-            AlertDialog.Builder(this)
-                .setMessage(R.string.plain_ask)
-                .setPositiveButton(R.string.plain_send) { _, _ -> send(plainSaid = true) }
-                .setNeutralButton(R.string.plain_lock) { _, _ -> locks.isChecked = true ; paint() ; send(plainSaid = true) }
-                .setNegativeButton(android.R.string.cancel, null)
-                .show()
-            return
-        }
+        if (!plainSaid && plainOrAsk(locks, ::paint) { send(plainSaid = true) }) return
         val mode = mode
         if (with != null) return sendWith(with, written, mode)
         if (mode == Mode.PLAIN) return leave(written, written, null)

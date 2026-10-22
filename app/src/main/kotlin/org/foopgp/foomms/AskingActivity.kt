@@ -96,6 +96,22 @@ abstract class AskingActivity : Activity() {
         errand = null
     }
 
+    /**
+     * Encrypting could be done and [locks] is off: asked before the message
+     * leaves readable, with the way to encrypt it after all. [go] sends it,
+     * told that it was asked.
+     */
+    protected fun plainOrAsk(locks: Flip, repaint: () -> Unit, go: () -> Unit): Boolean {
+        if (!locks.isEnabled || locks.isChecked) return false
+        android.app.AlertDialog.Builder(this)
+            .setMessage(R.string.plain_ask)
+            .setPositiveButton(R.string.plain_send) { _, _ -> go() }
+            .setNeutralButton(R.string.plain_lock) { _, _ -> locks.isChecked = true ; repaint() ; go() }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+        return true
+    }
+
     override fun onDestroy() {
         provider.close()
         super.onDestroy()

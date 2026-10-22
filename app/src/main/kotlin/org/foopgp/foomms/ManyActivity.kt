@@ -159,13 +159,15 @@ class ManyActivity : AskingActivity() {
         sender.setTextColor(if (worth == Verdict.BLUE && !Look.dark) android.graphics.Color.WHITE else Look.INDIGO)
     }
 
-    private fun send() {
+    /** [plainSaid]: the person was asked, and said it may leave unencrypted. */
+    private fun send(plainSaid: Boolean = false) {
         val written = field.text.toString()
         val with = carried
         if ((written.isBlank() && with == null) || whom.isEmpty()) return
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)
         }
+        if (!plainSaid && plainOrAsk(locks, ::paint) { send(plainSaid = true) }) return
         val locked = locks.isChecked && locks.isEnabled
         val signed = signs.isChecked && signs.isEnabled
         if (!locked && !signed) return leave(written.takeIf { it.isNotBlank() }, written, null, with?.let { Pdu.Part(it.type, it.name, it.bytes) })
