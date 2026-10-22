@@ -1008,15 +1008,18 @@ class ThreadActivity : AskingActivity() {
             }
         }
         choices += R.string.details to { details(line) }
-        if (line.unread) {
-            choices += R.string.mark_read to {
-                keptUnread -= line.key
-                thread { Keep.read(this, line) ; runOnUiThread { if (!isFinishing && !isDestroyed) load() } }
-            }
-        } else {
-            choices += R.string.mark_unread to {
-                keptUnread += line.key
-                thread { Keep.unread(this, line) ; runOnUiThread { if (!isFinishing && !isDestroyed) load() } }
+        // Read or not is a received message's state alone: what was sent is read from the start.
+        if (line.incoming) {
+            if (line.unread) {
+                choices += R.string.mark_read to {
+                    keptUnread -= line.key
+                    thread { Keep.read(this, line) ; runOnUiThread { if (!isFinishing && !isDestroyed) load() } }
+                }
+            } else {
+                choices += R.string.mark_unread to {
+                    keptUnread += line.key
+                    thread { Keep.unread(this, line) ; runOnUiThread { if (!isFinishing && !isDestroyed) load() } }
+                }
             }
         }
         choices += R.string.forget_message to {
