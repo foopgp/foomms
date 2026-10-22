@@ -126,11 +126,6 @@
     <string name="show_unread">Λεπτομέρειες</string>
     <string name="mark_all_read">○ Σήμανση όλων ως αναγνωσμένα</string>
     <string name="mark_all_read_ask">Σήμανση των %1$d μη αναγνωσμένων μηνυμάτων ως αναγνωσμένων;</string>
-    <string name="decrypt_every">⚿ Αποκρυπτογράφηση όλων</string>
-    <plurals name="decrypt_some">
-        <item quantity="one">⚿ Αποκρυπτογράφηση %d μη αναγνωσμένου</item>
-        <item quantity="other">⚿ Αποκρυπτογράφηση %d μη αναγνωσμένων</item>
-    </plurals>
     <string name="mark_read">○ Σήμανση ως αναγνωσμένο</string>
     <string name="mark_unread">● Σήμανση ως μη αναγνωσμένο</string>
     <string name="show_all">Εμφάνιση όλων</string>

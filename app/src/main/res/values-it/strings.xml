@@ -126,11 +126,6 @@
     <string name="show_unread">Dettagli</string>
     <string name="mark_all_read">○ Segna tutto come letto</string>
     <string name="mark_all_read_ask">Segnare i %1$d messaggi non letti come letti?</string>
-    <string name="decrypt_every">⚿ Decifra tutto</string>
-    <plurals name="decrypt_some">
-        <item quantity="one">⚿ Decifra %d non letto</item>
-        <item quantity="other">⚿ Decifra %d non letti</item>
-    </plurals>
     <string name="mark_read">○ Segna come letto</string>
     <string name="mark_unread">● Segna come non letto</string>
     <string name="show_all">Mostra tutto</string>

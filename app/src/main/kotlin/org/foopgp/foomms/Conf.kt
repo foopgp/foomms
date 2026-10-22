@@ -20,7 +20,7 @@ object Conf {
 
     const val MOST_AROUND = 15
 
-    /** The most messages not read yet a use of the key opens beyond its own conversation: set, or asked from the list. */
+    /** The most messages not read yet a use of the key may be set to open beyond its own conversation. */
     const val MOST_UNREAD = 10
     private const val USUAL_AROUND = 7
     private const val USUAL_UNREAD_ALL = 3

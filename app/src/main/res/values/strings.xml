@@ -129,11 +129,6 @@
     <string name="show_unread">Details</string>
     <string name="mark_all_read">○ Mark all as read</string>
     <string name="mark_all_read_ask">Mark the %1$d unread messages as read?</string>
-    <string name="decrypt_every">⚿ Decrypt all</string>
-    <plurals name="decrypt_some">
-        <item quantity="one">⚿ Decrypt %d unread</item>
-        <item quantity="other">⚿ Decrypt %d unread</item>
-    </plurals>
     <string name="mark_read">○ Mark as read</string>
     <string name="mark_unread">● Mark as unread</string>
     <string name="show_all">Show all</string>

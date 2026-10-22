@@ -126,11 +126,6 @@
     <string name="show_unread">Ayrıntılar</string>
     <string name="mark_all_read">○ Tümünü okundu olarak işaretle</string>
     <string name="mark_all_read_ask">%1$d okunmamış mesaj okundu olarak işaretlensin mi?</string>
-    <string name="decrypt_every">⚿ Tümünün şifresini çöz</string>
-    <plurals name="decrypt_some">
-        <item quantity="one">⚿ %d okunmamışın şifresini çöz</item>
-        <item quantity="other">⚿ %d okunmamışın şifresini çöz</item>
-    </plurals>
     <string name="mark_read">○ Okundu olarak işaretle</string>
     <string name="mark_unread">● Okunmadı olarak işaretle</string>
     <string name="show_all">Tümünü göster</string>
