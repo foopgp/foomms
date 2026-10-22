@@ -302,6 +302,12 @@ object Look {
         return Carried(row, said, clip, cross)
     }
 
+    /** A discreet frame around a text set apart, as a note among others: a thin line, rounded, nothing filled. */
+    fun framed(context: Context): GradientDrawable = GradientDrawable().apply {
+        setStroke(dp(context, 1), MUTED)
+        cornerRadius = dp(context, 6).toFloat()
+    }
+
     fun words(context: Context, text: CharSequence, size: Float = 16f, muted: Boolean = false): TextView =
         TextView(context).apply {
             this.text = text

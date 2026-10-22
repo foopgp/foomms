@@ -1663,7 +1663,7 @@ class ThreadActivity : AskingActivity() {
                 when {
                     foodjis.shut -> say(getString(R.string.foodjis_shut))
                     whose == null -> say(getString(R.string.certificate_not_held))
-                    lacks || stale.isNotEmpty() || differs?.face != null || differs?.note != null -> offer(whose, stale)
+                    lacks || stale.isNotEmpty() || differs?.face != null || differs?.notes?.isNotEmpty() == true -> offer(whose, stale)
                     else -> Toast.makeText(this, R.string.cert_refreshed, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -1680,12 +1680,12 @@ class ThreadActivity : AskingActivity() {
             val card = foodjis.vcard(whose.fingerprint)
             // Where the contact has its own face or note, and the certificate another: the person chooses.
             val differs = card?.takeIf { checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED }
-                ?.let { Book.differs(this, number, it) } ?: Book.Differs(null, null)
+                ?.let { Book.differs(this, number, it) } ?: Book.Differs(null, emptyList())
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 if (card == null) return@runOnUiThread say(getString(R.string.no_card, whose.name))
                 // A face or a note the person chooses below is not also in the list of what is written.
-                val told = card.told(withNotes = differs.note == null).joinToString("\n") { "•  $it" } +
+                val told = card.told(withNotes = differs.notes.isEmpty()).joinToString("\n") { "•  $it" } +
                     (if (card.photo != null && differs.face == null) "\n•  " + getString(R.string.card_photo) else "") +
                     "\n•  🔑 " + (card.key ?: Fingerprint.address(whose.fingerprint))
                 val pad = Look.dp(this, 20)
@@ -1731,18 +1731,31 @@ class ThreadActivity : AskingActivity() {
                         faces.addView(choice(theirs, R.string.face_certificate, Book.Pick.CERTIFICATE))
                         addView(faces)
                     }
-                    // The two notes, cut when long: one only, as the phones' contacts keep but one.
-                    if (differs.note != null) {
+                    // The contact's notes or the certificate's, each note in a frame of its own under its choice, cut when
+                    // long: one choice or the other, never both, so that notes do not pile up in the contact.
+                    if (differs.notes.isNotEmpty()) {
                         addView(Look.words(context, getString(R.string.choose_note), size = 15f).apply { setPadding(0, pad, 0, pad / 3) })
-                        fun cut(text: String) = if (text.length <= NOTE_SHOWN) "« $text »" else "« ${text.take(NOTE_SHOWN).trimEnd()}… » " + getString(R.string.note_size, text.length)
+                        fun cut(text: String) = if (text.length <= NOTE_SHOWN) text else "${text.take(NOTE_SHOWN).trimEnd()}… " + getString(R.string.note_size, text.length)
                         val picks = listOf(
-                            Book.Pick.CONTACT to getString(R.string.note_contact, cut(differs.note)),
-                            Book.Pick.CERTIFICATE to getString(R.string.note_certificate, cut(card.notes.joinToString("\n\n"))),
+                            Triple(Book.Pick.CONTACT, if (differs.notes.size > 1) R.string.note_contact_many else R.string.note_contact, differs.notes),
+                            Triple(Book.Pick.CERTIFICATE, if (card.notes.size > 1) R.string.note_certificate_many else R.string.note_certificate, card.notes),
                         )
                         addView(
                             android.widget.RadioGroup(context).apply {
                                 for ((at, pick) in picks.withIndex()) {
-                                    addView(android.widget.RadioButton(context).apply { id = at + 1 ; text = pick.second ; textSize = 14f ; setTextColor(Look.INK) })
+                                    addView(android.widget.RadioButton(context).apply { id = at + 1 ; text = getString(pick.second) ; textSize = 14f ; setTextColor(Look.INK) })
+                                    // Pressed, a note chooses as its button does.
+                                    for (one in pick.third) {
+                                        addView(
+                                            Look.words(context, cut(one), size = 14f).apply {
+                                                setPadding(pad / 2, pad / 3, pad / 2, pad / 3)
+                                                background = Look.framed(context)
+                                                setOnClickListener { check(at + 1) }
+                                            },
+                                            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                                                .apply { marginStart = Look.dp(context, 32) ; bottomMargin = pad / 3 },
+                                        )
+                                    }
                                 }
                                 check(1)
                                 setOnCheckedChangeListener { _, id -> note = picks[id - 1].first }

@@ -189,16 +189,17 @@ object Book {
      * they are not the same: the contact's, to set beside the certificate's.
      * Faces are compared as a person would ([Likeness]), notes word for word.
      */
-    class Differs(val face: android.graphics.Bitmap?, val note: String?)
+    class Differs(val face: android.graphics.Bitmap?, val notes: List<String>)
 
     fun differs(context: Context, number: String, card: Card): Differs {
-        val known = who(context, number) ?: return Differs(null, null)
+        val known = who(context, number) ?: return Differs(null, emptyList())
         val theirs = card.photo
         val face = if (theirs == null) null else face(context, known)?.takeIf { !Likeness.alike(it, theirs) }
-        val mine = values(context, known.contact, Note.CONTENT_ITEM_TYPE, Note.NOTE).filter { it.isNotBlank() }.joinToString("\n\n")
+        // The contact's notes, each as it is -- a contact may hold several --, when they are not the certificate's.
+        val mine = values(context, known.contact, Note.CONTENT_ITEM_TYPE, Note.NOTE).filter { it.isNotBlank() }
         val said = card.notes.joinToString("\n\n")
-        val note = mine.takeIf { it.isNotBlank() && said.isNotBlank() && it.trim() != said.trim() }
-        return Differs(face, note)
+        val notes = mine.takeIf { it.isNotEmpty() && said.isNotBlank() && it.joinToString("\n\n").trim() != said.trim() }.orEmpty()
+        return Differs(face, notes)
     }
 
     /**

@@ -212,8 +212,10 @@
     <string name="face_contact">In the contact</string>
     <string name="face_certificate">From the certificate</string>
     <string name="choose_note">Note:</string>
-    <string name="note_contact">Keep the contact\'s: %1$s</string>
-    <string name="note_certificate">Take the certificate\'s: %1$s</string>
+    <string name="note_contact">Keep the contact\'s note</string>
+    <string name="note_certificate">Take the certificate\'s note</string>
+    <string name="note_contact_many">Keep the contact\'s notes</string>
+    <string name="note_certificate_many">Take the certificate\'s notes</string>
     <string name="note_size">(%1$d characters)</string>
     <string name="channel_listening">Voice messages</string>
     <string name="listening_title">Voice message from %1$s</string>

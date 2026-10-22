@@ -209,8 +209,10 @@
     <string name="face_contact">Dans la fiche</string>
     <string name="face_certificate">Du certificat</string>
     <string name="choose_note">Note :</string>
-    <string name="note_contact">Garder celle de la fiche : %1$s</string>
-    <string name="note_certificate">Prendre celle du certificat : %1$s</string>
+    <string name="note_contact">Garder celle de la fiche</string>
+    <string name="note_certificate">Prendre celle du certificat</string>
+    <string name="note_contact_many">Garder celles de la fiche</string>
+    <string name="note_certificate_many">Prendre celles du certificat</string>
     <string name="note_size">(%1$d caractères)</string>
     <string name="channel_listening">Messages vocaux</string>
     <string name="listening_title">Message vocal de %1$s</string>

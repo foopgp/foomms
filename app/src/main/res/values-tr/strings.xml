@@ -209,8 +209,10 @@
     <string name="face_contact">Kişide</string>
     <string name="face_certificate">Sertifikadan</string>
     <string name="choose_note">Not:</string>
-    <string name="note_contact">Kişidekini koru: %1$s</string>
-    <string name="note_certificate">Sertifikadakini al: %1$s</string>
+    <string name="note_contact">Kişidekini koru</string>
+    <string name="note_certificate">Sertifikadakini al</string>
+    <string name="note_contact_many">Kişidekileri koru</string>
+    <string name="note_certificate_many">Sertifikadakileri al</string>
     <string name="note_size">(%1$d karakter)</string>
     <string name="channel_listening">Sesli mesajlar</string>
     <string name="listening_title">%1$s kişisinden sesli mesaj</string>

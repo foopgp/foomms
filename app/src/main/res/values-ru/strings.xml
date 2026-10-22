@@ -209,8 +209,10 @@
     <string name="face_contact">В контакте</string>
     <string name="face_certificate">Из сертификата</string>
     <string name="choose_note">Заметка:</string>
-    <string name="note_contact">Оставить из контакта: %1$s</string>
-    <string name="note_certificate">Взять из сертификата: %1$s</string>
+    <string name="note_contact">Оставить заметку контакта</string>
+    <string name="note_certificate">Взять заметку сертификата</string>
+    <string name="note_contact_many">Оставить заметки контакта</string>
+    <string name="note_certificate_many">Взять заметки сертификата</string>
     <string name="note_size">(%1$d символов)</string>
     <string name="channel_listening">Голосовые сообщения</string>
     <string name="listening_title">Голосовое сообщение от %1$s</string>

@@ -209,8 +209,10 @@
     <string name="face_contact">Im Kontakt</string>
     <string name="face_certificate">Aus dem Zertifikat</string>
     <string name="choose_note">Notiz:</string>
-    <string name="note_contact">Die des Kontakts behalten: %1$s</string>
-    <string name="note_certificate">Die des Zertifikats nehmen: %1$s</string>
+    <string name="note_contact">Die Notiz des Kontakts behalten</string>
+    <string name="note_certificate">Die Notiz des Zertifikats nehmen</string>
+    <string name="note_contact_many">Die Notizen des Kontakts behalten</string>
+    <string name="note_certificate_many">Die Notizen des Zertifikats nehmen</string>
     <string name="note_size">(%1$d Zeichen)</string>
     <string name="channel_listening">Sprachnachrichten</string>
     <string name="listening_title">Sprachnachricht von %1$s</string>

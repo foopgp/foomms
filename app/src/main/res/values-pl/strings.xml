@@ -209,8 +209,10 @@
     <string name="face_contact">W kontakcie</string>
     <string name="face_certificate">Z certyfikatu</string>
     <string name="choose_note">Notatka:</string>
-    <string name="note_contact">Zachowaj tę z kontaktu: %1$s</string>
-    <string name="note_certificate">Weź tę z certyfikatu: %1$s</string>
+    <string name="note_contact">Zachowaj tę z kontaktu</string>
+    <string name="note_certificate">Weź tę z certyfikatu</string>
+    <string name="note_contact_many">Zachowaj te z kontaktu</string>
+    <string name="note_certificate_many">Weź te z certyfikatu</string>
     <string name="note_size">(%1$d znaków)</string>
     <string name="channel_listening">Wiadomości głosowe</string>
     <string name="listening_title">Wiadomość głosowa od %1$s</string>

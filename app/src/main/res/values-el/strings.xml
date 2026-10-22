@@ -209,8 +209,10 @@
     <string name="face_contact">Στην επαφή</string>
     <string name="face_certificate">Από το πιστοποιητικό</string>
     <string name="choose_note">Σημείωση:</string>
-    <string name="note_contact">Διατήρηση αυτής της επαφής: %1$s</string>
-    <string name="note_certificate">Λήψη αυτής του πιστοποιητικού: %1$s</string>
+    <string name="note_contact">Διατήρηση της σημείωσης της επαφής</string>
+    <string name="note_certificate">Λήψη της σημείωσης του πιστοποιητικού</string>
+    <string name="note_contact_many">Διατήρηση των σημειώσεων της επαφής</string>
+    <string name="note_certificate_many">Λήψη των σημειώσεων του πιστοποιητικού</string>
     <string name="note_size">(%1$d χαρακτήρες)</string>
     <string name="channel_listening">Φωνητικά μηνύματα</string>
     <string name="listening_title">Φωνητικό μήνυμα από %1$s</string>
