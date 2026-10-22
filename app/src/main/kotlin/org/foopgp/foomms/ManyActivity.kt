@@ -45,6 +45,12 @@ class ManyActivity : AskingActivity() {
     private lateinit var chip: android.widget.TextView
     private lateinit var chipRow: LinearLayout
 
+    override fun onPause() {
+        // Closed before anything was laid out -- fewer than two numbers --: nothing written to keep.
+        if (::field.isInitialized) Drafts.keep(this, numbers, field.text.toString())
+        super.onPause()
+    }
+
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
         super.onCreate(state)
@@ -95,7 +101,9 @@ class ManyActivity : AskingActivity() {
         )
         Edges.fit(this)
         // Words handed over with the page -- shared from another application, or a link's "sms_body" -- are already written.
-        if (state == null) (intent.getStringExtra(Intent.EXTRA_TEXT) ?: intent.getStringExtra("sms_body"))?.let { field.setText(it) }
+        // Words handed over with the page, or else what was being written to these same people and not sent.
+        val handed = if (state == null) intent.getStringExtra(Intent.EXTRA_TEXT) ?: intent.getStringExtra("sms_body") else null
+        (handed ?: Drafts.of(this, numbers).takeIf { it.isNotEmpty() })?.let { field.setText(it) ; field.setSelection(it.length) }
         // A picture made small enough for an MMS, any other file if it fits, as in a conversation.
         @Suppress("DEPRECATION")
         intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)?.let { shared ->
@@ -220,6 +228,7 @@ class ManyActivity : AskingActivity() {
             if (verdict != null && text != null) Opened.keep(this, text, written, null, verdict)
             if (failed.isNotEmpty()) return say(getString(R.string.many_failed, failed.joinToString(", ")))
             Toast.makeText(this, getString(R.string.many_sent, whom.size), Toast.LENGTH_LONG).show()
+            field.setText("")
             finish()
         }
         if (mms && !Conf.preferMms(this) && Conf.warnMms(this)) {
