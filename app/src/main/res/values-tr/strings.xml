@@ -6,7 +6,6 @@
     <string name="unknown_number">bilinmeyen bir numara</string>
     <string name="number_hint">Telefon numarası</string>
     <string name="words_hint">Mesajınız</string>
-    <string name="not_a_number">Bu bir telefon numarası değil.</string>
     <string name="sent">Mesaj gönderildi.</string>
     <string name="not_sent">Mesaj gönderilmedi (%1$d).</string>
     <string name="no_provider">foodjis yüklü değil ya da yanıt vermiyor.</string>
@@ -141,7 +140,6 @@
     <string name="cert_refresh">⟳ Sertifikayı yenile</string>
     <string name="cert_refreshed">Sertifika yenilendi.</string>
     <string name="cert_forget">⌫ Sertifikayı unut</string>
-    <string name="whom_so_far">Alıcı: %1$s   ✕</string>
     <string name="whom_write">✎ Yaz</string>
     <string name="many_title">%1$d kişi için</string>
     <string name="many_sent">Telefona teslim edildi, %1$d kişi için.</string>

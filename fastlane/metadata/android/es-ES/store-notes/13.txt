@@ -1,0 +1,4 @@
+• Los adjuntos PGP se cuentan ya en las estadísticas.
+• «Marcar como leído / no leído» solo para los mensajes recibidos.
+• Confirmación antes de enviar sin cifrar cuando el cifrado es posible, también a varios destinatarios.
+• La página de no leídos solo ofrece «Marcar todo como leído»: los no leídos de otras conversaciones se descifran junto con los de la conversación abierta.

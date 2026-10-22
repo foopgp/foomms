@@ -6,7 +6,6 @@
     <string name="unknown_number">un numero sconosciuto</string>
     <string name="number_hint">Numero di telefono</string>
     <string name="words_hint">Il tuo messaggio</string>
-    <string name="not_a_number">Questo non è un numero di telefono.</string>
     <string name="sent">Messaggio inviato.</string>
     <string name="not_sent">Messaggio non inviato (%1$d).</string>
     <string name="no_provider">foodjis non è installato o non risponde.</string>
@@ -141,7 +140,6 @@
     <string name="cert_refresh">⟳ Aggiorna il certificato</string>
     <string name="cert_refreshed">Certificato aggiornato.</string>
     <string name="cert_forget">⌫ Dimentica il certificato</string>
-    <string name="whom_so_far">Per: %1$s   ✕</string>
     <string name="whom_write">✎ Scrivi</string>
     <string name="many_title">Per %1$d persone</string>
     <string name="many_sent">Consegnato al telefono, per %1$d persone.</string>

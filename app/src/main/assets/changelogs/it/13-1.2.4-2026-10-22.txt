@@ -1,0 +1,4 @@
+• Gli allegati PGP sono ora contati nelle statistiche.
+• «Segna come letto / non letto» solo per i messaggi ricevuti.
+• Conferma prima di inviare senza cifrare quando la cifratura è possibile, anche a più destinatari.
+• La pagina dei non letti offre solo «Segna tutto come letto»: i non letti delle altre conversazioni si decifrano insieme a quelli della conversazione aperta.

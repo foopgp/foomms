@@ -6,7 +6,6 @@
     <string name="unknown_number">άγνωστος αριθμός</string>
     <string name="number_hint">Αριθμός τηλεφώνου</string>
     <string name="words_hint">Το μήνυμά σας</string>
-    <string name="not_a_number">Αυτός δεν είναι αριθμός τηλεφώνου.</string>
     <string name="sent">Το μήνυμα στάλθηκε.</string>
     <string name="not_sent">Το μήνυμα δεν στάλθηκε (%1$d).</string>
     <string name="no_provider">Το foodjis δεν είναι εγκατεστημένο ή δεν απαντά.</string>
@@ -141,7 +140,6 @@
     <string name="cert_refresh">⟳ Ενημέρωση του πιστοποιητικού</string>
     <string name="cert_refreshed">Το πιστοποιητικό ενημερώθηκε.</string>
     <string name="cert_forget">⌫ Λήθη του πιστοποιητικού</string>
-    <string name="whom_so_far">Προς: %1$s   ✕</string>
     <string name="whom_write">✎ Σύνταξη</string>
     <string name="many_title">Για %1$d άτομα</string>
     <string name="many_sent">Παραδόθηκε στο τηλέφωνο, για %1$d άτομα.</string>

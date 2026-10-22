@@ -1,0 +1,4 @@
+• PGP-Anhänge werden jetzt in der Statistik mitgezählt.
+• „Als gelesen / ungelesen markieren“ nur noch für empfangene Nachrichten.
+• Bestätigung vor dem unverschlüsselten Senden, wenn Verschlüsselung möglich ist, auch an mehrere Empfänger.
+• Die Seite der Ungelesenen bietet nur noch „Alle als gelesen markieren“: Ungelesene anderer Unterhaltungen werden mit denen der geöffneten entschlüsselt.

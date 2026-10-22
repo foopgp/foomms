@@ -6,7 +6,6 @@
     <string name="unknown_number">невідомий номер</string>
     <string name="number_hint">Номер телефону</string>
     <string name="words_hint">Ваше повідомлення</string>
-    <string name="not_a_number">Це не номер телефону.</string>
     <string name="sent">Повідомлення надіслано.</string>
     <string name="not_sent">Повідомлення не надіслано (%1$d).</string>
     <string name="no_provider">foodjis не встановлено або він не відповідає.</string>
@@ -141,7 +140,6 @@
     <string name="cert_refresh">⟳ Оновити сертифікат</string>
     <string name="cert_refreshed">Сертифікат оновлено.</string>
     <string name="cert_forget">⌫ Забути сертифікат</string>
-    <string name="whom_so_far">Кому: %1$s   ✕</string>
     <string name="whom_write">✎ Написати</string>
     <string name="many_title">Для %1$d осіб</string>
     <string name="many_sent">Передано телефону, для %1$d осіб.</string>

@@ -1,0 +1,4 @@
+• PGP ekleri artık istatistiklerde sayılıyor.
+• «Okundu / okunmadı olarak işaretle» yalnızca alınan mesajlar için.
+• Şifreleme mümkünken şifrelemeden göndermeden önce onay, birden çok alıcıya da.
+• Okunmamışlar sayfası artık yalnızca «Tümünü okundu olarak işaretle» sunuyor: diğer konuşmaların okunmamışları açık konuşmanınkilerle birlikte çözülür.

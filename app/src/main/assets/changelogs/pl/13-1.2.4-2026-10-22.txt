@@ -1,0 +1,4 @@
+• Załączniki PGP są teraz liczone w statystykach.
+• „Oznacz jako przeczytane / nieprzeczytane” tylko dla wiadomości odebranych.
+• Potwierdzenie przed wysłaniem bez szyfrowania, gdy szyfrowanie jest możliwe, także do wielu odbiorców.
+• Strona nieprzeczytanych oferuje już tylko „Oznacz wszystko jako przeczytane”: nieprzeczytane z innych rozmów odszyfrowują się razem z tymi z otwartej rozmowy.

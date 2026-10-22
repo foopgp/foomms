@@ -8,7 +8,6 @@
     <string name="unknown_number">an unknown number</string>
     <string name="number_hint">Phone number</string>
     <string name="words_hint">Your message</string>
-    <string name="not_a_number">This is not a phone number.</string>
     <string name="sent">Message sent.</string>
     <string name="not_sent">Message not sent (%1$d).</string>
     <string name="no_provider">foodjis is not installed, or does not answer.</string>
@@ -144,7 +143,6 @@
     <string name="cert_refresh">⟳ Refresh the certificate</string>
     <string name="cert_refreshed">Certificate refreshed.</string>
     <string name="cert_forget">⌫ Forget the certificate</string>
-    <string name="whom_so_far">For: %1$s   ✕</string>
     <string name="whom_write">✎ Write</string>
     <string name="many_title">For %1$d people</string>
     <string name="many_sent">Handed to the phone, for %1$d people.</string>

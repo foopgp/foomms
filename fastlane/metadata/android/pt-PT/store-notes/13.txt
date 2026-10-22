@@ -1,0 +1,4 @@
+• Os anexos PGP passam a ser contados nas estatísticas.
+• «Marcar como lida / não lida» só para as mensagens recebidas.
+• Confirmação antes de enviar sem cifrar quando a cifragem é possível, também a vários destinatários.
+• A página das não lidas só oferece «Marcar tudo como lido»: as não lidas de outras conversas decifram-se com as da conversa aberta.

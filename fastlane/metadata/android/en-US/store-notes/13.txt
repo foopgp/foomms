@@ -1,0 +1,4 @@
+• PGP attachments are now counted in the statistics.
+• "Mark as read / unread" for received messages only.
+• Confirmation before sending unencrypted when encryption is possible, to several recipients too.
+• The unread page now offers only "Mark all as read": the unread of other conversations are decrypted along with those of the open one.
