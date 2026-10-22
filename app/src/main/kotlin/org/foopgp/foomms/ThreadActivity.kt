@@ -261,8 +261,10 @@ class ThreadActivity : AskingActivity() {
             },
         )
         Edges.fit(this)
-        // Words handed over with the page -- shared from another application, or a link's "sms_body" -- are already written.
-        if (state == null) (intent.getStringExtra(Intent.EXTRA_TEXT) ?: intent.getStringExtra("sms_body"))?.let { field.setText(it) }
+        // Words handed over with the page -- shared from another application, or a link's "sms_body" -- are already written;
+        // otherwise what was being written here and not sent, the page having been closed meanwhile.
+        val handed = if (state == null) intent.getStringExtra(Intent.EXTRA_TEXT) ?: intent.getStringExtra("sms_body") else null
+        (handed ?: Drafts.of(this, number).takeIf { it.isNotEmpty() })?.let { field.setText(it) ; field.setSelection(it.length) }
         // And what was shared with them: a picture made small enough for an MMS, any other file if it fits.
         @Suppress("DEPRECATION")
         if (state == null) intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)?.let { shared ->
@@ -421,6 +423,7 @@ class ThreadActivity : AskingActivity() {
 
     override fun onPause() {
         shown = false
+        Drafts.keep(this, number, field.text.toString())
         Listening.onChange = null
         playingPiece = null
         if (voice.recording) voice.drop()
@@ -642,6 +645,7 @@ class ThreadActivity : AskingActivity() {
                 .onFailure { return@confirmMms say(getString(R.string.failed, it.message)) }
             if (verdict != null && words != null) Opened.keep(this, words, written, null, verdict, thread = here())
             field.setText("")
+            Drafts.keep(this, number, "")
             carry(null)
             Toast.makeText(this, getString(R.string.handed_mms, with.name), Toast.LENGTH_SHORT).show()
             list.postDelayed({ if (shown) load() }, 1500)
@@ -800,6 +804,7 @@ class ThreadActivity : AskingActivity() {
             }.onFailure { return say(getString(R.string.failed, it.message)) }
             if (verdict != null) Opened.keep(this, text, written, null, verdict, thread = here())
             field.setText("")
+            Drafts.keep(this, number, "")
             // The phone writes what was sent a moment after taking it.
             list.postDelayed({ if (shown) load() }, 1500)
         }
