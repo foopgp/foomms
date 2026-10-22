@@ -20,6 +20,13 @@ object Store {
         /** A part that is itself a PGP message: by its label, or by the name given to what was locked. */
         val sealed: Boolean
             get() = name.orEmpty().lowercase().let { type == Pgp.TYPE || it.endsWith(".pgp") || it.endsWith(".gpg") || it.endsWith(".asc") }
+
+        companion object {
+            /** [sealed], as the phone's store is asked it: the name is the part's own, or else where it came from. */
+            val SEALED: String = listOf(".pgp", ".gpg", ".asc").joinToString(" OR ", "(ct = '${Pgp.TYPE}' OR ", ")") {
+                "IFNULL(name, cl) LIKE '%$it'"
+            }
+        }
     }
 
     class Line(
@@ -280,10 +287,11 @@ object Store {
             context.contentResolver.query(table, arrayOf("_id"), where, null, null)?.use { it.count }
         }.getOrNull() ?: 0
         val armored = "body LIKE '%$BANNER%'"
-        // An MMS is PGP by a text part of it; which of those are unread is asked message by message.
+        // An MMS is PGP by a text part of it, or by a part that is a PGP message itself, as the conversation
+        // shows them; which of those are unread is asked message by message.
         val sealed = HashSet<Long>()
         runCatching {
-            context.contentResolver.query(PARTS, arrayOf("mid"), "text LIKE '%$BANNER%'", null, null)?.use { rows ->
+            context.contentResolver.query(PARTS, arrayOf("mid"), "text LIKE '%$BANNER%' OR ${Piece.SEALED}", null, null)?.use { rows ->
                 while (rows.moveToNext()) sealed += rows.getLong(0)
             }
         }
