@@ -1,0 +1,5 @@
+• Fotoğraf çekmek /e/OS (Murena) kamerasıyla da çalışıyor.
+• Şifreli bir mesaj, şifresi çözülene kadar okunmamış kalır; bir mesajın menüsünde «Okundu / okunmadı olarak işaretle».
+• Okunmamışlar sayfası («Ayrıntılar»): hepsinin şifresini çöz ya da tümünü okundu olarak işaretle.
+• Ayarlar: «Şifreleme» bölümü ve diğer konuşmaların okunmamışlarının şifresini çözme.
+• Bir ek artık yalnızca kırmızı çarpısıyla kaldırılır.

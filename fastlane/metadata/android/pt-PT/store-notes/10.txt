@@ -1,0 +1,6 @@
+• Um pequeno vídeo ou um som, gravados e vistos no foomms.
+• Uma mensagem de voz longa continua a tocar fora da conversa.
+• Notificações com a foto do contacto e o texto das mensagens assinadas, coloridas segundo a mensagem.
+• O contacto mantém-se atualizado segundo o seu certificado.
+• O foomms pede primeiro para ser a sua aplicação de mensagens, depois as autorizações em falta.
+• Um anexo cifrado viaja só com o seu tamanho.

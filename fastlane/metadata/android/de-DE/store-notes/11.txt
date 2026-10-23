@@ -1,0 +1,6 @@
+• Ein kurzes Video oder ein Ton, in foomms aufgenommen und angesehen.
+• Ein Ton zeigt ■, solange er spielt; eine lange Sprachnachricht spielt außerhalb der Unterhaltung weiter.
+• Benachrichtigungen mit dem Kontaktbild und dem Text signierter Nachrichten, je nach Nachricht gefärbt.
+• Der Kontakt hält sich nach seinem Zertifikat aktuell.
+• foomms bittet zuerst darum, Ihre Nachrichten-App zu werden, dann um die fehlenden Berechtigungen.
+• Ein verschlüsselter Anhang reist nur unter seiner Größe.

@@ -1,0 +1,10 @@
+Erste Version.
+
+• SMS- und MMS-Messenger, der zur Nachrichten-App des Telefons werden kann.
+• PGP-Nachrichten, verschlüsselt und signiert durch foodjis und Ihren Sicherheitsschlüssel; sie reisen gepanzert (armored) und sind für jede andere PGP-Anwendung lesbar.
+• Die Farben von foodjis: grün verschlüsselt und beglaubigt, blau signiert und beglaubigt, gelb verschlüsselt, rot unverschlüsselt und nicht beglaubigt, grau geschlossen.
+• Nur signierte Nachrichten werden geprüft, sobald sie angezeigt werden; verschlüsselte öffnen sich mit einem einzigen Vorzeigen des Schlüssels, mit ihrem Entschlüsselungsfenster, und schließen sich nach der gewählten Zeit wieder.
+• Eine Nummer, im Adressbuch mit dem Zertifikat ihres Inhabers verknüpft.
+• Anhänge: Foto, Bild, Kontakt, Standort, Datei; eine Sprachnachricht durch Gedrückthalten des leeren Feldes.
+• Suche, Sicherung und Wiederherstellung im Format von „SMS Backup & Restore“.
+• Teilen eines Textes, Bildes oder einer Datei aus einer anderen Anwendung, an eine oder mehrere Personen.

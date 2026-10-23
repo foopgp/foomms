@@ -1,0 +1,6 @@
+• Une petite vidéo ou un son, enregistrés et regardés dans foomms.
+• Un message vocal long continue de jouer hors de la conversation.
+• Notifications avec la photo du contact et le texte des messages signés, colorées selon le message.
+• La fiche du contact se tient à jour d'après son certificat.
+• foomms demande d'abord à devenir votre application de messagerie, puis les autorisations qui manquent.
+• Une pièce jointe chiffrée voyage sous sa seule taille.

@@ -1,0 +1,4 @@
+• "Refresh the certificate" keeps the contact up to date: what foomms wrote in it from the certificate goes when the certificate no longer carries it.
+• A picture or a note that differ between the contact and the certificate: you choose which to keep.
+• "Not certified" in bold, and never cut at the end of a line.
+• A message received twice opens with the other.

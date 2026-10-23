@@ -1,0 +1,2 @@
+• foomms önce mesajlaşma uygulamanız olmayı ister, ancak ondan sonra eksik izinleri ister.
+• Şifreli bir ek yalnızca boyutuyla gider: ne olduğu ve tarihi şifrenin içinde kalır.

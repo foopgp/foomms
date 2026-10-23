@@ -1,0 +1,6 @@
+• Chaque partie d'un message a son appui : le texte se sélectionne, une image s'agrandit, une pièce jointe s'ouvre.
+• « Partager » remplace « Transférer », et une pièce jointe s'enregistre.
+• Un second code couleur, sur les barres et les notifications : en clair, signé (violet), chiffré (jaune-vert).
+• Les notifications montrent la photo du contact et le texte des messages signés.
+• Un certificat manquant se cherche sur les serveurs de clés.
+• foomms prévient si foodjis est trop ancien.

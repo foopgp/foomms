@@ -1,0 +1,1 @@
+• A sound's button shows ■ while it plays: a press stops it.

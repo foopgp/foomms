@@ -1,0 +1,18 @@
+foomms ist ein SMS- und MMS-Messenger, der Ihre Nachrichten mit PGP verschlüsselt und signiert. Er betreibt selbst keine Kryptografie: Er bittet foodjis darum, das sich auf Ihren Sicherheitsschlüssel stützt.
+
+Was Sie tun können:
+
+• An eine Nummer schreiben: Die Nachricht wird für das Zertifikat ihres Inhabers verschlüsselt und mit Ihrem Schlüssel signiert. Lesen, was man Ihnen schickt, und wissen, wer es signiert hat.
+• Eine Nachricht auf einen Blick erkennen, an den Farben von foodjis: grün verschlüsselt und beglaubigt, blau signiert und beglaubigt, gelb verschlüsselt, rot unverschlüsselt und nicht beglaubigt, grau geschlossen.
+• Eine Nummer im Adressbuch mit dem Zertifikat ihres Inhabers verknüpfen.
+• Ein Foto, ein Bild, einen Kontakt, Ihren Standort oder eine Datei anhängen; eine Sprachnachricht aufnehmen, indem Sie das leere Feld gedrückt halten.
+• In den Unterhaltungen suchen; sie im Format von „SMS Backup & Restore“ sichern und wiederherstellen.
+• Sie zur Nachrichten-App des Telefons machen.
+
+Verschlüsselte Nachrichten reisen in ASCII-Armor, lesbar für jede andere PGP-Anwendung. Sie öffnen sich mit einem einzigen Vorzeigen des Schlüssels und schließen sich nach der gewählten Zeit wieder.
+
+Die App verlangt kein Konto, läuft über keinen Server von uns und zeigt keine Werbung: Das Telefonnetz transportiert die Nachrichten.
+
+Sie brauchen foodjis, einen kontaktlosen OpenPGP-Sicherheitsschlüssel und ein Telefon mit NFC-Leser.
+
+Freie Software unter der Lizenz GPL-3.0-only: Der Quellcode wird jedem übergeben, der die App besitzt und danach fragt.

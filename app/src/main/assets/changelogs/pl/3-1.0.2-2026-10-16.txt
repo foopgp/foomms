@@ -1,0 +1,3 @@
+• Wyszukiwanie z listy rozmów szuka najpierw we wszystkich kontaktach, każdy ze swoim przyciskiem „Napisz”; przełącznik przechodzi do rozmów, a strona pamięta wybór.
+• Załączniki: „Tekst” wkleja to, co skopiowano.
+• Wyszarzony przełącznik jest zawsze wyłączony.

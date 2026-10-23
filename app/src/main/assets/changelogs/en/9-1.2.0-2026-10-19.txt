@@ -1,0 +1,6 @@
+• A short video (QVGA or CIF) or a sound, recorded in foomms: back or front camera, light.
+• Videos are watched in foomms, full screen.
+• A long voice message goes on playing outside the conversation, its controls in the notifications.
+• MMS stay under 300 kB, or under your operator's limit if you choose it.
+• Conversations open faster.
+• The decryption window goes up to 15 messages.

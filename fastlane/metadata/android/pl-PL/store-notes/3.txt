@@ -1,0 +1,11 @@
+Pierwsza wersja.
+
+foomms wysyła i odbiera Twoje SMS i MMS, szyfrowane i podpisywane PGP przez foodjis i Twój klucz bezpieczeństwa.
+
+• Kolory foodjis: zielony, niebieski, żółty, czerwony, szary
+• Numer powiązany z certyfikatem właściciela
+• Zdjęcia, pliki, kontakty, położenie, wiadomości głosowe
+• Wyszukiwanie, kopia zapasowa i przywracanie
+• Jedenaście języków
+
+Wolne, GPL-3.0, bez konta i reklam.

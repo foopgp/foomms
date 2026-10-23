@@ -1,0 +1,10 @@
+Primeira versão.
+
+• Aplicação de mensagens SMS e MMS, que pode tornar-se a aplicação de mensagens do telemóvel.
+• Mensagens PGP cifradas e assinadas pelo foodjis e pela sua chave de segurança; viajam em armadura, legíveis por qualquer outra aplicação PGP.
+• As cores do foodjis: verde cifrada e certificada, azul assinada e certificada, amarelo cifrada, vermelho em claro e não certificada, cinzento fechada.
+• As mensagens apenas assinadas são verificadas assim que aparecem; as cifradas abrem-se com uma única apresentação da chave, com a sua janela de decifragem, e voltam a fechar-se ao fim do tempo escolhido.
+• Um número associado ao certificado do seu titular, na lista de contactos.
+• Anexos: fotografia, imagem, contacto, localização, ficheiro; uma mensagem de voz mantendo premido o campo vazio.
+• Pesquisa, cópia de segurança e restauro no formato do «SMS Backup & Restore».
+• Partilha de um texto, uma imagem ou um ficheiro a partir de outra aplicação, para uma ou várias pessoas.

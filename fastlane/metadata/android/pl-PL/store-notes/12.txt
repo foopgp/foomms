@@ -1,0 +1,5 @@
+• Robienie zdjęć działa też z aparatem /e/OS (Murena).
+• Zaszyfrowana wiadomość pozostaje nieprzeczytana, dopóki nie zostanie odszyfrowana; „Oznacz jako przeczytane / nieprzeczytane” w menu wiadomości.
+• Strona nieprzeczytanych („Szczegóły”): odszyfruj wszystkie lub oznacz wszystko jako przeczytane.
+• Konfiguracja: sekcja „Szyfrowanie” i odszyfrowywanie nieprzeczytanych z innych rozmów.
+• Załącznik usuwa się teraz tylko czerwonym krzyżykiem.

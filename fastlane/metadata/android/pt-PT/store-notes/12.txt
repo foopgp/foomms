@@ -1,0 +1,5 @@
+• Tirar uma fotografia funciona também com a câmara do /e/OS (Murena).
+• Uma mensagem cifrada fica por ler até ser decifrada; «Marcar como lida / não lida» no menu de uma mensagem.
+• Página das não lidas («Detalhar»): decifrá-las todas ou marcar tudo como lido.
+• Configuração: uma secção «Cifragem» e a decifragem das não lidas de outras conversas.
+• Um anexo já só se retira pela sua cruz vermelha.

@@ -1,0 +1,4 @@
+• „… anrufen“ ist zurück im Menü einer Unterhaltung, auf den Telefonen, die es verbargen.
+• Text auswählen: eine Schaltfläche Kopieren, und Webadressen öffnen sich mit einem Druck.
+• Die Titel der Suche passen auf eine Zeile.
+• Die Schaltfläche „+“ ist ausgegraut, wenn man dem Absender nicht antworten kann.

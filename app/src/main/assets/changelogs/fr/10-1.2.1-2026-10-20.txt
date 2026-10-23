@@ -1,0 +1,2 @@
+• foomms demande d'abord à devenir votre application de messagerie, puis seulement les autorisations qui manquent encore.
+• Une pièce jointe chiffrée voyage sous sa seule taille : ce qu'elle est et sa date restent dans le chiffré.

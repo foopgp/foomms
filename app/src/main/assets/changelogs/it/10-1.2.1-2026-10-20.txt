@@ -1,0 +1,2 @@
+• foomms chiede prima di diventare la vostra applicazione di messaggistica, e solo dopo i permessi che mancano ancora.
+• Un allegato cifrato viaggia con la sola dimensione: cosa sia e la sua data restano nel cifrato.

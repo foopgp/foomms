@@ -1,0 +1,2 @@
+• Der Status eines verknüpften Zertifikats (beglaubigt, widerrufen…) folgt dem, was foodjis darüber sagt, in den Unterhaltungen wie in ihrer Liste.
+• Die Identität, die foodjis trägt, wird bei jeder Rückkehr zu einer Unterhaltung neu erfragt.

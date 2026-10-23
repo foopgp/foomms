@@ -1,0 +1,1 @@
+SMS and MMS encrypted and signed with PGP, by foodjis and your security key.

@@ -1,0 +1,1 @@
+Po instalacji z pliku Android ogranicza SMS-y: strona główna mówi, gdzie na nie zezwolić, z przyciskiem do ustawień foomms. Zgoda na powiadomienia jest wymagana razem z pozostałymi.

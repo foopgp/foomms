@@ -1,0 +1,4 @@
+• « Rafraîchir le certificat » tient la fiche du contact à jour : ce que foomms y a inscrit d'après le certificat s'en va quand le certificat ne le porte plus.
+• Photo ou note différentes entre la fiche et le certificat : vous choisissez laquelle garder.
+• « Non certifié » en gras, et jamais coupé en fin de ligne.
+• Un message reçu deux fois s'ouvre avec l'autre.

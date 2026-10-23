@@ -1,0 +1,6 @@
+• Cada parte de uma mensagem responde ao seu toque: o texto seleciona-se, uma imagem amplia-se, um anexo abre-se.
+• «Partilhar» substitui «Reencaminhar», e um anexo pode ser guardado.
+• Um segundo código de cor, em barras e notificações: em claro, assinada (violeta), cifrada (amarelo-esverdeado).
+• As notificações mostram a foto do contacto e o texto das mensagens assinadas.
+• Um certificado em falta procura-se nos servidores de chaves.
+• O foomms avisa se o foodjis for demasiado antigo.

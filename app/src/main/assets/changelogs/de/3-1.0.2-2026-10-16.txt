@@ -1,0 +1,3 @@
+• Die Suche aus der Liste der Unterhaltungen sucht zuerst in allen Kontakten, jeder mit seiner Schaltfläche „Schreiben“; ein Auswahlfeld wechselt zu den Unterhaltungen, und die Seite behält die Wahl.
+• Anhänge: „Einen Text“ fügt ein, was kopiert wurde.
+• Ein ausgegrauter Schalter steht immer auf aus.

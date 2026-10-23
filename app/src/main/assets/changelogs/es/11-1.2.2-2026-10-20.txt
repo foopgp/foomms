@@ -1,0 +1,1 @@
+• El botón de un sonido muestra ■ mientras suena: una pulsación lo detiene.

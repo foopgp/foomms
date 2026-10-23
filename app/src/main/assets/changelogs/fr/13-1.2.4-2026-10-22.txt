@@ -1,0 +1,4 @@
+• Les pièces jointes PGP sont désormais comptées dans les statistiques.
+• « Marquer comme lu / non lu » seulement pour les messages reçus.
+• Confirmation avant d'envoyer sans chiffrer quand le chiffrement est possible, y compris à plusieurs destinataires.
+• La page des non-lus ne propose plus que « Tout marquer comme lu » : les non-lus des autres conversations se déchiffrent avec ceux de la conversation ouverte.

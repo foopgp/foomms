@@ -1,0 +1,18 @@
+foomms is an SMS and MMS messenger that encrypts and signs your messages with PGP. It does no cryptography itself: it asks foodjis, which relies on your security key.
+
+What you can do:
+
+• Write to a number: the message is encrypted for its holder's certificate and signed by your key. Read what you are sent, and know who signed it.
+• Tell a message at a glance, by foodjis's colours: green encrypted and certified, blue signed and certified, yellow encrypted, red in clear and not certified, grey closed.
+• Tie a number to its holder's certificate, in your address book.
+• Attach a photo, a picture, a contact, where you are or a file; record a voice message by holding the empty field.
+• Search the conversations; back them up and restore them in the "SMS Backup & Restore" format.
+• Make it the phone's messaging application.
+
+Encrypted messages travel armoured, readable by any other PGP application. They open with a single presentation of the key, and close again after the time you choose.
+
+The application asks for no account, goes through no server of ours and shows no advertising: the phone network carries the messages.
+
+You need foodjis, a contactless OpenPGP security key and a phone with an NFC reader.
+
+Free software, under the GPL-3.0-only licence: the source code is given to anyone who holds the application and asks for it.

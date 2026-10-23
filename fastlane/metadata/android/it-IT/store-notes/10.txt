@@ -1,0 +1,6 @@
+• Un breve video o un suono, registrati e guardati in foomms.
+• Un messaggio vocale lungo continua fuori dalla conversazione.
+• Notifiche con la foto del contatto e il testo dei messaggi firmati, colorate secondo il messaggio.
+• Il contatto si tiene aggiornato secondo il suo certificato.
+• foomms chiede prima di diventare la vostra applicazione di messaggistica, poi i permessi mancanti.
+• Un allegato cifrato viaggia con la sola dimensione.

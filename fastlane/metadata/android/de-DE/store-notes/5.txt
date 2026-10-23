@@ -1,0 +1,1 @@
+Aus einer Datei installiert, schränkt Android die SMS ein: Die Hauptseite sagt, wo man sie zulässt, mit einer Schaltfläche zu den Einstellungen von foomms. Die Berechtigung für Benachrichtigungen wird mit den anderen erfragt.

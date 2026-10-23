@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Sending messages, and showing those the phone holds. Not the network:
+         the phone's own service carries a message, and what is asked of a key
+         server is asked through foodjis. -->
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+
+    <!-- As the phone's messaging application: receiving SMS and the
+         announcements of MMS, and saying that a message has arrived. -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_MMS" />
+    <uses-permission android:name="android.permission.RECEIVE_WAP_PUSH" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- The address book says who a number is, and whose certificate it
+         means; tying a number to a certificate writes there. -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+
+    <!-- Where one is, written into a message when one asks for it, and only then. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <!-- A few words spoken, while a finger stays on the empty field. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Filming a short video for an MMS. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <!-- A long voice message goes on playing beyond the page, its controls in the notifications. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+
+    <queries>
+        <!-- The OpenPGP provider we speak to: invisible to us otherwise from
+             Android 11 on. -->
+        <intent>
+            <action android:name="org.openintents.openpgp.IOpenPgpService2" />
+        </intent>
+        <!-- The dialler and the camera, asked before being offered: "Call" in
+             a conversation's menu, "Take a photo" in its attachments. -->
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+            <data android:scheme="tel" />
+        </intent>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+    </queries>
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:supportsRtl="true"
+        android:localeConfig="@xml/locales_config"
+        android:theme="@style/Pages">
+
+        <!-- The conversations. -->
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTop"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- A text, a picture or a file shared from another application: whom to send it to is asked here. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
+
+        <!-- One message for several people. It shows foodjis's screens over
+             itself and waits for their answer, as a conversation does. -->
+        <activity
+            android:name=".ManyActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize" />
+
+        <!-- A new message: whom it is for, chosen in a list of conversations and contacts. -->
+        <activity
+            android:name=".WriteActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Looking for a message by its words. -->
+        <activity
+            android:name=".SearchActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Filming a short video for an MMS. -->
+        <!-- Not locked upright, which large screens ignore: turned, the page follows without stopping the camera. -->
+        <activity
+            android:name=".VideoActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden" />
+        <!-- Turned with the phone, it goes on playing: not rebuilt, the video in memory is not lost. -->
+        <activity
+            android:name=".WatchActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize" />
+
+        <!-- What the person sets. -->
+        <activity
+            android:name=".ConfActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- What the application is, who wrote it, its licence; and what changed. Below the configuration,
+             in a ring walked downwards; the arrow of every page leads to the list of conversations. -->
+        <activity
+            android:name=".AboutActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".ChangelogActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- One conversation. It shows foodjis's screens over itself and
+             waits for their answer: it is not rebuilt when the phone turns. -->
+        <activity
+            android:name=".ThreadActivity"
+            android:exported="true"
+            android:parentActivityName=".MainActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize">
+            <!-- "Write to this number", asked by another application. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SENDTO" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="sms" />
+                <data android:scheme="smsto" />
+                <data android:scheme="mms" />
+                <data android:scheme="mmsto" />
+            </intent-filter>
+        </activity>
+
+        <!-- What Android hands its messaging application, and what it asks
+             of one before it lets it be chosen: an SMS that arrived, the
+             announcement of an MMS, a quick answer to a call. Each is
+             guarded by a permission only the system holds. -->
+        <receiver
+            android:name=".Inbound$Sms"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_DELIVER" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".Inbound$Mms"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_WAP_PUSH">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.WAP_PUSH_DELIVER" />
+                <data android:mimeType="application/vnd.wap.mms-message" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".Inbound$Fetched" android:exported="false" />
+        <service
+            android:name=".Listening"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+        <service
+            android:name=".Inbound$Respond"
+            android:exported="true"
+            android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE">
+            <intent-filter>
+                <action android:name="android.intent.action.RESPOND_VIA_MESSAGE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="sms" />
+                <data android:scheme="smsto" />
+                <data android:scheme="mms" />
+                <data android:scheme="mmsto" />
+            </intent-filter>
+        </service>
+
+        <!-- What the phone's MMS service answers about a sending. Named by
+             class, so nobody else can speak to it. -->
+        <receiver android:name=".Outbox$Told" android:exported="false" />
+
+        <!-- The message waiting to leave, or being fetched: read and written
+             by the phone's MMS service and by nobody else: closed, and
+             opened one message at a time for the service Android lets in on
+             our behalf. -->
+        <provider
+            android:name=".Outbox$Files"
+            android:authorities="${applicationId}.pdu"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+    </application>
+</manifest>

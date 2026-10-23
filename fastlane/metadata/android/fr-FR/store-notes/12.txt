@@ -1,0 +1,5 @@
+• Prendre une photo fonctionne aussi avec l'appareil photo de /e/OS (Murena).
+• Un message chiffré reste non lu tant qu'il n'est pas déchiffré ; « Marquer comme lu / non lu » dans le menu d'un message.
+• Page des non-lus (« Détailler ») : tout déchiffrer, ou tout marquer comme lu.
+• Configuration : une rubrique « Chiffrement », et le déchiffrement des non-lus des autres conversations.
+• Une pièce jointe ne se retire plus que par sa croix rouge.

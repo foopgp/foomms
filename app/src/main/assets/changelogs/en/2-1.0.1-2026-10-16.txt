@@ -1,0 +1,10 @@
+First version.
+
+• SMS and MMS messaging, which can become the phone's messaging application.
+• PGP messages encrypted and signed by foodjis and your security key; they travel armored, readable by any other PGP application.
+• foodjis's colours: green encrypted and certified, blue signed and certified, yellow encrypted, red in clear and not certified, grey closed.
+• Messages only signed are verified as soon as they are shown; encrypted ones open with a single presentation of the key, with their decryption window, and close again after the time chosen.
+• A number tied to its holder's certificate, in the address book.
+• Attachments: photo, picture, contact, place, file; a voice message by holding the empty field.
+• Search, backup and restore in the "SMS Backup & Restore" format.
+• Sharing a text, a picture or a file from another application, to one person or several.

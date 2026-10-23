@@ -1,0 +1,10 @@
+Pierwsza wersja.
+
+• Komunikator SMS i MMS, który może stać się aplikacją do wiadomości w telefonie.
+• Wiadomości PGP szyfrowane i podpisywane przez foodjis i twój klucz bezpieczeństwa; podróżują w opakowaniu tekstowym (armor), czytelne dla każdej innej aplikacji PGP.
+• Kolory foodjis: zielony zaszyfrowane i poświadczone, niebieski podpisane i poświadczone, żółty zaszyfrowane, czerwony jawne i niepoświadczone, szary zamknięte.
+• Wiadomości tylko podpisane są sprawdzane od razu po wyświetleniu; zaszyfrowane otwierają się jednym przyłożeniem klucza, w swoim oknie odszyfrowania, i zamykają się po wybranym czasie.
+• Numer powiązany z certyfikatem jego właściciela w książce adresowej.
+• Załączniki: zdjęcie, obraz, kontakt, położenie, plik; wiadomość głosowa przez przytrzymanie pustego pola.
+• Wyszukiwanie, kopia zapasowa i przywracanie w formacie „SMS Backup & Restore”.
+• Udostępnianie tekstu, obrazu lub pliku z innej aplikacji jednej lub kilku osobom.

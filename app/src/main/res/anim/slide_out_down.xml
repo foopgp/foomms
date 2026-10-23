@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A step sideways, not a scene change: short enough that the hand still feels
+  it moved the page rather than asked for a new one.
+-->
+<translate xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fromYDelta="0" android:toYDelta="100%p"
+    android:duration="@integer/step_ms"
+    android:interpolator="@android:interpolator/decelerate_quad" />

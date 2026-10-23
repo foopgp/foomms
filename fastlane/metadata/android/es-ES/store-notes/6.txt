@@ -1,0 +1,4 @@
+• «Llamar a …» vuelve al menú de una conversación, en los teléfonos que lo ocultaban.
+• Seleccionar texto: un botón Copiar, y las direcciones web se abren con una pulsación.
+• Los títulos de la búsqueda caben en una línea.
+• El botón «+» aparece en gris cuando no se puede responder al remitente.

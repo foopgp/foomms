@@ -1,0 +1,4 @@
+• Pisana wiadomość nie ginie już po przejściu do innej aplikacji, także do wielu odbiorców.
+• Karta kontaktu: każda notatka we własnej ramce i „Zachowaj te z kontaktu”, gdy jest ich kilka.
+• Wideo na pełnym ekranie dostosowane do nowszych wersji Androida.
+• Lżejsza i szybsza aplikacja.

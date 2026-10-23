@@ -1,0 +1,5 @@
+• Taking a photo works with the /e/OS (Murena) camera too.
+• An encrypted message stays unread until it is decrypted; "Mark as read / unread" in a message's menu.
+• Unread page ("Details"): decrypt them all, or mark all as read.
+• Settings: an "Encryption" section, and decrypting the unread of other conversations.
+• An attachment is now removed only by its red cross.

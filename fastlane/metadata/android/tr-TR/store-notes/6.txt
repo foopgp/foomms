@@ -1,0 +1,4 @@
+• «… numarasını ara», gizleyen telefonlarda konuşma menüsüne geri döndü.
+• Metin seçimi: bir Kopyala düğmesi, web adresleri bir dokunuşla açılır.
+• Arama başlıkları tek satıra sığar.
+• Gönderene yanıt verilemediğinde «+» düğmesi gri olur.

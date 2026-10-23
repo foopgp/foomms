@@ -1,0 +1,3 @@
+• Rechercher, depuis la liste des conversations, cherche d'abord dans tous les contacts, chacun avec son bouton « Écrire » ; un sélecteur passe aux conversations, et la page retient le choix.
+• Pièces jointes : « Du texte » colle ce qui a été copié.
+• Un interrupteur grisé est toujours sur arrêt.

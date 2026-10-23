@@ -1,0 +1,6 @@
+• Ogni parte di un messaggio risponde al suo tocco: il testo si seleziona, un'immagine si ingrandisce, un allegato si apre.
+• «Condividi» sostituisce «Inoltra», e un allegato si può salvare.
+• Un secondo codice colore, su barre e notifiche: in chiaro, firmato (viola), cifrato (giallo-verde).
+• Le notifiche mostrano la foto del contatto e il testo dei messaggi firmati.
+• Un certificato mancante si cerca sui server di chiavi.
+• foomms avvisa se foodjis è troppo vecchio.

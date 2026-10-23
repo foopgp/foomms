@@ -1,0 +1,13 @@
+/build/
+*/build/
+.gradle/
+.kotlin/
+local.properties
+*.apk
+*.aab
+# A signing key pushed once is a key to replace.
+*.keystore
+*.jks
+keystore.properties
+.idea/
+*.iml

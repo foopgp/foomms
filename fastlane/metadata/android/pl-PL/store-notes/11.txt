@@ -1,0 +1,6 @@
+• Krótki film lub dźwięk, nagrane i oglądane w foomms.
+• Dźwięk pokazuje ■, gdy gra; długa wiadomość głosowa gra dalej poza rozmową.
+• Powiadomienia ze zdjęciem kontaktu i tekstem podpisanych wiadomości, w kolorze zależnym od wiadomości.
+• Kontakt aktualizuje się według swojego certyfikatu.
+• foomms najpierw prosi o zostanie twoją aplikacją do wiadomości, potem o brakujące uprawnienia.
+• Zaszyfrowany załącznik podróżuje tylko pod swoim rozmiarem.
