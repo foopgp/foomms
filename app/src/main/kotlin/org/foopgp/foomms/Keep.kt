@@ -146,7 +146,7 @@ object Keep {
         }
     }
 
-    /** One message read: opened from its lock, refused by foodjis before the person's eyes, or said read by them. */
+    /** One message read: opened from its lock, said by foodjis to be locked for somebody else, or said read by the person. */
     fun read(context: Context, line: Store.Line) {
         if (!ours(context) || line.id < 0) return
         runCatching { context.contentResolver.update(line.uri, ContentValues().apply { put("read", 1) ; put("seen", 1) }, "read = 0", null) }

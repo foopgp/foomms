@@ -847,8 +847,8 @@ class ThreadActivity : AskingActivity() {
      * A message pressed, and the closed ones near it, opened by one use of the
      * key ([Unlocking.open]); with them, as many not read yet in the other
      * conversations as the person set, kept for when theirs is opened. What
-     * opens here is read; what foodjis refuses outright, before the person's
-     * eyes, is read too.
+     * opens here is read; what foodjis says is locked for somebody else, before
+     * the person's eyes, is read too: nothing will ever open it here.
      */
     private fun openAll(chosen: Store.Line, near: List<Store.Line>) {
         val elsewhere = Conf.unreadAll(this)
@@ -863,7 +863,7 @@ class ThreadActivity : AskingActivity() {
                 val why: (String) -> Unit = { words -> if (first is Unlocking.Job.Words) closed(first.armor, words) else say(words) }
                 Unlocking.open(
                     provider, first, rest,
-                    ask = { input, then -> ask(Intent(Provider.DECRYPT_VERIFY), input, why, refused = { read(chosen) }, done = then) },
+                    ask = { input, then -> ask(Intent(Provider.DECRYPT_VERIFY), input, why, notForUs = { read(chosen) }, done = then) },
                     alive = { !isFinishing && !isDestroyed },
                 ) { job, answer ->
                     if (job.line.thread != here) return@open Unlocking.keep(this, job, answer)

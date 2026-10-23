@@ -24,7 +24,7 @@ abstract class AskingActivity : Activity() {
         val input: ByteArray?,
         val failed: (String) -> Unit,
         val shown: (Intent?) -> Boolean,
-        val refused: () -> Unit,
+        val notForUs: () -> Unit,
         val done: (Provider.Answer.Done) -> Unit,
     )
 
@@ -52,11 +52,11 @@ abstract class AskingActivity : Activity() {
         input: ByteArray?,
         failed: (String) -> Unit,
         screened: (Intent?) -> Boolean = { false },
-        refused: () -> Unit = {},
+        notForUs: () -> Unit = {},
         done: (Provider.Answer.Done) -> Unit,
     ) {
         shown = 0
-        errand = Errand(request, input, failed, screened, refused, done)
+        errand = Errand(request, input, failed, screened, notForUs, done)
         again(null)
     }
 
@@ -69,8 +69,12 @@ abstract class AskingActivity : Activity() {
             if (isFinishing || isDestroyed) return@ask
             when (answer) {
                 is Provider.Answer.Done -> { this.errand = null ; errand.done(answer) }
-                // Refused by foodjis itself -- not given up by the person in front of one of its screens.
-                is Provider.Answer.Failed -> { this.errand = null ; errand.refused() ; errand.failed(getString(R.string.failed, answer.says)) }
+                // Locked for somebody else, as foodjis says by its number -- not refused for any other reason.
+                is Provider.Answer.Failed -> {
+                    this.errand = null
+                    if (answer.code == Provider.ERROR_NOT_FOR_US) errand.notForUs()
+                    errand.failed(getString(R.string.failed, answer.says))
+                }
                 is Provider.Answer.Ask ->
                     if (++shown > MOST) {
                         this.errand = null

@@ -34,7 +34,8 @@ class Provider(private val context: Context) {
         /** A screen of the provider's is to be shown, and the question asked again. */
         class Ask(val screen: PendingIntent) : Answer
 
-        class Failed(val says: String) : Answer
+        /** Refused: why, in the person's language, and the number the provider gives the reason ([ERROR_NOT_FOR_US]). */
+        class Failed(val says: String, val code: Int = ERROR_GENERIC) : Answer
     }
 
     private val main = Handler(Looper.getMainLooper())
@@ -96,7 +97,7 @@ class Provider(private val context: Context) {
                     ?: Answer.Failed("a screen was announced and none was given")
             else ->
                 @Suppress("DEPRECATION")
-                Answer.Failed(says.getParcelableExtra<OpenPgpError>(RESULT_ERROR)?.message ?: "refused")
+                says.getParcelableExtra<OpenPgpError>(RESULT_ERROR).let { Answer.Failed(it?.message ?: "refused", it?.errorId ?: ERROR_GENERIC) }
         }
     }
 
@@ -107,6 +108,11 @@ class Provider(private val context: Context) {
     }
 
     companion object {
+        const val ERROR_GENERIC = 0
+
+        /** foodjis's own, from 1.4.5: the message is locked for none of the keys of the phone's identity. */
+        const val ERROR_NOT_FOR_US = 100
+
         const val FOODJIS = "org.foopgp.foodjis"
         const val FOODJIS_DEV = "org.foopgp.foodjis.dev"
 
