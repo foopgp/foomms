@@ -63,6 +63,22 @@ android {
         }
         getByName("release") {
             signingConfig = signingConfigs.findByName("distribution")
+            // Shrunk and obfuscated by R8, as Google Play recommends. What must keep its name is in
+            // proguard-rules.pro, with the reason for each line.
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+        }
+        // The release as it ships -- shrunk and obfuscated -- but installed as foomms-dev and signed with
+        // the debug key, so that what R8 did can be tried on a phone that also holds the store's foomms.
+        create("staging") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".dev"
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            resValue("string", "app_name", "foomms-dev")
         }
     }
     compileOptions {
