@@ -1,0 +1,4 @@
+• Yazılmakta olan bir mesaj, başka bir uygulamaya geçince artık kaybolmuyor, birden çok alıcıya da.
+• Kişi kartı: her not kendi çerçevesinde ve birden fazlaysa «Kişidekileri koru».
+• Tam ekran video, Android'in yeni sürümlerine uyarlandı.
+• Daha hafif ve daha hızlı bir uygulama.

@@ -1,0 +1,4 @@
+• A message being written is no longer lost when switching to another application, to several recipients too.
+• Contact card: each note in a frame of its own, and "Keep the contact's notes" when there are several.
+• Full-screen video suited to recent Android versions.
+• A lighter, faster application.

@@ -1,0 +1,4 @@
+• Un message en cours d'écriture n'est plus perdu quand on passe à une autre application, y compris à plusieurs destinataires.
+• Fiche du contact : chaque note dans son propre cadre, et « Garder celles de la fiche » quand il y en a plusieurs.
+• Vidéo en plein écran adaptée aux versions récentes d'Android.
+• Application plus légère et plus rapide.

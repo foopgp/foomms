@@ -1,0 +1,4 @@
+• Eine begonnene Nachricht geht beim Wechsel in eine andere App nicht mehr verloren, auch an mehrere Empfänger.
+• Kontaktkarte: jede Notiz in einem eigenen Rahmen, und „Die Notizen des Kontakts behalten“, wenn es mehrere gibt.
+• Video im Vollbild an neuere Android-Versionen angepasst.
+• Eine leichtere, schnellere App.
