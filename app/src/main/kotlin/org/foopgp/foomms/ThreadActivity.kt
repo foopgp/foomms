@@ -610,8 +610,8 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
-    /** What foodjis is asked for a message leaving the way [mode] says. */
-    private fun request(mode: Mode, armored: Boolean): Intent {
+    /** What foodjis is asked for a message leaving the way [mode] says; a file under its [name], kept inside. */
+    private fun request(mode: Mode, armored: Boolean, name: String? = null): Intent {
         val request = Intent(
             when (mode) {
                 Mode.SIGN_AND_LOCK -> Provider.SIGN_AND_ENCRYPT
@@ -619,6 +619,7 @@ class ThreadActivity : AskingActivity() {
                 else -> Provider.SIGN
             },
         ).putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, armored)
+        name?.let { request.putExtra(Provider.EXTRA_ORIGINAL_FILENAME, it) }
         if (mode.locks) {
             // The certificate the address book ties to this number; with none, whoever foodjis knows by the number.
             val whose = person?.fingerprint
@@ -652,18 +653,18 @@ class ThreadActivity : AskingActivity() {
         }
         if (mode == Mode.PLAIN) return post(written.takeIf { it.isNotBlank() }, Pdu.Part(with.type, with.name, with.bytes), null)
         fun piece(sealed: Provider.Answer.Done) = Pdu.Part(Pgp.TYPE, Pgp.outerName(sealed.bytes), sealed.bytes)
-        if (written.isBlank()) return ask(request(mode, armored = false), with.bytes, ::say) { post(null, piece(it), worth(mode)) }
+        if (written.isBlank()) return ask(request(mode, armored = false, name = with.name), with.bytes, ::say) { post(null, piece(it), worth(mode)) }
         // Two things for foodjis to do, and one presentation of the key for
         // both: it is told of the file first, so that it knows what waits;
         // then asked for the words, which is when it asks for the key; and
         // what the key did for the file is then there to collect.
-        provider.ask(request(mode, armored = false), with.bytes) { first ->
+        provider.ask(request(mode, armored = false, name = with.name), with.bytes) { first ->
             if (isFinishing || isDestroyed) return@ask
             ask(request(mode, armored = true), written.toByteArray(), ::say) { answer ->
                 val armor = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
                     ?: return@ask say(getString(R.string.failed, "what came back is not a PGP message"))
                 if (first is Provider.Answer.Done) return@ask post(armor, piece(first), worth(mode))
-                ask(request(mode, armored = false), with.bytes, ::say) { post(armor, piece(it), worth(mode)) }
+                ask(request(mode, armored = false, name = with.name), with.bytes, ::say) { post(armor, piece(it), worth(mode)) }
             }
         }
     }

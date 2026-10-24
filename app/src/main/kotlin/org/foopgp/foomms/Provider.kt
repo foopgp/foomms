@@ -187,6 +187,10 @@ class Provider(private val context: Context) {
         /** foodjis's own: one contact is wanted from its list, not several. */
         const val EXTRA_SINGLE = "org.foopgp.foodjis.extra.SINGLE"
         const val EXTRA_REQUEST_ASCII_ARMOR = "ascii_armor"
+
+        /** A file's name, kept inside what is locked: told back as [RESULT_METADATA] by foodjis from 1.4.5. */
+        const val EXTRA_ORIGINAL_FILENAME = "original_filename"
+        const val RESULT_METADATA = "metadata"
         const val RESULT_CODE = "result_code"
         const val RESULT_ERROR = "error"
         const val RESULT_INTENT = "intent"

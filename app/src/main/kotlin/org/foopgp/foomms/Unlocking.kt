@@ -117,7 +117,10 @@ object Unlocking {
         val signature = answer.says.getParcelableExtra<OpenPgpSignatureResult>(Provider.RESULT_SIGNATURE)
         val certified = signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED
         val told = Kind.of(answer.bytes.copyOf(minOf(answer.bytes.size, 32)), null)
-        val name = Pgp.innerName(piece.name, answer.bytes, told.extension)
+        // The name it was locked under, as foodjis tells it; else found inside the file, when it says ([Pgp.innerName]).
+        @Suppress("DEPRECATION")
+        val inside = answer.says.getParcelableExtra<org.openintents.openpgp.OpenPgpMetadata>(Provider.RESULT_METADATA)?.filename
+        val name = inside?.takeIf { it.isNotBlank() } ?: Pgp.innerName(piece.name, answer.bytes, told.extension)
         val signer = signature?.takeIf { it.result != OpenPgpSignatureResult.RESULT_NO_SIGNATURE }
         Opened.keepPiece(
             context, piece.id, told.type, name, answer.bytes, Verdict.of(locked, certified),

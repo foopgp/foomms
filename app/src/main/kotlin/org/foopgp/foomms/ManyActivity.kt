@@ -181,6 +181,8 @@ class ManyActivity : AskingActivity() {
         if (!locked && !signed) return leave(written.takeIf { it.isNotBlank() }, written, null, with?.let { Pdu.Part(it.type, it.name, it.bytes) })
         fun request(armored: Boolean) = Intent(if (locked && signed) Provider.SIGN_AND_ENCRYPT else if (locked) Provider.ENCRYPT else Provider.SIGN)
             .putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, armored).apply {
+                // A file under its name, kept inside what is locked.
+                if (!armored) with?.name?.let { putExtra(Provider.EXTRA_ORIGINAL_FILENAME, it) }
                 if (locked) {
                     val keys = (whom.mapNotNull { it.cert?.fingerprint?.let(Fingerprint::keyId) } + listOfNotNull(mine.takeIf { Conf.toMyself(this@ManyActivity) })).distinct()
                     putExtra(Provider.EXTRA_KEY_IDS, keys.toLongArray())
