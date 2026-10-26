@@ -1,4 +1,5 @@
-• Un messaggio in scrittura non va più perso passando a un'altra applicazione, anche a più destinatari.
-• Scheda del contatto: ogni nota nella sua cornice, e «Tenere quelle del contatto» quando ce ne sono più d'una.
-• Video a schermo intero adattato alle versioni recenti di Android.
-• Un'applicazione più leggera e più veloce.
+• Un messaggio in scrittura non va più perso, anche a più destinatari.
+• Un messaggio cifrato resta non letto finché non è decifrato; «Segna come letto / non letto» per i messaggi ricevuti.
+• Conferma prima di inviare senza cifrare quando la cifratura è possibile.
+• Scattare una foto funziona con la fotocamera di /e/OS; un allegato si rimuove con la sua croce rossa.
+• Scheda del contatto: ogni nota nella sua cornice. Un'applicazione più leggera.

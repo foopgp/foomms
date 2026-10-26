@@ -1,4 +1,5 @@
-• Un mensaje a medio escribir ya no se pierde al pasar a otra aplicación, también a varios destinatarios.
-• Ficha del contacto: cada nota en su propio marco, y «Conservar las del contacto» cuando hay varias.
-• Vídeo a pantalla completa adaptado a las versiones recientes de Android.
-• Una aplicación más ligera y más rápida.
+• Un mensaje a medio escribir ya no se pierde, también a varios destinatarios.
+• Un mensaje cifrado sigue sin leer hasta que se descifra; «Marcar como leído / no leído» para los mensajes recibidos.
+• Confirmación antes de enviar sin cifrar cuando el cifrado es posible.
+• Hacer una foto funciona con la cámara de /e/OS; un adjunto se quita con su cruz roja.
+• Ficha del contacto: cada nota en su marco. Una aplicación más ligera.

@@ -1,4 +1,5 @@
-• Eine begonnene Nachricht geht beim Wechsel in eine andere App nicht mehr verloren, auch an mehrere Empfänger.
-• Kontaktkarte: jede Notiz in einem eigenen Rahmen, und „Die Notizen des Kontakts behalten“, wenn es mehrere gibt.
-• Video im Vollbild an neuere Android-Versionen angepasst.
-• Eine leichtere, schnellere App.
+• Eine begonnene Nachricht geht nicht mehr verloren, auch an mehrere Empfänger.
+• Eine verschlüsselte Nachricht bleibt ungelesen, bis sie entschlüsselt ist; „Als gelesen / ungelesen markieren“ für empfangene Nachrichten.
+• Bestätigung vor dem unverschlüsselten Senden, wenn Verschlüsselung möglich ist.
+• Fotos funktionieren mit der Kamera von /e/OS; ein Anhang wird über sein rotes Kreuz entfernt.
+• Kontaktkarte: jede Notiz im eigenen Rahmen. Eine leichtere App.

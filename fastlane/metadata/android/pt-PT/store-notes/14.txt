@@ -1,4 +1,5 @@
-• Uma mensagem a meio de ser escrita já não se perde ao passar para outra aplicação, também a vários destinatários.
-• Ficha do contacto: cada nota na sua própria moldura, e «Manter as do contacto» quando há várias.
-• Vídeo em ecrã inteiro adaptado às versões recentes do Android.
-• Uma aplicação mais leve e mais rápida.
+• Uma mensagem a meio de ser escrita já não se perde, também a vários destinatários.
+• Uma mensagem cifrada fica por ler até ser decifrada; «Marcar como lida / não lida» para as mensagens recebidas.
+• Confirmação antes de enviar sem cifrar quando a cifragem é possível.
+• Tirar uma fotografia funciona com a câmara do /e/OS; um anexo retira-se pela sua cruz vermelha.
+• Ficha do contacto: cada nota na sua moldura. Uma aplicação mais leve.

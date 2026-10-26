@@ -1,4 +1,5 @@
-• A message being written is no longer lost when switching to another application, to several recipients too.
-• Contact card: each note in a frame of its own, and "Keep the contact's notes" when there are several.
-• Full-screen video suited to recent Android versions.
-• A lighter, faster application.
+• A message being written is no longer lost, to several recipients too.
+• An encrypted message stays unread until it is decrypted; "Mark as read / unread" for received messages.
+• Confirmation before sending unencrypted when encryption is possible.
+• Taking a photo works with the /e/OS camera; an attachment is removed by its red cross.
+• Contact card: each note in its own frame. A lighter application.

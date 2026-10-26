@@ -1,4 +1,5 @@
-• Un message en cours d'écriture n'est plus perdu quand on passe à une autre application, y compris à plusieurs destinataires.
-• Fiche du contact : chaque note dans son propre cadre, et « Garder celles de la fiche » quand il y en a plusieurs.
-• Vidéo en plein écran adaptée aux versions récentes d'Android.
-• Application plus légère et plus rapide.
+• Un message en cours d'écriture n'est plus perdu, même à plusieurs destinataires.
+• Un message chiffré reste non lu tant qu'il n'est pas déchiffré ; « Marquer comme lu / non lu » pour les messages reçus.
+• Confirmation avant d'envoyer sans chiffrer quand le chiffrement est possible.
+• Prendre une photo fonctionne avec l'appareil photo de /e/OS ; une pièce jointe se retire par sa croix rouge.
+• Fiche du contact : chaque note dans son cadre. Application plus légère.

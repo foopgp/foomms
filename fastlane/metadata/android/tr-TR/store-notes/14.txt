@@ -1,4 +1,5 @@
-• Yazılmakta olan bir mesaj, başka bir uygulamaya geçince artık kaybolmuyor, birden çok alıcıya da.
-• Kişi kartı: her not kendi çerçevesinde ve birden fazlaysa «Kişidekileri koru».
-• Tam ekran video, Android'in yeni sürümlerine uyarlandı.
-• Daha hafif ve daha hızlı bir uygulama.
+• Yazılmakta olan bir mesaj artık kaybolmuyor, birden çok alıcıya da.
+• Şifreli bir mesaj, şifresi çözülene kadar okunmamış kalır; alınan mesajlar için «Okundu / okunmadı olarak işaretle».
+• Şifreleme mümkünken şifrelemeden göndermeden önce onay.
+• Fotoğraf çekmek /e/OS kamerasıyla çalışıyor; bir ek kırmızı çarpısıyla kaldırılır.
+• Kişi kartı: her not kendi çerçevesinde. Daha hafif bir uygulama.
