@@ -356,7 +356,7 @@ object Look {
         // Tied to a certificate, the face is framed in the colour of its standing: the line goes around the
         // picture, not over it, and the picture is cut along the line's inner edge -- a face framed tight
         // keeps its edges, only its corners are rounded.
-        val line = if (standing == null) 0 else dp(context, 3)
+        val line = if (standing == null) 0 else dp(context, 4)
         val cut = (radius - line / 2f).coerceAtLeast(0f)
         inner.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) = outline.setRoundRect(0, 0, view.width, view.height, cut)
