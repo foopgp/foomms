@@ -506,8 +506,6 @@ class MainActivity : Activity() {
 
     /** A conversation's name, and after it what the person said of its sender: not to be announced. */
     private fun marked(row: Row): CharSequence = android.text.SpannableStringBuilder(row.name).apply {
-        // The certificate the number is tied to, by the letter and colour foodjis's contacts page gives it.
-        row.standing?.let { append("  ").append(Look.badge(it)) }
         if (Marks.muted(this@MainActivity, row.talk.number)) append("  🔕")
     }
 
@@ -567,7 +565,7 @@ class MainActivity : Activity() {
                 // The colour of what the last message travelled as, down the edge of the conversation.
                 addView(View(context).apply { background = Look.rounded(Look.colour(row.talk.form), Look.dp(context, 3)) }, LinearLayout.LayoutParams(Look.dp(context, 6), Look.dp(context, 44)))
                 addView(View(context), LinearLayout.LayoutParams(pad, 1))
-                addView(Look.face(context, 44, null, row.face))
+                addView(Look.face(context, 44, null, row.face, row.standing))
                 addView(text, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
                 setPadding(Look.dp(context, 4), pad, pad, pad)
             }

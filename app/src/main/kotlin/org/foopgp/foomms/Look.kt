@@ -151,32 +151,27 @@ object Look {
      * red revoked or broken.
      */
     fun standing(context: Context, validity: String): CharSequence {
-        val (word, ground, ink) = when (validity) {
-            "certified" -> Triple(R.string.standing_certified, Color.rgb(0x00, 0xD3, 0x90), Color.rgb(0x00, 0x4C, 0x39))
-            "uncertified" -> Triple(R.string.standing_uncertified, Color.rgb(0xFA, 0xCC, 0x15), Color.BLACK)
-            "expired" -> Triple(R.string.standing_expired, Color.rgb(0xF9, 0x73, 0x16), Color.WHITE)
-            "revoked" -> Triple(R.string.standing_revoked, Color.rgb(0xFF, 0x62, 0x7D), Color.rgb(0x4D, 0x02, 0x18))
-            else -> Triple(R.string.standing_broken, Color.rgb(0xDB, 0x3A, 0x60), Color.WHITE)
+        val (word, ink) = when (validity) {
+            "certified" -> R.string.standing_certified to Color.rgb(0x00, 0x4C, 0x39)
+            "uncertified" -> R.string.standing_uncertified to Color.BLACK
+            "expired" -> R.string.standing_expired to Color.WHITE
+            "revoked" -> R.string.standing_revoked to Color.rgb(0x4D, 0x02, 0x18)
+            else -> R.string.standing_broken to Color.WHITE
         }
-        // On a ground with rounded corners, as the letters of the list are; the ground leaves room each side.
-        return android.text.SpannableString(context.getString(word)).apply { setSpan(Badge(ground, ink), 0, length, 0) }
+        // On a ground with rounded corners, the colour that frames the faces; the ground leaves room each side.
+        return android.text.SpannableString(context.getString(word)).apply { setSpan(Badge(standingColour(validity), ink), 0, length, 0) }
     }
 
     /**
-     * A certificate's standing as the contacts page of foodjis marks it: a
-     * letter on its colour -- C certified, U not certified, E expired, R
-     * revoked, B broken. The letter carries the meaning, for whoever does not
-     * tell the colours apart.
+     * The colour foodjis gives a certificate's standing, by the word it
+     * says it with: what frames the face of whoever the number means.
      */
-    fun badge(validity: String): CharSequence {
-        val (letter, ground, ink) = when (validity) {
-            "certified" -> Triple("C", Color.rgb(0x00, 0xD3, 0x90), Color.rgb(0x00, 0x4C, 0x39))
-            "uncertified" -> Triple("U", Color.rgb(0xFA, 0xCC, 0x15), Color.BLACK)
-            "expired" -> Triple("E", Color.rgb(0xF9, 0x73, 0x16), Color.WHITE)
-            "revoked" -> Triple("R", Color.rgb(0xFF, 0x62, 0x7D), Color.rgb(0x4D, 0x02, 0x18))
-            else -> Triple("B", Color.rgb(0xDB, 0x3A, 0x60), Color.WHITE)
-        }
-        return android.text.SpannableString(letter).apply { setSpan(Badge(ground, ink), 0, length, 0) }
+    fun standingColour(validity: String): Int = when (validity) {
+        "certified" -> Color.rgb(0x00, 0xD3, 0x90)
+        "uncertified" -> Color.rgb(0xFA, 0xCC, 0x15)
+        "expired" -> Color.rgb(0xF9, 0x73, 0x16)
+        "revoked" -> Color.rgb(0xFF, 0x62, 0x7D)
+        else -> Color.rgb(0xDB, 0x3A, 0x60)
     }
 
     /** A letter on a coloured ground with rounded corners, sitting on the line like the text beside it. */
@@ -345,7 +340,7 @@ object Look {
      * A face: the contact's own picture, else the one the certificate carries,
      * else the mark foodjis shows where there is none.
      */
-    fun face(context: Context, side: Int, photo: Uri?, avatar: Bitmap?): View {
+    fun face(context: Context, side: Int, photo: Uri?, avatar: Bitmap?, standing: String? = null): View {
         val px = dp(context, side)
         val inner: View = when {
             photo != null -> ImageView(context).apply { setImageURI(photo) ; scaleType = ImageView.ScaleType.CENTER_CROP }
@@ -357,14 +352,25 @@ object Look {
                 gravity = Gravity.CENTER
             }
         }
+        val radius = px / 5f
+        // Tied to a certificate, the face is framed in the colour of its standing: the line goes around the
+        // picture, not over it, and the picture is cut along the line's inner edge -- a face framed tight
+        // keeps its edges, only its corners are rounded.
+        val line = if (standing == null) 0 else dp(context, 3)
+        val cut = (radius - line / 2f).coerceAtLeast(0f)
+        inner.outlineProvider = object : ViewOutlineProvider() {
+            override fun getOutline(view: View, outline: Outline) = outline.setRoundRect(0, 0, view.width, view.height, cut)
+        }
+        inner.clipToOutline = true
         return FrameLayout(context).apply {
             layoutParams = LinearLayout.LayoutParams(px, px)
-            background = rounded(HOLLOW, px / 5)
-            outlineProvider = object : ViewOutlineProvider() {
-                override fun getOutline(view: View, outline: Outline) = outline.setRoundRect(0, 0, view.width, view.height, px / 5f)
+            background = GradientDrawable().apply {
+                cornerRadius = radius
+                setColor(HOLLOW)
+                standing?.let { setStroke(line, standingColour(it)) }
             }
-            clipToOutline = true
-            addView(inner, FrameLayout.LayoutParams(px, px))
+            setPadding(line, line, line, line)
+            addView(inner, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
         }
     }
 }
