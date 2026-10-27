@@ -340,7 +340,11 @@ object Look {
      * A face: the contact's own picture, else the one the certificate carries,
      * else the mark foodjis shows where there is none.
      */
-    fun face(context: Context, side: Int, photo: Uri?, avatar: Bitmap?, standing: String? = null): View {
+    /**
+     * [framable]: room is kept around the picture for a frame, whether one is drawn or not, so that a list
+     * of faces stays aligned and every picture keeps its [side].
+     */
+    fun face(context: Context, side: Int, photo: Uri?, avatar: Bitmap?, standing: String? = null, framable: Boolean = false): View {
         val px = dp(context, side)
         val inner: View = when {
             photo != null -> ImageView(context).apply { setImageURI(photo) ; scaleType = ImageView.ScaleType.CENTER_CROP }
@@ -353,24 +357,21 @@ object Look {
             }
         }
         val radius = px / 5f
-        // Tied to a certificate, the face is framed in the colour of its standing: the line goes around the
-        // picture, not over it, and the picture is cut along the line's inner edge -- a face framed tight
-        // keeps its edges, only its corners are rounded.
-        val line = if (standing == null) 0 else dp(context, 4)
-        val cut = (radius - line / 2f).coerceAtLeast(0f)
+        // Tied to a certificate, the face is framed in the colour of its standing: the line is added around the
+        // picture, which keeps its whole size, and the picture's corners follow the line's inner edge.
+        val line = if (standing != null || framable) dp(context, 4) else 0
         inner.outlineProvider = object : ViewOutlineProvider() {
-            override fun getOutline(view: View, outline: Outline) = outline.setRoundRect(0, 0, view.width, view.height, cut)
+            override fun getOutline(view: View, outline: Outline) = outline.setRoundRect(0, 0, view.width, view.height, radius)
         }
         inner.clipToOutline = true
+        inner.background = rounded(HOLLOW, px / 5)
         return FrameLayout(context).apply {
-            layoutParams = LinearLayout.LayoutParams(px, px)
-            background = GradientDrawable().apply {
-                cornerRadius = radius
-                setColor(HOLLOW)
-                standing?.let { setStroke(line, standingColour(it)) }
-            }
+            layoutParams = LinearLayout.LayoutParams(px + 2 * line, px + 2 * line)
+            // The line is drawn half its width inside its rectangle: rounded on radius + line/2, its inner edge
+            // falls exactly on the picture's corners, and its outer edge rounds on radius + line.
+            standing?.let { background = GradientDrawable().apply { cornerRadius = radius + line / 2f ; setStroke(line, standingColour(it)) } }
             setPadding(line, line, line, line)
-            addView(inner, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
+            addView(inner, FrameLayout.LayoutParams(px, px))
         }
     }
 }

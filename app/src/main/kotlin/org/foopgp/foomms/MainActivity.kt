@@ -565,7 +565,7 @@ class MainActivity : Activity() {
                 // The colour of what the last message travelled as, down the edge of the conversation.
                 addView(View(context).apply { background = Look.rounded(Look.colour(row.talk.form), Look.dp(context, 3)) }, LinearLayout.LayoutParams(Look.dp(context, 6), Look.dp(context, 44)))
                 addView(View(context), LinearLayout.LayoutParams(pad, 1))
-                addView(Look.face(context, 44, null, row.face, row.standing))
+                addView(Look.face(context, 44, null, row.face, row.standing, framable = true))
                 addView(text, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
                 setPadding(Look.dp(context, 4), pad, pad, pad)
             }
