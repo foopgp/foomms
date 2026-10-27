@@ -6,7 +6,8 @@ import android.content.Context
  * This phone's own number, to name a group by all its members, this phone
  * among them, when a message is sent to several. Nothing to ask the person:
  * an MMS to this phone alone carries it, in its only recipient; until one
- * has come, the number the person's own certificate carries in foodjis.
+ * has come, the number the person's own certificate carries in foodjis, or
+ * else that of the contact tied to it.
  */
 object Me {
 
@@ -18,9 +19,10 @@ object Me {
         if (kept(context).getString(LEARNT, null) != only) kept(context).edit().putString(LEARNT, only).apply()
     }
 
-    /** The number the person's certificate carries, of the key foodjis signs with: the first, if several. Not on the main thread. */
+    /** The number of the person's certificate, of the key foodjis signs with, or of their contact tied to it. Not on the main thread. */
     fun certified(context: Context, keyId: Long) {
-        val carried = Foodjis.of(context).signer(keyId)?.let { Phone.carried(it.userIds).firstOrNull() } ?: return
+        val cert = Foodjis.of(context).signer(keyId) ?: return
+        val carried = Phone.carried(cert.userIds).firstOrNull() ?: Book.numbers(context, cert.fingerprint).firstOrNull() ?: return
         if (kept(context).getString(CERTIFIED, null) != carried) kept(context).edit().putString(CERTIFIED, carried).apply()
     }
 

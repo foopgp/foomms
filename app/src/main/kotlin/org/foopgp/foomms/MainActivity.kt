@@ -491,7 +491,10 @@ class MainActivity : Activity() {
         heading.text = named(page).takeIf { page != Page.UNREAD } ?: getString(R.string.page_unread)
         others.removeAllViews()
         for (other in Page.entries.filter { it != page }) {
-            others.addView(Look.small(this, named(other)) { go(other) })
+            others.addView(
+                Look.small(this, named(other)) { go(other) }.apply { textSize = 15f },
+                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+            )
         }
         val known = counts
         if (known != null) {
