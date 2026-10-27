@@ -46,13 +46,13 @@ object Outbox {
         return if (theirs > STANDARD && Conf.operatorSize(context)) theirs else minOf(theirs, STANDARD)
     }
 
-    fun send(context: Context, to: String, pdu: ByteArray, transaction: String) {
+    fun send(context: Context, to: List<String>, pdu: ByteArray, transaction: String) {
         // The last word on weight, whatever made the message: heavier than set, it does not leave.
         val most = heaviest(context)
         check(pdu.size <= most) { context.getString(R.string.too_heavy_sent, (pdu.size + 1023) / 1024, most / 1024) }
         File(context.cacheDir, DIR).mkdirs()
         file(context, transaction).writeBytes(pdu)
-        journal(context).edit().putString(transaction, "${System.currentTimeMillis()}\t$to\t${pdu.size}\t$GOING").apply()
+        journal(context).edit().putString(transaction, "${System.currentTimeMillis()}\t${to.joinToString(", ")}\t${pdu.size}\t$GOING").apply()
         val told = PendingIntent.getBroadcast(
             context, transaction.hashCode(),
             Intent(context, Told::class.java).putExtra(EXTRA_TRANSACTION, transaction),
@@ -62,7 +62,7 @@ object Outbox {
         val from = Uri.parse("content://${context.packageName}.pdu/$transaction")
         manager(context).sendMultimediaMessage(context, from, null, null, told)
         // The phone keeps what its messaging application tells it to, and nothing of what another sends.
-        if (Keep.ours(context)) runCatching { Keep.mmsSent(context, listOf(to), pdu) }
+        if (Keep.ours(context)) runCatching { Keep.mmsSent(context, to, pdu) }
     }
 
     /** How many SMS a text would take. */

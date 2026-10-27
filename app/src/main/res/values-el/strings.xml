@@ -70,7 +70,6 @@
     <string name="conf_prefer_mms_note">Κάθε κείμενο μεγαλύτερο από ένα SMS στέλνεται ως MMS: χρήσιμο αν τα μεγάλα μηνύματα φτάνουν σε κομμάτια ή ανακατεμένα. Ένα MMS χρησιμοποιεί δεδομένα κινητής, και ο πάροχός σας μπορεί να το χρεώσει.</string>
     <string name="conf_warn_mms">Προειδοποίηση πριν από κάθε αποστολή MMS</string>
     <string name="conf_warn_mms_note">Ένα κείμενο μεγαλύτερο από πέντε SMS στέλνεται ως MMS. Μια ερώτηση πριν σας γλιτώνει από χρέωση που μπορεί να εφαρμόσει ο πάροχός σας.</string>
-    <string name="group_reply_soon">Η απάντηση σε ομαδικό MMS έρχεται σε επόμενη έκδοση.</string>
     <string name="mms_ask">Αυτό το μήνυμα είναι μεγάλο: θα σταλεί ως MMS, που ο πάροχός σας μπορεί να χρεώσει.</string>
     <string name="plain_ask">Η κρυπτογράφηση είναι δυνατή σε αυτή τη συνομιλία, αλλά είναι απενεργοποιημένη. Αποστολή του μηνύματος χωρίς κρυπτογράφηση;</string>
     <string name="plain_send">Αποστολή χωρίς κρυπτογράφηση</string>
@@ -239,5 +238,9 @@
     <plurals name="groups_n">
         <item quantity="one">%d ομάδα</item>
         <item quantity="other">%d ομάδες</item>
+    </plurals>
+    <plurals name="group_members">
+        <item quantity="one">%d μέλος</item>
+        <item quantity="other">%d μέλη</item>
     </plurals>
 </resources>

@@ -70,7 +70,6 @@
     <string name="conf_prefer_mms_note">Bir SMS\'ten uzun her metin MMS olarak gönderilir: uzun mesajlar parça parça ya da karışık sırayla geliyorsa yararlıdır. MMS mobil veri kullanır ve operatörünüz ücret alabilir.</string>
     <string name="conf_warn_mms">Her MMS gönderiminden önce beni uyar</string>
     <string name="conf_warn_mms_note">Beş SMS\'ten uzun bir metin MMS olarak gönderilir. Önceden sorulmak, operatörünüzün uygulayabileceği bir ücretten sizi korur.</string>
-    <string name="group_reply_soon">Grup MMS\'ine yanıt vermek sonraki bir sürümde geliyor.</string>
     <string name="mms_ask">Bu mesaj uzun: MMS olarak gönderilecek ve operatörünüz ücret alabilir.</string>
     <string name="plain_ask">Bu konuşmada şifreleme mümkün, ancak kapalı. Bu mesaj şifrelenmeden gönderilsin mi?</string>
     <string name="plain_send">Şifrelemeden gönder</string>
@@ -239,5 +238,9 @@
     <plurals name="groups_n">
         <item quantity="one">%d grup</item>
         <item quantity="other">%d grup</item>
+    </plurals>
+    <plurals name="group_members">
+        <item quantity="one">%d üye</item>
+        <item quantity="other">%d üye</item>
     </plurals>
 </resources>

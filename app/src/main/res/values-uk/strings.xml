@@ -70,7 +70,6 @@
     <string name="conf_prefer_mms_note">Будь-який текст, довший за один SMS, надсилається як MMS: корисно, якщо довгі повідомлення приходять частинами або не по черзі. MMS використовує мобільні дані, і оператор може стягувати за нього плату.</string>
     <string name="conf_warn_mms">Попереджати перед надсиланням MMS</string>
     <string name="conf_warn_mms_note">Текст, довший за п\'ять SMS, надсилається як MMS. Попередження вбереже вас від плати, яку може стягнути оператор.</string>
-    <string name="group_reply_soon">Відповідь на групове MMS з\'явиться в одній із наступних версій.</string>
     <string name="mms_ask">Це повідомлення довге: його буде надіслано як MMS, за який оператор може стягнути плату.</string>
     <string name="plain_ask">У цій розмові можливе шифрування, але його вимкнено. Надіслати повідомлення без шифрування?</string>
     <string name="plain_send">Надіслати без шифрування</string>
@@ -245,5 +244,11 @@
         <item quantity="few">%d групи</item>
         <item quantity="many">%d груп</item>
         <item quantity="other">%d групи</item>
+    </plurals>
+    <plurals name="group_members">
+        <item quantity="one">%d учасник</item>
+        <item quantity="few">%d учасники</item>
+        <item quantity="many">%d учасників</item>
+        <item quantity="other">%d учасника</item>
     </plurals>
 </resources>

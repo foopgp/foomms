@@ -70,7 +70,6 @@
     <string name="conf_prefer_mms_note">Qualquer texto mais longo do que um SMS é enviado como MMS: útil se as mensagens longas chegam aos pedaços ou fora de ordem. Um MMS usa dados móveis, e o seu operador pode cobrá-lo.</string>
     <string name="conf_warn_mms">Avisar-me antes de enviar qualquer MMS</string>
     <string name="conf_warn_mms_note">Um texto mais longo do que cinco SMS é enviado como MMS. Ser avisado antes poupa-lhe um custo que o seu operador possa aplicar.</string>
-    <string name="group_reply_soon">Responder a um MMS de grupo chega numa próxima versão.</string>
     <string name="mms_ask">Esta mensagem é longa: será enviada como MMS, que o seu operador pode cobrar.</string>
     <string name="plain_ask">A cifragem é possível nesta conversa, mas está desativada. Enviar esta mensagem sem a cifrar?</string>
     <string name="plain_send">Enviar sem cifrar</string>
@@ -239,5 +238,9 @@
     <plurals name="groups_n">
         <item quantity="one">%d grupo</item>
         <item quantity="other">%d grupos</item>
+    </plurals>
+    <plurals name="group_members">
+        <item quantity="one">%d membro</item>
+        <item quantity="other">%d membros</item>
     </plurals>
 </resources>

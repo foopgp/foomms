@@ -63,7 +63,7 @@ object Keep {
     fun mmsReceived(context: Context, message: PduRead.Message, size: Int, subscription: Int): Uri? {
         val from = message.from ?: return null
         Me.learn(context, message.to)
-        // To several, it is the group's: the conversation of all those numbers, this phone's left out.
+        // To several, it is the group's: the conversation of all those numbers, this phone's among them.
         val others = Phone.received(from, message.to).toSet()
         return mms(context, Telephony.Mms.Inbox.CONTENT_URI, others, from, message.to, message, size, incoming = true, subscription)
     }

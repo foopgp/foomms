@@ -224,7 +224,7 @@ class ManyActivity : AskingActivity() {
                     else {
                         val transaction = "T" + java.lang.Long.toHexString(System.nanoTime())
                         val parts = listOfNotNull(text?.let { Pdu.Part.text(it) }, piece)
-                        Outbox.send(this, one.number, Pdu.send(transaction, listOf(one.number), parts), transaction)
+                        Outbox.send(this, listOf(one.number), Pdu.send(transaction, listOf(one.number), parts), transaction)
                     }
                 }.onFailure { failed += one.name }
             }
