@@ -52,16 +52,18 @@ object Store {
     class Counts(
         val pgp: Int, val all: Int, val unreadPgp: Int, val unread: Int, val sms: Int = 0, val mms: Int = 0, val talks: Int = 0, val unreadTalks: Int = 0,
         val pgpSms: Int = 0, val pgpMms: Int = 0, val bytes: Long = 0,
+        /** The conversations of a group: [talks] counts them too. */
+        val groups: Int = 0,
     ) {
         /** As kept between two runs, and read back. */
-        fun kept(): String = listOf(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes).joinToString(",")
+        fun kept(): String = listOf(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups).joinToString(",")
 
         companion object {
             fun of(kept: String?): Counts? {
                 val n = kept?.split(',')?.mapNotNull { it.toLongOrNull() } ?: return null
                 if (n.size < 8) return null
                 fun at(i: Int) = n.getOrElse(i) { 0L }.toInt()
-                return Counts(at(0), at(1), at(2), at(3), at(4), at(5), at(6), at(7), at(8), at(9), n.getOrElse(10) { 0L })
+                return Counts(at(0), at(1), at(2), at(3), at(4), at(5), at(6), at(7), at(8), at(9), n.getOrElse(10) { 0L }, at(11))
             }
         }
     }
@@ -340,6 +342,7 @@ object Store {
             sms = sms, mms = mms,
             talks = count(THREADS, null),
             unreadTalks = count(THREADS, "read = 0"),
+            groups = count(THREADS, "trim(recipient_ids) LIKE '% %'"),
         )
     }
 

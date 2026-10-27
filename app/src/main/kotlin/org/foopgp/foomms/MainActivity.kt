@@ -30,18 +30,24 @@ class MainActivity : Activity() {
     private lateinit var asking: LinearLayout
     private lateinit var detail: android.widget.TextView
 
-    /** Every conversation read so far, and whether only those with something unread are shown. */
+    /** The three pages of the list, in the order of the menu: the conversations between two, the unread, the groups. */
+    private enum class Page { TALKS, UNREAD, GROUPS }
+
+    /** Every conversation read so far, and the page shown. */
     private var every: List<Row> = emptyList()
-    private var onlyUnread = false
+    private var page = Page.TALKS
+    private val onlyUnread get() = page == Page.UNREAD
 
     /** Whether [every] holds every conversation, rather than the first ones of a reading cut short. */
     private var everyWhole = false
 
     /** The conversations with something unread, read for themselves; none yet, and they are picked out of [every]. */
     private var unreadRows: List<Row>? = null
-    private lateinit var all: android.widget.TextView
-    private lateinit var unread: android.widget.TextView
-    private lateinit var shower: android.widget.Button
+    private lateinit var heading: android.widget.TextView
+    private lateinit var counted: android.widget.TextView
+
+    /** Under the bar, the ways to the two other pages. */
+    private lateinit var others: LinearLayout
 
     /** Under the counts in detail: everything read at once. */
     private lateinit var tools: LinearLayout
@@ -61,21 +67,21 @@ class MainActivity : Activity() {
         }
         // A new start reads the address book again: a name may have changed since the application last ran.
         if (state == null) { synchronized(people) { people.clear() } ; synchronized(lines) { lines.clear() } }
-        onlyUnread = state?.getBoolean(ONLY_UNREAD) ?: false
+        page = Page.entries.getOrNull(state?.getInt(PAGE) ?: 0) ?: Page.TALKS
         // Nothing encrypted open: what was laid out for other applications from a lock has no business staying.
         // Not when the page is opened to receive one of them: forwarding a part hands it here, laid out for others.
         if (!Opened.anyOpen() && intent?.action != Intent.ACTION_SEND) Outbox.shut(this)
-        // In the bar: the application's mark, then how much of what the phone holds is PGP.
-        all = Look.words(this, "", size = 15f).apply { setTextColor(Look.ORANGE) ; setTypeface(typeface, Typeface.BOLD) }
-        unread = Look.words(this, "", size = 13f).apply { setTextColor(android.graphics.Color.rgb(0xE0, 0xE7, 0xFF)) }
+        // In the bar: the application's mark, then the page and how much it holds.
+        heading = Look.words(this, "", size = 17f).apply { setTextColor(Look.ORANGE) ; setTypeface(typeface, Typeface.BOLD) ; maxLines = 1 }
+        counted = Look.words(this, "", size = 13f).apply { setTextColor(android.graphics.Color.rgb(0xE0, 0xE7, 0xFF)) }
         actionBar?.apply {
             setDisplayShowTitleEnabled(false)
             setDisplayShowCustomEnabled(true)
             customView = LinearLayout(this@MainActivity).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
-                // Pressed: the counts in more detail, and only the conversations that hold something unread; pressed again, all of them.
-                setOnClickListener { filter(!onlyUnread) }
+                // Pressed: the pages, to go to another.
+                setOnClickListener { pages() }
                 val side = Look.dp(context, 36)
                 // At the far left, the way to the configuration; at the far right, to the search.
                 addView(Look.icon(context, R.drawable.settings, getString(R.string.configure)) { Menus.configure(this@MainActivity) })
@@ -84,18 +90,8 @@ class MainActivity : Activity() {
                     LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
                         setPadding(Look.dp(context, 12), 0, 0, 0)
-                        addView(all)
-                        // The second line: the unread, and a small button that shows only them -- or, while they are
-                        // shown, everything again.
-                        shower = Look.small(context, getString(R.string.show_unread)) { filter(!onlyUnread) }
-                        addView(
-                            LinearLayout(context).apply {
-                                orientation = LinearLayout.HORIZONTAL
-                                gravity = Gravity.CENTER_VERTICAL
-                                addView(unread)
-                                addView(shower, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginStart = Look.dp(context, 10) })
-                            },
-                        )
+                        addView(Look.pressable(context, heading))
+                        addView(counted)
                     },
                     LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f),
                 )
@@ -112,14 +108,20 @@ class MainActivity : Activity() {
             setOnItemLongClickListener { _, _, at, _ -> about(rows[at]) ; true }
             setOnItemClickListener { _, _, at, _ -> open(rows[at].talk) }
         }
+        others = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            val side = Look.dp(context, 12)
+            setPadding(side, side / 2, side, 0)
+        }
+        column.addView(others)
         column.addView(closing)
         column.addView(asking)
         detail = Look.words(this, "", size = 14f, muted = true).apply {
             val pad = Look.dp(context, 16)
             setPadding(pad, pad / 2, pad, pad / 2)
             visibility = View.GONE
-            // Pressed, the counts give the whole list back, as the bar does.
-            setOnClickListener { filter(false) }
+            // Pressed, the counts give the conversations back.
+            setOnClickListener { go(Page.TALKS) }
         }
         column.addView(detail)
         markAll = Look.small(this, getString(R.string.mark_all_read)) { markAll() }
@@ -193,16 +195,30 @@ class MainActivity : Activity() {
         Menus.write(this, text, stream)
     }
 
-    /** Only the conversations with something unread and the counts in detail, or everything. */
-    private fun filter(only: Boolean) {
-        if (only == onlyUnread) return
-        onlyUnread = only
+    /** Another page: the conversations between two, those with something unread and the counts in detail, or the groups. */
+    private fun go(to: Page) {
+        if (to == page) return
+        page = to
         unreadRows = null
         // Called by its own name: inside the bar's code, "show()" was the bar's, which shows the bar.
         redraw()
-        // In: the unread are read for themselves. Out: what was read of the rest is shown at once,
-        // and read to its end if being in had cut that short.
+        // The unread are read for themselves. The others: what was read is shown at once,
+        // and read to its end if the unread page had cut that short.
         if (onlyUnread || !everyWhole) fill()
+    }
+
+    /** The pages, the one shown ticked, from the bar's dots. */
+    private fun pages() {
+        AlertDialog.Builder(this)
+            .setSingleChoiceItems(Page.entries.map { named(it) }.toTypedArray(), page.ordinal) { asked, at -> asked.dismiss() ; go(Page.entries[at]) }
+            .show()
+    }
+
+    /** A page's name, the unread's with how many there are. */
+    private fun named(it: Page): String = when (it) {
+        Page.TALKS -> getString(R.string.page_talks)
+        Page.UNREAD -> counts?.let { known -> getString(R.string.page_unread_n, known.unread) } ?: getString(R.string.page_unread)
+        Page.GROUPS -> getString(R.string.page_groups)
     }
 
     override fun onActivityResult(request: Int, outcome: Int, data: android.content.Intent?) {
@@ -232,7 +248,7 @@ class MainActivity : Activity() {
 
     override fun onSaveInstanceState(state: Bundle) {
         super.onSaveInstanceState(state)
-        state.putBoolean(ONLY_UNREAD, onlyUnread)
+        state.putInt(PAGE, page.ordinal)
     }
 
     override fun onResume() {
@@ -402,10 +418,15 @@ class MainActivity : Activity() {
                     return if (now == kept.standing) kept else Row(kept.talk, kept.person, kept.face, kept.name, kept.verdict, kept.last, now)
                         .also { synchronized(lines) { lines[talk.thread] = it } }
                 }
-                val person = talk.number?.takeIf { contacts }?.let { number ->
-                    synchronized(people) { if (people.containsKey(number)) return@let people[number] }
-                    Book.who(this, number).also { synchronized(people) { people[number] = it } }
+                fun who(number: String): Book.Person? {
+                    if (!contacts) return null
+                    synchronized(people) { if (people.containsKey(number)) return people[number] }
+                    return Book.who(this, number).also { synchronized(people) { people[number] = it } }
                 }
+                // A group is named by its members but this phone; its face comes later.
+                val me = Me.number(this)
+                val group = talk.members.filterNot { me != null && Phone.same(it, me) }.takeIf { talk.group }
+                val person = if (group != null) null else talk.number?.let(::who)
                 // The face read here, off the page: drawn where it is shown, a contact's picture held the list still.
                 val face = person?.let { Book.face(this, it) } ?: person?.fingerprint?.let { foodjis.face(it) }
                 val armor = Pgp.armorIn(talk.last)?.let { Opened.inner(it) }
@@ -419,7 +440,8 @@ class MainActivity : Activity() {
                     else -> Opened.words(armor)?.words ?: getString(if (Pgp.isLocked(armor)) R.string.locked_message else R.string.signed_message)
                 }
                 val standing = person?.fingerprint?.let { foodjis.card(it)?.validity }
-                return Row(talk, person, face, person?.name ?: talk.number ?: getString(R.string.unknown_number), verdict, last, standing)
+                val name = group?.joinToString(", ") { who(it)?.name ?: it } ?: person?.name ?: talk.number ?: getString(R.string.unknown_number)
+                return Row(talk, person, face, name, verdict, last, standing)
                     // A closed PGP message may be opened at any moment: its line is worked out each time.
                     .also { if (armor == null) synchronized(lines) { lines[talk.thread] = it } }
             }
@@ -460,12 +482,24 @@ class MainActivity : Activity() {
      * conversations read for themselves --, with the counts spelled out above.
      */
     private fun redraw() {
-        rows = if (!onlyUnread) every else unreadRows ?: every.filter { it.talk.unread }
+        rows = when (page) {
+            Page.TALKS -> every.filterNot { it.talk.group }
+            Page.UNREAD -> unreadRows ?: every.filter { it.talk.unread }
+            Page.GROUPS -> every.filter { it.talk.group }
+        }
         talks.notifyDataSetChanged()
+        heading.text = named(page).takeIf { page != Page.UNREAD } ?: getString(R.string.page_unread)
+        others.removeAllViews()
+        for (other in Page.entries.filter { it != page }) {
+            others.addView(Look.small(this, named(other)) { go(other) })
+        }
         val known = counts
         if (known != null) {
-            all.text = getString(R.string.count_all, known.pgp, known.all)
-            unread.text = getString(R.string.count_unread, known.unreadPgp, known.unread)
+            counted.text = when (page) {
+                Page.TALKS -> resources.getQuantityString(R.plurals.talks_n, known.talks - known.groups, known.talks - known.groups)
+                Page.UNREAD -> resources.getQuantityString(R.plurals.unread_n, known.unread, known.unread)
+                Page.GROUPS -> resources.getQuantityString(R.plurals.groups_n, known.groups, known.groups)
+            }
             val weight = java.text.NumberFormat.getIntegerInstance().format(known.bytes)
             detail.text = android.text.SpannableStringBuilder(
                 getString(R.string.count_detail, known.all, known.sms, known.mms, known.pgp, known.pgpSms, known.pgpMms, known.talks, weight),
@@ -478,7 +512,6 @@ class MainActivity : Activity() {
         tools.visibility = detail.visibility
         // Nothing to do, greyed rather than gone: the line does not jump.
         usable(markAll, (known?.unread ?: 0) > 0)
-        shower.text = getString(if (onlyUnread) R.string.show_all else R.string.show_unread)
     }
 
     private fun usable(button: android.widget.Button, on: Boolean) {
@@ -511,6 +544,8 @@ class MainActivity : Activity() {
 
     /** Pressed long, a conversation says what can be done about it and about who it is with. */
     private fun about(row: Row) {
+        // A group's own menu comes with its name.
+        if (row.talk.group) return
         val sender = row.talk.number ?: return
         TalkMenu.show(
             this, row.name, sender, row.person, row.talk.thread,
@@ -588,7 +623,7 @@ class MainActivity : Activity() {
         DateUtils.getRelativeTimeSpanString(at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL)
 
     private companion object {
-        const val ONLY_UNREAD = "onlyUnread"
+        const val PAGE = "page"
         /** Kept for as long as the application runs: who a number is, the line of each conversation, the last counts. */
         val people = HashMap<String, Book.Person?>()
         val lines = HashMap<Long, Row>()

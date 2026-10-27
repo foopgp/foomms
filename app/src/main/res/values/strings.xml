@@ -88,8 +88,6 @@
     <string name="search_hint">Words to look for</string>
     <string name="hit_from">from %1$s</string>
     <string name="hit_to">to %1$s</string>
-    <string name="count_all">%1$d/%2$d PGP messages</string>
-    <string name="count_unread">%1$d/%2$d unread</string>
     <string name="carrying">%1$s\n%2$d kB</string>
     <string name="too_heavy">Too heavy for an MMS on this network (%1$d kB at most), or not something that can be read.</string>
     <string name="handed_mms">MMS handed to the phone: %1$s</string>
@@ -129,12 +127,10 @@
     <string name="tie_ask_before">Their certificate is</string>
     <string name="tie_ask_after">. This will be written in your address book, where the contact does not say it already:</string>
     <string name="whom_hint">A name, or a phone number</string>
-    <string name="show_unread">Details</string>
     <string name="mark_all_read">○ Mark all as read</string>
     <string name="mark_all_read_ask">Mark the %1$d unread messages as read?</string>
     <string name="mark_read">○ Mark as read</string>
     <string name="mark_unread">● Mark as unread</string>
-    <string name="show_all">Show all</string>
     <string name="count_detail">%1$d messages: %2$d SMS + %3$d MMS\n%4$d of them PGP: %5$d SMS + %6$d MMS\n\n%7$d conversations — %8$s bytes</string>
     <string name="count_detail_unread">%1$d unread</string>
     <string name="count_detail_unread_rest">, %1$d of them PGP, in %2$d conversations</string>
@@ -230,4 +226,21 @@
     <string name="video_camera">Camera at the back or the front</string>
     <string name="video_light">Light</string>
     <string name="video_sound">Sound alone (%1$s)</string>
+    <!-- The three pages of the list, and what each counts under its name. -->
+    <string name="page_talks">Conversations</string>
+    <string name="page_unread">Unread</string>
+    <string name="page_unread_n">Unread (%1$d)</string>
+    <string name="page_groups">MMS groups</string>
+    <plurals name="talks_n">
+        <item quantity="one">%d conversation</item>
+        <item quantity="other">%d conversations</item>
+    </plurals>
+    <plurals name="unread_n">
+        <item quantity="one">%d unread</item>
+        <item quantity="other">%d unread</item>
+    </plurals>
+    <plurals name="groups_n">
+        <item quantity="one">%d group</item>
+        <item quantity="other">%d groups</item>
+    </plurals>
 </resources>
