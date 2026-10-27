@@ -235,6 +235,19 @@ object Store {
     }.getOrNull().orEmpty()
 
     /** The conversations holding something not read yet. */
+    /** The conversations of the group of [numbers]: with [me] among them or without, newest first. */
+    fun groupThreads(context: Context, numbers: List<String>, me: String?): List<Long> = runCatching {
+        val key = Phone.group(numbers, me)
+        context.contentResolver.query(THREADS, arrayOf("_id", "recipient_ids"), "trim(recipient_ids) LIKE '% %'", null, "date DESC")?.use { rows ->
+            buildList {
+                while (rows.moveToNext()) {
+                    val members = rows.getString(1)?.trim()?.split(' ')?.mapNotNull { it.toLongOrNull()?.let { id -> address(context, id) } }.orEmpty()
+                    if (Phone.group(members, me) == key) add(rows.getLong(0))
+                }
+            }
+        }
+    }.getOrNull().orEmpty()
+
     fun unreadThreads(context: Context): List<Long> = runCatching {
         context.contentResolver.query(THREADS, arrayOf("_id"), "read = 0", null, "date DESC")?.use { rows ->
             buildList { while (rows.moveToNext()) add(rows.getLong(0)) }

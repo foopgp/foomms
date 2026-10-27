@@ -251,4 +251,10 @@
         <item quantity="many">%d учасників</item>
         <item quantity="other">%d учасника</item>
     </plurals>
+    <!-- Several chosen in a new message: the same to each, or one group MMS. -->
+    <string name="send_each">Кожному окремо</string>
+    <string name="send_group">Групове MMS</string>
+    <string name="send_each_note">Кожен отримує своє повідомлення й відповідає лише вам.</string>
+    <string name="send_group_note">Одне MMS усім: кожен бачить, кому воно пішло, і відповіді всіх.</string>
+    <string name="send_group_most">Групове MMS — від 2 до %1$d одержувачів.</string>
 </resources>

@@ -243,4 +243,10 @@
         <item quantity="one">%d miembro</item>
         <item quantity="other">%d miembros</item>
     </plurals>
+    <!-- Several chosen in a new message: the same to each, or one group MMS. -->
+    <string name="send_each">Envío múltiple</string>
+    <string name="send_group">MMS de grupo</string>
+    <string name="send_each_note">Cada uno recibe su propio mensaje y solo le responde a usted.</string>
+    <string name="send_group_note">Un solo MMS para todos: cada uno ve a quién se envió y las respuestas de todos.</string>
+    <string name="send_group_most">Un MMS de grupo va de 2 a %1$d destinatarios.</string>
 </resources>

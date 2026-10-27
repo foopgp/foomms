@@ -243,4 +243,10 @@
         <item quantity="one">%d üye</item>
         <item quantity="other">%d üye</item>
     </plurals>
+    <!-- Several chosen in a new message: the same to each, or one group MMS. -->
+    <string name="send_each">Herkese ayrı</string>
+    <string name="send_group">Grup MMS\'i</string>
+    <string name="send_each_note">Herkes kendi mesajını alır ve yalnızca size yanıt verir.</string>
+    <string name="send_group_note">Herkese tek MMS: herkes kime gittiğini ve herkesin yanıtlarını görür.</string>
+    <string name="send_group_most">Grup MMS\'i 2 ile %1$d alıcı arasına gider.</string>
 </resources>
