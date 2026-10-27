@@ -70,6 +70,10 @@
     <string name="conf_prefer_mms_note">Jeder Text, der länger als eine SMS ist, wird als MMS gesendet: nützlich, wenn lange Nachrichten in Stücken oder durcheinander ankommen. Eine MMS nutzt mobile Daten, und Ihr Anbieter kann dafür Gebühren berechnen.</string>
     <string name="conf_warn_mms">Vor jedem MMS-Versand warnen</string>
     <string name="conf_warn_mms_note">Ein Text, der länger als fünf SMS ist, wird als MMS gesendet. Eine Rückfrage erspart Ihnen Gebühren, die Ihr Anbieter berechnen könnte.</string>
+    <string name="conf_my_number">Meine Nummer</string>
+    <string name="conf_my_number_phone">Aus einer empfangenen MMS gelernt: %1$s. Tragen Sie hier nur eine andere ein, wenn sie falsch ist.</string>
+    <string name="conf_my_number_unknown">Noch nicht gelernt: Das geschieht mit der ersten MMS, die Sie empfangen. Sie können sie schon jetzt hier eintragen, damit foomms Ihre Nummer unter den Empfängern einer Gruppen-MMS erkennt.</string>
+    <string name="group_reply_soon">Das Antworten auf eine Gruppen-MMS kommt in einer späteren Version.</string>
     <string name="mms_ask">Diese Nachricht ist lang: Sie wird als MMS gesendet, wofür Ihr Anbieter Gebühren berechnen kann.</string>
     <string name="plain_ask">Verschlüsselung ist in dieser Unterhaltung möglich, aber ausgeschaltet. Diese Nachricht unverschlüsselt senden?</string>
     <string name="plain_send">Unverschlüsselt senden</string>

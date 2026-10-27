@@ -11,7 +11,13 @@ import android.net.Uri
 object Store {
 
     /** [form]: what the last message travelled as -- its words, or a PGP message it carries as a part. */
-    class Talk(val thread: Long, val number: String?, val at: Long, val last: String, val incoming: Boolean, val unread: Boolean, val form: Form = Form.of(last))
+    class Talk(
+        val thread: Long, val number: String?, val at: Long, val last: String, val incoming: Boolean, val unread: Boolean, val form: Form = Form.of(last),
+        /** Everybody the conversation is with: more than one, it is a group's. */
+        val members: List<String> = listOfNotNull(number),
+    ) {
+        val group: Boolean get() = members.size > 1
+    }
 
     /** What an MMS carries beside its words: a picture, a sound, a file. */
     class Piece(val id: Long, val type: String, val name: String?) {
@@ -82,12 +88,14 @@ object Store {
             // [given] up: whoever asked no longer wants the answer, and reading on would only slow what they asked next.
             while (rows.moveToNext() && talks.size < most && !given()) {
                 val thread = rows.getLong(0)
-                val number = rows.getString(3)?.trim()?.split(' ')?.firstOrNull()?.toLongOrNull()?.let { address(context, it) }
+                val members = rows.getString(3)?.trim()?.split(' ')?.mapNotNull { it.toLongOrNull()?.let { id -> address(context, id) } }.orEmpty()
+                val number = members.firstOrNull()
                 val last = last(context, thread)
                 val words = last?.body ?: rows.getString(2).orEmpty()
                 talks += Talk(
                     thread, number ?: number(context, thread), last?.at ?: rows.getLong(1),
                     words, last?.incoming ?: true, rows.getInt(4) == 0, formOf(context, words, last?.pieces.orEmpty()),
+                    members.ifEmpty { listOfNotNull(number ?: number(context, thread)) },
                 )
             }
         }
@@ -212,6 +220,14 @@ object Store {
         }
         return lines.sortedBy { it.at }
     }
+
+    /** Everybody a conversation is with, as the phone lists them. */
+    fun members(context: Context, thread: Long): List<String> = runCatching {
+        context.contentResolver.query(THREADS, arrayOf("recipient_ids"), "_id = ?", arrayOf(thread.toString()), null)?.use { rows ->
+            if (!rows.moveToFirst()) return@use emptyList()
+            rows.getString(0)?.trim()?.split(' ')?.mapNotNull { it.toLongOrNull()?.let { id -> address(context, id) } }.orEmpty()
+        }
+    }.getOrNull().orEmpty()
 
     /** The conversations holding something not read yet. */
     fun unreadThreads(context: Context): List<Long> = runCatching {

@@ -89,6 +89,9 @@ class ThreadActivity : AskingActivity() {
     /** This conversation, as what is opened in it is counted down: none yet, the conversation of nobody. */
     private fun here(): Long = thread ?: Opened.NO_THREAD
 
+    /** A conversation with several numbers: a group MMS's. */
+    @Volatile private var group = false
+
     private val voice by lazy { Voice(this) }
 
     /** The field held down while empty: record, if the microphone may be used, until it is let go. */
@@ -461,6 +464,7 @@ class ThreadActivity : AskingActivity() {
                 lines = found
                 hits = null
                 this.thread = thread
+                group = thread?.let { Store.members(this, it).size > 1 } == true
                 bubbles.notifyDataSetChanged()
                 verifySigned()
                 if (wanted > 0) {
@@ -595,6 +599,8 @@ class ThreadActivity : AskingActivity() {
         val written = field.text.toString()
         val with = carried
         if (written.isBlank() && with == null) return
+        // A group's conversation: what is written would go to one of its members alone, until replying to all is there.
+        if (group) return say(getString(R.string.group_reply_soon))
         if (Phone.plain(number) == null) return
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)

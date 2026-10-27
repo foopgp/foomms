@@ -62,11 +62,14 @@ object Keep {
 
     fun mmsReceived(context: Context, message: PduRead.Message, size: Int, subscription: Int): Uri? {
         val from = message.from ?: return null
-        return mms(context, Telephony.Mms.Inbox.CONTENT_URI, setOf(from), from, message.to, message, size, incoming = true, subscription)
+        Me.learn(context, message.to)
+        // To several, it is the group's: the conversation of all those numbers, this phone's left out.
+        val others = Phone.received(from, message.to).toSet()
+        return mms(context, Telephony.Mms.Inbox.CONTENT_URI, others, from, message.to, message, size, incoming = true, subscription)
     }
 
-    fun mmsSent(context: Context, to: String, pdu: ByteArray): Uri? =
-        mms(context, Telephony.Mms.Sent.CONTENT_URI, setOf(to), null, listOf(to), PduRead.read(pdu), pdu.size, incoming = false, -1)
+    fun mmsSent(context: Context, to: List<String>, pdu: ByteArray): Uri? =
+        mms(context, Telephony.Mms.Sent.CONTENT_URI, Phone.sent(to, Me.number(context)).toSet(), null, to, PduRead.read(pdu), pdu.size, incoming = false, -1)
 
     private fun mms(
         context: Context, box: Uri, others: Set<String>, from: String?, to: List<String>,

@@ -62,7 +62,7 @@ object Outbox {
         val from = Uri.parse("content://${context.packageName}.pdu/$transaction")
         manager(context).sendMultimediaMessage(context, from, null, null, told)
         // The phone keeps what its messaging application tells it to, and nothing of what another sends.
-        if (Keep.ours(context)) runCatching { Keep.mmsSent(context, to, pdu) }
+        if (Keep.ours(context)) runCatching { Keep.mmsSent(context, listOf(to), pdu) }
     }
 
     /** How many SMS a text would take. */

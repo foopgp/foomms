@@ -48,6 +48,12 @@ object Conf {
 
     fun toMyself(context: Context, on: Boolean) = kept(context).edit().putBoolean("to_myself", on).apply()
 
+    /** This phone's number, as the person wrote it: before foomms has learnt it, or to correct it ([Me]). */
+    fun myNumber(context: Context): String? = kept(context).getString("my_number", null)?.takeIf { Phone.plain(it) != null }
+
+    fun myNumber(context: Context, number: String) =
+        kept(context).edit().apply { if (number.isBlank()) remove("my_number") else putString("my_number", number.trim()) }.apply()
+
     /** A text that takes more than one SMS leaves as an MMS; otherwise only one that takes more than [MOST_SMS]. */
     /** Where the search of the list of conversations looks: the contacts, or the messages. */
     fun searchContacts(context: Context): Boolean = kept(context).getBoolean("search_contacts", true)
