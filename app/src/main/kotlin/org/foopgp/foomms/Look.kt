@@ -344,11 +344,20 @@ object Look {
      * [framable]: room is kept around the picture for a frame, whether one is drawn or not, so that a list
      * of faces stays aligned and every picture keeps its [side].
      */
-    fun face(context: Context, side: Int, photo: Uri?, avatar: Bitmap?, standing: String? = null, framable: Boolean = false): View {
+    /** [seed]: with no picture, the face of pixels it makes ([pixels]); [lineDp], the frame's width. */
+    fun face(
+        context: Context, side: Int, photo: Uri?, avatar: Bitmap?, standing: String? = null, framable: Boolean = false,
+        seed: String? = null, lineDp: Int = 4,
+    ): View {
         val px = dp(context, side)
         val inner: View = when {
             photo != null -> ImageView(context).apply { setImageURI(photo) ; scaleType = ImageView.ScaleType.CENTER_CROP }
             avatar != null -> ImageView(context).apply { setImageBitmap(avatar) ; scaleType = ImageView.ScaleType.CENTER_CROP }
+            // Its pixels kept sharp, not blurred as a photo is when it grows.
+            seed != null -> ImageView(context).apply {
+                setImageDrawable(android.graphics.drawable.BitmapDrawable(context.resources, pixels(seed)).apply { isFilterBitmap = false })
+                scaleType = ImageView.ScaleType.FIT_XY
+            }
             else -> TextView(context).apply {
                 text = "👤"
                 setTextSize(TypedValue.COMPLEX_UNIT_DIP, side * 0.5f)
@@ -359,7 +368,7 @@ object Look {
         val radius = px / 5f
         // Tied to a certificate, the face is framed in the colour of its standing: the line is added around the
         // picture, which keeps its whole size, and the picture's corners follow the line's inner edge.
-        val line = if (standing != null || framable) dp(context, 4) else 0
+        val line = if (standing != null || framable) dp(context, lineDp) else 0
         inner.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) = outline.setRoundRect(0, 0, view.width, view.height, radius)
         }
@@ -372,6 +381,43 @@ object Look {
             standing?.let { background = GradientDrawable().apply { cornerRadius = radius + line / 2f ; setStroke(line, standingColour(it)) } }
             setPadding(line, line, line, line)
             addView(inner, FrameLayout.LayoutParams(px, px))
+        }
+    }
+
+    /** What a face of pixels is made from: a certificate's fingerprint, else the number. */
+    fun seed(fingerprint: String?, number: String?): String? = fingerprint ?: number?.let(Phone::key)
+
+    private val drawn = HashMap<String, Bitmap>()
+
+    /**
+     * A face for whoever has no picture, made of pixels from [seed]: five by
+     * five, the left mirrored on the right, as forges draw them. The same
+     * seed, the same face, wherever it is shown. Its hue is kept away from
+     * those of a certificate's frame -- green, yellow, orange, red -- and
+     * from the violet of what is signed: cyan to indigo, or magenta.
+     */
+    fun pixels(seed: String): Bitmap = synchronized(drawn) {
+        drawn.getOrPut(seed) {
+            val hash = java.security.MessageDigest.getInstance("SHA-256").digest(seed.toByteArray())
+            fun byte(at: Int) = hash[at].toInt() and 0xFF
+            val hue = if (byte(0) % 4 == 3) 300f + byte(1) % 25 else 180f + byte(1) % 70
+            val ink = Color.HSVToColor(floatArrayOf(hue, 0.55f + byte(2) % 30 / 100f, 0.62f + byte(3) % 25 / 100f))
+            val cell = 8
+            val margin = cell / 2
+            val bitmap = Bitmap.createBitmap(5 * cell + 2 * margin, 5 * cell + 2 * margin, Bitmap.Config.ARGB_8888)
+            bitmap.eraseColor(Color.rgb(0xEE, 0xEE, 0xF2))
+            val canvas = android.graphics.Canvas(bitmap)
+            val paint = android.graphics.Paint().apply { color = ink }
+            for (row in 0 until 5) for (column in 0 until 3) {
+                if (byte(4 + row * 3 + column) % 2 == 0) continue
+                for (x in setOf(column, 4 - column)) {
+                    canvas.drawRect(
+                        (margin + x * cell).toFloat(), (margin + row * cell).toFloat(),
+                        (margin + (x + 1) * cell).toFloat(), (margin + (row + 1) * cell).toFloat(), paint,
+                    )
+                }
+            }
+            bitmap
         }
     }
 }

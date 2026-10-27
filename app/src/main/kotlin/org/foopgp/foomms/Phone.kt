@@ -59,6 +59,17 @@ object Phone {
         return all
     }
 
+    /** A number as a key: its last eight digits, the part [same] compares; what is not a number, as it is written. */
+    fun key(written: String): String = plain(written)?.filter { it.isDigit() }?.takeLast(8) ?: written
+
+    /**
+     * A group as a key: its members but [me], each once, in any order. The
+     * same group then, whether a conversation names this phone or not, as
+     * other applications leave it out.
+     */
+    fun group(members: List<String>, me: String?): String =
+        members.filterNot { me != null && same(it, me) }.map(::key).distinct().sorted().joinToString(",")
+
     /** The numbers a certificate carries, from its user ids (`TEL:+33…`, `TEL;TYPE=cell:tel:+33…`). */
     fun carried(userIds: List<String>): List<String> = userIds
         .filter { it.startsWith("TEL:") || it.startsWith("TEL;") }

@@ -52,18 +52,18 @@ object Store {
     class Counts(
         val pgp: Int, val all: Int, val unreadPgp: Int, val unread: Int, val sms: Int = 0, val mms: Int = 0, val talks: Int = 0, val unreadTalks: Int = 0,
         val pgpSms: Int = 0, val pgpMms: Int = 0, val bytes: Long = 0,
-        /** The conversations of a group: [talks] counts them too. */
-        val groups: Int = 0,
+        /** The groups, each once however many conversations Android keeps for it; and those conversations, which [talks] counts too. */
+        val groups: Int = 0, val groupTalks: Int = 0,
     ) {
         /** As kept between two runs, and read back. */
-        fun kept(): String = listOf(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups).joinToString(",")
+        fun kept(): String = listOf(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks).joinToString(",")
 
         companion object {
             fun of(kept: String?): Counts? {
                 val n = kept?.split(',')?.mapNotNull { it.toLongOrNull() } ?: return null
                 if (n.size < 8) return null
                 fun at(i: Int) = n.getOrElse(i) { 0L }.toInt()
-                return Counts(at(0), at(1), at(2), at(3), at(4), at(5), at(6), at(7), at(8), at(9), n.getOrElse(10) { 0L }, at(11))
+                return Counts(at(0), at(1), at(2), at(3), at(4), at(5), at(6), at(7), at(8), at(9), n.getOrElse(10) { 0L }, at(11), at(12))
             }
         }
     }
@@ -334,6 +334,17 @@ object Store {
                 while (rows.moveToNext()) bytes += rows.getLong(0)
             }
         }
+        // The groups by their members but this phone: the same group may be two conversations.
+        val me = Me.number(context)
+        val groups = ArrayList<String>()
+        runCatching {
+            context.contentResolver.query(THREADS, arrayOf("recipient_ids"), "trim(recipient_ids) LIKE '% %'", null, null)?.use { rows ->
+                while (rows.moveToNext()) {
+                    val members = rows.getString(0)?.trim()?.split(' ')?.mapNotNull { it.toLongOrNull()?.let { id -> address(context, id) } }.orEmpty()
+                    groups += Phone.group(members, me)
+                }
+            }
+        }
         return Counts(
             pgp = pgpSms + sealed.size, pgpSms = pgpSms, pgpMms = sealed.size, bytes = bytes,
             all = sms + mms,
@@ -342,7 +353,7 @@ object Store {
             sms = sms, mms = mms,
             talks = count(THREADS, null),
             unreadTalks = count(THREADS, "read = 0"),
-            groups = count(THREADS, "trim(recipient_ids) LIKE '% %'"),
+            groups = groups.distinct().size, groupTalks = groups.size,
         )
     }
 

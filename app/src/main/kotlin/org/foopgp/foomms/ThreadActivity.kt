@@ -95,18 +95,43 @@ class ThreadActivity : AskingActivity() {
      * the drafts being kept under them.
      */
     private val everyone: List<String> by lazy {
-        intent.getLongExtra(EXTRA_THREAD, -1L).takeIf { it >= 0 }?.let { runCatching { Store.members(this, it) }.getOrNull() }
-            ?.takeIf { it.isNotEmpty() } ?: listOf(number)
+        val all = ArrayList<String>()
+        for (one in given.flatMap { runCatching { Store.members(this, it) }.getOrDefault(emptyList()) }) {
+            if (all.none { Phone.same(it, one) || it == one }) all += one
+        }
+        all.ifEmpty { listOf(number) }
+    }
+
+    /**
+     * The conversations the page was opened on: one, or those Android keeps
+     * apart for the same group -- with this phone among the numbers, or
+     * without --, shown as one.
+     */
+    private val given: List<Long> by lazy {
+        intent.getLongArrayExtra(EXTRA_THREADS)?.toList()?.takeIf { it.isNotEmpty() }
+            ?: listOfNotNull(intent.getLongExtra(EXTRA_THREAD, -1L).takeIf { it >= 0 })
     }
 
     /** A conversation with several numbers: a group MMS's. */
     private val group get() = everyone.size > 1
 
     /** One of a group but this phone, and who they are. */
-    class Member(val number: String, val person: Book.Person?, val card: Foodjis.Cert?, val face: Bitmap?)
+    class Member(val number: String, val person: Book.Person?, val card: Foodjis.Cert?, val face: Bitmap?) {
+        val name: String get() = person?.name ?: number
+        val seed: String? get() = Look.seed(card?.fingerprint ?: person?.fingerprint, number)
+    }
+
+    /** The bar's first line: a name and its dots, or a group's faces and its dots. */
+    private lateinit var named: View
+    private lateinit var crowd: LinearLayout
 
     /** A group's members but this phone, once known; none in a conversation between two. */
     @Volatile private var members: List<Member> = emptyList()
+
+    /** A group's drafts, under its members but this phone: the same, from whichever of its conversations. */
+    private val drafted: List<String> by lazy {
+        if (!group) listOf(number) else Me.number(this).let { me -> everyone.filterNot { me != null && Phone.same(it, me) } }
+    }
 
     /** Whom what is written goes to: one number, or every member of the group. */
     private fun targets(): List<String> = if (group) members.map { it.number } else listOf(number)
@@ -197,15 +222,18 @@ class ThreadActivity : AskingActivity() {
                     LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
                         setPadding(Look.dp(context, 10), 0, 0, 0)
-                        // The dots that say the bar can be pressed, on its first line.
-                        addView(Look.pressable(context, whoIs), LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+                        // The dots that say the bar can be pressed, on its first line. A group's: its members' faces.
+                        named = Look.pressable(context, whoIs)
+                        addView(named, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+                        crowd = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL ; gravity = Gravity.CENTER_VERTICAL ; visibility = View.GONE }
+                        addView(crowd, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
                         addView(under, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
                     },
                     LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f),
                 )
                 setOnClickListener {
-                    // A group's own menu comes with its name.
-                    if (group) return@setOnClickListener
+                    // A group's: its members.
+                    if (group) return@setOnClickListener groupMenu()
                     // Taken now: what changed forgets who the number is with before the refresh is done.
                     val tied = person?.fingerprint
                     TalkMenu.show(
@@ -291,7 +319,7 @@ class ThreadActivity : AskingActivity() {
         // Words handed over with the page -- shared from another application, or a link's "sms_body" -- are already written;
         // otherwise what was being written here and not sent, the page having been closed meanwhile.
         val handed = if (state == null) intent.getStringExtra(Intent.EXTRA_TEXT) ?: intent.getStringExtra("sms_body") else null
-        (handed ?: Drafts.of(this, everyone).takeIf { it.isNotEmpty() })?.let { field.setText(it) ; field.setSelection(it.length) }
+        (handed ?: Drafts.of(this, drafted).takeIf { it.isNotEmpty() })?.let { field.setText(it) ; field.setSelection(it.length) }
         // And what was shared with them: a picture made small enough for an MMS, any other file if it fits.
         @Suppress("DEPRECATION")
         if (state == null) intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)?.let { shared ->
@@ -450,7 +478,7 @@ class ThreadActivity : AskingActivity() {
 
     override fun onPause() {
         shown = false
-        Drafts.keep(this, everyone, field.text.toString())
+        Drafts.keep(this, drafted, field.text.toString())
         Listening.onChange = null
         playingPiece = null
         if (voice.recording) voice.drop()
@@ -488,8 +516,10 @@ class ThreadActivity : AskingActivity() {
             }
             // The conversation it was opened from, when it was opened from one: a sender that is a name and not a
             // number -- a bank, a shop -- has a conversation all the same.
-            val thread: Long? = intent.getLongExtra(EXTRA_THREAD, -1L).takeIf { it >= 0 } ?: runCatching { Store.thread(this, number) }.getOrNull()
-            val found = runCatching { thread?.let { Store.lines(this, it) } }.getOrNull().orEmpty()
+            val thread: Long? = given.firstOrNull() ?: runCatching { Store.thread(this, number) }.getOrNull()
+            // A group's conversations, one after the other in time.
+            val found = (given.ifEmpty { listOfNotNull(thread) }).flatMap { runCatching { Store.lines(this, it) }.getOrDefault(emptyList()) }
+                .let { if (given.size > 1) it.sortedBy { line -> line.at } else it }
             // The messages shown at once; signed ones verified from now.
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
@@ -505,7 +535,9 @@ class ThreadActivity : AskingActivity() {
             }
             if (shown) {
                 // Read, but for what is still locked, which waits to be opened, and what the person made unread again.
-                thread?.let { Keep.read(this, it, found.filter { line -> lockedAndClosed(line) || line.key in keptUnread }) }
+                for (one in given.ifEmpty { listOfNotNull(thread) }) {
+                    Keep.read(this, one, found.filter { line -> line.thread == one && (lockedAndClosed(line) || line.key in keptUnread) })
+                }
                 Notify.seen(this, number)
             }
             val pieces = found.flatMap { it.pieces }
@@ -601,18 +633,61 @@ class ThreadActivity : AskingActivity() {
     /** A group's head: its members by name, how many of them have a certificate, and the switches as they can be for all. */
     private fun groupHead(found: List<Member>, first: Boolean) {
         members = found
-        val name = found.joinToString(", ") { it.person?.name ?: it.number }
+        val name = found.joinToString(", ") { it.name }
         thread?.let { Opened.title(it, name, number) }
         title = name
         whoIs.text = name
-        portrait.removeAllViews()
-        portrait.addView(Look.face(this, 38, null, null))
+        // Faces rather than names, which never fit: ten on a line.
+        portrait.visibility = View.GONE
+        named.visibility = View.GONE
+        crowd.visibility = View.VISIBLE
+        crowd.removeAllViews()
+        for (one in found) crowd.addView(Look.face(this, 22, null, one.face, one.card?.validity, framable = true, seed = one.seed, lineDp = 2))
+        crowd.addView(android.widget.TextView(this).apply {
+            text = "⋮" ; setTextColor(android.graphics.Color.WHITE) ; paint.isFakeBoldText = true
+            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 22f) ; setPadding(Look.dp(context, 6), 0, Look.dp(context, 4), 0)
+        })
         val usable = found.count { it.card?.usable == true }
         under.text = android.text.SpannableStringBuilder(resources.getQuantityString(R.plurals.group_members, found.size, found.size))
             .append("  ·  🔑 $usable/${found.size}")
         if (first) { locks.isChecked = lockable() ; signs.isChecked = lockable() }
         paint()
         bubbles.notifyDataSetChanged()
+    }
+
+    /** A group's members, each with their face, name, number and what their certificate is worth; pressed, the conversation with them alone. */
+    private fun groupMenu() {
+        val column = Look.column(this)
+        var shown: AlertDialog? = null
+        for (one in members) {
+            val standing: CharSequence = one.card?.let { android.text.SpannableStringBuilder("🔑 ").append(Look.standing(this, it.validity)) }
+                ?: getString(R.string.no_certificate)
+            column.addView(
+                LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    setPadding(0, Look.dp(context, 6), 0, Look.dp(context, 6))
+                    addView(Look.face(context, 40, null, one.face, one.card?.validity, framable = true, seed = one.seed))
+                    addView(
+                        LinearLayout(context).apply {
+                            orientation = LinearLayout.VERTICAL
+                            setPadding(Look.dp(context, 12), 0, 0, 0)
+                            addView(Look.words(context, one.name, size = 17f))
+                            addView(Look.words(context, if (one.name != one.number) android.text.SpannableStringBuilder("${one.number} — ").append(standing) else standing, size = 13f, muted = true))
+                        },
+                    )
+                    setOnClickListener {
+                        shown?.dismiss()
+                        startActivity(Intent(context, ThreadActivity::class.java).putExtra(EXTRA_NUMBER, one.number))
+                    }
+                },
+            )
+        }
+        shown = AlertDialog.Builder(this)
+            .setTitle(resources.getQuantityString(R.plurals.group_members, members.size, members.size))
+            .setView(android.widget.ScrollView(this).apply { addView(column) })
+            .setPositiveButton(R.string.close, null)
+            .show()
     }
 
     /** Whether what is written can be encrypted: for the certificate of the number, or of every member of the group. */
@@ -708,7 +783,7 @@ class ThreadActivity : AskingActivity() {
                 .onFailure { return@confirmMms say(getString(R.string.failed, it.message)) }
             if (verdict != null && words != null) Opened.keep(this, words, written, null, verdict, thread = here())
             field.setText("")
-            Drafts.keep(this, everyone, "")
+            Drafts.keep(this, drafted, "")
             carry(null)
             Toast.makeText(this, getString(R.string.handed_mms, with.name), Toast.LENGTH_SHORT).show()
             list.postDelayed({ if (shown) load() }, 1500)
@@ -868,7 +943,7 @@ class ThreadActivity : AskingActivity() {
             }.onFailure { return say(getString(R.string.failed, it.message)) }
             if (verdict != null) Opened.keep(this, text, written, null, verdict, thread = here())
             field.setText("")
-            Drafts.keep(this, everyone, "")
+            Drafts.keep(this, drafted, "")
             // The phone writes what was sent a moment after taking it.
             list.postDelayed({ if (shown) load() }, 1500)
         }
@@ -1665,7 +1740,10 @@ class ThreadActivity : AskingActivity() {
                 if (group && line.incoming) {
                     val who = memberOf(line.address)
                     addView(
-                        Look.face(context, 32, null, who?.face, who?.card?.validity, framable = true),
+                        Look.face(context, 32, null, who?.face, who?.card?.validity, framable = true, seed = who?.seed ?: line.address?.let(Phone::key)).apply {
+                            // Pressed, who it is.
+                            setOnClickListener { Toast.makeText(context, who?.let { if (it.name != it.number) "${it.name} — ${it.number}" else it.number } ?: line.address.orEmpty(), Toast.LENGTH_SHORT).show() }
+                        },
                         LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                             gravity = Gravity.TOP ; marginEnd = pad / 2
                         },
@@ -1894,6 +1972,8 @@ class ThreadActivity : AskingActivity() {
 
         /** The conversation, when the page is opened from the list of them. */
         const val EXTRA_THREAD = "thread"
+        /** Several conversations shown as one: a group's, with this phone among its numbers and without. */
+        const val EXTRA_THREADS = "threads"
 
         /** Opened for something to be done at once: say whose certificate the number means, or read it again from foodjis. */
         const val EXTRA_ASK = "ask"

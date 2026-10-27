@@ -24,7 +24,37 @@ import kotlin.concurrent.thread
  */
 class MainActivity : Activity() {
 
-    class Row(val talk: Store.Talk, val person: Book.Person?, val face: Bitmap?, val name: String, val verdict: Verdict, val last: String, val standing: String? = null)
+    /**
+     * A line of the list. A group's names its members but this phone, by [group], its key; the conversations
+     * Android keeps apart for it -- with this phone among the numbers, or without, as other applications
+     * leave it out -- are one line, of all their [threads].
+     */
+    class Row(
+        val talk: Store.Talk, val person: Book.Person?, val face: Bitmap?, val name: String, val verdict: Verdict, val last: String,
+        val standing: String? = null, val group: String? = null, val threads: List<Long> = listOf(talk.thread), val unread: Boolean = talk.unread,
+    ) {
+        fun standing(now: String?) = Row(talk, person, face, name, verdict, last, now, group, threads, unread)
+
+        /** Its face of pixels, with no picture: the certificate's, the number's, or the group's. */
+        val seed: String? get() = group ?: Look.seed(person?.fingerprint, talk.number)
+    }
+
+    /** The lines of one group as one: the latest's, unread if any of them is. */
+    private fun merged(found: List<Row>): List<Row> {
+        val groups = LinkedHashMap<String, MutableList<Row>>()
+        val out = ArrayList<Any>()
+        for (row in found) {
+            val key = row.group
+            if (key == null) { out += row ; continue }
+            groups.getOrPut(key) { ArrayList<Row>().also { out += key } } += row
+        }
+        return out.map { one ->
+            if (one is Row) one else groups.getValue(one as String).let { all ->
+                val latest = all.first()
+                Row(latest.talk, null, null, latest.name, latest.verdict, latest.last, null, latest.group, all.map { it.talk.thread }, all.any { it.unread })
+            }
+        }
+    }
 
     private lateinit var list: ListView
     private lateinit var asking: LinearLayout
@@ -106,7 +136,7 @@ class MainActivity : Activity() {
             divider = null
             adapter = talks
             setOnItemLongClickListener { _, _, at, _ -> about(rows[at]) ; true }
-            setOnItemClickListener { _, _, at, _ -> open(rows[at].talk) }
+            setOnItemClickListener { _, _, at, _ -> open(rows[at].talk, threads = rows[at].threads) }
         }
         others = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -415,7 +445,7 @@ class MainActivity : Activity() {
                 // A line kept is kept but for its badge: what foodjis says of the certificate changes there, unseen here.
                 synchronized(lines) { lines[talk.thread] }?.takeIf { it.talk.at == talk.at && it.talk.unread == talk.unread && it.talk.last == talk.last }?.let { kept ->
                     val now = kept.person?.fingerprint?.let { foodjis.card(it)?.validity }
-                    return if (now == kept.standing) kept else Row(kept.talk, kept.person, kept.face, kept.name, kept.verdict, kept.last, now)
+                    return if (now == kept.standing) kept else kept.standing(now)
                         .also { synchronized(lines) { lines[talk.thread] = it } }
                 }
                 fun who(number: String): Book.Person? {
@@ -441,7 +471,7 @@ class MainActivity : Activity() {
                 }
                 val standing = person?.fingerprint?.let { foodjis.card(it)?.validity }
                 val name = group?.joinToString(", ") { who(it)?.name ?: it } ?: person?.name ?: talk.number ?: getString(R.string.unknown_number)
-                return Row(talk, person, face, name, verdict, last, standing)
+                return Row(talk, person, face, name, verdict, last, standing, group?.let { Phone.group(talk.members, me) })
                     // A closed PGP message may be opened at any moment: its line is worked out each time.
                     .also { if (armor == null) synchronized(lines) { lines[talk.thread] = it } }
             }
@@ -482,11 +512,13 @@ class MainActivity : Activity() {
      * conversations read for themselves --, with the counts spelled out above.
      */
     private fun redraw() {
-        rows = when (page) {
-            Page.TALKS -> every.filterNot { it.talk.group }
-            Page.UNREAD -> unreadRows ?: every.filter { it.talk.unread }
-            Page.GROUPS -> every.filter { it.talk.group }
-        }
+        rows = merged(
+            when (page) {
+                Page.TALKS -> every.filterNot { it.talk.group }
+                Page.UNREAD -> unreadRows ?: every.filter { it.talk.unread }
+                Page.GROUPS -> every.filter { it.talk.group }
+            },
+        )
         talks.notifyDataSetChanged()
         heading.text = named(page).takeIf { page != Page.UNREAD } ?: getString(R.string.page_unread)
         others.removeAllViews()
@@ -499,7 +531,7 @@ class MainActivity : Activity() {
         val known = counts
         if (known != null) {
             counted.text = when (page) {
-                Page.TALKS -> resources.getQuantityString(R.plurals.talks_n, known.talks - known.groups, known.talks - known.groups)
+                Page.TALKS -> resources.getQuantityString(R.plurals.talks_n, known.talks - known.groupTalks, known.talks - known.groupTalks)
                 Page.UNREAD -> resources.getQuantityString(R.plurals.unread_n, known.unread, known.unread)
                 Page.GROUPS -> resources.getQuantityString(R.plurals.groups_n, known.groups, known.groups)
             }
@@ -562,10 +594,11 @@ class MainActivity : Activity() {
         )
     }
 
-    private fun open(talk: Store.Talk, ask: String? = null) = startActivity(
+    private fun open(talk: Store.Talk, ask: String? = null, threads: List<Long> = listOf(talk.thread)) = startActivity(
         Intent(this, ThreadActivity::class.java)
             .putExtra(ThreadActivity.EXTRA_NUMBER, talk.number ?: getString(R.string.unknown_number))
             .putExtra(ThreadActivity.EXTRA_THREAD, talk.thread)
+            .putExtra(ThreadActivity.EXTRA_THREADS, threads.toLongArray())
             .putExtra(ThreadActivity.EXTRA_ASK, ask),
     )
 
@@ -581,7 +614,7 @@ class MainActivity : Activity() {
             val names = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
             names.addView(
                 Look.words(context, marked(row), size = 17f).apply {
-                    setTypeface(typeface, if (row.talk.unread) Typeface.BOLD else Typeface.NORMAL)
+                    setTypeface(typeface, if (row.unread) Typeface.BOLD else Typeface.NORMAL)
                     maxLines = 1 ; ellipsize = TextUtils.TruncateAt.END
                 },
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
@@ -592,7 +625,7 @@ class MainActivity : Activity() {
                 setPadding(pad, 0, 0, 0)
                 addView(names)
                 addView(
-                    Look.words(context, row.last.replace('\n', ' '), size = 14f, muted = !row.talk.unread).apply {
+                    Look.words(context, row.last.replace('\n', ' '), size = 14f, muted = !row.unread).apply {
                         maxLines = 1 ; ellipsize = TextUtils.TruncateAt.END
                     },
                 )
@@ -603,7 +636,7 @@ class MainActivity : Activity() {
                 // The colour of what the last message travelled as, down the edge of the conversation.
                 addView(View(context).apply { background = Look.rounded(Look.colour(row.talk.form), Look.dp(context, 3)) }, LinearLayout.LayoutParams(Look.dp(context, 6), Look.dp(context, 44)))
                 addView(View(context), LinearLayout.LayoutParams(pad, 1))
-                addView(Look.face(context, 44, null, row.face, row.standing, framable = true))
+                addView(Look.face(context, 44, null, row.face, row.standing, framable = true, seed = row.seed))
                 addView(text, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
                 setPadding(Look.dp(context, 4), pad, pad, pad)
             }
