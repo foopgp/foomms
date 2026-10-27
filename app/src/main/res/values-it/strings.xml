@@ -70,9 +70,6 @@
     <string name="conf_prefer_mms_note">Ogni testo più lungo di un SMS viene inviato come MMS: utile se i messaggi lunghi arrivano a pezzi o in disordine. Un MMS usa i dati mobili, e il tuo operatore potrebbe addebitarlo.</string>
     <string name="conf_warn_mms">Avvisami prima di ogni invio di MMS</string>
     <string name="conf_warn_mms_note">Un testo più lungo di cinque SMS viene inviato come MMS. Essere avvisato prima ti evita un costo che il tuo operatore potrebbe applicare.</string>
-    <string name="conf_my_number">Il mio numero</string>
-    <string name="conf_my_number_phone">Appreso da un MMS ricevuto: %1$s. Scrivetene un altro qui solo se è sbagliato.</string>
-    <string name="conf_my_number_unknown">Non ancora appreso: lo sarà dal primo MMS che riceverete. Potete scriverlo qui già ora, perché foomms riconosca il vostro numero tra i destinatari di un MMS di gruppo.</string>
     <string name="group_reply_soon">Rispondere a un MMS di gruppo arriverà in una prossima versione.</string>
     <string name="mms_ask">Questo messaggio è lungo: verrà inviato come MMS, che il tuo operatore potrebbe addebitare.</string>
     <string name="plain_ask">La cifratura è possibile in questa conversazione, ma è disattivata. Inviare questo messaggio senza cifrarlo?</string>

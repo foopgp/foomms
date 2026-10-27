@@ -574,6 +574,7 @@ class ThreadActivity : AskingActivity() {
     private fun whoAmI() {
         provider.ask(Intent(Provider.GET_SIGN_KEY_ID), null) { answer ->
             if (answer is Provider.Answer.Done) mine = answer.says.getLongExtra(Provider.EXTRA_SIGN_KEY_ID, 0L).takeIf { it != 0L }
+            mine?.let { key -> thread { runCatching { Me.certified(applicationContext, key) } } }
             if (!isFinishing && !isDestroyed) paint()
         }
     }

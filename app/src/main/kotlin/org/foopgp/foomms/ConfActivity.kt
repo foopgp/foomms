@@ -191,24 +191,6 @@ class ConfActivity : Activity() {
             note(R.string.conf_warn_mms_note)
         }
 
-        // This phone's number: to tell it among those of a message to several. Learnt from the MMS received, unless written here.
-        subheading(R.string.conf_my_number)
-        val phones = Me.learnt(this)
-        note(if (phones != null) getString(R.string.conf_my_number_phone, phones) else getString(R.string.conf_my_number_unknown))
-        column.addView(
-            android.widget.EditText(this).apply {
-                inputType = android.text.InputType.TYPE_CLASS_PHONE
-                setText(Conf.myNumber(this@ConfActivity).orEmpty())
-                hint = phones ?: "+33 6 …"
-                addTextChangedListener(
-                    object : android.text.TextWatcher {
-                        override fun afterTextChanged(written: android.text.Editable?) = Conf.myNumber(this@ConfActivity, written?.toString().orEmpty())
-                        override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) = Unit
-                        override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) = Unit
-                    },
-                )
-            },
-        )
     }
 
     /** How the last saving or restoring went: the page is drawn again on return, and it is kept for that. */

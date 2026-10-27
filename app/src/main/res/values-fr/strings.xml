@@ -70,9 +70,6 @@
     <string name="conf_prefer_mms_note">Tout texte plus long qu\'un SMS part en MMS : utile si les longs messages arrivent en morceaux ou dans le désordre. Un MMS utilise les données mobiles, et selon votre opérateur des frais supplémentaires peuvent s\'appliquer.</string>
     <string name="conf_warn_mms">M\'avertir avant tout envoi de MMS</string>
     <string name="conf_warn_mms_note">Un texte plus long que cinq SMS part en MMS. Être prévenu avant évite des frais supplémentaires que votre opérateur pourrait appliquer.</string>
-    <string name="conf_my_number">Mon numéro</string>
-    <string name="conf_my_number_phone">Appris d\'un MMS reçu : %1$s. N\'en écrivez un autre ici que s\'il est faux.</string>
-    <string name="conf_my_number_unknown">Pas encore appris : il le sera du premier MMS que vous recevrez. Vous pouvez l\'écrire ici dès maintenant, pour que foomms reconnaisse votre numéro parmi les destinataires d\'un MMS de groupe.</string>
     <string name="group_reply_soon">Répondre à un groupe MMS arrive dans une prochaine version.</string>
     <string name="mms_ask">Ce message est long : il partira en MMS, que votre opérateur peut facturer.</string>
     <string name="plain_ask">Le chiffrement est possible dans cette conversation, mais désactivé. Envoyer ce message sans le chiffrer ?</string>

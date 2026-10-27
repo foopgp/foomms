@@ -70,9 +70,6 @@
     <string name="conf_prefer_mms_note">Bir SMS\'ten uzun her metin MMS olarak gönderilir: uzun mesajlar parça parça ya da karışık sırayla geliyorsa yararlıdır. MMS mobil veri kullanır ve operatörünüz ücret alabilir.</string>
     <string name="conf_warn_mms">Her MMS gönderiminden önce beni uyar</string>
     <string name="conf_warn_mms_note">Beş SMS\'ten uzun bir metin MMS olarak gönderilir. Önceden sorulmak, operatörünüzün uygulayabileceği bir ücretten sizi korur.</string>
-    <string name="conf_my_number">Numaram</string>
-    <string name="conf_my_number_phone">Alınan bir MMS\'ten öğrenildi: %1$s. Yalnızca yanlışsa buraya başka bir numara yazın.</string>
-    <string name="conf_my_number_unknown">Henüz öğrenilmedi: alacağınız ilk MMS\'ten öğrenilecek. foomms grup MMS\'inin alıcıları arasında numaranızı tanısın diye şimdiden buraya yazabilirsiniz.</string>
     <string name="group_reply_soon">Grup MMS\'ine yanıt vermek sonraki bir sürümde geliyor.</string>
     <string name="mms_ask">Bu mesaj uzun: MMS olarak gönderilecek ve operatörünüz ücret alabilir.</string>
     <string name="plain_ask">Bu konuşmada şifreleme mümkün, ancak kapalı. Bu mesaj şifrelenmeden gönderilsin mi?</string>

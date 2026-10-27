@@ -70,9 +70,6 @@
     <string name="conf_prefer_mms_note">Każdy tekst dłuższy niż jeden SMS jest wysyłany jako MMS: przydatne, gdy długie wiadomości docierają w kawałkach lub w nieładzie. MMS korzysta z danych komórkowych, a operator może za niego pobrać opłatę.</string>
     <string name="conf_warn_mms">Ostrzegaj mnie przed każdym wysłaniem MMS</string>
     <string name="conf_warn_mms_note">Tekst dłuższy niż pięć SMS-ów jest wysyłany jako MMS. Pytanie z wyprzedzeniem oszczędza opłaty, którą może naliczyć operator.</string>
-    <string name="conf_my_number">Mój numer</string>
-    <string name="conf_my_number_phone">Ustalony z odebranego MMS: %1$s. Wpisz tu inny tylko wtedy, gdy jest błędny.</string>
-    <string name="conf_my_number_unknown">Jeszcze nieustalony: zostanie ustalony z pierwszego odebranego MMS. Możesz go wpisać już teraz, aby foomms rozpoznał Twój numer wśród odbiorców grupowego MMS.</string>
     <string name="group_reply_soon">Odpowiadanie na grupowy MMS pojawi się w kolejnej wersji.</string>
     <string name="mms_ask">Ta wiadomość jest długa: zostanie wysłana jako MMS, za który operator może pobrać opłatę.</string>
     <string name="plain_ask">Szyfrowanie jest możliwe w tej rozmowie, ale jest wyłączone. Wysłać tę wiadomość bez szyfrowania?</string>
