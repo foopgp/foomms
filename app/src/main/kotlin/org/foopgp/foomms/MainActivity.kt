@@ -71,8 +71,8 @@ class MainActivity : Activity() {
     /** Whether [every] holds every conversation, rather than the first ones of a reading cut short. */
     private var everyWhole = false
 
-    /** The conversations with something unread, read for themselves; none yet, and they are picked out of [every]. */
-    private var unreadRows: List<Row>? = null
+    /** The unread page's or the groups' conversations, read for themselves; none yet, and they are picked out of [every]. */
+    private var pageRows: List<Row>? = null
     private lateinit var heading: android.widget.TextView
     private lateinit var counted: android.widget.TextView
 
@@ -229,12 +229,12 @@ class MainActivity : Activity() {
     private fun go(to: Page) {
         if (to == page) return
         page = to
-        unreadRows = null
+        pageRows = null
         // Called by its own name: inside the bar's code, "show()" was the bar's, which shows the bar.
         redraw()
         // The unread are read for themselves. The others: what was read is shown at once,
         // and read to its end if the unread page had cut that short.
-        if (onlyUnread || !everyWhole) fill()
+        if (page != Page.TALKS || !everyWhole) fill()
     }
 
     /** The pages, the one shown ticked, from the bar's dots. */
@@ -438,6 +438,9 @@ class MainActivity : Activity() {
         val contacts = checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
         val turn = ++turns
         val unreadOnly = onlyUnread
+        // The unread and the groups are read for themselves: few among all the conversations.
+        val apart = page != Page.TALKS
+        val groupsOnly = page == Page.GROUPS
         if (written != Book.written) { synchronized(people) { people.clear() } ; synchronized(lines) { lines.clear() } ; written = Book.written }
         thread {
             val foodjis = Foodjis.of(this)
@@ -477,7 +480,7 @@ class MainActivity : Activity() {
             }
             fun show(found: List<Row>, whole: Boolean = false) = runOnUiThread {
                 if (isFinishing || isDestroyed || turn != turns) return@runOnUiThread
-                if (unreadOnly) unreadRows = found else { every = found ; everyWhole = whole }
+                if (apart) pageRows = found else { every = found ; everyWhole = whole }
                 redraw()
                 verifySigned(found)
             }
@@ -491,8 +494,8 @@ class MainActivity : Activity() {
                     .apply()
                 runOnUiThread { if (!isFinishing && !isDestroyed) redraw() }
             }
-            if (unreadOnly) {
-                show(runCatching { Store.talks(this, Int.MAX_VALUE, unreadOnly = true, given = stale) }.getOrDefault(emptyList()).map(::row))
+            if (apart) {
+                show(runCatching { Store.talks(this, Int.MAX_VALUE, unreadOnly = unreadOnly, given = stale, groupsOnly = groupsOnly) }.getOrDefault(emptyList()).map(::row))
                 if (!stale()) count()
             } else {
                 val first = runCatching { Store.talks(this, FIRST) }.getOrDefault(emptyList()).map(::row)
@@ -515,8 +518,8 @@ class MainActivity : Activity() {
         rows = merged(
             when (page) {
                 Page.TALKS -> every.filterNot { it.talk.group }
-                Page.UNREAD -> unreadRows ?: every.filter { it.talk.unread }
-                Page.GROUPS -> every.filter { it.talk.group }
+                Page.UNREAD -> pageRows ?: every.filter { it.talk.unread }
+                Page.GROUPS -> pageRows ?: every.filter { it.talk.group }
             },
         )
         talks.notifyDataSetChanged()
