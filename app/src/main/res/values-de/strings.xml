@@ -249,4 +249,6 @@
     <string name="send_each_note">Jeder erhält eine eigene Nachricht und antwortet nur Ihnen.</string>
     <string name="send_group_note">Eine MMS an alle: Jeder sieht, an wen sie ging, und die Antworten aller.</string>
     <string name="send_group_most">Eine Gruppen-MMS geht an 2 bis %1$d Empfänger.</string>
+    <!-- Before Android asks for the number of the SIM card. -->
+    <string name="my_number_why">Um Ihre Nummer unter denen einer Gruppen-MMS zu erkennen, liest foomms die Nummer der SIM-Karte dieses Telefons. Android nennt diese Berechtigung „Anrufe tätigen und verwalten“: foomms tätigt keine.</string>
 </resources>

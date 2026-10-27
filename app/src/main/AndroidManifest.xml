@@ -7,6 +7,11 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
 
+    <!-- The number of the SIM card messages go out by: in a group MMS, the
+         one of its numbers that is this phone. Asked only where a group
+         needs it; Android names it after the calls, which foomms never makes. -->
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
+
     <!-- As the phone's messaging application: receiving SMS and the
          announcements of MMS, and saying that a message has arrived. -->
     <uses-permission android:name="android.permission.RECEIVE_SMS" />

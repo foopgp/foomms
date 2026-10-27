@@ -633,6 +633,7 @@ class ThreadActivity : AskingActivity() {
     /** A group's head: its members by name, how many of them have a certificate, and the switches as they can be for all. */
     private fun groupHead(found: List<Member>, first: Boolean) {
         members = found
+        Me.ask(this)
         val name = found.joinToString(", ") { it.name }
         thread?.let { Opened.title(it, name, number) }
         title = name
@@ -700,7 +701,6 @@ class ThreadActivity : AskingActivity() {
     private fun whoAmI() {
         provider.ask(Intent(Provider.GET_SIGN_KEY_ID), null) { answer ->
             if (answer is Provider.Answer.Done) mine = answer.says.getLongExtra(Provider.EXTRA_SIGN_KEY_ID, 0L).takeIf { it != 0L }
-            mine?.let { key -> thread { runCatching { Me.certified(applicationContext, key) } } }
             if (!isFinishing && !isDestroyed) paint()
         }
     }
@@ -1950,6 +1950,11 @@ class ThreadActivity : AskingActivity() {
     }
 
     override fun onRequestPermissionsResult(request: Int, permissions: Array<String>, results: IntArray) {
+        // This phone's number known now: the group read again, with it.
+        if (request == Me.ASKED) {
+            if (results.any { it == PackageManager.PERMISSION_GRANTED }) load()
+            return
+        }
         if (request == PLACE) {
             if (results.any { it == PackageManager.PERMISSION_GRANTED }) place()
             return

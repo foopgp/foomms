@@ -83,24 +83,6 @@ object Book {
         found
     }.getOrDefault(emptyList())
 
-    /** The numbers of the contacts tied to the certificate [fingerprint], mobile ones first. */
-    fun numbers(context: Context, fingerprint: String): List<String> = runCatching {
-        val contacts = HashSet<Long>()
-        context.contentResolver.query(
-            Data.CONTENT_URI, arrayOf(Data.CONTACT_ID, Website.URL), "${Data.MIMETYPE} = ?", arrayOf(Website.CONTENT_ITEM_TYPE), null,
-        )?.use { rows ->
-            while (rows.moveToNext()) if (Fingerprint.of(rows.getString(1).orEmpty()).equals(fingerprint, ignoreCase = true)) contacts += rows.getLong(0)
-        }
-        val found = ArrayList<Pair<String, Boolean>>()
-        for (contact in contacts) {
-            context.contentResolver.query(
-                Data.CONTENT_URI, arrayOf(PhoneRow.NUMBER, PhoneRow.TYPE), "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ?",
-                arrayOf(contact.toString(), PhoneRow.CONTENT_ITEM_TYPE), null,
-            )?.use { rows -> while (rows.moveToNext()) rows.getString(0)?.let { found += it to (rows.getInt(1) == PhoneRow.TYPE_MOBILE) } }
-        }
-        found.sortedByDescending { it.second }.map { it.first }
-    }.getOrDefault(emptyList())
-
     private fun fingerprint(context: Context, contact: Long): String? =
         values(context, contact, Website.CONTENT_ITEM_TYPE, Website.URL).firstNotNullOfOrNull { Fingerprint.of(it) }
 
