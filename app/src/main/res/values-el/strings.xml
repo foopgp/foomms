@@ -250,8 +250,8 @@
     <string name="send_group_note">Ένα MMS σε όλους: ο καθένας βλέπει σε ποιους πήγε και τις απαντήσεις όλων.</string>
     <string name="send_group_most">Ένα ομαδικό MMS πηγαίνει σε 2 έως %1$d παραλήπτες.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
-    <string name="me_change">Αλλαγή επαφής</string>
-    <string name="me_create">Δημιουργία της επαφής μου</string>
+    <string name="me_change">⇄ Αλλαγή καρτέλας επαφής</string>
+    <string name="me_create">✚ Δημιουργία της καρτέλας επαφής μου</string>
     <string name="me_tie_mine">Σύνδεση με το πιστοποιητικό μου: %1$s</string>
     <string name="me_tie_other">Σύνδεση με άλλο πιστοποιητικό…</string>
     <string name="me_label">Εγώ:</string>

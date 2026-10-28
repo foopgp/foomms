@@ -102,6 +102,8 @@ object MeMenu {
                 Me.card(activity, one.key)
                 Me.choose(activity, null)
                 changed()
+                // Several numbers on it: which is this phone's, asked at once.
+                if (one.numbers.size > 1) chooseNumber(activity, one, changed)
             }
         }
         choices += activity.getString(R.string.me_create) to { create(activity, state.mine) }
@@ -113,8 +115,9 @@ object MeMenu {
 
     /** Which of one's numbers is this phone's: those it has received MMS at, marked. */
     private fun chooseNumber(activity: AskingActivity, own: Book.Own, changed: () -> Unit) {
-        val now = Me.number(activity)
         val received = Me.numbers(activity)
+        // None chosen yet: the latest this phone received at, offered.
+        val now = Me.number(activity) ?: received.firstOrNull { one -> own.numbers.any { Phone.same(it, one) } }
         val shown = own.numbers.map { one -> if (received.any { Phone.same(it, one) }) "$one  ✓" else one }
         AlertDialog.Builder(activity)
             .setTitle(R.string.me_default)

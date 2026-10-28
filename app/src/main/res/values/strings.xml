@@ -253,8 +253,8 @@
     <string name="send_group_note">One MMS to all: each sees who it went to, and everybody\'s answers.</string>
     <string name="send_group_most">A group MMS goes to 2 to %1$d people.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
-    <string name="me_change">Change contact</string>
-    <string name="me_create">Create my contact</string>
+    <string name="me_change">⇄ Change contact card</string>
+    <string name="me_create">✚ Create my contact card</string>
     <string name="me_tie_mine">Tie to my certificate: %1$s</string>
     <string name="me_tie_other">Tie to another certificate…</string>
     <string name="me_label">Me:</string>

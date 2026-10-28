@@ -258,8 +258,8 @@
     <string name="send_group_note">Одно MMS всем: каждый видит, кому оно ушло, и ответы всех.</string>
     <string name="send_group_most">Групповое MMS — от 2 до %1$d получателей.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
-    <string name="me_change">Сменить контакт</string>
-    <string name="me_create">Создать мой контакт</string>
+    <string name="me_change">⇄ Сменить карточку контакта</string>
+    <string name="me_create">✚ Создать мою карточку контакта</string>
     <string name="me_tie_mine">Связать с моим сертификатом: %1$s</string>
     <string name="me_tie_other">Связать с другим сертификатом…</string>
     <string name="me_label">Я:</string>

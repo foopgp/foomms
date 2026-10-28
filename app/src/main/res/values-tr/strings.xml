@@ -250,8 +250,8 @@
     <string name="send_group_note">Herkese tek MMS: herkes kime gittiğini ve herkesin yanıtlarını görür.</string>
     <string name="send_group_most">Grup MMS\'i 2 ile %1$d alıcı arasına gider.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
-    <string name="me_change">Kartı değiştir</string>
-    <string name="me_create">Kişi kartımı oluştur</string>
+    <string name="me_change">⇄ Kişi kartını değiştir</string>
+    <string name="me_create">✚ Kişi kartımı oluştur</string>
     <string name="me_tie_mine">Sertifikama bağla: %1$s</string>
     <string name="me_tie_other">Başka bir sertifikaya bağla…</string>
     <string name="me_label">Ben:</string>

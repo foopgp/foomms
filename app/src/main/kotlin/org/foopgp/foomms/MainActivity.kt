@@ -162,7 +162,7 @@ class MainActivity : AskingActivity() {
             val side = Look.dp(context, 16)
             setPadding(side, side / 2, side / 2, 0)
             visibility = View.GONE
-            setOnClickListener { me?.let { known -> MeMenu.show(this@MainActivity, known) { readMe() } } }
+            setOnClickListener { me?.let { known -> MeMenu.show(this@MainActivity, known) { meChanged() } } }
         }
         column.addView(meBox)
         column.addView(closing)
@@ -239,6 +239,17 @@ class MainActivity : AskingActivity() {
         Menus.write(this, text, stream)
     }
 
+    /**
+     * One's contact or number changed: the groups are told apart again --
+     * this phone is now among the members of those it did not receive as
+     * one --, their lines worked out anew, and the counts with them.
+     */
+    private fun meChanged() {
+        synchronized(lines) { lines.clear() }
+        readMe()
+        fill()
+    }
+
     /** Oneself read again, for the groups' page: what one's contact, number or certificate are now. */
     private fun readMe() {
         if (page != Page.GROUPS) return
@@ -292,7 +303,7 @@ class MainActivity : AskingActivity() {
 
     override fun onActivityResult(request: Int, outcome: Int, data: android.content.Intent?) {
         super.onActivityResult(request, outcome, data)
-        if (MeMenu.result(this, request, outcome, data)) return readMe()
+        if (MeMenu.result(this, request, outcome, data)) return meChanged()
         Saving.done(this, request, outcome, data) { android.widget.Toast.makeText(this, it, android.widget.Toast.LENGTH_LONG).show() }
         // Asked to be the messaging application, whatever was answered: what is still missing is asked now.
         if (request == ROLE) {

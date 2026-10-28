@@ -250,8 +250,8 @@
     <string name="send_group_note">Un seul MMS pour tous : chacun voit à qui il est allé, et les réponses de tous.</string>
     <string name="send_group_most">Un groupe MMS va de 2 à %1$d destinataires.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
-    <string name="me_change">Changer de fiche</string>
-    <string name="me_create">Créer ma fiche</string>
+    <string name="me_change">⇄ Changer de fiche contact</string>
+    <string name="me_create">✚ Créer ma fiche contact</string>
     <string name="me_tie_mine">Relier à mon certificat : %1$s</string>
     <string name="me_tie_other">Relier à un autre certificat…</string>
     <string name="me_label">Moi :</string>

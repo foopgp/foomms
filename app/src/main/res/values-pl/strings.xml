@@ -258,8 +258,8 @@
     <string name="send_group_note">Jeden MMS do wszystkich: każdy widzi, do kogo trafił, i odpowiedzi wszystkich.</string>
     <string name="send_group_most">MMS grupowy trafia do 2–%1$d odbiorców.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
-    <string name="me_change">Zmień kontakt</string>
-    <string name="me_create">Utwórz mój kontakt</string>
+    <string name="me_change">⇄ Zmień kartę kontaktu</string>
+    <string name="me_create">✚ Utwórz moją kartę kontaktu</string>
     <string name="me_tie_mine">Powiąż z moim certyfikatem: %1$s</string>
     <string name="me_tie_other">Powiąż z innym certyfikatem…</string>
     <string name="me_label">Ja:</string>
