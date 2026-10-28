@@ -267,4 +267,9 @@
     <string name="choose_name">Name:</string>
     <string name="name_contact">Keep the contact\'s:</string>
     <string name="name_certificate">Take the certificate\'s:</string>
+    <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
+    <string name="group_needs_me">A group MMS goes to you too, at your number: tie your own contact first, under “Me” on the MMS groups page.</string>
+    <string name="altered_title">Group MMS altered</string>
+    <string name="altered">A group MMS you sent came back different: it was most likely changed on its way, for everyone it went to.</string>
+    <string name="channel_altered">Altered messages</string>
 </resources>

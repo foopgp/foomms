@@ -264,4 +264,9 @@
     <string name="choose_name">Nom :</string>
     <string name="name_contact">Garder celui de la fiche :</string>
     <string name="name_certificate">Prendre celui du certificat :</string>
+    <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
+    <string name="group_needs_me">Un MMS de groupe vous est aussi envoyé, à votre numéro : reliez d\'abord votre fiche, dans l\'encart « Moi » de la page Groupes MMS.</string>
+    <string name="altered_title">MMS de groupe altéré</string>
+    <string name="altered">Un MMS de groupe que vous avez envoyé vous est revenu différent : il a probablement été altéré en route, pour tous ses destinataires.</string>
+    <string name="channel_altered">Messages altérés</string>
 </resources>

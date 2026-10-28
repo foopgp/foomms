@@ -264,4 +264,9 @@
     <string name="choose_name">Nome:</string>
     <string name="name_contact">Tenere quello del contatto:</string>
     <string name="name_certificate">Prendere quello del certificato:</string>
+    <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
+    <string name="group_needs_me">Un MMS di gruppo va anche a voi, al vostro numero: collegate prima il vostro contatto, in «Io» della pagina Gruppi MMS.</string>
+    <string name="altered_title">MMS di gruppo alterato</string>
+    <string name="altered">Un MMS di gruppo che avete inviato vi è tornato diverso: è stato probabilmente alterato lungo la strada, per tutti i destinatari.</string>
+    <string name="channel_altered">Messaggi alterati</string>
 </resources>

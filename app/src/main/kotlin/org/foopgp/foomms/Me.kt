@@ -13,10 +13,14 @@ import android.net.Uri
  */
 object Me {
 
-    /** The number messages go out with, and a group MMS comes back to: the one chosen on one's contact, else the latest received at. */
-    fun number(context: Context): String? = chosen(context) ?: numbers(context).firstOrNull()
+    /**
+     * The number messages go out with, and a group MMS comes back to: the
+     * one chosen on one's own contact. None without it: the numbers received
+     * at are only likely to be this phone's.
+     */
+    fun number(context: Context): String? = chosen(context)
 
-    /** Every number this phone is, or was: to tell it among a group's members, whichever it was then. */
+    /** Every number this phone is, or likely was: to tell it among a group's members, whichever it was then. */
     fun all(context: Context): List<String> = once(listOfNotNull(chosen(context)) + numbers(context))
 
     /** Whether [number] is one of this phone's. */

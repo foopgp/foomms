@@ -264,4 +264,9 @@
     <string name="choose_name">Ad:</string>
     <string name="name_contact">Kişi kartındakini koru:</string>
     <string name="name_certificate">Sertifikadakini al:</string>
+    <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
+    <string name="group_needs_me">Grup MMS\'i size de, numaranıza gider: önce MMS grupları sayfasındaki “Ben” bölümünden kişi kartınızı bağlayın.</string>
+    <string name="altered_title">Grup MMS\'i değiştirilmiş</string>
+    <string name="altered">Gönderdiğiniz bir grup MMS\'i size farklı döndü: yolda büyük olasılıkla tüm alıcılar için değiştirildi.</string>
+    <string name="channel_altered">Değiştirilmiş mesajlar</string>
 </resources>

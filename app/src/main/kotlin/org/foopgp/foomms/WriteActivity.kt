@@ -170,7 +170,9 @@ class WriteActivity : Activity() {
         }
         (picked.parent as? View)?.visibility = if (chosen.isEmpty()) View.GONE else View.VISIBLE
         // A group MMS goes to two to nine people: beyond, to each.
-        val groupable = chosen.size in 2..GROUP_MOST
+        // And this phone, which gets it back: its number, from one's own contact.
+        val known = Me.number(this) != null
+        val groupable = chosen.size in 2..GROUP_MOST && known
         if (!groupable) asGroup = false
         how.visibility = if (chosen.size >= 2) View.VISIBLE else View.GONE
         toGroup.isEnabled = groupable
@@ -182,6 +184,7 @@ class WriteActivity : Activity() {
         howSaid.text = when {
             asGroup -> getString(R.string.send_group_note)
             groupable -> getString(R.string.send_each_note)
+            !known -> getString(R.string.group_needs_me)
             else -> getString(R.string.send_group_most, GROUP_MOST)
         }
         go.isEnabled = chosen.isNotEmpty() || Phone.plain(asked.text.toString()) != null

@@ -61,6 +61,8 @@ object Outbox {
         )
         val from = Uri.parse("content://${context.packageName}.pdu/$transaction")
         manager(context).sendMultimediaMessage(context, from, null, null, told)
+        // To a group, this phone among them: what left kept, to hold what comes back against it.
+        runCatching { Echo.sent(context, to, pdu) }
         // The phone keeps what its messaging application tells it to, and nothing of what another sends.
         if (Keep.ours(context)) runCatching { Keep.mmsSent(context, to, pdu) }
     }

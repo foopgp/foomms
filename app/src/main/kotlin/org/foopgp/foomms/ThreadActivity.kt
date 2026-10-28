@@ -749,6 +749,8 @@ class ThreadActivity : AskingActivity() {
         if (written.isBlank() && with == null) return
         // A group's: to all its members, once they are known.
         if (if (group) members.isEmpty() else Phone.plain(number) == null) return
+        // To a group, this phone gets it back: not without its number, which one's own contact gives.
+        if (group && Me.number(this) == null) return say(getString(R.string.group_needs_me))
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)
         }

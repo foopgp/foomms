@@ -31,6 +31,8 @@ object MeMenu {
     fun read(activity: AskingActivity, mineKey: Long?): State {
         val foodjis = Foodjis.of(activity)
         val own = Me.card(activity)?.let { Book.own(activity, it) }
+        // No contact of one's own, or gone from the address book: no number of one's own either.
+        if (own == null) Me.choose(activity, null)
         if (own != null) {
             val chosen = Me.chosen(activity)
             if (chosen == null || own.numbers.none { Phone.same(it, chosen) || it == chosen }) {

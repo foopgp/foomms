@@ -272,4 +272,9 @@
     <string name="choose_name">Nazwa:</string>
     <string name="name_contact">Zachowaj nazwę z kontaktu:</string>
     <string name="name_certificate">Weź nazwę z certyfikatu:</string>
+    <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
+    <string name="group_needs_me">MMS grupowy trafia też do Ciebie, na Twój numer: najpierw powiąż swój kontakt w „Ja” na stronie Grupy MMS.</string>
+    <string name="altered_title">Zmieniony MMS grupowy</string>
+    <string name="altered">Wysłany przez Ciebie MMS grupowy wrócił inny: prawdopodobnie zmieniono go po drodze, dla wszystkich odbiorców.</string>
+    <string name="channel_altered">Zmienione wiadomości</string>
 </resources>

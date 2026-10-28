@@ -272,4 +272,9 @@
     <string name="choose_name">Имя:</string>
     <string name="name_contact">Оставить имя из контакта:</string>
     <string name="name_certificate">Взять имя из сертификата:</string>
+    <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
+    <string name="group_needs_me">Групповое MMS приходит и вам, на ваш номер: сначала свяжите свой контакт в разделе «Я» на странице MMS-группы.</string>
+    <string name="altered_title">Групповое MMS изменено</string>
+    <string name="altered">Отправленное вами групповое MMS вернулось другим: вероятно, его изменили в пути, для всех получателей.</string>
+    <string name="channel_altered">Изменённые сообщения</string>
 </resources>
