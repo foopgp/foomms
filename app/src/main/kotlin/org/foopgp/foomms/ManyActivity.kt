@@ -216,21 +216,8 @@ class ManyActivity : AskingActivity() {
     private fun leave(text: String?, written: String, verdict: Verdict?, piece: Pdu.Part?) {
         val mms = piece != null || runCatching { Conf.asMms(Outbox.pieces(this, text.orEmpty()), Conf.preferMms(this)) }.getOrDefault(false)
         fun go() {
-            val failed = ArrayList<String>()
-            // One moment for every copy: each in the conversation of whom it went to, known as one sending by it.
-            val at = System.currentTimeMillis()
-            for (one in whom) {
-                runCatching {
-                    if (!mms) Outbox.text(this, one.number, text.orEmpty(), at)
-                    else {
-                        val transaction = "T" + java.lang.Long.toHexString(System.nanoTime())
-                        val parts = listOfNotNull(text?.let { Pdu.Part.text(it) }, piece)
-                        Outbox.send(this, listOf(one.number), Pdu.send(transaction, listOf(one.number), parts), transaction, at)
-                    }
-                }.onFailure { failed += one.name }
-            }
             if (verdict != null && text != null) Opened.keep(this, text, written, null, verdict)
-            if (failed.isNotEmpty()) return say(getString(R.string.many_failed, failed.joinToString(", ")))
+            ToEach.send(applicationContext, whom.map { it.number to it.name }, text, piece, mms)
             Toast.makeText(this, getString(R.string.many_sent, whom.size), Toast.LENGTH_LONG).show()
             field.setText("")
             finish()
