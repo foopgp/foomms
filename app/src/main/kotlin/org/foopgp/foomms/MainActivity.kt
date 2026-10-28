@@ -502,8 +502,8 @@ class MainActivity : AskingActivity() {
                     return Book.who(this, number).also { synchronized(people) { people[number] = it } }
                 }
                 // A group is named by its members but this phone; its face comes later.
-                val me = Me.number(this)
-                val group = talk.members.filterNot { me != null && Phone.same(it, me) }.takeIf { talk.group }
+                val mine = Me.all(this)
+                val group = talk.members.filterNot { member -> mine.any { Phone.same(member, it) } }.takeIf { talk.group }
                 val person = if (group != null) null else talk.number?.let(::who)
                 // The face read here, off the page: drawn where it is shown, a contact's picture held the list still.
                 val face = person?.let { Book.face(this, it) } ?: person?.fingerprint?.let { foodjis.face(it) }
@@ -519,7 +519,7 @@ class MainActivity : AskingActivity() {
                 }
                 val standing = person?.fingerprint?.let { foodjis.card(it)?.validity }
                 val name = group?.joinToString(", ") { who(it)?.name ?: it } ?: person?.name ?: talk.number ?: getString(R.string.unknown_number)
-                return Row(talk, person, face, name, verdict, last, standing, group?.let { Phone.group(talk.members, me) })
+                return Row(talk, person, face, name, verdict, last, standing, group?.let { Phone.group(talk.members, mine) })
                     // A closed PGP message may be opened at any moment: its line is worked out each time.
                     .also { if (armor == null) synchronized(lines) { lines[talk.thread] = it } }
             }

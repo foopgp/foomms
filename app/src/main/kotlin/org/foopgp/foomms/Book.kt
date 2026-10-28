@@ -117,8 +117,28 @@ object Book {
     /** The lookup key Android gives the phone's own profile -- "Me", "My profile" in the contacts applications. */
     const val PROFILE = "profile"
 
-    /** The phone's own profile, when its contacts application has one: its name, picture, numbers. */
+    /** The phone's own profile, when its contacts application has one and Android shows it: its name, picture, numbers. */
     fun profile(context: Context): Own? = own(context, PROFILE)
+
+    /**
+     * Every contact that carries one of [numbers], the phone's own profile
+     * among them when Android shows it: those one's own contact may be. In
+     * the order of the numbers, each contact once.
+     */
+    fun carrying(context: Context, numbers: List<String>): List<Own> {
+        val keys = LinkedHashSet<String>()
+        val profile = profile(context)
+        for (number in numbers) {
+            if (profile != null && profile.numbers.any { Phone.same(it, number) }) keys += profile.key
+            runCatching {
+                context.contentResolver.query(
+                    Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number)),
+                    arrayOf(ContactsContract.PhoneLookup.LOOKUP_KEY), null, null, null,
+                )?.use { rows -> while (rows.moveToNext()) rows.getString(0)?.let { keys += it } }
+            }
+        }
+        return keys.mapNotNull { own(context, it) }
+    }
 
     /** The lookup key of a contact handed back by the address book: picked, or made. */
     fun keyOf(context: Context, contact: Uri): String? = runCatching {

@@ -236,13 +236,13 @@ object Store {
 
     /** The conversations holding something not read yet. */
     /** The conversations of the group of [numbers]: with [me] among them or without, newest first. */
-    fun groupThreads(context: Context, numbers: List<String>, me: String?): List<Long> = runCatching {
-        val key = Phone.group(numbers, me)
+    fun groupThreads(context: Context, numbers: List<String>, mine: List<String>): List<Long> = runCatching {
+        val key = Phone.group(numbers, mine)
         context.contentResolver.query(THREADS, arrayOf("_id", "recipient_ids"), "trim(recipient_ids) LIKE '% %'", null, "date DESC")?.use { rows ->
             buildList {
                 while (rows.moveToNext()) {
                     val members = rows.getString(1)?.trim()?.split(' ')?.mapNotNull { it.toLongOrNull()?.let { id -> address(context, id) } }.orEmpty()
-                    if (Phone.group(members, me) == key) add(rows.getLong(0))
+                    if (Phone.group(members, mine) == key) add(rows.getLong(0))
                 }
             }
         }
@@ -351,13 +351,13 @@ object Store {
             }
         }
         // The groups by their members but this phone: the same group may be two conversations.
-        val me = Me.number(context)
+        val mine = Me.all(context)
         val groups = ArrayList<String>()
         runCatching {
             context.contentResolver.query(THREADS, arrayOf("recipient_ids"), "trim(recipient_ids) LIKE '% %'", null, null)?.use { rows ->
                 while (rows.moveToNext()) {
                     val members = rows.getString(0)?.trim()?.split(' ')?.mapNotNull { it.toLongOrNull()?.let { id -> address(context, id) } }.orEmpty()
-                    groups += Phone.group(members, me)
+                    groups += Phone.group(members, mine)
                 }
             }
         }

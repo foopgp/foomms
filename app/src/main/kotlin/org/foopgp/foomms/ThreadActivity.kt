@@ -130,11 +130,15 @@ class ThreadActivity : AskingActivity() {
 
     /** A group's drafts, under its members but this phone: the same, from whichever of its conversations. */
     private val drafted: List<String> by lazy {
-        if (!group) listOf(number) else Me.number(this).let { me -> everyone.filterNot { me != null && Phone.same(it, me) } }
+        if (!group) listOf(number) else everyone.filterNot { Me.mine(this, it) }
     }
 
-    /** Whom what is written goes to: one number, or every member of the group. */
-    private fun targets(): List<String> = if (group) members.map { it.number } else listOf(number)
+    /**
+     * Whom what is written goes to: one number, or every member of the group
+     * and this phone, which gets it back -- what a group is, is then always
+     * the list of whom its messages go to.
+     */
+    private fun targets(): List<String> = if (group) members.map { it.number } + listOfNotNull(Me.number(this)) else listOf(number)
 
     /** The member a message came from, as the network wrote their number. */
     private fun memberOf(address: String?): Member? = address?.let { from -> members.firstOrNull { Phone.same(it.number, from) || it.number == from } }
@@ -501,8 +505,7 @@ class ThreadActivity : AskingActivity() {
         thread {
             // Who the number is, beside the messages: its head drawn as soon as known. A group's, each member.
             if (group) thread {
-                val me = Me.number(this)
-                val found = everyone.filterNot { me != null && Phone.same(it, me) }.map { one ->
+                val found = everyone.filterNot { Me.mine(this, it) }.map { one ->
                     val who = if (contacts) Book.who(this, one) else null
                     val whose = who?.fingerprint?.let { foodjis.card(it) }
                     Member(one, who, whose, who?.let { Book.face(this, it) } ?: who?.fingerprint?.let { foodjis.face(it) })

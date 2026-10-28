@@ -63,12 +63,12 @@ object Phone {
     fun key(written: String): String = plain(written)?.filter { it.isDigit() }?.takeLast(8) ?: written
 
     /**
-     * A group as a key: its members but [me], each once, in any order. The
-     * same group then, whether a conversation names this phone or not, as
-     * other applications leave it out.
+     * A group as a key: its members but this phone's numbers, [mine], each
+     * once, in any order. The same group then, whether a conversation names
+     * this phone or not, as other applications leave it out.
      */
-    fun group(members: List<String>, me: String?): String =
-        members.filterNot { me != null && same(it, me) }.map(::key).distinct().sorted().joinToString(",")
+    fun group(members: List<String>, mine: List<String>): String =
+        members.filterNot { member -> mine.any { same(member, it) } }.map(::key).distinct().sorted().joinToString(",")
 
     /** The numbers a certificate carries, from its user ids (`TEL:+33…`, `TEL;TYPE=cell:tel:+33…`). */
     fun carried(userIds: List<String>): List<String> = userIds

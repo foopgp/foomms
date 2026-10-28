@@ -249,23 +249,17 @@
     <string name="send_each_note">Cada um recebe a sua própria mensagem e responde só a si.</string>
     <string name="send_group_note">Um só MMS para todos: cada um vê a quem foi e as respostas de todos.</string>
     <string name="send_group_most">Um MMS de grupo vai de 2 a %1$d destinatários.</string>
-    <!-- Oneself, on the groups' page: one's own contact, this phone's number, the SMS that checks it. -->
-    <string name="me_choose">Escolher o meu contacto</string>
+    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">Mudar de contacto</string>
     <string name="me_create">Criar o meu contacto</string>
-    <string name="me_suggest">Usar «%1$s», ligado ao meu certificado</string>
-    <string name="me_verifying">SMS enviado para %1$s, à espera do regresso…</string>
-    <string name="me_verified">Verificado: o SMS voltou a este telefone ✓</string>
-    <string name="me_not_back">O SMS não voltou: provavelmente não é o número deste telefone.</string>
     <string name="me_tie_mine">Ligar ao meu certificado: %1$s</string>
     <string name="me_tie_other">Ligar a outro certificado…</string>
     <string name="me_label">Eu:</string>
-    <string name="me_take_profile">Usar «%1$s», o meu perfil</string>
     <string name="me_default">☎ Definir o número predefinido</string>
-    <string name="me_verify_one">✓ Verificar o %1$s</string>
+    <string name="me_link">Ligar a «%1$s» (%2$s)</string>
+    <string name="me_choose_for">Eu, no %1$s:</string>
     <string name="me_tag">(eu)</string>
     <string name="me_unknown">número desconhecido</string>
-    <string name="me_sms">foomms: verificação do número deste telefone, código %1$s.</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
     <string name="choose_name">Nome:</string>
     <string name="name_contact">Manter o do contacto:</string>

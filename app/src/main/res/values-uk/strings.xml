@@ -257,23 +257,17 @@
     <string name="send_each_note">Кожен отримує своє повідомлення й відповідає лише вам.</string>
     <string name="send_group_note">Одне MMS усім: кожен бачить, кому воно пішло, і відповіді всіх.</string>
     <string name="send_group_most">Групове MMS — від 2 до %1$d одержувачів.</string>
-    <!-- Oneself, on the groups' page: one's own contact, this phone's number, the SMS that checks it. -->
-    <string name="me_choose">Вибрати мій контакт</string>
+    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">Змінити контакт</string>
     <string name="me_create">Створити мій контакт</string>
-    <string name="me_suggest">Узяти «%1$s», пов\'язаний з моїм сертифікатом</string>
-    <string name="me_verifying">SMS надіслано на %1$s, чекаємо на його повернення…</string>
-    <string name="me_verified">Перевірено: SMS повернулося на цей телефон ✓</string>
-    <string name="me_not_back">SMS не повернулося: мабуть, це не номер цього телефона.</string>
     <string name="me_tie_mine">Пов\'язати з моїм сертифікатом: %1$s</string>
     <string name="me_tie_other">Пов\'язати з іншим сертифікатом…</string>
     <string name="me_label">Я:</string>
-    <string name="me_take_profile">Узяти «%1$s», мій профіль</string>
     <string name="me_default">☎ Вибрати типовий номер</string>
-    <string name="me_verify_one">✓ Перевірити %1$s</string>
+    <string name="me_link">Пов\'язати з «%1$s» (%2$s)</string>
+    <string name="me_choose_for">Я, за номером %1$s:</string>
     <string name="me_tag">(я)</string>
     <string name="me_unknown">номер невідомий</string>
-    <string name="me_sms">foomms: перевірка номера цього телефона, код %1$s.</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
     <string name="choose_name">Ім\'я:</string>
     <string name="name_contact">Залишити ім\'я з контакту:</string>

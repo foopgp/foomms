@@ -10,28 +10,37 @@ import kotlin.concurrent.thread
 /**
  * Oneself, as the groups' page shows it: one's own contact and this phone's
  * number, and the menu of its dots -- the menu of a conversation, made for
- * oneself. With no contact yet, the ways to one: the phone's own profile,
- * the contact tied to one's certificate, one picked, or one made.
+ * oneself. With no contact yet: the contacts that carry one of the numbers
+ * this phone has received MMS at, or one made to carry it.
  */
 object MeMenu {
 
     /** What is known of oneself, read off the main thread ([read]). */
     class State(
         val own: Book.Own?, val ownCert: Foodjis.Cert?, val mine: Foodjis.Cert?,
-        val suggested: Book.Own?, val profile: Book.Own?, val number: String?,
+        /** The contacts that carry one of this phone's numbers: those one's own may be, the one tied to one's certificate first. */
+        val candidates: List<Book.Own>, val number: String?,
     )
 
-    /** [mineKey]: the key of the identity foodjis holds, when it has said. Not on the main thread. */
+    /**
+     * [mineKey]: the key of the identity foodjis holds, when it has said.
+     * The number messages go out with kept among one's contact's numbers:
+     * the latest this phone received at that the contact carries, else its
+     * first. Not on the main thread.
+     */
     fun read(activity: AskingActivity, mineKey: Long?): State {
         val foodjis = Foodjis.of(activity)
         val own = Me.card(activity)?.let { Book.own(activity, it) }
+        if (own != null) {
+            val chosen = Me.chosen(activity)
+            if (chosen == null || own.numbers.none { Phone.same(it, chosen) || it == chosen }) {
+                Me.choose(activity, Me.numbers(activity).firstNotNullOfOrNull { one -> own.numbers.firstOrNull { Phone.same(it, one) } } ?: own.numbers.firstOrNull())
+            }
+        }
         val mine = mineKey?.let { foodjis.signer(it) }
-        return State(
-            own, own?.fingerprint?.let { foodjis.card(it) }, mine,
-            mine?.fingerprint?.let { Book.tiedTo(activity, it) }?.takeIf { it != own?.key }?.let { Book.own(activity, it) },
-            Book.profile(activity)?.takeIf { own?.key != Book.PROFILE },
-            Me.number(activity),
-        )
+        val candidates = Book.carrying(activity, Me.numbers(activity)).filter { it.key != own?.key }
+            .sortedByDescending { mine != null && it.fingerprint.equals(mine.fingerprint, ignoreCase = true) }
+        return State(own, own?.fingerprint?.let { foodjis.card(it) }, mine, candidates, Me.number(activity))
     }
 
     /** The menu of the dots; [changed] is told when something said of oneself changed, to be read again. */
@@ -40,15 +49,11 @@ object MeMenu {
         fun add(words: String, then: () -> Unit) { choices += words to then }
         val own = state.own
         if (own == null) {
-            // No contact of one's own yet: the phone's profile first, then the one tied to one's certificate, or another.
-            state.profile?.let { profile -> add(activity.getString(R.string.me_take_profile, profile.name)) { take(activity, profile.key, changed) } }
-            state.suggested?.let { tied -> add(activity.getString(R.string.me_suggest, tied.name)) { take(activity, tied.key, changed) } }
-            add(activity.getString(R.string.me_choose)) { pick(activity) }
-            add(activity.getString(R.string.me_create)) { create(activity, state.mine) }
+            // No contact of one's own yet: one that carries this phone's number, or a new one to carry it.
+            return choose(activity, state, changed)
         } else {
             // Where "call" stands in a conversation's: which of its numbers is this phone's, and checking it.
             if (own.numbers.size > 1) add(activity.getString(R.string.me_default)) { chooseNumber(activity, own, changed) }
-            state.number?.let { number -> add(activity.getString(R.string.me_verify_one, number)) { verify(activity, number, changed) } }
             add(activity.getString(R.string.contact_show)) {
                 runCatching {
                     ContactsContract.QuickContact.showQuickContact(
@@ -74,7 +79,7 @@ object MeMenu {
             } else {
                 add(activity.getString(R.string.tie)) { tieWhich(activity, own, state.mine, changed) }
             }
-            add(activity.getString(R.string.me_change)) { pick(activity) }
+            add(activity.getString(R.string.me_change)) { choose(activity, state, changed) }
         }
         AlertDialog.Builder(activity)
             .setTitle(own?.name?.let { "$it ${activity.getString(R.string.me_tag)}" } ?: activity.getString(R.string.me_tag))
@@ -82,18 +87,33 @@ object MeMenu {
             .show()
     }
 
-    /** One's own contact taken: this phone's number to choose again among its numbers. */
-    private fun take(activity: AskingActivity, key: String, changed: () -> Unit) {
-        Me.card(activity, key)
-        Me.choose(activity, null)
-        changed()
+    /**
+     * The contacts that carry one of this phone's numbers, to tie as one's
+     * own; and making one to carry it, filled from one's certificate.
+     */
+    private fun choose(activity: AskingActivity, state: State, changed: () -> Unit) {
+        val choices = ArrayList<Pair<String, () -> Unit>>()
+        val numbers = Me.numbers(activity)
+        for (one in state.candidates) {
+            val carried = numbers.firstOrNull { number -> one.numbers.any { Phone.same(it, number) } } ?: one.numbers.firstOrNull().orEmpty()
+            choices += activity.getString(R.string.me_link, one.name, carried) to {
+                Me.card(activity, one.key)
+                Me.choose(activity, null)
+                changed()
+            }
+        }
+        choices += activity.getString(R.string.me_create) to { create(activity, state.mine) }
+        AlertDialog.Builder(activity)
+            .setTitle(numbers.firstOrNull()?.let { activity.getString(R.string.me_choose_for, it) } ?: activity.getString(R.string.me_tag))
+            .setItems(choices.map { it.first }.toTypedArray()) { _, which -> choices[which].second() }
+            .show()
     }
 
-    /** Which of one's numbers is this phone's: the one checked so, marked. */
+    /** Which of one's numbers is this phone's: those it has received MMS at, marked. */
     private fun chooseNumber(activity: AskingActivity, own: Book.Own, changed: () -> Unit) {
         val now = Me.number(activity)
-        val verified = Me.verified(activity)
-        val shown = own.numbers.map { if (verified != null && Phone.same(it, verified)) "$it  ✓" else it }
+        val received = Me.numbers(activity)
+        val shown = own.numbers.map { one -> if (received.any { Phone.same(it, one) }) "$one  ✓" else one }
         AlertDialog.Builder(activity)
             .setTitle(R.string.me_default)
             .setSingleChoiceItems(shown.toTypedArray(), own.numbers.indexOfFirst { now != null && (it == now || Phone.same(it, now)) }) { asked, at ->
@@ -105,44 +125,50 @@ object MeMenu {
             .show()
     }
 
-    /** An SMS to [number], which must come back here: said when it does, or when it does not in time. */
-    private fun verify(activity: AskingActivity, number: String, changed: () -> Unit) {
-        if (activity.checkSelfPermission(android.Manifest.permission.SEND_SMS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            return activity.requestPermissions(arrayOf(android.Manifest.permission.SEND_SMS), 1)
-        }
-        Me.onCheck = {
-            Me.onCheck = null
-            if (!activity.isFinishing && !activity.isDestroyed) {
-                say(activity, activity.getString(if (Me.check == Me.Check.BACK) R.string.me_verified else R.string.me_not_back))
-                changed()
+    /**
+     * Android's page for a new contact, filled with what is known: this
+     * phone's latest number, and from one's certificate its name, address,
+     * face, and the certificate's own address -- tying it as it is made.
+     */
+    private fun create(activity: AskingActivity, mine: Foodjis.Cert?) {
+        thread {
+            val card = mine?.let { Foodjis.of(activity).vcard(it.fingerprint) }
+            activity.runOnUiThread {
+                if (activity.isFinishing || activity.isDestroyed) return@runOnUiThread
+                val made = Intent(ContactsContract.Intents.Insert.ACTION).setType(ContactsContract.RawContacts.CONTENT_TYPE)
+                    .putExtra("finishActivityOnSaveCompleted", true)
+                (card?.name ?: mine?.name)?.let { made.putExtra(ContactsContract.Intents.Insert.NAME, it) }
+                Me.numbers(activity).firstOrNull()?.let {
+                    made.putExtra(ContactsContract.Intents.Insert.PHONE, it)
+                        .putExtra(ContactsContract.Intents.Insert.PHONE_TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
+                }
+                card?.emails?.firstOrNull()?.let { made.putExtra(ContactsContract.Intents.Insert.EMAIL, it) }
+                val rows = ArrayList<android.content.ContentValues>()
+                if (mine != null) {
+                    rows += android.content.ContentValues().apply {
+                        put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Website.CONTENT_ITEM_TYPE)
+                        put(ContactsContract.CommonDataKinds.Website.URL, card?.key?.takeIf { Fingerprint.of(it) == mine.fingerprint } ?: Fingerprint.address(mine.fingerprint))
+                        put(ContactsContract.CommonDataKinds.Website.TYPE, ContactsContract.CommonDataKinds.Website.TYPE_CUSTOM)
+                        put(ContactsContract.CommonDataKinds.Website.LABEL, Book.MARK)
+                    }
+                }
+                // A face small enough to travel with the page: a page is handed little.
+                card?.photo?.takeIf { it.size < FACE_MOST }?.let { face ->
+                    rows += android.content.ContentValues().apply {
+                        put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE)
+                        put(ContactsContract.CommonDataKinds.Photo.PHOTO, face)
+                    }
+                }
+                if (rows.isNotEmpty()) made.putParcelableArrayListExtra(ContactsContract.Intents.Insert.DATA, rows)
+                @Suppress("DEPRECATION")
+                runCatching { activity.startActivityForResult(made, CREATE) }
             }
         }
-        Me.verify(activity, number)
-        Toast.makeText(activity, activity.getString(R.string.me_verifying, number), Toast.LENGTH_LONG).show()
     }
 
-    /** Android's own list of contacts, to pick one's own from: no permission asked, a page everybody knows. */
-    private fun pick(activity: AskingActivity) = runCatching {
-        @Suppress("DEPRECATION")
-        activity.startActivityForResult(Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI), PICK)
-    }
-
-    /** Android's page for a new contact, with what is known: the certificate's name, the number learnt. */
-    private fun create(activity: AskingActivity, mine: Foodjis.Cert?) = runCatching {
-        val made = Intent(ContactsContract.Intents.Insert.ACTION).setType(ContactsContract.RawContacts.CONTENT_TYPE)
-            .putExtra("finishActivityOnSaveCompleted", true)
-        mine?.name?.let { made.putExtra(ContactsContract.Intents.Insert.NAME, it) }
-        Me.learnt(activity)?.let {
-            made.putExtra(ContactsContract.Intents.Insert.PHONE, it)
-                .putExtra(ContactsContract.Intents.Insert.PHONE_TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
-        }
-        @Suppress("DEPRECATION")
-        activity.startActivityForResult(made, CREATE)
-    }
-
-    /** A contact picked or made: kept by its lookup key, which outlives the address book's renumbering. Says whether it was one of these. */
+    /** A contact made: kept by its lookup key, which outlives the address book's renumbering. Says whether it was this. */
     fun result(activity: AskingActivity, request: Int, outcome: Int, data: Intent?): Boolean {
-        if (request != PICK && request != CREATE) return false
+        if (request != CREATE) return false
         if (outcome == android.app.Activity.RESULT_OK) {
             data?.data?.let { Book.keyOf(activity, it) }?.let { Me.card(activity, it) ; Me.choose(activity, null) }
         }
@@ -219,6 +245,8 @@ object MeMenu {
         AlertDialog.Builder(activity).setMessage(words).setPositiveButton(R.string.close, null).show()
     }
 
-    private const val PICK = 41
     private const val CREATE = 42
+
+    /** The most a face may weigh to go with the page for a new contact. */
+    private const val FACE_MOST = 200 * 1024
 }

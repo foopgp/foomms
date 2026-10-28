@@ -55,9 +55,12 @@ class PhoneTest {
 
     @Test fun `a group is the same whether it names this phone or not, in any order and writing`() {
         val me = "+33600000000"
-        val key = Phone.group(listOf("+33611111111", "+33622222222"), me)
-        assertEquals(key, Phone.group(listOf("06 22 22 22 22", "+33611111111"), me))
-        assertEquals(key, Phone.group(listOf("+33611111111", "0600000000", "+33622222222"), me))
-        assertEquals(key, Phone.group(listOf("+33622222222", "+33611111111", "+33600000000"), me))
+        val mine = listOf(me, "0699999999")
+        val key = Phone.group(listOf("+33611111111", "+33622222222"), mine)
+        assertEquals(key, Phone.group(listOf("06 22 22 22 22", "+33611111111"), mine))
+        assertEquals(key, Phone.group(listOf("+33611111111", "0600000000", "+33622222222"), mine))
+        assertEquals(key, Phone.group(listOf("+33622222222", "+33611111111", "+33600000000"), mine))
+        // A number this phone had before is this phone's too.
+        assertEquals(key, Phone.group(listOf("+33622222222", "+33611111111", "+33699999999"), mine))
     }
 }

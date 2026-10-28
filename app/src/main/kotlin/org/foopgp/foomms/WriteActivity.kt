@@ -200,7 +200,7 @@ class WriteActivity : Activity() {
             // The group's conversation: those it already has, with this phone among the numbers or without; else a new one.
             val numbers = chosen.keys.toList()
             val me = Me.number(this)
-            val threads = Store.groupThreads(this, numbers, me).ifEmpty {
+            val threads = Store.groupThreads(this, numbers, Me.all(this)).ifEmpty {
                 listOfNotNull(runCatching { android.provider.Telephony.Threads.getOrCreateThreadId(this, (numbers + listOfNotNull(me)).toSet()) }.getOrNull())
             }
             Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, numbers.first())

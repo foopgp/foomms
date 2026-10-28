@@ -32,8 +32,6 @@ object Inbound {
             val from = pieces.firstOrNull()?.displayOriginatingAddress ?: return
             val body = pieces.joinToString("") { it.displayMessageBody.orEmpty() }
             val subscription = intent.getIntExtra("subscription", -1)
-            // The check of this phone's number, come back: not a message.
-            if (Me.answered(context, body)) return
             runCatching { Keep.smsReceived(context, from, body, pieces.first().timestampMillis, subscription) }
                 .onFailure { Log.e(TAG, "an SMS could not be written", it) }
             // Kept alive until a signed message has been verified for its notification.
@@ -80,6 +78,8 @@ object Inbound {
                 val pdu = file.readBytes()
                 val message = PduRead.read(pdu)
                 val from = message.from ?: intent.getStringExtra(EXTRA_FROM) ?: return
+                // A group MMS this phone sent, come back to it: kept already as sent.
+                if (message.to.size > 1 && Me.mine(context, from)) return
                 Keep.mmsReceived(context, message, pdu.size, intent.getIntExtra(EXTRA_SUBSCRIPTION, -1))
                 val words = message.parts.filter { it.isText }.joinToString("\n") { it.text() }
                     .ifEmpty { "📎".repeat(minOf(3, message.parts.count { it.type != "application/smil" })) }
