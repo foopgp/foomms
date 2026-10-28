@@ -252,26 +252,20 @@
     <string name="send_each_note">Each gets their own message, and answers you alone.</string>
     <string name="send_group_note">One MMS to all: each sees who it went to, and everybody\'s answers.</string>
     <string name="send_group_most">A group MMS goes to 2 to %1$d people.</string>
-    <!-- Oneself, in the configuration: one's own contact, this phone's number, the SMS that checks it. -->
-    <string name="conf_me">Me</string>
-    <string name="conf_me_note">Your own contact, and this phone\'s number: it tells your number among those of a group MMS.</string>
+    <!-- Oneself, on the groups' page: one's own contact, this phone's number, the SMS that checks it. -->
     <string name="me_choose">Choose my contact</string>
     <string name="me_change">Change contact</string>
     <string name="me_create">Create my contact</string>
     <string name="me_suggest">Take “%1$s”, tied to my certificate</string>
-    <string name="me_number">My number on this phone</string>
-    <string name="me_learnt">Read from the MMS received: %1$s</string>
-    <string name="me_learnt_none">No MMS received at this number alone yet.</string>
-    <string name="me_no_number">This contact has no number: add it, or choose another contact.</string>
-    <string name="me_verify">Check this number</string>
-    <string name="me_verify_note">An SMS with a code goes to this number; if it comes back on this phone, the number is this phone\'s. Neither stays among your conversations.</string>
     <string name="me_verifying">SMS sent to %1$s, waiting for it to come back…</string>
     <string name="me_verified">Checked: the SMS came back to this phone ✓</string>
     <string name="me_not_back">The SMS did not come back: this is probably not this phone\'s number.</string>
     <string name="me_tie_mine">Tie to my certificate: %1$s</string>
     <string name="me_tie_other">Tie to another certificate…</string>
-    <string name="me_tie_refresh">Refresh from the certificate</string>
-    <string name="me_tied_to">Tied to the certificate of %1$s.</string>
+    <string name="me_label">Me:</string>
+    <string name="me_take_profile">Take “%1$s”, my profile</string>
+    <string name="me_default">☎ Set the default number</string>
+    <string name="me_verify_one">✓ Check %1$s</string>
     <string name="me_tag">(me)</string>
     <string name="me_unknown">number unknown</string>
     <string name="me_sms">foomms: checking this phone\'s number, code %1$s.</string>

@@ -71,7 +71,7 @@ object Book {
     fun untie(context: Context, contact: Long) {
         for (old in values(context, contact, Website.CONTENT_ITEM_TYPE, Website.URL).filter { Fingerprint.of(it) != null }) {
             context.contentResolver.delete(
-                Data.CONTENT_URI, "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ? AND ${Website.URL} = ?",
+                dataOf(contact), "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ? AND ${Website.URL} = ?",
                 arrayOf(contact.toString(), Website.CONTENT_ITEM_TYPE, old),
             )
         }
@@ -100,7 +100,8 @@ object Book {
 
     /** The contact a lookup key names, whatever its number in the address book has become since. */
     fun own(context: Context, key: String): Own? = runCatching {
-        val asked = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI, key)
+        // The phone's own profile goes by a key of its own, and lives apart from the address book.
+        val asked = if (key == PROFILE) ContactsContract.Profile.CONTENT_URI else Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI, key)
         context.contentResolver.query(
             asked, arrayOf(ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts.PHOTO_THUMBNAIL_URI, ContactsContract.Contacts.LOOKUP_KEY),
             null, null, null,
@@ -113,6 +114,12 @@ object Book {
         }
     }.getOrNull()
 
+    /** The lookup key Android gives the phone's own profile -- "Me", "My profile" in the contacts applications. */
+    const val PROFILE = "profile"
+
+    /** The phone's own profile, when its contacts application has one: its name, picture, numbers. */
+    fun profile(context: Context): Own? = own(context, PROFILE)
+
     /** The lookup key of a contact handed back by the address book: picked, or made. */
     fun keyOf(context: Context, contact: Uri): String? = runCatching {
         context.contentResolver.query(contact, arrayOf(ContactsContract.Contacts.LOOKUP_KEY), null, null, null)?.use { rows ->
@@ -120,8 +127,8 @@ object Book {
         }
     }.getOrNull()
 
-    /** The lookup key of the contact tied to the certificate [fingerprint], if one is. */
-    fun tiedTo(context: Context, fingerprint: String): String? = runCatching {
+    /** The lookup key of the contact tied to the certificate [fingerprint], if one is: the phone's own profile first. */
+    fun tiedTo(context: Context, fingerprint: String): String? = profile(context)?.takeIf { it.fingerprint.equals(fingerprint, ignoreCase = true) }?.key ?: runCatching {
         context.contentResolver.query(
             Data.CONTENT_URI, arrayOf(Data.LOOKUP_KEY, Website.URL), "${Data.MIMETYPE} = ?", arrayOf(Website.CONTENT_ITEM_TYPE), null,
         )?.use { rows ->
@@ -133,10 +140,20 @@ object Book {
     private fun fingerprint(context: Context, contact: Long): String? =
         values(context, contact, Website.CONTENT_ITEM_TYPE, Website.URL).firstNotNullOfOrNull { Fingerprint.of(it) }
 
+    /**
+     * Where a contact's rows are: the address book's, or for the phone's own
+     * profile ("Me", "My profile"), the profile's, which Android keeps apart.
+     */
+    private fun dataOf(contact: Long): Uri =
+        if (ContactsContract.isProfileId(contact)) Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI, "data") else Data.CONTENT_URI
+
+    private fun rawsOf(contact: Long): Uri =
+        if (ContactsContract.isProfileId(contact)) ContactsContract.Profile.CONTENT_RAW_CONTACTS_URI else RawContacts.CONTENT_URI
+
     private fun values(context: Context, contact: Long, kind: String, column: String): List<String> {
         val found = ArrayList<String>()
         context.contentResolver.query(
-            Data.CONTENT_URI, arrayOf(column), "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ?",
+            dataOf(contact), arrayOf(column), "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ?",
             arrayOf(contact.toString(), kind), null,
         )?.use { rows -> while (rows.moveToNext()) rows.getString(0)?.let { found += it } }
         return found
@@ -169,7 +186,7 @@ object Book {
         val former = values(context, contact, Website.CONTENT_ITEM_TYPE, Website.URL).filter { Fingerprint.of(it) != null }
         for (old in former) {
             resolver.delete(
-                Data.CONTENT_URI, "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ? AND ${Website.URL} = ?",
+                dataOf(contact), "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ? AND ${Website.URL} = ?",
                 arrayOf(contact.toString(), Website.CONTENT_ITEM_TYPE, old),
             )
         }
@@ -224,7 +241,7 @@ object Book {
                 )) putNull(part)
             }
             val changed = resolver.update(
-                Data.CONTENT_URI, parts, "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ?", arrayOf(contact.toString(), StructuredName.CONTENT_ITEM_TYPE),
+                dataOf(contact), parts, "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ?", arrayOf(contact.toString(), StructuredName.CONTENT_ITEM_TYPE),
             )
             if (changed == 0) row(StructuredName.CONTENT_ITEM_TYPE, StructuredName.DISPLAY_NAME, named)
         }
@@ -245,7 +262,7 @@ object Book {
 
     /** Every row of a [kind] the contact holds, gone. */
     private fun gone(context: Context, contact: Long, kind: String) {
-        context.contentResolver.delete(Data.CONTENT_URI, "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ?", arrayOf(contact.toString(), kind))
+        context.contentResolver.delete(dataOf(contact), "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ?", arrayOf(contact.toString(), kind))
     }
 
     /**
@@ -311,7 +328,7 @@ object Book {
         fun look(kind: String, column: String, carried: List<String>, kept: (String) -> Boolean = { false }, same: (String, String) -> Boolean = { a, b -> a == b }) {
             // TYPE and LABEL are DATA2 and DATA3 in every kind of row: a custom type, labelled with the mark.
             context.contentResolver.query(
-                Data.CONTENT_URI, arrayOf(Data._ID, column),
+                dataOf(known.contact), arrayOf(Data._ID, column),
                 "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ? AND ${Data.DATA2} = ? AND ${Data.DATA3} = ?",
                 arrayOf(known.contact.toString(), kind, ContactsContract.CommonDataKinds.BaseTypes.TYPE_CUSTOM.toString(), MARK), null,
             )?.use { rows ->
@@ -334,7 +351,7 @@ object Book {
 
     private fun rawOf(context: Context, contact: Long): Long? =
         context.contentResolver.query(
-            RawContacts.CONTENT_URI, arrayOf(RawContacts._ID), "${RawContacts.CONTACT_ID} = ?", arrayOf(contact.toString()), null,
+            rawsOf(contact), arrayOf(RawContacts._ID), "${RawContacts.CONTACT_ID} = ?", arrayOf(contact.toString()), null,
         )?.use { rows -> if (rows.moveToFirst()) rows.getLong(0) else null }
 
     private fun contactOf(context: Context, raw: Long): Long =

@@ -249,26 +249,20 @@
     <string name="send_each_note">Chacun reçoit son propre message, et ne répond qu\'à vous.</string>
     <string name="send_group_note">Un seul MMS pour tous : chacun voit à qui il est allé, et les réponses de tous.</string>
     <string name="send_group_most">Un groupe MMS va de 2 à %1$d destinataires.</string>
-    <!-- Oneself, in the configuration: one's own contact, this phone's number, the SMS that checks it. -->
-    <string name="conf_me">Moi</string>
-    <string name="conf_me_note">Votre fiche contact, et le numéro de ce téléphone : il sert à reconnaître votre numéro parmi ceux d\'un groupe MMS.</string>
+    <!-- Oneself, on the groups' page: one's own contact, this phone's number, the SMS that checks it. -->
     <string name="me_choose">Choisir ma fiche</string>
     <string name="me_change">Changer de fiche</string>
     <string name="me_create">Créer ma fiche</string>
     <string name="me_suggest">Prendre « %1$s », reliée à mon certificat</string>
-    <string name="me_number">Mon numéro sur ce téléphone</string>
-    <string name="me_learnt">Lu dans les MMS reçus : %1$s</string>
-    <string name="me_learnt_none">Aucun MMS reçu à ce seul numéro pour l\'instant.</string>
-    <string name="me_no_number">Cette fiche n\'a pas de numéro : ajoutez-le-lui, ou choisissez une autre fiche.</string>
-    <string name="me_verify">Vérifier ce numéro</string>
-    <string name="me_verify_note">Un SMS avec un code part vers ce numéro ; s\'il revient sur ce téléphone, le numéro est bien le sien. Ni l\'un ni l\'autre ne reste dans vos conversations.</string>
     <string name="me_verifying">SMS envoyé au %1$s, en attente de son retour…</string>
     <string name="me_verified">Vérifié : le SMS est revenu sur ce téléphone ✓</string>
     <string name="me_not_back">Le SMS n\'est pas revenu : ce n\'est sans doute pas le numéro de ce téléphone.</string>
     <string name="me_tie_mine">Relier à mon certificat : %1$s</string>
     <string name="me_tie_other">Relier à un autre certificat…</string>
-    <string name="me_tie_refresh">Rafraîchir depuis le certificat</string>
-    <string name="me_tied_to">Reliée au certificat de %1$s.</string>
+    <string name="me_label">Moi :</string>
+    <string name="me_take_profile">Prendre « %1$s », mon profil</string>
+    <string name="me_default">☎ Définir le numéro par défaut</string>
+    <string name="me_verify_one">✓ Vérifier le %1$s</string>
     <string name="me_tag">(moi)</string>
     <string name="me_unknown">numéro inconnu</string>
     <string name="me_sms">foomms : vérification du numéro de ce téléphone, code %1$s.</string>

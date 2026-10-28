@@ -22,7 +22,10 @@ import kotlin.concurrent.thread
  * The conversations the phone holds, newest first: who, the last words, when,
  * and down the edge the colour of the last message.
  */
-class MainActivity : Activity() {
+class MainActivity : AskingActivity() {
+
+    /** The list is the first page: nothing to leave it for by the top. */
+    override val leftByTheTop = false
 
     /**
      * A line of the list. A group's names its members but this phone, by [group], its key; the conversations
@@ -78,6 +81,13 @@ class MainActivity : Activity() {
 
     /** Under the bar, the ways to the two other pages. */
     private lateinit var others: LinearLayout
+
+    /** On the groups' page, under its buttons: oneself, a member of every group -- face, number, and the menu of its dots. */
+    private lateinit var meBox: LinearLayout
+    @Volatile private var me: MeMenu.State? = null
+
+    /** The key of the identity foodjis holds, once it has said: the certificate offered first to tie one's contact to. */
+    @Volatile private var mineKey: Long? = null
 
     /** Under the counts in detail: everything read at once. */
     private lateinit var tools: LinearLayout
@@ -146,6 +156,15 @@ class MainActivity : Activity() {
             setPadding(side, side / 2, side, 0)
         }
         column.addView(others)
+        meBox = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            val side = Look.dp(context, 16)
+            setPadding(side, side / 2, side / 2, 0)
+            visibility = View.GONE
+            setOnClickListener { me?.let { known -> MeMenu.show(this@MainActivity, known) { readMe() } } }
+        }
+        column.addView(meBox)
         column.addView(closing)
         column.addView(asking)
         detail = Look.words(this, "", size = 14f, muted = true).apply {
@@ -178,8 +197,6 @@ class MainActivity : Activity() {
 
     private var dressed = false
 
-    private val provider by lazy { Provider(this) }
-
     /** The signed messages being verified, or that could not be: not asked again while the page stands. */
     private val verifying = HashSet<String>()
 
@@ -202,11 +219,6 @@ class MainActivity : Activity() {
         }
     }
 
-    override fun onDestroy() {
-        provider.close()
-        super.onDestroy()
-    }
-
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         shared(intent)
@@ -227,6 +239,30 @@ class MainActivity : Activity() {
         Menus.write(this, text, stream)
     }
 
+    /** Oneself read again, for the groups' page: what one's contact, number or certificate are now. */
+    private fun readMe() {
+        if (page != Page.GROUPS) return
+        thread {
+            val known = runCatching { MeMenu.read(this, mineKey) }.getOrNull() ?: return@thread
+            me = known
+            runOnUiThread { if (!isFinishing && !isDestroyed) drawMe(known) }
+        }
+    }
+
+    /** "Me:", one's face framed by one's certificate's standing, this phone's number, the dots. */
+    private fun drawMe(known: MeMenu.State) {
+        meBox.removeAllViews()
+        val pad = Look.dp(this, 10)
+        meBox.addView(Look.words(this, getString(R.string.me_label), size = 16f).apply { setTypeface(typeface, Typeface.BOLD) ; setPadding(0, 0, pad, 0) })
+        val own = known.own
+        meBox.addView(Look.face(this, 36, own?.photo, null, known.ownCert?.validity, framable = true, seed = Look.seed(own?.fingerprint, known.number)))
+        meBox.addView(
+            Look.words(this, known.number ?: getString(R.string.me_unknown), size = 16f, muted = known.number == null).apply { setPadding(pad, 0, 0, 0) },
+            LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+        )
+        meBox.addView(Look.words(this, "⋮", size = 22f).apply { setTypeface(typeface, Typeface.BOLD) ; setPadding(pad, 0, pad, 0) })
+    }
+
     /** Another page: the conversations between two, those with something unread and the counts in detail, or the groups. */
     private fun go(to: Page) {
         if (to == page) return
@@ -234,6 +270,7 @@ class MainActivity : Activity() {
         pageRows = null
         // Called by its own name: inside the bar's code, "show()" was the bar's, which shows the bar.
         redraw()
+        readMe()
         // The unread are read for themselves. The others: what was read is shown at once,
         // and read to its end if the unread page had cut that short.
         if (page != Page.TALKS || !everyWhole) fill()
@@ -255,6 +292,7 @@ class MainActivity : Activity() {
 
     override fun onActivityResult(request: Int, outcome: Int, data: android.content.Intent?) {
         super.onActivityResult(request, outcome, data)
+        if (MeMenu.result(this, request, outcome, data)) return readMe()
         Saving.done(this, request, outcome, data) { android.widget.Toast.makeText(this, it, android.widget.Toast.LENGTH_LONG).show() }
         // Asked to be the messaging application, whatever was answered: what is still missing is asked now.
         if (request == ROLE) {
@@ -289,6 +327,11 @@ class MainActivity : Activity() {
         if (Look.wantsDark(this) != dressed) return recreate()
         Look.dress(this)
         Foodjis.of(this).fresh()
+        // Whose identity foodjis holds, for oneself on the groups' page; asked without showing any of its screens.
+        provider.ask(Intent(Provider.GET_SIGN_KEY_ID), null) { answer ->
+            mineKey = (answer as? Provider.Answer.Done)?.says?.getLongExtra(Provider.EXTRA_SIGN_KEY_ID, 0L)?.takeIf { it != 0L }
+            readMe()
+        }
         asking.removeAllViews()
         val missing = NEEDED.filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
         if (Manifest.permission.READ_SMS in missing) {
@@ -533,6 +576,7 @@ class MainActivity : Activity() {
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
             )
         }
+        meBox.visibility = if (page == Page.GROUPS) View.VISIBLE else View.GONE
         val known = counts
         if (known != null) {
             counted.text = when (page) {

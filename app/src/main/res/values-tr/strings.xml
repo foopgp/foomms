@@ -249,26 +249,20 @@
     <string name="send_each_note">Herkes kendi mesajını alır ve yalnızca size yanıt verir.</string>
     <string name="send_group_note">Herkese tek MMS: herkes kime gittiğini ve herkesin yanıtlarını görür.</string>
     <string name="send_group_most">Grup MMS\'i 2 ile %1$d alıcı arasına gider.</string>
-    <!-- Oneself, in the configuration: one's own contact, this phone's number, the SMS that checks it. -->
-    <string name="conf_me">Ben</string>
-    <string name="conf_me_note">Kendi kişi kartınız ve bu telefonun numarası: foomms bununla bir grup MMS\'inin numaraları arasında numaranızı tanır.</string>
+    <!-- Oneself, on the groups' page: one's own contact, this phone's number, the SMS that checks it. -->
     <string name="me_choose">Kişi kartımı seç</string>
     <string name="me_change">Kartı değiştir</string>
     <string name="me_create">Kişi kartımı oluştur</string>
     <string name="me_suggest">Sertifikama bağlı “%1$s” kartını al</string>
-    <string name="me_number">Bu telefondaki numaram</string>
-    <string name="me_learnt">Alınan MMS\'lerden okundu: %1$s</string>
-    <string name="me_learnt_none">Henüz yalnızca bu numaraya gelen bir MMS yok.</string>
-    <string name="me_no_number">Bu kartın numarası yok: ekleyin ya da başka bir kart seçin.</string>
-    <string name="me_verify">Bu numarayı doğrula</string>
-    <string name="me_verify_note">Bu numaraya kodlu bir SMS gider; bu telefona geri gelirse numara onundur. İkisi de konuşmalarınızda kalmaz.</string>
     <string name="me_verifying">SMS %1$s numarasına gönderildi, dönmesi bekleniyor…</string>
     <string name="me_verified">Doğrulandı: SMS bu telefona geri geldi ✓</string>
     <string name="me_not_back">SMS geri gelmedi: bu büyük olasılıkla bu telefonun numarası değil.</string>
     <string name="me_tie_mine">Sertifikama bağla: %1$s</string>
     <string name="me_tie_other">Başka bir sertifikaya bağla…</string>
-    <string name="me_tie_refresh">Sertifikadan yenile</string>
-    <string name="me_tied_to">Sertifikaya bağlı: %1$s.</string>
+    <string name="me_label">Ben:</string>
+    <string name="me_take_profile">“%1$s” kartını al, profilim</string>
+    <string name="me_default">☎ Varsayılan numarayı belirle</string>
+    <string name="me_verify_one">✓ %1$s numarasını doğrula</string>
     <string name="me_tag">(ben)</string>
     <string name="me_unknown">numara bilinmiyor</string>
     <string name="me_sms">foomms: bu telefonun numarası doğrulanıyor, kod %1$s.</string>

@@ -249,26 +249,20 @@
     <string name="send_each_note">Jeder erhält eine eigene Nachricht und antwortet nur Ihnen.</string>
     <string name="send_group_note">Eine MMS an alle: Jeder sieht, an wen sie ging, und die Antworten aller.</string>
     <string name="send_group_most">Eine Gruppen-MMS geht an 2 bis %1$d Empfänger.</string>
-    <!-- Oneself, in the configuration: one's own contact, this phone's number, the SMS that checks it. -->
-    <string name="conf_me">Ich</string>
-    <string name="conf_me_note">Ihr eigener Kontakt und die Nummer dieses Telefons: Daran erkennt foomms Ihre Nummer unter denen einer Gruppen-MMS.</string>
+    <!-- Oneself, on the groups' page: one's own contact, this phone's number, the SMS that checks it. -->
     <string name="me_choose">Meinen Kontakt wählen</string>
     <string name="me_change">Kontakt wechseln</string>
     <string name="me_create">Meinen Kontakt anlegen</string>
     <string name="me_suggest">„%1$s“ nehmen, mit meinem Zertifikat verknüpft</string>
-    <string name="me_number">Meine Nummer auf diesem Telefon</string>
-    <string name="me_learnt">Aus den empfangenen MMS gelesen: %1$s</string>
-    <string name="me_learnt_none">Noch keine MMS an diese Nummer allein empfangen.</string>
-    <string name="me_no_number">Dieser Kontakt hat keine Nummer: Fügen Sie sie hinzu oder wählen Sie einen anderen Kontakt.</string>
-    <string name="me_verify">Diese Nummer prüfen</string>
-    <string name="me_verify_note">Eine SMS mit einem Code geht an diese Nummer; kommt sie auf diesem Telefon an, ist es seine Nummer. Keine der beiden bleibt in Ihren Unterhaltungen.</string>
     <string name="me_verifying">SMS an %1$s gesendet, warte auf ihre Rückkehr…</string>
     <string name="me_verified">Geprüft: Die SMS ist auf diesem Telefon angekommen ✓</string>
     <string name="me_not_back">Die SMS ist nicht zurückgekommen: Das ist wohl nicht die Nummer dieses Telefons.</string>
     <string name="me_tie_mine">Mit meinem Zertifikat verknüpfen: %1$s</string>
     <string name="me_tie_other">Mit einem anderen Zertifikat verknüpfen…</string>
-    <string name="me_tie_refresh">Aus dem Zertifikat aktualisieren</string>
-    <string name="me_tied_to">Mit dem Zertifikat von %1$s verknüpft.</string>
+    <string name="me_label">Ich:</string>
+    <string name="me_take_profile">„%1$s“ nehmen, mein Profil</string>
+    <string name="me_default">☎ Standardnummer festlegen</string>
+    <string name="me_verify_one">✓ %1$s prüfen</string>
     <string name="me_tag">(ich)</string>
     <string name="me_unknown">Nummer unbekannt</string>
     <string name="me_sms">foomms: Prüfung der Nummer dieses Telefons, Code %1$s.</string>

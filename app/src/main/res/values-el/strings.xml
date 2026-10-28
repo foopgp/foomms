@@ -249,26 +249,20 @@
     <string name="send_each_note">Ο καθένας λαμβάνει δικό του μήνυμα και απαντά μόνο σε εσάς.</string>
     <string name="send_group_note">Ένα MMS σε όλους: ο καθένας βλέπει σε ποιους πήγε και τις απαντήσεις όλων.</string>
     <string name="send_group_most">Ένα ομαδικό MMS πηγαίνει σε 2 έως %1$d παραλήπτες.</string>
-    <!-- Oneself, in the configuration: one's own contact, this phone's number, the SMS that checks it. -->
-    <string name="conf_me">Εγώ</string>
-    <string name="conf_me_note">Η δική σας επαφή και ο αριθμός αυτού του τηλεφώνου: με αυτόν το foomms αναγνωρίζει τον αριθμό σας ανάμεσα σε αυτούς ενός ομαδικού MMS.</string>
+    <!-- Oneself, on the groups' page: one's own contact, this phone's number, the SMS that checks it. -->
     <string name="me_choose">Επιλογή της επαφής μου</string>
     <string name="me_change">Αλλαγή επαφής</string>
     <string name="me_create">Δημιουργία της επαφής μου</string>
     <string name="me_suggest">Χρήση της «%1$s», συνδεδεμένης με το πιστοποιητικό μου</string>
-    <string name="me_number">Ο αριθμός μου σε αυτό το τηλέφωνο</string>
-    <string name="me_learnt">Διαβάστηκε στα ληφθέντα MMS: %1$s</string>
-    <string name="me_learnt_none">Δεν έχει ληφθεί ακόμη MMS μόνο σε αυτόν τον αριθμό.</string>
-    <string name="me_no_number">Αυτή η επαφή δεν έχει αριθμό: προσθέστε τον ή επιλέξτε άλλη επαφή.</string>
-    <string name="me_verify">Έλεγχος αυτού του αριθμού</string>
-    <string name="me_verify_note">Ένα SMS με κωδικό στέλνεται σε αυτόν τον αριθμό· αν επιστρέψει σε αυτό το τηλέφωνο, ο αριθμός είναι δικός του. Κανένα από τα δύο δεν μένει στις συνομιλίες σας.</string>
     <string name="me_verifying">Το SMS στάλθηκε στο %1$s, αναμονή επιστροφής…</string>
     <string name="me_verified">Ελέγχθηκε: το SMS επέστρεψε σε αυτό το τηλέφωνο ✓</string>
     <string name="me_not_back">Το SMS δεν επέστρεψε: μάλλον δεν είναι ο αριθμός αυτού του τηλεφώνου.</string>
     <string name="me_tie_mine">Σύνδεση με το πιστοποιητικό μου: %1$s</string>
     <string name="me_tie_other">Σύνδεση με άλλο πιστοποιητικό…</string>
-    <string name="me_tie_refresh">Ανανέωση από το πιστοποιητικό</string>
-    <string name="me_tied_to">Συνδεδεμένη με το πιστοποιητικό: %1$s.</string>
+    <string name="me_label">Εγώ:</string>
+    <string name="me_take_profile">Χρήση της «%1$s», το προφίλ μου</string>
+    <string name="me_default">☎ Ορισμός προεπιλεγμένου αριθμού</string>
+    <string name="me_verify_one">✓ Έλεγχος του %1$s</string>
     <string name="me_tag">(εγώ)</string>
     <string name="me_unknown">άγνωστος αριθμός</string>
     <string name="me_sms">foomms: έλεγχος του αριθμού αυτού του τηλεφώνου, κωδικός %1$s.</string>

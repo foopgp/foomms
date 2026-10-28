@@ -14,10 +14,13 @@ abstract class AskingActivity : Activity() {
 
     protected val provider by lazy { Provider(this) }
 
-    /** Left by the top, as every page but the list. */
+    /** Left by the top, as every page but the list, which says it is not. */
+    protected open val leftByTheTop = true
+
     private val swipes by lazy { Swipes.watch(this) }
 
-    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean = swipes.feed(event) || super.dispatchTouchEvent(event)
+    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean =
+        (leftByTheTop && swipes.feed(event)) || super.dispatchTouchEvent(event)
 
     private class Errand(
         val request: Intent,
@@ -47,7 +50,7 @@ abstract class AskingActivity : Activity() {
      * that was the whole answer: a list to choose from answers by itself, a
      * question of consent only clears the way for asking again.
      */
-    protected fun ask(
+    fun ask(
         request: Intent,
         input: ByteArray?,
         failed: (String) -> Unit,

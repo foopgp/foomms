@@ -257,26 +257,20 @@
     <string name="send_each_note">Каждый получает своё сообщение и отвечает только вам.</string>
     <string name="send_group_note">Одно MMS всем: каждый видит, кому оно ушло, и ответы всех.</string>
     <string name="send_group_most">Групповое MMS — от 2 до %1$d получателей.</string>
-    <!-- Oneself, in the configuration: one's own contact, this phone's number, the SMS that checks it. -->
-    <string name="conf_me">Я</string>
-    <string name="conf_me_note">Ваш собственный контакт и номер этого телефона: по нему foomms узнаёт ваш номер среди номеров группового MMS.</string>
+    <!-- Oneself, on the groups' page: one's own contact, this phone's number, the SMS that checks it. -->
     <string name="me_choose">Выбрать мой контакт</string>
     <string name="me_change">Сменить контакт</string>
     <string name="me_create">Создать мой контакт</string>
     <string name="me_suggest">Взять «%1$s», связанный с моим сертификатом</string>
-    <string name="me_number">Мой номер на этом телефоне</string>
-    <string name="me_learnt">Прочитан в полученных MMS: %1$s</string>
-    <string name="me_learnt_none">Пока не получено ни одного MMS только на этот номер.</string>
-    <string name="me_no_number">У этого контакта нет номера: добавьте его или выберите другой контакт.</string>
-    <string name="me_verify">Проверить этот номер</string>
-    <string name="me_verify_note">На этот номер уходит SMS с кодом; если он вернётся на этот телефон, номер — его. Ни одно из них не остаётся в ваших беседах.</string>
     <string name="me_verifying">SMS отправлено на %1$s, ждём его возвращения…</string>
     <string name="me_verified">Проверено: SMS вернулось на этот телефон ✓</string>
     <string name="me_not_back">SMS не вернулось: вероятно, это не номер этого телефона.</string>
     <string name="me_tie_mine">Связать с моим сертификатом: %1$s</string>
     <string name="me_tie_other">Связать с другим сертификатом…</string>
-    <string name="me_tie_refresh">Обновить из сертификата</string>
-    <string name="me_tied_to">Связан с сертификатом: %1$s.</string>
+    <string name="me_label">Я:</string>
+    <string name="me_take_profile">Взять «%1$s», мой профиль</string>
+    <string name="me_default">☎ Выбрать номер по умолчанию</string>
+    <string name="me_verify_one">✓ Проверить %1$s</string>
     <string name="me_tag">(я)</string>
     <string name="me_unknown">номер неизвестен</string>
     <string name="me_sms">foomms: проверка номера этого телефона, код %1$s.</string>
