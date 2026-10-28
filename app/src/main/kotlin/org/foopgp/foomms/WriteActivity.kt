@@ -79,7 +79,7 @@ class WriteActivity : Activity() {
         picked = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
         go = Look.button(this, getString(R.string.whom_write)) { write() }
         toEach = Look.small(this, getString(R.string.send_each)) { asGroup = false ; drawPicked() }.apply { textSize = 15f }
-        toGroup = Look.small(this, getString(R.string.send_group)) { asGroup = true ; drawPicked() ; Me.ask(this) }.apply { textSize = 15f }
+        toGroup = Look.small(this, getString(R.string.send_group)) { asGroup = true ; drawPicked() }.apply { textSize = 15f }
         howSaid = Look.words(this, "", size = 13f, muted = true).apply { setPadding(Look.dp(context, 4), 0, Look.dp(context, 4), Look.dp(context, 4)) }
         how = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL

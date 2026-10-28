@@ -90,6 +90,8 @@ class MainActivity : Activity() {
         super.onCreate(state)
         // foodjis started now, while the list is drawn, rather than when a conversation first needs it.
         Foodjis.of(this).wake()
+        // This phone's number, from the MMS it has received, for the groups.
+        if (state == null) thread { Me.look(applicationContext) }
         title = getString(R.string.app_title)
         // The counts of last time, until those of now are worked out.
         if (counts == null) {

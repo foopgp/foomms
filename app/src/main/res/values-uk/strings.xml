@@ -257,6 +257,4 @@
     <string name="send_each_note">Кожен отримує своє повідомлення й відповідає лише вам.</string>
     <string name="send_group_note">Одне MMS усім: кожен бачить, кому воно пішло, і відповіді всіх.</string>
     <string name="send_group_most">Групове MMS — від 2 до %1$d одержувачів.</string>
-    <!-- Before Android asks for the number of the SIM card. -->
-    <string name="my_number_why">Щоб упізнати ваш номер серед номерів групового MMS, foomms читає номер SIM-картки цього телефона. Android називає цей дозвіл «здійснювати дзвінки й керувати ними»: foomms не здійснює жодного.</string>
 </resources>

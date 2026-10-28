@@ -249,6 +249,4 @@
     <string name="send_each_note">Herkes kendi mesajını alır ve yalnızca size yanıt verir.</string>
     <string name="send_group_note">Herkese tek MMS: herkes kime gittiğini ve herkesin yanıtlarını görür.</string>
     <string name="send_group_most">Grup MMS\'i 2 ile %1$d alıcı arasına gider.</string>
-    <!-- Before Android asks for the number of the SIM card. -->
-    <string name="my_number_why">Bir grup MMS\'inin numaraları arasında numaranızı tanımak için foomms bu telefonun SIM kartının numarasını okur. Android bu izni “telefon aramaları yapma ve yönetme” olarak adlandırır: foomms hiç arama yapmaz.</string>
 </resources>

@@ -1,72 +1,53 @@
 package org.foopgp.foomms
 
-import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
-import android.telephony.SubscriptionManager
-import android.telephony.TelephonyManager
+import android.net.Uri
 
 /**
  * This phone's own number, to name a group by all its members, this phone
- * among them, when a message is sent to several: the number of the SIM card
- * messages go out by, as the phone's settings show it. The person's
- * certificate cannot say it -- one person, two phones, two numbers.
- * Until the person lets foomms read it, or when the card does not say it:
- * the number an MMS to this phone alone carries, in its only recipient.
+ * among them, when a message is sent to several. Read from the MMS this
+ * phone has received: one that went to a single number went to this phone.
+ * Nothing to ask the person, and no permission beyond the messages': the
+ * card seldom says its number, and Android gives what the network says only
+ * behind a permission it names after the calls.
  */
 object Me {
 
-    const val PERMISSION = android.Manifest.permission.READ_PHONE_NUMBERS
-
-    /** What asking for [PERMISSION] is answered under. */
-    const val ASKED = 77
-
-    fun number(context: Context): String? = fromCard(context) ?: context.getSharedPreferences("me", Context.MODE_PRIVATE).getString(LEARNT, null)
-
-    /** The number of the card messages go out by: none without the permission, or when the card and the network do not say it. */
-    fun fromCard(context: Context): String? {
-        if (context.checkSelfPermission(PERMISSION) != PackageManager.PERMISSION_GRANTED) return null
-        val card = SubscriptionManager.getDefaultSmsSubscriptionId()
-        val number = runCatching {
-            @Suppress("MissingPermission")
-            if (Build.VERSION.SDK_INT >= 33) {
-                context.getSystemService(SubscriptionManager::class.java).getPhoneNumber(card)
-            } else {
-                @Suppress("DEPRECATION")
-                context.getSystemService(TelephonyManager::class.java).let { if (card >= 0) it.createForSubscriptionId(card) else it }.line1Number
-            }
-        }.getOrNull()
-        return number?.takeIf { Phone.plain(it) != null }
-    }
+    fun number(context: Context): String? = kept(context).getString(LEARNT, null)
 
     /** An MMS that went to one number alone came to this phone: that number is this phone's. */
     fun learn(context: Context, to: List<String>) {
         val only = to.singleOrNull()?.takeIf { Phone.plain(it) != null } ?: return
-        val kept = context.getSharedPreferences("me", Context.MODE_PRIVATE)
-        if (kept.getString(LEARNT, null) != only) kept.edit().putString(LEARNT, only).apply()
+        if (number(context) != only) kept(context).edit().putString(LEARNT, only).apply()
     }
 
     /**
-     * Where a group needs it: the permission asked, after a word on why --
-     * Android names it after the calls it shares a group with. Not asked
-     * again once refused for good.
+     * The number of the latest MMS received that went to one number alone,
+     * among the [most] latest: the card may have changed since the older
+     * ones. Not on the main thread.
      */
-    fun ask(activity: Activity) {
-        if (activity.checkSelfPermission(PERMISSION) == PackageManager.PERMISSION_GRANTED) return
-        val kept = activity.getSharedPreferences("me", Context.MODE_PRIVATE)
-        if (kept.getBoolean(ASKED_ONCE, false) && !activity.shouldShowRequestPermissionRationale(PERMISSION)) return
-        AlertDialog.Builder(activity)
-            .setMessage(R.string.my_number_why)
-            .setPositiveButton(R.string.allow) { _, _ ->
-                kept.edit().putBoolean(ASKED_ONCE, true).apply()
-                activity.requestPermissions(arrayOf(PERMISSION), ASKED)
+    fun look(context: Context, most: Int = 200) {
+        runCatching {
+            context.contentResolver.query(INBOX, arrayOf("_id"), null, null, "date DESC")?.use { rows ->
+                var seen = 0
+                while (rows.moveToNext() && seen++ < most) {
+                    val id = rows.getLong(0)
+                    val to = ArrayList<String>()
+                    context.contentResolver.query(Uri.parse("content://mms/$id/addr"), arrayOf("address", "type"), null, null, null)?.use { addresses ->
+                        while (addresses.moveToNext()) if (addresses.getInt(1) in TO_OR_CC) addresses.getString(0)?.let { to += it }
+                    }
+                    if (to.size == 1 && Phone.plain(to[0]) != null) return learn(context, to)
+                }
             }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        }
     }
 
+    private val INBOX: Uri = Uri.parse("content://mms/inbox")
+
+    /** How the phone's store tells an MMS's recipients: To and Cc, as the PDU names them (OMA-MMS-ENC, table 12). */
+    private val TO_OR_CC = setOf(0x97, 0x82)
+
     private const val LEARNT = "learnt_number"
-    private const val ASKED_ONCE = "asked"
+
+    private fun kept(context: Context) = context.getSharedPreferences("me", Context.MODE_PRIVATE)
 }
