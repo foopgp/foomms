@@ -510,7 +510,9 @@ class ThreadActivity : AskingActivity() {
                     val whose = who?.fingerprint?.let { foodjis.card(it) }
                     Member(one, who, whose, who?.let { Book.face(this, it) } ?: who?.fingerprint?.let { foodjis.face(it) })
                 }
-                runOnUiThread { if (!isFinishing && !isDestroyed) groupHead(found, first) }
+                // And oneself, a member too: whether one's own contact is tied to a certificate that can be locked for.
+                val mineUsable = Me.card(this)?.let { Book.own(this, it) }?.fingerprint?.let { foodjis.card(it) }?.usable == true
+                runOnUiThread { if (!isFinishing && !isDestroyed) groupHead(found, first, mineUsable) }
             } else thread {
                 val who = if (contacts) Book.who(this, number) else null
                 val whose = who?.fingerprint?.let { foodjis.card(it) }
@@ -634,7 +636,7 @@ class ThreadActivity : AskingActivity() {
     }
 
     /** A group's head: its members by name, how many of them have a certificate, and the switches as they can be for all. */
-    private fun groupHead(found: List<Member>, first: Boolean) {
+    private fun groupHead(found: List<Member>, first: Boolean, mineUsable: Boolean = false) {
         members = found
         val name = found.joinToString(", ") { it.name }
         thread?.let { Opened.title(it, name, number) }
@@ -650,9 +652,11 @@ class ThreadActivity : AskingActivity() {
             text = "⋮" ; setTextColor(android.graphics.Color.WHITE) ; paint.isFakeBoldText = true
             setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 22f) ; setPadding(Look.dp(context, 6), 0, Look.dp(context, 4), 0)
         })
-        val usable = found.count { it.card?.usable == true }
-        under.text = android.text.SpannableStringBuilder(resources.getQuantityString(R.plurals.group_members, found.size, found.size))
-            .append("  ·  🔑 $usable/${found.size}")
+        // Counted with oneself, a member as the others are.
+        val all = found.size + 1
+        val usable = found.count { it.card?.usable == true } + (if (mineUsable) 1 else 0)
+        under.text = android.text.SpannableStringBuilder(resources.getQuantityString(R.plurals.group_members, all, all))
+            .append("  ·  🔑 $usable/$all")
         if (first) { locks.isChecked = lockable() ; signs.isChecked = lockable() }
         paint()
         bubbles.notifyDataSetChanged()
@@ -706,7 +710,7 @@ class ThreadActivity : AskingActivity() {
             )
         }
         shown = AlertDialog.Builder(this)
-            .setTitle(resources.getQuantityString(R.plurals.group_members, members.size, members.size))
+            .setTitle(resources.getQuantityString(R.plurals.group_members, members.size + 1, members.size + 1))
             .setView(android.widget.ScrollView(this).apply { addView(column) })
             .setPositiveButton(R.string.close, null)
             .show()

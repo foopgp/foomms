@@ -423,17 +423,21 @@ object Look {
     class Mini(val face: Bitmap?, val standing: String?, val seed: String?)
 
     /**
-     * A group at a glance, in the room of one framed face of [side]: three
-     * by three small faces, in reading order, each framed by what its
+     * A group at a glance, in a square of [side]: three by three small
+     * faces, in reading order, each framed by what its
      * certificate is worth. The places a smaller group leaves stay empty:
      * how full the square is says how many it is.
      */
     fun crowd(context: Context, side: Int, minis: List<Mini>): View {
         val line = 1
-        val cell = (side + 8 - 6 * line) / 3
+        val cell = (side - 6 * line) / 3
+        val pad = dp(context, 3)
         return LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            layoutParams = LinearLayout.LayoutParams(dp(context, side + 8), dp(context, side + 8))
+            // In a small frame of its own: one square, not nine faces adrift.
+            background = framed(context)
+            setPadding(pad, pad, pad, pad)
+            layoutParams = LinearLayout.LayoutParams(dp(context, side) + 2 * pad, dp(context, side) + 2 * pad)
             for (row in 0 until 3) {
                 addView(
                     LinearLayout(context).apply {

@@ -728,11 +728,13 @@ class MainActivity : AskingActivity() {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 // The colour of what the last message travelled as, down the edge of the conversation.
-                addView(View(context).apply { background = Look.rounded(Look.colour(row.talk.form), Look.dp(context, 3)) }, LinearLayout.LayoutParams(Look.dp(context, 6), Look.dp(context, 44)))
+                addView(View(context).apply { background = Look.rounded(Look.colour(row.talk.form), Look.dp(context, 3)) }, LinearLayout.LayoutParams(Look.dp(context, 6), Look.dp(context, if (row.crowd != null) CROWD else 44)))
                 addView(View(context), LinearLayout.LayoutParams(pad, 1))
-                addView(row.crowd?.let { Look.crowd(context, 44, it) } ?: Look.face(context, 44, null, row.face, row.standing, framable = true, seed = row.seed))
+                addView(row.crowd?.let { Look.crowd(context, CROWD, it) } ?: Look.face(context, 44, null, row.face, row.standing, framable = true, seed = row.seed))
                 addView(text, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-                setPadding(Look.dp(context, 4), pad, pad, pad)
+                // A group's square is tall enough: less room above and below it.
+                val around = if (row.crowd != null) pad / 3 else pad
+                setPadding(Look.dp(context, 4), around, pad, around)
             }
         }
     }
@@ -759,6 +761,9 @@ class MainActivity : AskingActivity() {
         val lines = HashMap<Long, Row>()
         @Volatile var counts: Store.Counts? = null
         @Volatile var written = 0
+
+        /** A group's square of small faces, larger than one face: each still a face at a glance. */
+        const val CROWD = 66
 
         /** How many conversations are shown before the rest is read. */
         const val FIRST = 20
