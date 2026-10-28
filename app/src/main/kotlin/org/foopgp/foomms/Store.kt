@@ -23,21 +23,24 @@ object Store {
 
     /**
      * Whether a conversation of several numbers holds what was sent to each
-     * of them separately -- an application other than this one filing a
-     * sending to each as one conversation -- rather than a group MMS: no MMS
-     * in it, or its latest went to one number alone.
+     * of them -- an envoi multiple, or a group MMS in clear, which networks
+     * deliver as they please -- rather than an encrypted group's: one of its
+     * latest MMS carries the members part ([Members]).
      */
-    fun toEach(context: Context, thread: Long): Boolean = runCatching {
-        val latest = context.contentResolver.query(MMS, arrayOf("_id"), "thread_id = ?", arrayOf(thread.toString()), "date DESC")?.use { rows ->
-            if (rows.moveToFirst()) rows.getLong(0) else null
-        } ?: return@runCatching true
-        val to = context.contentResolver.query(Uri.parse("content://mms/$latest/addr"), arrayOf("type"), null, null, null)?.use { rows ->
-            var many = 0
-            while (rows.moveToNext()) if (rows.getInt(0) in TO_OR_CC) many++
-            many
-        } ?: 0
-        to < 2
+    fun toEach(context: Context, thread: Long): Boolean = !encryptedGroup(context, thread)
+
+    fun encryptedGroup(context: Context, thread: Long): Boolean = runCatching {
+        val ids = context.contentResolver.query(MMS, arrayOf("_id"), "thread_id = ?", arrayOf(thread.toString()), "date DESC")?.use { rows ->
+            buildList { while (rows.moveToNext() && size < LOOKED_AT) add(rows.getLong(0)) }
+        }.orEmpty()
+        if (ids.isEmpty()) return@runCatching false
+        context.contentResolver.query(
+            PARTS, arrayOf("_id"), "mid IN (${ids.joinToString(",")}) AND (name = ? OR cl = ?)", arrayOf(Members.PART, Members.PART), null,
+        )?.use { it.count > 0 } == true
     }.getOrDefault(false)
+
+    /** How many of a conversation's latest MMS are looked at for a members part. */
+    private const val LOOKED_AT = 20
 
     /** How the phone's store tells an MMS's recipients: To and Cc, as the PDU names them (OMA-MMS-ENC, table 12). */
     private val TO_OR_CC = setOf(0x97, 0x82)
@@ -109,6 +112,18 @@ object Store {
      */
     fun sentWith(context: Context, line: Line): List<String> =
         if (!line.mms) sentWith(context, line.at, line.body)
+        else if (line.incoming) runCatching {
+            // Received: those it went to besides this phone, as its "To" says.
+            val found = ArrayList<String>()
+            context.contentResolver.query(Uri.parse("content://mms/${line.id}/addr"), arrayOf("address", "type"), null, null, null)?.use { rows ->
+                while (rows.moveToNext()) {
+                    if (rows.getInt(1) !in TO_OR_CC) continue
+                    val one = rows.getString(0) ?: continue
+                    if (!Me.mine(context, one) && found.none { Phone.same(it, one) || it == one }) found += one
+                }
+            }
+            found
+        }.getOrDefault(emptyList())
         else runCatching {
             val found = ArrayList<String>()
             context.contentResolver.query(

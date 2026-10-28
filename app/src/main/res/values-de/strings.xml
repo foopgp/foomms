@@ -226,7 +226,7 @@
     <string name="page_talks">Unterhaltungen</string>
     <string name="page_unread">Ungelesen</string>
     <string name="page_unread_n">Ungelesen (%1$d)</string>
-    <string name="page_groups">MMS-Gruppen</string>
+    <string name="page_groups">Verschlüsselte Gruppen</string>
     <plurals name="talks_n">
         <item quantity="one">%d Unterhaltung</item>
         <item quantity="other">%d Unterhaltungen</item>
@@ -243,12 +243,12 @@
         <item quantity="one">%d Mitglied</item>
         <item quantity="other">%d Mitglieder</item>
     </plurals>
-    <!-- Several chosen in a new message: the same to each, or one group MMS. -->
+    <!-- Several chosen in a new message: the same to each, or one encrypted group. -->
     <string name="send_each">Einzeln senden</string>
-    <string name="send_group">Gruppen-MMS</string>
+    <string name="send_group">Verschlüsselte Gruppe</string>
     <string name="send_each_note">Jeder erhält eine eigene Nachricht und antwortet nur Ihnen.</string>
-    <string name="send_group_note">Eine MMS an alle: Jeder sieht, an wen sie ging, und die Antworten aller.</string>
-    <string name="send_group_most">Eine Gruppen-MMS geht an 2 bis %1$d Empfänger.</string>
+    <string name="send_group_note">Eine verschlüsselte MMS für alle: Jeder sieht, wer zur Gruppe gehört, und die Antworten aller.</string>
+    <string name="send_group_most">Eine verschlüsselte Gruppe geht an 2 bis %1$d Empfänger.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Kontaktkarte wechseln</string>
     <string name="me_create">✚ Meine Kontaktkarte anlegen</string>
@@ -265,14 +265,16 @@
     <string name="choose_name">Name:</string>
     <string name="name_contact">Den des Kontakts behalten:</string>
     <string name="name_certificate">Den des Zertifikats nehmen:</string>
-    <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">Eine Gruppen-MMS geht auch an Sie, an Ihre Nummer: Verknüpfen Sie zuerst Ihren Kontakt unter „Ich“ auf der Seite MMS-Gruppen.</string>
-    <string name="altered_title">Gruppen-MMS verändert</string>
-    <string name="altered">Eine von Ihnen gesendete Gruppen-MMS kam verändert zurück: Sie wurde wohl unterwegs verändert, für alle Empfänger.</string>
+    <!-- An encrypted group goes to oneself too: one's number needed, and what comes back held against what left. -->
+    <string name="group_needs_me">Eine verschlüsselte Gruppe schließt Sie ein, unter Ihrer Nummer: Verknüpfen Sie zuerst Ihre Kontaktkarte unter „Ich“ auf der Seite Verschlüsselte Gruppen.</string>
+    <string name="altered_title">Gruppennachricht verändert</string>
+    <string name="altered">Eine von Ihnen gesendete verschlüsselte Gruppennachricht kam verändert zurück: Sie wurde wohl unterwegs verändert, für alle Empfänger.</string>
     <string name="channel_altered">Veränderte Nachrichten</string>
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ an %1$d Personen gesendet</string>
+    <string name="sent_also_to">⇉ auch an %1$d weitere Personen gesendet</string>
     <string name="write_to_each">✎ Neue Nachricht an diese %1$d Personen</string>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Alle Kontakte (%1$d)</string>
+    <string name="group_needs_keys">Eine verschlüsselte Gruppe braucht für jeden ein Zertifikat: Es fehlt für %1$s.</string>
 </resources>

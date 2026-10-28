@@ -147,6 +147,23 @@ object Book {
         }
     }.getOrNull()
 
+    /** The numbers of the contact tied to the certificate [fingerprint], mobile ones first; none when no contact is. */
+    fun numbersOf(context: Context, fingerprint: String): List<String> = tiedTo(context, fingerprint)?.let { own(context, it) }?.numbers.orEmpty()
+
+    /** A number written in a contact where it has none like it: what a certificate's own member list says, certified. */
+    fun addNumber(context: Context, contact: Long, number: String) {
+        if (values(context, contact, PhoneRow.CONTENT_ITEM_TYPE, PhoneRow.NUMBER).any { Phone.same(it, number) }) return
+        val raw = rawOf(context, contact) ?: return
+        context.contentResolver.insert(
+            Data.CONTENT_URI,
+            ContentValues().apply {
+                put(Data.RAW_CONTACT_ID, raw) ; put(Data.MIMETYPE, PhoneRow.CONTENT_ITEM_TYPE) ; put(PhoneRow.NUMBER, number)
+                put(PhoneRow.TYPE, PhoneRow.TYPE_CUSTOM) ; put(PhoneRow.LABEL, MARK)
+            },
+        )
+        written++
+    }
+
     /** The lookup key of the contact tied to the certificate [fingerprint], if one is: the phone's own profile first. */
     fun tiedTo(context: Context, fingerprint: String): String? = profile(context)?.takeIf { it.fingerprint.equals(fingerprint, ignoreCase = true) }?.key ?: runCatching {
         context.contentResolver.query(

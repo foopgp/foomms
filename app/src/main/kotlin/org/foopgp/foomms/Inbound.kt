@@ -88,7 +88,7 @@ object Inbound {
                 val form = Form.of(Form.of(words) == Form.LOCKED || sealed.any { Pgp.isLocked(it.bytes) }, Form.of(words) != Form.PLAIN || sealed.isNotEmpty())
                 val pending = goAsync()
                 // To several, the group's conversation is the one to open.
-                val group = Phone.received(from, message.to).takeIf { it.size > 1 }
+                val group = Keep.conversationOf(context, from, message).takeIf { it.size > 1 }
                     ?.let { runCatching { android.provider.Telephony.Threads.getOrCreateThreadId(context, it.toSet()) }.getOrNull() }
                 runCatching { Notify.arrived(context, from, words, form, group) { pending.finish() } }.onFailure { pending.finish() }
             } catch (failed: Exception) {

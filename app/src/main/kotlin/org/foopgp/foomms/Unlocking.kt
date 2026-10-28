@@ -122,6 +122,8 @@ object Unlocking {
         val inside = answer.says.getParcelableExtra<org.openintents.openpgp.OpenPgpMetadata>(Provider.RESULT_METADATA)?.filename
         val name = inside?.takeIf { it.isNotBlank() } ?: Pgp.innerName(piece.name, answer.bytes, told.extension)
         val signer = signature?.takeIf { it.result != OpenPgpSignatureResult.RESULT_NO_SIGNATURE }
+        // An encrypted group's members part, opened: the message joins its group, the members' contacts what they lack.
+        if (Members.isPart(piece.name)) runCatching { Keep.joined(context, piece.id, Members.read(answer.bytes)) }
         Opened.keepPiece(
             context, piece.id, told.type, name, answer.bytes, Verdict.of(locked, certified),
             signed = Signer.of(signature), signer = signer?.keyId, eid = signer?.let { Signer.eid(it) }, thread = thread,

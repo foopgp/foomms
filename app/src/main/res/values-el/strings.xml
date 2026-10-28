@@ -226,7 +226,7 @@
     <string name="page_talks">Συνομιλίες</string>
     <string name="page_unread">Μη αναγνωσμένα</string>
     <string name="page_unread_n">Μη αναγνωσμένα (%1$d)</string>
-    <string name="page_groups">Ομάδες MMS</string>
+    <string name="page_groups">Κρυπτογραφημένες ομάδες</string>
     <plurals name="talks_n">
         <item quantity="one">%d συνομιλία</item>
         <item quantity="other">%d συνομιλίες</item>
@@ -243,12 +243,12 @@
         <item quantity="one">%d μέλος</item>
         <item quantity="other">%d μέλη</item>
     </plurals>
-    <!-- Several chosen in a new message: the same to each, or one group MMS. -->
+    <!-- Several chosen in a new message: the same to each, or one encrypted group. -->
     <string name="send_each">Αποστολή σε καθέναν</string>
-    <string name="send_group">Ομαδικό MMS</string>
+    <string name="send_group">Κρυπτογραφημένη ομάδα</string>
     <string name="send_each_note">Ο καθένας λαμβάνει δικό του μήνυμα και απαντά μόνο σε εσάς.</string>
-    <string name="send_group_note">Ένα MMS σε όλους: ο καθένας βλέπει σε ποιους πήγε και τις απαντήσεις όλων.</string>
-    <string name="send_group_most">Ένα ομαδικό MMS πηγαίνει σε 2 έως %1$d παραλήπτες.</string>
+    <string name="send_group_note">Ένα κρυπτογραφημένο MMS για όλους: ο καθένας βλέπει ποιοι είναι στην ομάδα, και τις απαντήσεις όλων.</string>
+    <string name="send_group_most">Μια κρυπτογραφημένη ομάδα πηγαίνει σε 2 έως %1$d παραλήπτες.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Αλλαγή καρτέλας επαφής</string>
     <string name="me_create">✚ Δημιουργία της καρτέλας επαφής μου</string>
@@ -265,14 +265,16 @@
     <string name="choose_name">Όνομα:</string>
     <string name="name_contact">Διατήρηση αυτού της επαφής:</string>
     <string name="name_certificate">Χρήση αυτού του πιστοποιητικού:</string>
-    <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">Ένα ομαδικό MMS πηγαίνει και σε εσάς, στον αριθμό σας: συνδέστε πρώτα την επαφή σας, στο «Εγώ» της σελίδας Ομάδες MMS.</string>
-    <string name="altered_title">Ομαδικό MMS αλλοιωμένο</string>
-    <string name="altered">Ένα ομαδικό MMS που στείλατε επέστρεψε διαφορετικό: μάλλον αλλοιώθηκε στη διαδρομή, για όλους τους παραλήπτες.</string>
+    <!-- An encrypted group goes to oneself too: one's number needed, and what comes back held against what left. -->
+    <string name="group_needs_me">Μια κρυπτογραφημένη ομάδα σας περιλαμβάνει, στον αριθμό σας: συνδέστε πρώτα την καρτέλα επαφής σας, στο «Εγώ» της σελίδας Κρυπτογραφημένες ομάδες.</string>
+    <string name="altered_title">Ομαδικό μήνυμα αλλοιωμένο</string>
+    <string name="altered">Ένα κρυπτογραφημένο ομαδικό μήνυμα που στείλατε επέστρεψε διαφορετικό: μάλλον αλλοιώθηκε στη διαδρομή, για όλους τους παραλήπτες.</string>
     <string name="channel_altered">Αλλοιωμένα μηνύματα</string>
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ στάλθηκε σε %1$d άτομα</string>
+    <string name="sent_also_to">⇉ στάλθηκε επίσης σε %1$d άλλα άτομα</string>
     <string name="write_to_each">✎ Νέο μήνυμα σε αυτά τα %1$d άτομα</string>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Όλες οι επαφές (%1$d)</string>
+    <string name="group_needs_keys">Μια κρυπτογραφημένη ομάδα χρειάζεται πιστοποιητικό για τον καθένα: λείπει για %1$s.</string>
 </resources>

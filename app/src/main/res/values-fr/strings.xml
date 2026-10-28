@@ -226,7 +226,7 @@
     <string name="page_talks">Conversations</string>
     <string name="page_unread">Non-lus</string>
     <string name="page_unread_n">Non-lus (%1$d)</string>
-    <string name="page_groups">Groupes MMS</string>
+    <string name="page_groups">Groupes chiffrés</string>
     <plurals name="talks_n">
         <item quantity="one">%d conversation</item>
         <item quantity="other">%d conversations</item>
@@ -243,12 +243,12 @@
         <item quantity="one">%d membre</item>
         <item quantity="other">%d membres</item>
     </plurals>
-    <!-- Several chosen in a new message: the same to each, or one group MMS. -->
+    <!-- Several chosen in a new message: the same to each, or one encrypted group. -->
     <string name="send_each">Envoi multiple</string>
-    <string name="send_group">Groupe MMS</string>
+    <string name="send_group">Groupe chiffré</string>
     <string name="send_each_note">Chacun reçoit son propre message, et ne répond qu\'à vous.</string>
-    <string name="send_group_note">Un seul MMS pour tous : chacun voit à qui il est allé, et les réponses de tous.</string>
-    <string name="send_group_most">Un groupe MMS va de 2 à %1$d destinataires.</string>
+    <string name="send_group_note">Un seul MMS chiffré pour tous : chacun voit qui fait partie du groupe, et les réponses de tous.</string>
+    <string name="send_group_most">Un groupe chiffré va de 2 à %1$d destinataires.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Changer de fiche contact</string>
     <string name="me_create">✚ Créer ma fiche contact</string>
@@ -265,14 +265,16 @@
     <string name="choose_name">Nom :</string>
     <string name="name_contact">Garder celui de la fiche :</string>
     <string name="name_certificate">Prendre celui du certificat :</string>
-    <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">Un MMS de groupe vous est aussi envoyé, à votre numéro : reliez d\'abord votre fiche, dans l\'encart « Moi » de la page Groupes MMS.</string>
-    <string name="altered_title">MMS de groupe altéré</string>
-    <string name="altered">Un MMS de groupe que vous avez envoyé vous est revenu différent : il a probablement été altéré en route, pour tous ses destinataires.</string>
+    <!-- An encrypted group goes to oneself too: one's number needed, and what comes back held against what left. -->
+    <string name="group_needs_me">Un groupe chiffré vous inclut, à votre numéro : reliez d\'abord votre fiche contact, dans l\'encart « Moi » de la page Groupes chiffrés.</string>
+    <string name="altered_title">Message de groupe altéré</string>
+    <string name="altered">Un message de groupe chiffré que vous avez envoyé vous est revenu différent : il a probablement été altéré en route, pour tous ses destinataires.</string>
     <string name="channel_altered">Messages altérés</string>
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ envoyé à %1$d personnes</string>
+    <string name="sent_also_to">⇉ envoyé aussi à %1$d autres personnes</string>
     <string name="write_to_each">✎ Nouveau message à ces %1$d personnes</string>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Tous les contacts (%1$d)</string>
+    <string name="group_needs_keys">Un groupe chiffré demande un certificat pour chacun : il en manque pour %1$s.</string>
 </resources>

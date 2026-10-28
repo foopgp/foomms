@@ -153,6 +153,10 @@ class WriteActivity : Activity() {
         }
     }
 
+    /** Somebody as the list read them, with what their certificate is worth; none when only typed. */
+    private fun knownAs(number: String): Whom? =
+        (recent.filter { !it.light && it.header == null } + full.values).firstOrNull { Phone.same(it.number, number) || it.number == number }
+
     private fun readFull(light: Whom) {
         if (!reading.add(light.number)) return
         thread {
@@ -166,7 +170,8 @@ class WriteActivity : Activity() {
         val person = if (contacts) Book.who(this, number) else null
         val face = person?.let { Book.face(this, it) } ?: person?.fingerprint?.let { foodjis.face(it) }
         val standing = person?.fingerprint?.let { foodjis.card(it)?.validity }
-        return Whom(number, name ?: person?.name ?: number, face, fingerprint = person?.fingerprint, standing = standing)
+        // Kept, for the light lines of the A to Z and for telling whether a group can be encrypted for all.
+        return Whom(number, name ?: person?.name ?: number, face, fingerprint = person?.fingerprint, standing = standing).also { full[number] = it }
     }
 
     /** What is typed narrows the list to the contacts that hold it; a number typed in full is offered as it is. */
@@ -207,9 +212,11 @@ class WriteActivity : Activity() {
         }
         (picked.parent as? View)?.visibility = if (chosen.isEmpty()) View.GONE else View.VISIBLE
         // A group MMS goes to two to nine people: beyond, to each.
-        // And this phone, which gets it back: its number, from one's own contact.
+        // And this phone, which gets it back: its number, from one's own contact. Every one of them with a
+        // certificate to encrypt for: an encrypted group is nothing else.
         val known = Me.number(this) != null
-        val groupable = chosen.size in 2..GROUP_MOST && known
+        val lacking = chosen.filter { (number, _) -> knownAs(number)?.standing !in USABLE }.values
+        val groupable = chosen.size in 2..GROUP_MOST && known && lacking.isEmpty()
         if (!groupable) asGroup = false
         how.visibility = if (chosen.size >= 2) View.VISIBLE else View.GONE
         toGroup.isEnabled = groupable
@@ -222,6 +229,7 @@ class WriteActivity : Activity() {
             asGroup -> getString(R.string.send_group_note)
             groupable -> getString(R.string.send_each_note)
             !known -> getString(R.string.group_needs_me)
+            chosen.size in 2..GROUP_MOST -> getString(R.string.group_needs_keys, lacking.joinToString(", "))
             else -> getString(R.string.send_group_most, GROUP_MOST)
         }
         go.isEnabled = chosen.isNotEmpty() || Phone.plain(asked.text.toString()) != null
@@ -296,6 +304,9 @@ class WriteActivity : Activity() {
     }
 
     companion object {
+        /** What a certificate may be worth to be encrypted for. */
+        private val USABLE = setOf("certified", "uncertified")
+
         /** Numbers chosen already when the page opens. */
         const val EXTRA_NUMBERS = "numbers"
 

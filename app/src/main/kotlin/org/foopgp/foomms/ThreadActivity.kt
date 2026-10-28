@@ -788,10 +788,16 @@ class ThreadActivity : AskingActivity() {
         if (if (group) members.isEmpty() else Phone.plain(number) == null) return
         // To a group, this phone gets it back: not without its number, which one's own contact gives.
         if (group && Me.number(this) == null) return say(getString(R.string.group_needs_me))
+        // An encrypted group's is encrypted, for every one of its members: nothing leaves otherwise.
+        if (group) {
+            val lacking = members.filter { it.card?.usable != true }
+            if (lacking.isNotEmpty() || mine == null) return say(getString(R.string.group_needs_keys, lacking.joinToString(", ") { it.name }))
+            if (!locks.isChecked) { locks.isChecked = true ; paint() }
+        }
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)
         }
-        if (!plainSaid && plainOrAsk(locks, ::paint) { send(plainSaid = true) }) return
+        if (!plainSaid && !group && plainOrAsk(locks, ::paint) { send(plainSaid = true) }) return
         val mode = mode
         if (with != null) return sendWith(with, written, mode)
         if (mode == Mode.PLAIN) return leave(written, written, null)
@@ -799,6 +805,28 @@ class ThreadActivity : AskingActivity() {
             val armor = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
                 ?: return@ask say(getString(R.string.failed, "what came back is not a PGP message"))
             leave(armor, written, worth(mode))
+        }
+    }
+
+    /**
+     * [parts] and, to a group, the part that tells it ([Members]): everyone
+     * in it, oneself included, encrypted for all of them -- not signed, so
+     * that the key is not asked for it.
+     */
+    private fun withMembers(parts: List<Pdu.Part>, then: (List<Pdu.Part>) -> Unit) {
+        if (!group) return then(parts)
+        val key = mine ?: return say(getString(R.string.group_needs_keys, ""))
+        thread {
+            val own = Me.card(this)?.let { Book.own(this, it) }
+            val mineCert = foodjis.signer(key)
+            val all = listOf(Members.Member(own?.name ?: mineCert?.name ?: Me.number(this).orEmpty(), Me.number(this).orEmpty(), mineCert?.fingerprint)) +
+                members.map { Members.Member(it.name, it.number, it.card?.fingerprint) }
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                ask(request(Mode.LOCK, armored = false, name = Members.INSIDE), Members.write(all), ::say) { sealed ->
+                    then(parts + Pdu.Part(Pgp.TYPE, Members.PART, sealed.bytes))
+                }
+            }
         }
     }
 
@@ -813,9 +841,10 @@ class ThreadActivity : AskingActivity() {
         ).putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, armored)
         name?.let { request.putExtra(Provider.EXTRA_ORIGINAL_FILENAME, it) }
         if (mode.locks) {
-            // A group's: every member's certificate.
+            // A group's: every member's certificate, and always one's own -- the keys a message names tell its group,
+            // the same whoever in it sends.
             if (group) {
-                val keys = (members.mapNotNull { it.card?.fingerprint?.let(Fingerprint::keyId) } + listOfNotNull(mine.takeIf { Conf.toMyself(this) })).distinct()
+                val keys = (members.mapNotNull { it.card?.fingerprint?.let(Fingerprint::keyId) } + listOfNotNull(mine)).distinct()
                 return request.putExtra(Provider.EXTRA_KEY_IDS, keys.toLongArray())
             }
             // The certificate the address book ties to this number; with none, whoever foodjis knows by the number.
@@ -836,18 +865,17 @@ class ThreadActivity : AskingActivity() {
      * Signing both asks for the security key once.
      */
     private fun sendWith(with: Media.Attachment, written: String, mode: Mode) {
-        fun post(words: String?, piece: Pdu.Part, verdict: Verdict?) = confirmMms {
+        fun post(words: String?, piece: Pdu.Part, verdict: Verdict?) = confirmMms { withMembers(listOfNotNull(words?.let { Pdu.Part.text(it) }, piece)) { parts ->
             val transaction = "T" + java.lang.Long.toHexString(System.currentTimeMillis())
-            val parts = listOfNotNull(words?.let { Pdu.Part.text(it) }, piece)
             runCatching { Outbox.send(this, targets(), Pdu.send(transaction, targets(), parts), transaction) }
-                .onFailure { return@confirmMms say(getString(R.string.failed, it.message)) }
+                .onFailure { return@withMembers say(getString(R.string.failed, it.message)) }
             if (verdict != null && words != null) Opened.keep(this, words, written, null, verdict, thread = here())
             field.setText("")
             Drafts.keep(this, drafted, "")
             carry(null)
             Toast.makeText(this, getString(R.string.handed_mms, with.name), Toast.LENGTH_SHORT).show()
             list.postDelayed({ if (shown) load() }, 1500)
-        }
+        } }
         if (mode == Mode.PLAIN) return post(written.takeIf { it.isNotBlank() }, Pdu.Part(with.type, with.name, with.bytes), null)
         fun piece(sealed: Provider.Answer.Done) = Pdu.Part(Pgp.TYPE, Pgp.outerName(sealed.bytes), sealed.bytes)
         if (written.isBlank()) return ask(request(mode, armored = false, name = with.name), with.bytes, ::say) { post(null, piece(it), worth(mode)) }
@@ -993,14 +1021,14 @@ class ThreadActivity : AskingActivity() {
     private fun leave(text: String, written: String, verdict: Verdict?) {
         // To a group, always one MMS to all.
         val mms = group || runCatching { Conf.asMms(Outbox.pieces(this, text), Conf.preferMms(this)) }.getOrDefault(false)
-        fun go() {
+        fun go() = withMembers(listOf(Pdu.Part.text(text))) { parts ->
             runCatching {
                 if (!mms) Outbox.text(this, number, text)
                 else {
                     val transaction = "T" + java.lang.Long.toHexString(System.currentTimeMillis())
-                    Outbox.send(this, targets(), Pdu.send(transaction, targets(), listOf(Pdu.Part.text(text))), transaction)
+                    Outbox.send(this, targets(), Pdu.send(transaction, targets(), parts), transaction)
                 }
-            }.onFailure { return say(getString(R.string.failed, it.message)) }
+            }.onFailure { return@withMembers say(getString(R.string.failed, it.message)) }
             if (verdict != null) Opened.keep(this, text, written, null, verdict, thread = here())
             field.setText("")
             Drafts.keep(this, drafted, "")
@@ -1757,13 +1785,15 @@ class ThreadActivity : AskingActivity() {
                     text.setOnLongClickListener { about(at, words = true) ; true }
                     addView(text)
                 }
-                for (piece in line.pieces) addView(shownPiece(piece, at))
-                // Sent to each of several at once: said, and pressed, whom to.
-                if (!line.incoming) {
+                // An encrypted group's members part is for foomms, not for reading.
+                for (piece in line.pieces.filterNot { Members.isPart(it.name) }) addView(shownPiece(piece, at))
+                // Sent to each of several at once: said, and pressed, whom to. Received as one of several: who else.
+                if (!line.incoming || line.mms) {
                     val with = sentWith(line)
-                    if (with != null && with.size > 1) {
+                    if (with != null && with.size > (if (line.incoming) 0 else 1)) {
+                        val said = if (line.incoming) getString(R.string.sent_also_to, with.size) else getString(R.string.sent_to_each, with.size)
                         addView(
-                            Look.words(context, getString(R.string.sent_to_each, with.size), size = 12f, muted = true).apply {
+                            Look.words(context, said, size = 12f, muted = true).apply {
                                 setPadding(0, pad / 3, 0, 0)
                                 setOnClickListener { sentToEach(with) }
                             },
