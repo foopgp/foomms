@@ -278,4 +278,8 @@
     <string name="me_tag">(я)</string>
     <string name="me_unknown">номер невідомий</string>
     <string name="me_sms">foomms: перевірка номера цього телефона, код %1$s.</string>
+    <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
+    <string name="choose_name">Ім\'я:</string>
+    <string name="name_contact">Залишити ім\'я з контакту: %1$s</string>
+    <string name="name_certificate">Узяти ім\'я із сертифіката: %1$s</string>
 </resources>

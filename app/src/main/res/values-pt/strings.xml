@@ -270,4 +270,8 @@
     <string name="me_tag">(eu)</string>
     <string name="me_unknown">número desconhecido</string>
     <string name="me_sms">foomms: verificação do número deste telefone, código %1$s.</string>
+    <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
+    <string name="choose_name">Nome:</string>
+    <string name="name_contact">Manter o do contacto: %1$s</string>
+    <string name="name_certificate">Usar o do certificado: %1$s</string>
 </resources>

@@ -270,4 +270,8 @@
     <string name="me_tag">(εγώ)</string>
     <string name="me_unknown">άγνωστος αριθμός</string>
     <string name="me_sms">foomms: έλεγχος του αριθμού αυτού του τηλεφώνου, κωδικός %1$s.</string>
+    <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
+    <string name="choose_name">Όνομα:</string>
+    <string name="name_contact">Διατήρηση αυτού της επαφής: %1$s</string>
+    <string name="name_certificate">Χρήση αυτού του πιστοποιητικού: %1$s</string>
 </resources>

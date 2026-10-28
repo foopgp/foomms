@@ -142,7 +142,7 @@ object Book {
     /** [contact]: the one to write in, when it is known -- the person's own --, rather than whoever the number finds. */
     fun tie(
         context: Context, number: String, card: Card, address: String, stale: List<Stale> = emptyList(),
-        face: Pick = Pick.CONTACT, note: Pick = Pick.CONTACT, contact: Long? = null,
+        face: Pick = Pick.CONTACT, note: Pick = Pick.CONTACT, contact: Long? = null, name: Pick = Pick.CONTACT,
     ) {
         written++
         val known = contact?.let { Person(it, card.name ?: number, null, null) } ?: who(context, number)
@@ -200,6 +200,22 @@ object Book {
             if (notes.isNotEmpty()) gone(context, contact, Note.CONTENT_ITEM_TYPE)
             row(Note.CONTENT_ITEM_TYPE, Note.NOTE, card.notes.joinToString("\n\n"))
         }
+        // The certificate's name, in place of the contact's when the person chose so: written over the name rows,
+        // their parts emptied for the address book to cut the new name anew -- given name, family name.
+        val named = card.name
+        if (name == Pick.CERTIFICATE && !named.isNullOrBlank()) {
+            val parts = ContentValues().apply {
+                put(StructuredName.DISPLAY_NAME, named)
+                for (part in listOf(
+                    StructuredName.GIVEN_NAME, StructuredName.FAMILY_NAME, StructuredName.MIDDLE_NAME, StructuredName.PREFIX, StructuredName.SUFFIX,
+                    StructuredName.PHONETIC_GIVEN_NAME, StructuredName.PHONETIC_FAMILY_NAME, StructuredName.PHONETIC_MIDDLE_NAME,
+                )) putNull(part)
+            }
+            val changed = resolver.update(
+                Data.CONTENT_URI, parts, "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ?", arrayOf(contact.toString(), StructuredName.CONTENT_ITEM_TYPE),
+            )
+            if (changed == 0) row(StructuredName.CONTENT_ITEM_TYPE, StructuredName.DISPLAY_NAME, named)
+        }
         // The certificate's face: where the contact has none, or in place of its own when the person chose so.
         val picture = card.photo
         if (picture != null && (known?.photo == null || face == Pick.CERTIFICATE)) {
@@ -225,7 +241,8 @@ object Book {
      * they are not the same: the contact's, to set beside the certificate's.
      * Faces are compared as a person would ([Likeness]), notes word for word.
      */
-    class Differs(val face: android.graphics.Bitmap?, val notes: List<String>)
+    /** [name]: the contact's, when the certificate gives another. */
+    class Differs(val face: android.graphics.Bitmap?, val notes: List<String>, val name: String? = null)
 
     fun differs(context: Context, number: String, card: Card): Differs {
         val known = who(context, number) ?: return Differs(null, emptyList())
@@ -235,7 +252,10 @@ object Book {
         val mine = values(context, known.contact, Note.CONTENT_ITEM_TYPE, Note.NOTE).filter { it.isNotBlank() }
         val said = card.notes.joinToString("\n\n")
         val notes = mine.takeIf { it.isNotEmpty() && said.isNotBlank() && it.joinToString("\n\n").trim() != said.trim() }.orEmpty()
-        return Differs(face, notes)
+        // Names compared as read: case and spaces aside.
+        fun read(name: String) = name.trim().replace(Regex("\\s+"), " ").lowercase()
+        val name = known.name.takeIf { theirs -> card.name?.isNotBlank() == true && read(theirs) != read(card.name!!) }
+        return Differs(face, notes, name)
     }
 
     /**

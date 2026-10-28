@@ -273,4 +273,8 @@
     <string name="me_tag">(me)</string>
     <string name="me_unknown">number unknown</string>
     <string name="me_sms">foomms: checking this phone\'s number, code %1$s.</string>
+    <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
+    <string name="choose_name">Name:</string>
+    <string name="name_contact">Keep the contact\'s: %1$s</string>
+    <string name="name_certificate">Take the certificate\'s: %1$s</string>
 </resources>

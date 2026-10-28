@@ -270,4 +270,8 @@
     <string name="me_tag">(ben)</string>
     <string name="me_unknown">numara bilinmiyor</string>
     <string name="me_sms">foomms: bu telefonun numarası doğrulanıyor, kod %1$s.</string>
+    <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
+    <string name="choose_name">Ad:</string>
+    <string name="name_contact">Kişi kartındakini koru: %1$s</string>
+    <string name="name_certificate">Sertifikadakini al: %1$s</string>
 </resources>
