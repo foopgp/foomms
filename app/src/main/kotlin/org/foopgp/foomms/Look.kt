@@ -419,6 +419,38 @@ object Look {
         }
     }
 
+    /** One of a group, as a small face shows them: their picture, what their certificate is worth, and what pixels would be made from. */
+    class Mini(val face: Bitmap?, val standing: String?, val seed: String?)
+
+    /**
+     * A group at a glance, in the room of one framed face of [side]: three
+     * by three small faces, in reading order, each framed by what its
+     * certificate is worth. The places a smaller group leaves stay empty:
+     * how full the square is says how many it is.
+     */
+    fun crowd(context: Context, side: Int, minis: List<Mini>): View {
+        val line = 1
+        val cell = (side + 8 - 6 * line) / 3
+        return LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(dp(context, side + 8), dp(context, side + 8))
+            for (row in 0 until 3) {
+                addView(
+                    LinearLayout(context).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        for (column in 0 until 3) {
+                            val one = minis.getOrNull(row * 3 + column)
+                            addView(
+                                if (one == null) View(context).apply { layoutParams = LinearLayout.LayoutParams(dp(context, cell + 2 * line), dp(context, cell + 2 * line)) }
+                                else face(context, cell, null, one.face, one.standing, framable = true, seed = one.seed, lineDp = line),
+                            )
+                        }
+                    },
+                )
+            }
+        }
+    }
+
     /** What a face of pixels is made from: a certificate's fingerprint, else the number. */
     fun seed(fingerprint: String?, number: String?): String? = fingerprint ?: number?.let(Phone::key)
 

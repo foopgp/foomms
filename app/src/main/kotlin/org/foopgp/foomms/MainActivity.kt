@@ -37,8 +37,10 @@ class MainActivity : AskingActivity() {
         val standing: String? = null, val group: String? = null, val threads: List<Long> = listOf(talk.thread), val unread: Boolean = talk.unread,
         /** Whom a conversation between two is with: the number besides this phone's, whatever Android files it under. */
         val with: String? = talk.number,
+        /** A group's members as small faces, this phone last when there is room. */
+        val crowd: List<Look.Mini>? = null,
     ) {
-        fun standing(now: String?) = Row(talk, person, face, name, verdict, last, now, group, threads, unread, with)
+        fun standing(now: String?) = Row(talk, person, face, name, verdict, last, now, group, threads, unread, with, crowd)
 
         /** Its face of pixels, with no picture: the certificate's, the number's, or the group's. */
         val seed: String? get() = group ?: Look.seed(person?.fingerprint, with)
@@ -64,7 +66,7 @@ class MainActivity : AskingActivity() {
             if (one is Row) one else groups.getValue(one as String).let { all ->
                 val latest = all.first()
                 if (all.size == 1) latest
-                else Row(latest.talk, latest.person, latest.face, latest.name, latest.verdict, latest.last, latest.standing, latest.group, all.map { it.talk.thread }, all.any { it.unread }, latest.with)
+                else Row(latest.talk, latest.person, latest.face, latest.name, latest.verdict, latest.last, latest.standing, latest.group, all.map { it.talk.thread }, all.any { it.unread }, latest.with, latest.crowd)
             }
         }
     }
@@ -510,6 +512,15 @@ class MainActivity : AskingActivity() {
         if (written != Book.written) { synchronized(people) { people.clear() } ; synchronized(lines) { lines.clear() } ; written = Book.written }
         thread {
             val foodjis = Foodjis.of(this)
+            // Oneself as a small face, last in each group's square: one's contact's picture, else pixels from one's number.
+            val myself: Look.Mini by lazy {
+                val own = Me.card(this)?.let { Book.own(this, it) }
+                val cert = own?.fingerprint?.let { foodjis.card(it) }
+                Look.Mini(
+                    own?.photo?.let { Media.thumbnail(this, it, Media.FACE) } ?: own?.fingerprint?.let { foodjis.face(it) },
+                    cert?.validity, Look.seed(own?.fingerprint, Me.number(this)),
+                )
+            }
             fun row(talk: Store.Talk): Row {
                 // A line kept is kept but for its badge: what foodjis says of the certificate changes there, unseen here.
                 synchronized(lines) { lines[talk.thread] }?.takeIf { it.talk.at == talk.at && it.talk.unread == talk.unread && it.talk.last == talk.last }?.let { kept ->
@@ -543,7 +554,17 @@ class MainActivity : AskingActivity() {
                 }
                 val standing = person?.fingerprint?.let { foodjis.card(it)?.validity }
                 val name = group?.joinToString(", ") { who(it)?.name ?: it } ?: person?.name ?: with ?: getString(R.string.unknown_number)
-                return Row(talk, person, face, name, verdict, last, standing, group?.let { Phone.group(talk.members, mine) }, with = with)
+                // A group's members as small faces, and this phone after them -- unless the nine places are taken.
+                val crowd = group?.let { members ->
+                    members.map { one ->
+                        val them = who(one)
+                        Look.Mini(
+                            them?.let { Book.face(this, it) } ?: them?.fingerprint?.let { foodjis.face(it) },
+                            them?.fingerprint?.let { foodjis.card(it)?.validity }, Look.seed(them?.fingerprint, one),
+                        )
+                    } + listOfNotNull(myself.takeIf { members.size < 9 })
+                }
+                return Row(talk, person, face, name, verdict, last, standing, group?.let { Phone.group(talk.members, mine) }, with = with, crowd = crowd)
                     // A closed PGP message may be opened at any moment: its line is worked out each time.
                     .also { if (armor == null) synchronized(lines) { lines[talk.thread] = it } }
             }
@@ -709,7 +730,7 @@ class MainActivity : AskingActivity() {
                 // The colour of what the last message travelled as, down the edge of the conversation.
                 addView(View(context).apply { background = Look.rounded(Look.colour(row.talk.form), Look.dp(context, 3)) }, LinearLayout.LayoutParams(Look.dp(context, 6), Look.dp(context, 44)))
                 addView(View(context), LinearLayout.LayoutParams(pad, 1))
-                addView(Look.face(context, 44, null, row.face, row.standing, framable = true, seed = row.seed))
+                addView(row.crowd?.let { Look.crowd(context, 44, it) } ?: Look.face(context, 44, null, row.face, row.standing, framable = true, seed = row.seed))
                 addView(text, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
                 setPadding(Look.dp(context, 4), pad, pad, pad)
             }
