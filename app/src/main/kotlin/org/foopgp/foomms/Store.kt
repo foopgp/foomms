@@ -58,30 +58,65 @@ object Store {
     }.getOrDefault(emptyList())
 
     /**
-     * What was sent to [number] as one of several, by an application that
-     * filed the sending as one conversation of all of them: shown in the
-     * conversation with [number] too, where an answer is written. Its SMS,
-     * as such sendings are.
+     * What was sent to [number] as one of several, filed in one conversation
+     * of all of them as messaging applications file a sending to each: shown
+     * in the conversation with [number] too, where an answer is written, and
+     * kept in its backup. Its SMS and its MMS.
      */
     fun sentToEach(context: Context, number: String): List<Line> = runCatching {
-        val tail = Phone.key(number).takeIf { it.all(Char::isDigit) } ?: return@runCatching emptyList()
         val found = ArrayList<Line>()
-        val kinds = HashMap<Long, Boolean>()
-        context.contentResolver.query(
-            SMS, arrayOf("date", "body", "_id", "date_sent", "address", "thread_id"),
-            "type = ${android.provider.Telephony.Sms.MESSAGE_TYPE_SENT} AND address LIKE ?", arrayOf("%$tail"), null,
-        )?.use { rows ->
-            while (rows.moveToNext()) {
-                val address = rows.getString(4) ?: continue
-                if (!Phone.same(address, number)) continue
-                val thread = rows.getLong(5)
-                // Only from a conversation of several that holds sendings to each.
-                val apart = kinds.getOrPut(thread) { members(context, thread).size > 1 && toEach(context, thread) }
-                if (apart) found += Line(rows.getLong(0), false, rows.getString(1).orEmpty(), id = rows.getLong(2), sentAt = rows.getLong(3), address = address, thread = thread)
+        for (thread in eachWith(context, number)) {
+            for (line in lines(context, thread)) {
+                if (line.incoming) continue
+                val to = addressOf(context, line) ?: continue
+                if (Phone.same(to, number) || to == number) found += line
             }
         }
         found
     }.getOrDefault(emptyList())
+
+    /** The conversations of several numbers, [number] among them, that hold sendings to each. */
+    private fun eachWith(context: Context, number: String): List<Long> {
+        val tail = Phone.key(number).takeIf { it.all(Char::isDigit) } ?: return emptyList()
+        // The phone's own numbering of the addresses that are [number], however written.
+        val ids = HashSet<String>()
+        context.contentResolver.query(Uri.parse("content://mms-sms/canonical-addresses"), null, "address LIKE ?", arrayOf("%$tail"), null)?.use { rows ->
+            val id = rows.getColumnIndex("_id")
+            val address = rows.getColumnIndex("address")
+            while (rows.moveToNext()) if (Phone.same(rows.getString(address).orEmpty(), number)) ids += rows.getLong(id).toString()
+        }
+        if (ids.isEmpty()) return emptyList()
+        val found = ArrayList<Long>()
+        context.contentResolver.query(THREADS, arrayOf("_id", "recipient_ids"), "trim(recipient_ids) LIKE '% %' AND message_count > 0", null, null)?.use { rows ->
+            while (rows.moveToNext()) {
+                val members = rows.getString(1)?.trim()?.split(' ').orEmpty()
+                if (members.any { it in ids } && toEach(context, rows.getLong(0))) found += rows.getLong(0)
+            }
+        }
+        return found
+    }
+
+    /**
+     * Whom a message sent went to, when it was sent to each of several:
+     * the copies of the same message. An SMS: the same words sent within
+     * [ALONGSIDE] of it -- this application writes them all at one moment,
+     * others one after the other. An MMS: those of its conversation sent in
+     * the same second. Each number once, the first written first.
+     */
+    fun sentWith(context: Context, line: Line): List<String> =
+        if (!line.mms) sentWith(context, line.at, line.body)
+        else runCatching {
+            val found = ArrayList<String>()
+            context.contentResolver.query(
+                MMS, arrayOf("_id"), "thread_id = ? AND msg_box = $MMS_SENT AND date = ?", arrayOf(line.thread.toString(), (line.at / 1000).toString()), "_id ASC",
+            )?.use { rows ->
+                while (rows.moveToNext()) {
+                    val to = number(context, rows.getLong(0), false) ?: continue
+                    if (found.none { Phone.same(it, to) || it == to }) found += to
+                }
+            }
+            found
+        }.getOrDefault(emptyList())
 
     /** How far apart the copies of one sending to each may have been written. */
     private const val ALONGSIDE = 2 * 60 * 1000L
@@ -516,6 +551,7 @@ object Store {
     private const val SMS_INBOX = 1
     private const val BANNER = "-----BEGIN PGP MESSAGE-----"
     private const val MMS_INBOX = 1
+    private const val MMS_SENT = 2
     private const val FROM = 137
     private const val TO = 151
 }

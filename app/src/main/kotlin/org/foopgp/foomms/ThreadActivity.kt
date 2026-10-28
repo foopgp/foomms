@@ -594,12 +594,12 @@ class ThreadActivity : AskingActivity() {
     }
 
     /** Whom each message sent went to, when it went to each of several: asked once a message, off the page. */
-    private val sentTo = java.util.concurrent.ConcurrentHashMap<Long, List<String>>()
-    private val askingSentTo = java.util.concurrent.ConcurrentHashMap.newKeySet<Long>()
+    private val sentTo = java.util.concurrent.ConcurrentHashMap<String, List<String>>()
+    private val askingSentTo = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
 
     private fun sentWith(line: Store.Line): List<String>? {
-        sentTo[line.id]?.let { return it }
-        if (askingSentTo.add(line.id)) thread { sentTo[line.id] = Store.sentWith(this, line.at, line.body) ; drip() }
+        sentTo[line.key]?.let { return it }
+        if (askingSentTo.add(line.key)) thread { sentTo[line.key] = Store.sentWith(this, line) ; drip() }
         return null
     }
 
@@ -1757,7 +1757,7 @@ class ThreadActivity : AskingActivity() {
                 }
                 for (piece in line.pieces) addView(shownPiece(piece, at))
                 // Sent to each of several at once: said, and pressed, whom to.
-                if (!line.incoming && !line.mms) {
+                if (!line.incoming) {
                     val with = sentWith(line)
                     if (with != null && with.size > 1) {
                         addView(
