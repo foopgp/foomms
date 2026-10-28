@@ -102,7 +102,8 @@ object Store {
      * to read years of them.
      */
     /** [groupsOnly]: only the conversations with several numbers, read for themselves -- a few among hundreds. */
-    fun talks(context: Context, most: Int, unreadOnly: Boolean = false, given: () -> Boolean = { false }, groupsOnly: Boolean = false): List<Talk> {
+    /** [from]: how many of the latest to pass over -- the list read a block at a time, as it is scrolled. */
+    fun talks(context: Context, most: Int, unreadOnly: Boolean = false, given: () -> Boolean = { false }, groupsOnly: Boolean = false, from: Int = 0): List<Talk> {
         val talks = ArrayList<Talk>()
         val listed = runCatching {
             // Only those that hold something unread, when that is all that is asked: a hundred to read rather than all.
@@ -112,8 +113,9 @@ object Store {
                 (listOf("message_count > 0") + listOfNotNull("read = 0".takeIf { unreadOnly }, "trim(recipient_ids) LIKE '% %'".takeIf { groupsOnly })).joinToString(" AND "),
                 null, "date DESC",
             )
-        }.getOrNull() ?: return everyTalk(context).filter { (!unreadOnly || it.unread) && (!groupsOnly || it.group) }.take(most)
+        }.getOrNull() ?: return everyTalk(context).filter { (!unreadOnly || it.unread) && (!groupsOnly || it.group) }.drop(from).take(most)
         listed.use { rows ->
+            if (from > 0 && !rows.moveToPosition(from - 1)) return talks
             // [given] up: whoever asked no longer wants the answer, and reading on would only slow what they asked next.
             while (rows.moveToNext() && talks.size < most && !given()) {
                 val thread = rows.getLong(0)

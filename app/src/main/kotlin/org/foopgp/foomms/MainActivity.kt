@@ -163,6 +163,15 @@ class MainActivity : AskingActivity() {
             divider = null
             adapter = talks
             setOnItemLongClickListener { _, _, at, _ -> about(rows[at]) ; true }
+            // Near the end of what is held: the next block.
+            setOnScrollListener(
+                object : android.widget.AbsListView.OnScrollListener {
+                    override fun onScrollStateChanged(view: android.widget.AbsListView?, state: Int) = Unit
+                    override fun onScroll(view: android.widget.AbsListView?, first: Int, seen: Int, all: Int) {
+                        if (all > 0 && first + seen >= all - AHEAD) more()
+                    }
+                },
+            )
             setOnItemClickListener { _, _, at, _ -> open(rows[at].talk, threads = rows[at].threads, with = rows[at].with ?: rows[at].talk.number, each = rows[at].each) }
         }
         others = LinearLayout(this).apply {
@@ -298,8 +307,8 @@ class MainActivity : AskingActivity() {
         redraw()
         readMe()
         // The unread are read for themselves. The others: what was read is shown at once,
-        // and read to its end if the unread page had cut that short.
-        if (page != Page.TALKS || !everyWhole) fill()
+        // and read again only if nothing was.
+        if (page != Page.TALKS || every.isEmpty()) fill()
     }
 
     /** The pages, the one shown ticked, from the bar's dots. */
@@ -592,13 +601,12 @@ class MainActivity : AskingActivity() {
                 show(runCatching { Store.talks(this, Int.MAX_VALUE, unreadOnly = unreadOnly, given = stale, groupsOnly = groupsOnly) }.getOrDefault(emptyList()).map(::row))
                 if (!stale()) count()
             } else {
-                val first = runCatching { Store.talks(this, FIRST) }.getOrDefault(emptyList()).map(::row)
-                show(first, whole = first.size < FIRST)
+                // The latest first, and no more than were shown already: the rest comes a block at a time, as the list is scrolled ([more]).
+                rowOf = ::row
+                val asked = maxOf(FIRST, every.size)
+                val first = runCatching { Store.talks(this, asked, given = stale) }.getOrDefault(emptyList()).map(::row)
+                show(first, whole = first.size < asked)
                 if (!stale()) count()
-                if (first.size >= FIRST && !stale()) {
-                    val all = runCatching { Store.talks(this, Int.MAX_VALUE, given = stale) }.getOrDefault(emptyList())
-                    if (!stale()) show(all.map(::row), whole = true)
-                }
             }
         }
     }
@@ -665,6 +673,33 @@ class MainActivity : AskingActivity() {
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+    }
+
+    /** How the latest filling makes a line of a conversation: the next blocks are made the same way. */
+    @Volatile private var rowOf: ((Store.Talk) -> Row)? = null
+    private var reading = false
+
+    /**
+     * The next block of conversations, read when the list comes near the end
+     * of what it holds: the oldest are read only by whoever goes down to them.
+     */
+    private fun more() {
+        if (page != Page.TALKS || everyWhole || reading) return
+        val make = rowOf ?: return
+        val turn = turns
+        val from = every.size
+        reading = true
+        thread {
+            val next = runCatching { Store.talks(this, BLOCK, from = from, given = { turn != turns }) }.getOrDefault(emptyList()).map(make)
+            runOnUiThread {
+                reading = false
+                if (isFinishing || isDestroyed || turn != turns || every.size != from) return@runOnUiThread
+                every = every + next
+                everyWhole = next.size < BLOCK
+                redraw()
+                verifySigned(next)
+            }
+        }
     }
 
     /** Which filling is the latest asked for: an older one that finishes late shows nothing. */
@@ -770,8 +805,12 @@ class MainActivity : AskingActivity() {
         /** A group's square of small faces, larger than one face: each still a face at a glance. */
         const val CROWD = 66
 
-        /** How many conversations are shown before the rest is read. */
+        /** How many conversations are shown before the rest is read, and how many more each time the list nears its end. */
         const val FIRST = 20
+        const val BLOCK = 30
+
+        /** How near the end of what the list holds the next block is asked for: read before it is reached. */
+        const val AHEAD = 8
         /** The answer to being asked to be the messaging application. */
         private const val ROLE = 3
 
