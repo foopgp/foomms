@@ -269,16 +269,7 @@
     <string name="altered_title">Ομαδικό MMS αλλοιωμένο</string>
     <string name="altered">Ένα ομαδικό MMS που στείλατε επέστρεψε διαφορετικό: μάλλον αλλοιώθηκε στη διαδρομή, για όλους τους παραλήπτες.</string>
     <string name="channel_altered">Αλλοιωμένα μηνύματα</string>
-    <plurals name="recipients_n">
-        <item quantity="one">%d παραλήπτης</item>
-        <item quantity="other">%d παραλήπτες</item>
-    </plurals>
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ στάλθηκε σε %1$d άτομα</string>
     <string name="write_to_each">✎ Νέο μήνυμα σε αυτά τα %1$d άτομα</string>
-    <!-- A sending to each that another application filed as one conversation, filed again in the conversation of each. -->
-    <string name="refile">⇉ Τακτοποίηση στη συνομιλία του καθενός</string>
-    <string name="refile_ask">Καθένα από αυτά τα μηνύματα, που στάλθηκαν σε %1$d άτομα, θα πάει στη συνομιλία του παραλήπτη του, όπου απαντά κανείς· καθένα θα λέει ακόμη σε ποιους άλλους στάλθηκε. Άλλη εφαρμογή μηνυμάτων δεν θα τα βρίσκει πια μαζί. Καλό είναι πρώτα ένα αντίγραφο ασφαλείας.</string>
-    <string name="refile_yes">Τακτοποίηση</string>
-    <string name="refiled">%1$d μηνύματα τακτοποιήθηκαν</string>
 </resources>

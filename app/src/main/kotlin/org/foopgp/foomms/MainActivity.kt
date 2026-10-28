@@ -42,8 +42,8 @@ class MainActivity : AskingActivity() {
     ) {
         fun standing(now: String?) = Row(talk, person, face, name, verdict, last, now, group, threads, unread, with, crowd)
 
-        /** What another application sent to each of several separately, filed as one conversation: among the conversations, marked. */
-        val each: Boolean get() = talk.each
+        /** The line of one of those a sending to each went to: theirs, the sending shown in their conversation, not a conversation of its own. */
+        fun apart() = Row(talk, person, face, name, verdict, last, standing, group, emptyList(), unread, with, crowd)
 
         /** Its face of pixels, with no picture: the certificate's, the number's, or the group's. */
         val seed: String? get() = group ?: Look.seed(person?.fingerprint, with)
@@ -69,7 +69,7 @@ class MainActivity : AskingActivity() {
             if (one is Row) one else groups.getValue(one as String).let { all ->
                 val latest = all.first()
                 if (all.size == 1) latest
-                else Row(latest.talk, latest.person, latest.face, latest.name, latest.verdict, latest.last, latest.standing, latest.group, all.map { it.talk.thread }, all.any { it.unread }, latest.with, latest.crowd)
+                else Row(latest.talk, latest.person, latest.face, latest.name, latest.verdict, latest.last, latest.standing, latest.group, all.flatMap { it.threads }.distinct(), all.any { it.unread }, latest.with, latest.crowd)
             }
         }
     }
@@ -172,7 +172,7 @@ class MainActivity : AskingActivity() {
                     }
                 },
             )
-            setOnItemClickListener { _, _, at, _ -> open(rows[at].talk, threads = rows[at].threads, with = rows[at].with ?: rows[at].talk.number, each = rows[at].each) }
+            setOnItemClickListener { _, _, at, _ -> open(rows[at].talk, threads = rows[at].threads, with = rows[at].with ?: rows[at].talk.number) }
         }
         others = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -533,9 +533,9 @@ class MainActivity : AskingActivity() {
                     cert?.validity, Look.seed(own?.fingerprint, Me.number(this)),
                 )
             }
-            fun row(talk: Store.Talk): Row {
+            fun row(talk: Store.Talk, kept: Boolean = true): Row {
                 // A line kept is kept but for its badge: what foodjis says of the certificate changes there, unseen here.
-                synchronized(lines) { lines[talk.thread] }?.takeIf { it.talk.at == talk.at && it.talk.unread == talk.unread && it.talk.last == talk.last }?.let { kept ->
+                synchronized(lines) { lines[talk.thread] }?.takeIf { kept }?.takeIf { it.talk.at == talk.at && it.talk.unread == talk.unread && it.talk.last == talk.last }?.let { kept ->
                     val now = kept.person?.fingerprint?.let { foodjis.card(it)?.validity }
                     return if (now == kept.standing) kept else kept.standing(now)
                         .also { synchronized(lines) { lines[talk.thread] = it } }
@@ -549,9 +549,8 @@ class MainActivity : AskingActivity() {
                 val mine = Me.all(this)
                 // Several besides this phone: a group. One: a conversation between two, whatever the numbers Android files it under.
                 val others = talk.members.filterNot { member -> mine.any { Phone.same(member, it) } }
-                val group = others.takeIf { it.size > 1 && !talk.each }
-                // A sending to each is with nobody in particular: its own line, merged with none.
-                val with = if (talk.each) null else others.firstOrNull() ?: talk.number
+                val group = others.takeIf { it.size > 1 }
+                val with = others.firstOrNull() ?: talk.number
                 val person = if (group != null) null else with?.let(::who)
                 // The face read here, off the page: drawn where it is shown, a contact's picture held the list still.
                 val face = person?.let { Book.face(this, it) } ?: person?.fingerprint?.let { foodjis.face(it) }
@@ -566,21 +565,28 @@ class MainActivity : AskingActivity() {
                     else -> Opened.words(armor)?.words ?: getString(if (Pgp.isLocked(armor)) R.string.locked_message else R.string.signed_message)
                 }
                 val standing = person?.fingerprint?.let { foodjis.card(it)?.validity }
-                val name = (group ?: others.takeIf { talk.each })?.joinToString(", ") { who(it)?.name ?: it } ?: person?.name ?: with ?: getString(R.string.unknown_number)
+                val name = group?.joinToString(", ") { who(it)?.name ?: it } ?: person?.name ?: with ?: getString(R.string.unknown_number)
                 // A group's members as small faces, and this phone after them -- unless the nine places are taken.
-                val crowd = (group ?: others.takeIf { talk.each })?.let { members ->
+                val crowd = group?.let { members ->
                     members.map { one ->
                         val them = who(one)
                         Look.Mini(
                             them?.let { Book.face(this, it) } ?: them?.fingerprint?.let { foodjis.face(it) },
                             them?.fingerprint?.let { foodjis.card(it)?.validity }, Look.seed(them?.fingerprint, one),
                         )
-                    } + listOfNotNull(myself.takeIf { members.size < 9 && !talk.each })
+                    } + listOfNotNull(myself.takeIf { members.size < 9 })
                 }
                 return Row(talk, person, face, name, verdict, last, standing, group?.let { Phone.group(talk.members, mine) }, with = with, crowd = crowd)
                     // A closed PGP message may be opened at any moment: its line is worked out each time.
-                    .also { if (armor == null) synchronized(lines) { lines[talk.thread] = it } }
+                    .also { if (armor == null && kept) synchronized(lines) { lines[talk.thread] = it } }
             }
+            // A sending to each, filed as one conversation: a line for each of those it went to, as if in their own
+            // conversation, which shows it -- merged with theirs ([merged]), or theirs alone when they have no other.
+            fun rowsOf(talk: Store.Talk): List<Row> =
+                if (!talk.each) listOf(row(talk))
+                else talk.members.filterNot { Me.mine(this, it) }.map { one ->
+                    row(Store.Talk(talk.thread, one, talk.at, talk.last, talk.incoming, talk.unread, talk.form), kept = false).apart()
+                }
             fun show(found: List<Row>, whole: Boolean = false) = runOnUiThread {
                 if (isFinishing || isDestroyed || turn != turns) return@runOnUiThread
                 if (apart) pageRows = found else { every = found ; everyWhole = whole }
@@ -598,14 +604,16 @@ class MainActivity : AskingActivity() {
                 runOnUiThread { if (!isFinishing && !isDestroyed) redraw() }
             }
             if (apart) {
-                show(runCatching { Store.talks(this, Int.MAX_VALUE, unreadOnly = unreadOnly, given = stale, groupsOnly = groupsOnly) }.getOrDefault(emptyList()).map(::row))
+                show(runCatching { Store.talks(this, Int.MAX_VALUE, unreadOnly = unreadOnly, given = stale, groupsOnly = groupsOnly) }.getOrDefault(emptyList()).flatMap(::rowsOf))
                 if (!stale()) count()
             } else {
                 // The latest first, and no more than were shown already: the rest comes a block at a time, as the list is scrolled ([more]).
-                rowOf = ::row
-                val asked = maxOf(FIRST, every.size)
-                val first = runCatching { Store.talks(this, asked, given = stale) }.getOrDefault(emptyList()).map(::row)
-                show(first, whole = first.size < asked)
+                rowOf = ::rowsOf
+                val asked = maxOf(FIRST, read)
+                val talks = runCatching { Store.talks(this, asked, given = stale) }.getOrDefault(emptyList())
+                val first = talks.flatMap(::rowsOf)
+                read = talks.size
+                show(first, whole = talks.size < asked)
                 if (!stale()) count()
             }
         }
@@ -676,7 +684,10 @@ class MainActivity : AskingActivity() {
     }
 
     /** How the latest filling makes a line of a conversation: the next blocks are made the same way. */
-    @Volatile private var rowOf: ((Store.Talk) -> Row)? = null
+    @Volatile private var rowOf: ((Store.Talk) -> List<Row>)? = null
+
+    /** How many conversations the list has read: a sending to each makes several lines of one. */
+    @Volatile private var read = 0
     private var reading = false
 
     /**
@@ -687,15 +698,17 @@ class MainActivity : AskingActivity() {
         if (page != Page.TALKS || everyWhole || reading) return
         val make = rowOf ?: return
         val turn = turns
-        val from = every.size
+        val from = read
         reading = true
         thread {
-            val next = runCatching { Store.talks(this, BLOCK, from = from, given = { turn != turns }) }.getOrDefault(emptyList()).map(make)
+            val talks = runCatching { Store.talks(this, BLOCK, from = from, given = { turn != turns }) }.getOrDefault(emptyList())
+            val next = talks.flatMap(make)
             runOnUiThread {
                 reading = false
-                if (isFinishing || isDestroyed || turn != turns || every.size != from) return@runOnUiThread
+                if (isFinishing || isDestroyed || turn != turns || read != from) return@runOnUiThread
                 every = every + next
-                everyWhole = next.size < BLOCK
+                read = from + talks.size
+                everyWhole = talks.size < BLOCK
                 redraw()
                 verifySigned(next)
             }
@@ -712,8 +725,6 @@ class MainActivity : AskingActivity() {
 
     /** Pressed long, a conversation says what can be done about it and about who it is with. */
     private fun about(row: Row) {
-        // A sending to each, filed as one by another application: filed again in the conversation of each, if asked.
-        if (row.each) return refile(row)
         // A group's own menu comes with its name.
         if (row.talk.group) return
         val sender = row.talk.number ?: return
@@ -729,11 +740,11 @@ class MainActivity : AskingActivity() {
         )
     }
 
-    private fun open(talk: Store.Talk, ask: String? = null, threads: List<Long> = listOf(talk.thread), with: String? = talk.number, each: Boolean = false) = startActivity(
+    private fun open(talk: Store.Talk, ask: String? = null, threads: List<Long> = listOf(talk.thread), with: String? = talk.number) = startActivity(
         Intent(this, ThreadActivity::class.java)
-            .putExtra(ThreadActivity.EXTRA_EACH, each)
             .putExtra(ThreadActivity.EXTRA_NUMBER, with ?: getString(R.string.unknown_number))
-            .putExtra(ThreadActivity.EXTRA_THREAD, talk.thread)
+            // None for one who has only received a sending to each: their own conversation, by their number.
+            .putExtra(ThreadActivity.EXTRA_THREAD, threads.firstOrNull() ?: -1L)
             .putExtra(ThreadActivity.EXTRA_THREADS, threads.toLongArray())
             .putExtra(ThreadActivity.EXTRA_ASK, ask),
     )
@@ -772,42 +783,13 @@ class MainActivity : AskingActivity() {
                 // The colour of what the last message travelled as, down the edge of the conversation.
                 addView(View(context).apply { background = Look.rounded(Look.colour(row.talk.form), Look.dp(context, 3)) }, LinearLayout.LayoutParams(Look.dp(context, 6), Look.dp(context, if (row.crowd != null) CROWD else 44)))
                 addView(View(context), LinearLayout.LayoutParams(pad, 1))
-                addView(row.crowd?.let { Look.crowd(context, CROWD, it, each = row.each) } ?: Look.face(context, 44, null, row.face, row.standing, framable = true, seed = row.seed))
+                addView(row.crowd?.let { Look.crowd(context, CROWD, it) } ?: Look.face(context, 44, null, row.face, row.standing, framable = true, seed = row.seed))
                 addView(text, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
                 // A group's square is tall enough: less room above and below it.
                 val around = if (row.crowd != null) pad / 3 else pad
                 setPadding(Look.dp(context, 4), around, pad, around)
             }
         }
-    }
-
-    /**
-     * Each copy of a sending to each into the conversation of whom it went
-     * to, once the person has said so: it changes the phone's store, where
-     * another messaging application will no longer find them as one.
-     */
-    private fun refile(row: Row) {
-        val many = row.crowd?.size ?: 0
-        AlertDialog.Builder(this)
-            .setTitle(row.name)
-            .setItems(arrayOf(getString(R.string.refile))) { _, _ ->
-                AlertDialog.Builder(this)
-                    .setMessage(getString(R.string.refile_ask, many))
-                    .setPositiveButton(R.string.refile_yes) { _, _ ->
-                        thread {
-                            val moved = row.threads.sumOf { Keep.refile(this, it) }
-                            runOnUiThread {
-                                if (isFinishing || isDestroyed) return@runOnUiThread
-                                android.widget.Toast.makeText(this, getString(R.string.refiled, moved), android.widget.Toast.LENGTH_LONG).show()
-                                synchronized(lines) { lines.clear() }
-                                fill()
-                            }
-                        }
-                    }
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show()
-            }
-            .show()
     }
 
     /** Android asks the person; nothing changes unless they say so. */

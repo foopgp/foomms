@@ -277,18 +277,7 @@
     <string name="altered_title">Групповое MMS изменено</string>
     <string name="altered">Отправленное вами групповое MMS вернулось другим: вероятно, его изменили в пути, для всех получателей.</string>
     <string name="channel_altered">Изменённые сообщения</string>
-    <plurals name="recipients_n">
-        <item quantity="one">%d получатель</item>
-        <item quantity="few">%d получателя</item>
-        <item quantity="many">%d получателей</item>
-        <item quantity="other">%d получателя</item>
-    </plurals>
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ отправлено %1$d адресатам</string>
     <string name="write_to_each">✎ Новое сообщение этим %1$d адресатам</string>
-    <!-- A sending to each that another application filed as one conversation, filed again in the conversation of each. -->
-    <string name="refile">⇉ Разложить по беседам каждого</string>
-    <string name="refile_ask">Каждое из этих сообщений, отправленных %1$d адресатам, перейдёт в беседу со своим получателем, где отвечают; каждое по-прежнему скажет, кому ещё оно было отправлено. Другое приложение сообщений больше не найдёт их вместе. Лучше сначала сделать резервную копию.</string>
-    <string name="refile_yes">Разложить</string>
-    <string name="refiled">Разложено сообщений: %1$d</string>
 </resources>

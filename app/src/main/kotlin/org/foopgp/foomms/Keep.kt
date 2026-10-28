@@ -142,30 +142,6 @@ object Keep {
     fun forget(context: Context, line: Store.Line): Boolean =
         ours(context) && runCatching { context.contentResolver.delete(line.uri, null, null) > 0 }.getOrDefault(false)
 
-    /**
-     * A sending to each that another application filed as one conversation,
-     * filed again as Android files a message by itself: each copy in the
-     * conversation of whom it went to, its date kept -- still known as one
-     * sending by it ([Store.sentWith]). Says how many moved.
-     */
-    fun refile(context: Context, thread: Long): Int {
-        if (!ours(context)) return 0
-        var moved = 0
-        val resolver = context.contentResolver
-        resolver.query(Telephony.Sms.CONTENT_URI, arrayOf("_id", "address"), "thread_id = ?", arrayOf(thread.toString()), null)?.use { rows ->
-            while (rows.moveToNext()) {
-                val address = rows.getString(1) ?: continue
-                val home = runCatching { Telephony.Threads.getOrCreateThreadId(context, address) }.getOrNull() ?: continue
-                if (home == thread) continue
-                val done = runCatching {
-                    resolver.update(Uri.withAppendedPath(Telephony.Sms.CONTENT_URI, rows.getLong(0).toString()), ContentValues().apply { put(Telephony.Sms.THREAD_ID, home) }, null, null)
-                }.getOrDefault(0)
-                moved += done
-            }
-        }
-        return moved
-    }
-
     fun forgetAll(context: Context, thread: Long): Boolean = ours(context) && runCatching {
         context.contentResolver.delete(Uri.parse("content://mms-sms/conversations/$thread"), null, null) > 0
     }.getOrDefault(false)

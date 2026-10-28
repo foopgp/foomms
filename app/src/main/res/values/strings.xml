@@ -272,16 +272,7 @@
     <string name="altered_title">Group MMS altered</string>
     <string name="altered">A group MMS you sent came back different: it was most likely changed on its way, for everyone it went to.</string>
     <string name="channel_altered">Altered messages</string>
-    <plurals name="recipients_n">
-        <item quantity="one">%d recipient</item>
-        <item quantity="other">%d recipients</item>
-    </plurals>
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ sent to %1$d people</string>
     <string name="write_to_each">✎ New message to these %1$d people</string>
-    <!-- A sending to each that another application filed as one conversation, filed again in the conversation of each. -->
-    <string name="refile">⇉ File in each one\'s conversation</string>
-    <string name="refile_ask">Each of these messages, sent to %1$d people, will move to the conversation of whom it went to, where an answer is written; each will still say whom else it went to. Another messaging application will no longer find them together. A backup first is wise.</string>
-    <string name="refile_yes">File them</string>
-    <string name="refiled">%1$d messages filed</string>
 </resources>

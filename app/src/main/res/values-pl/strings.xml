@@ -277,18 +277,7 @@
     <string name="altered_title">Zmieniony MMS grupowy</string>
     <string name="altered">Wysłany przez Ciebie MMS grupowy wrócił inny: prawdopodobnie zmieniono go po drodze, dla wszystkich odbiorców.</string>
     <string name="channel_altered">Zmienione wiadomości</string>
-    <plurals name="recipients_n">
-        <item quantity="one">%d odbiorca</item>
-        <item quantity="few">%d odbiorcy</item>
-        <item quantity="many">%d odbiorców</item>
-        <item quantity="other">%d odbiorcy</item>
-    </plurals>
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ wysłano do %1$d osób</string>
     <string name="write_to_each">✎ Nowa wiadomość do tych %1$d osób</string>
-    <!-- A sending to each that another application filed as one conversation, filed again in the conversation of each. -->
-    <string name="refile">⇉ Przenieś do rozmowy każdego z odbiorców</string>
-    <string name="refile_ask">Każda z tych wiadomości, wysłanych do %1$d osób, trafi do rozmowy ze swoim odbiorcą, gdzie się odpowiada; każda nadal powie, do kogo jeszcze ją wysłano. Inna aplikacja do wiadomości nie znajdzie ich już razem. Najpierw warto zrobić kopię zapasową.</string>
-    <string name="refile_yes">Przenieś</string>
-    <string name="refiled">Przeniesiono wiadomości: %1$d</string>
 </resources>

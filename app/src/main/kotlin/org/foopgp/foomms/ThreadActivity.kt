@@ -112,9 +112,6 @@ class ThreadActivity : AskingActivity() {
             ?: listOfNotNull(intent.getLongExtra(EXTRA_THREAD, -1L).takeIf { it >= 0 })
     }
 
-    /** What another application sent to each of several separately, filed as one conversation: written in, sent to each again. */
-    private val each by lazy { intent.getBooleanExtra(EXTRA_EACH, false) }
-
     /** A conversation with several numbers: a group MMS's. */
     private val group get() = everyone.count { !Me.mine(this, it) } > 1
 
@@ -686,10 +683,10 @@ class ThreadActivity : AskingActivity() {
             text = "⋮" ; setTextColor(android.graphics.Color.WHITE) ; paint.isFakeBoldText = true
             setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 22f) ; setPadding(Look.dp(context, 6), 0, Look.dp(context, 4), 0)
         })
-        // Counted with oneself, a member as the others are; a sending to each, those it went to.
-        val all = found.size + (if (each) 0 else 1)
-        val usable = found.count { it.card?.usable == true } + (if (mineUsable && !each) 1 else 0)
-        under.text = android.text.SpannableStringBuilder(resources.getQuantityString(if (each) R.plurals.recipients_n else R.plurals.group_members, all, all))
+        // Counted with oneself, a member as the others are.
+        val all = found.size + 1
+        val usable = found.count { it.card?.usable == true } + (if (mineUsable) 1 else 0)
+        under.text = android.text.SpannableStringBuilder(resources.getQuantityString(R.plurals.group_members, all, all))
             .append("  ·  🔑 $usable/$all")
         if (first) { locks.isChecked = lockable() ; signs.isChecked = lockable() }
         paint()
@@ -787,12 +784,6 @@ class ThreadActivity : AskingActivity() {
         if (written.isBlank() && with == null) return
         // A group's: to all its members, once they are known.
         if (if (group) members.isEmpty() else Phone.plain(number) == null) return
-        // Sent to each, as what is already there was: the page that sends to several, the words and the people given.
-        if (each) {
-            startActivity(Intent(this, ManyActivity::class.java).putExtra(ManyActivity.EXTRA_NUMBERS, members.map { it.number }.toTypedArray()).putExtra(Intent.EXTRA_TEXT, written))
-            field.setText("")
-            return
-        }
         // To a group, this phone gets it back: not without its number, which one's own contact gives.
         if (group && Me.number(this) == null) return say(getString(R.string.group_needs_me))
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
@@ -1954,8 +1945,6 @@ class ThreadActivity : AskingActivity() {
         const val EXTRA_THREAD = "thread"
         /** Several conversations shown as one: a group's, with this phone among its numbers and without. */
         const val EXTRA_THREADS = "threads"
-        /** The conversation holds a sending to each, filed as one by another application. */
-        const val EXTRA_EACH = "each"
 
         /** Opened for something to be done at once: say whose certificate the number means, or read it again from foodjis. */
         const val EXTRA_ASK = "ask"

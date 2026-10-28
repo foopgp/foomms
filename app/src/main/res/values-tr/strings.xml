@@ -269,16 +269,7 @@
     <string name="altered_title">Grup MMS\'i değiştirilmiş</string>
     <string name="altered">Gönderdiğiniz bir grup MMS\'i size farklı döndü: yolda büyük olasılıkla tüm alıcılar için değiştirildi.</string>
     <string name="channel_altered">Değiştirilmiş mesajlar</string>
-    <plurals name="recipients_n">
-        <item quantity="one">%d alıcı</item>
-        <item quantity="other">%d alıcı</item>
-    </plurals>
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ %1$d kişiye gönderildi</string>
     <string name="write_to_each">✎ Bu %1$d kişiye yeni mesaj</string>
-    <!-- A sending to each that another application filed as one conversation, filed again in the conversation of each. -->
-    <string name="refile">⇉ Her birinin konuşmasına yerleştir</string>
-    <string name="refile_ask">%1$d kişiye gönderilen bu mesajların her biri, yanıtın yazıldığı alıcısının konuşmasına taşınacak; her biri kime daha gönderildiğini söylemeye devam edecek. Başka bir mesaj uygulaması onları artık bir arada bulamaz. Önce bir yedek almak akıllıcadır.</string>
-    <string name="refile_yes">Yerleştir</string>
-    <string name="refiled">%1$d mesaj yerleştirildi</string>
 </resources>

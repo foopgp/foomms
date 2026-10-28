@@ -428,7 +428,7 @@ object Look {
      * certificate is worth. The places a smaller group leaves stay empty:
      * how full the square is says how many it is.
      */
-    fun crowd(context: Context, side: Int, minis: List<Mini>, each: Boolean = false): View {
+    fun crowd(context: Context, side: Int, minis: List<Mini>): View {
         val line = 1
         val cell = (side - 6 * line) / 3
         val pad = dp(context, 3)
@@ -439,10 +439,9 @@ object Look {
             orientation = LinearLayout.VERTICAL
             // The rows taken, in the middle of the square: the order of reading kept, the square balanced.
             gravity = Gravity.CENTER_VERTICAL
-            // In a small frame of its own, faint: one square, not nine faces adrift. Dashed, a sending to each.
+            // In a small frame of its own, faint: one square, not nine faces adrift.
             background = GradientDrawable().apply {
-                val faint = (MUTED and 0x00FFFFFF) or (0x44 shl 24)
-                if (each) setStroke(dp(context, 1), faint, dp(context, 3).toFloat(), dp(context, 2).toFloat()) else setStroke(dp(context, 1), faint)
+                setStroke(dp(context, 1), (MUTED and 0x00FFFFFF) or (0x44 shl 24))
                 cornerRadius = dp(context, 6).toFloat()
             }
             setPadding(pad, pad, pad, pad)
