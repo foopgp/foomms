@@ -94,7 +94,7 @@ object Store {
         }
         if (ids.isEmpty()) return emptyList()
         val found = ArrayList<Long>()
-        context.contentResolver.query(THREADS, arrayOf("_id", "recipient_ids"), "trim(recipient_ids) LIKE '% %' AND message_count > 0", null, null)?.use { rows ->
+        context.contentResolver.query(THREADS, arrayOf("_id", "recipient_ids"), "trim(recipient_ids) LIKE '% %'", null, null)?.use { rows ->
             while (rows.moveToNext()) {
                 val members = rows.getString(1)?.trim()?.split(' ').orEmpty()
                 if (members.any { it in ids }) found += rows.getLong(0)
@@ -207,8 +207,7 @@ object Store {
             // Only those that hold something unread, when that is all that is asked: a hundred to read rather than all.
             context.contentResolver.query(
                 THREADS, arrayOf("_id", "date", "snippet", "recipient_ids", "read"),
-                // An empty conversation -- made for a message never sent -- is none to show.
-                (listOf("message_count > 0") + listOfNotNull("read = 0".takeIf { unreadOnly }, "trim(recipient_ids) LIKE '% %'".takeIf { groupsOnly })).joinToString(" AND "),
+                listOfNotNull("read = 0".takeIf { unreadOnly }, "trim(recipient_ids) LIKE '% %'".takeIf { groupsOnly }).joinToString(" AND ").ifEmpty { null },
                 null, "date DESC",
             )
         }.getOrNull() ?: return everyTalk(context).filter { (!unreadOnly || it.unread) && (!groupsOnly || it.group) }.drop(from).take(most)
@@ -219,11 +218,13 @@ object Store {
                 val thread = rows.getLong(0)
                 val members = rows.getString(3)?.trim()?.split(' ')?.mapNotNull { it.toLongOrNull()?.let { id -> address(context, id) } }.orEmpty()
                 val number = members.firstOrNull()
-                val last = last(context, thread)
-                val words = last?.body ?: rows.getString(2).orEmpty()
+                // An empty conversation -- made for a message never sent, or left by one moved to its group's -- is none
+                // to show: told by its messages, the count Android keeps being not updated when a message moves.
+                val last = last(context, thread) ?: continue
+                val words = last.body
                 talks += Talk(
-                    thread, number ?: number(context, thread), last?.at ?: rows.getLong(1),
-                    words, last?.incoming ?: true, rows.getInt(4) == 0, formOf(context, words, last?.pieces.orEmpty()),
+                    thread, number ?: number(context, thread), last.at,
+                    words, last.incoming, rows.getInt(4) == 0, formOf(context, words, last.pieces),
                     members.ifEmpty { listOfNotNull(number ?: number(context, thread)) },
                     members.size > 1 && toEach(context, thread),
                 )
@@ -479,7 +480,7 @@ object Store {
         val mine = Me.all(context)
         val groups = ArrayList<String>()
         runCatching {
-            context.contentResolver.query(THREADS, arrayOf("recipient_ids", "_id"), "trim(recipient_ids) LIKE '% %' AND message_count > 0", null, null)?.use { rows ->
+            context.contentResolver.query(THREADS, arrayOf("recipient_ids", "_id"), "trim(recipient_ids) LIKE '% %'", null, null)?.use { rows ->
                 while (rows.moveToNext()) {
                     // A sending to each, filed as one conversation: not a group.
                     if (toEach(context, rows.getLong(1))) continue

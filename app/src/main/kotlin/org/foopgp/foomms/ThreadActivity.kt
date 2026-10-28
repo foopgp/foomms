@@ -510,9 +510,14 @@ class ThreadActivity : AskingActivity() {
                     val whose = who?.fingerprint?.let { foodjis.card(it) }
                     Member(one, who, whose, who?.let { Book.face(this, it) } ?: who?.fingerprint?.let { foodjis.face(it) })
                 }
-                // And oneself, a member too: whether one's own contact is tied to a certificate that can be locked for.
-                val mineUsable = Me.card(this)?.let { Book.own(this, it) }?.fingerprint?.let { foodjis.card(it) }?.usable == true
-                runOnUiThread { if (!isFinishing && !isDestroyed) groupHead(found, first, mineUsable) }
+                // And oneself, a member too: one's face, and whether one's own contact is tied to a certificate that can be locked for.
+                val own = Me.card(this)?.let { Book.own(this, it) }
+                val mineCert = own?.fingerprint?.let { foodjis.card(it) }
+                val myself = Look.Mini(
+                    own?.photo?.let { Media.thumbnail(this, it, Media.FACE) } ?: own?.fingerprint?.let { foodjis.face(it) },
+                    mineCert?.validity, Look.seed(own?.fingerprint, Me.number(this)),
+                )
+                runOnUiThread { if (!isFinishing && !isDestroyed) groupHead(found, first, mineCert?.usable == true, myself) }
             } else thread {
                 val who = if (contacts) Book.who(this, number) else null
                 val whose = who?.fingerprint?.let { foodjis.card(it) }
@@ -669,7 +674,7 @@ class ThreadActivity : AskingActivity() {
     }
 
     /** A group's head: its members by name, how many of them have a certificate, and the switches as they can be for all. */
-    private fun groupHead(found: List<Member>, first: Boolean, mineUsable: Boolean = false) {
+    private fun groupHead(found: List<Member>, first: Boolean, mineUsable: Boolean = false, myself: Look.Mini? = null) {
         members = found
         val name = found.joinToString(", ") { it.name }
         thread?.let { Opened.title(it, name, number) }
@@ -681,6 +686,8 @@ class ThreadActivity : AskingActivity() {
         crowd.visibility = View.VISIBLE
         crowd.removeAllViews()
         for (one in found) crowd.addView(Look.face(this, 22, null, one.face, one.card?.validity, framable = true, seed = one.seed, lineDp = 2))
+        // Oneself last, as in the list's square.
+        myself?.let { crowd.addView(Look.face(this, 22, null, it.face, it.standing, framable = true, seed = it.seed, lineDp = 2)) }
         crowd.addView(android.widget.TextView(this).apply {
             text = "⋮" ; setTextColor(android.graphics.Color.WHITE) ; paint.isFakeBoldText = true
             setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 22f) ; setPadding(Look.dp(context, 6), 0, Look.dp(context, 4), 0)
@@ -772,6 +779,9 @@ class ThreadActivity : AskingActivity() {
     private fun paint() {
         // Nothing to encrypt for without a certificate that stands; nothing to sign with until foodjis has said whose identity this is.
         locks.isEnabled = lockable()
+        // An encrypted group's: encrypted, always.
+        locks.held = group
+        if (group && lockable() && !locks.isChecked) locks.isChecked = true
         signs.isEnabled = mine != null
         val worth = worth(mode)
         options.setBackgroundColor(Look.pale(worth))

@@ -32,6 +32,10 @@ class Flip(context: Context, glyph: String, verb: Int, changed: () -> Unit) : Li
         get() = wanted
         set(value) { wanted = value ; show() }
 
+    /** Held as it is: shown as usable, not greyed, but not to be flipped -- an encrypted group's messages are encrypted. */
+    var held = false
+        set(value) { field = value ; switch.isClickable = !value }
+
     private fun show() {
         showing = true
         switch.isChecked = wanted && switch.isEnabled
@@ -44,7 +48,7 @@ class Flip(context: Context, glyph: String, verb: Int, changed: () -> Unit) : Li
         addView(mark)
         addView(switch, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply { marginStart = Look.dp(context, 4) ; marginEnd = Look.dp(context, 4) })
         addView(word, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
-        setOnClickListener { if (switch.isEnabled) switch.toggle() }
+        setOnClickListener { if (switch.isEnabled && !held) switch.toggle() }
     }
 
     override fun setEnabled(enabled: Boolean) {
