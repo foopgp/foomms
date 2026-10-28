@@ -526,8 +526,10 @@ class ThreadActivity : AskingActivity() {
             // number -- a bank, a shop -- has a conversation all the same.
             val thread: Long? = given.firstOrNull() ?: runCatching { Store.thread(this, number) }.getOrNull()
             // A group's conversations, one after the other in time.
+            // With one person: what another application sent them as one of several, filed elsewhere, shown here too.
+            val elsewhere = if (group) emptyList() else Store.sentToEach(this, number)
             val found = (given.ifEmpty { listOfNotNull(thread) }).flatMap { runCatching { Store.lines(this, it) }.getOrDefault(emptyList()) }
-                .let { if (given.size > 1) it.sortedBy { line -> line.at } else it }
+                .let { if (given.size > 1 || elsewhere.isNotEmpty()) (it + elsewhere).sortedBy { line -> line.at } else it }
             // The messages shown at once; signed ones verified from now.
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
@@ -591,6 +593,35 @@ class ThreadActivity : AskingActivity() {
             (faces + pictures + lengths).forEach { it.join() }
             // What the locked parts said known: those signed only are verified now.
             runOnUiThread { if (!isFinishing && !isDestroyed) { bubbles.notifyDataSetChanged() ; verifySigned() } }
+        }
+    }
+
+    /** Whom each message sent went to, when it went to each of several: asked once a message, off the page. */
+    private val sentTo = java.util.concurrent.ConcurrentHashMap<Long, List<String>>()
+    private val askingSentTo = java.util.concurrent.ConcurrentHashMap.newKeySet<Long>()
+
+    private fun sentWith(line: Store.Line): List<String>? {
+        sentTo[line.id]?.let { return it }
+        if (askingSentTo.add(line.id)) thread { sentTo[line.id] = Store.sentWith(this, line.at, line.body) ; drip() }
+        return null
+    }
+
+    /** Whom a message went to, each by name; and a new message to all of them, from the page that starts one. */
+    private fun sentToEach(numbers: List<String>) {
+        thread {
+            val contacts = checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
+            val named = numbers.map { one -> (if (contacts) Book.who(this, one)?.name else null)?.let { "$it — $one" } ?: one }
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.sent_to_each, numbers.size))
+                    .setItems(named.toTypedArray(), null)
+                    .setPositiveButton(getString(R.string.write_to_each, numbers.size)) { _, _ ->
+                        startActivity(Intent(this, WriteActivity::class.java).putExtra(WriteActivity.EXTRA_NUMBERS, numbers.toTypedArray()))
+                    }
+                    .setNegativeButton(R.string.close, null)
+                    .show()
+            }
         }
     }
 
@@ -1734,6 +1765,18 @@ class ThreadActivity : AskingActivity() {
                     addView(text)
                 }
                 for (piece in line.pieces) addView(shownPiece(piece, at))
+                // Sent to each of several at once: said, and pressed, whom to.
+                if (!line.incoming && !line.mms) {
+                    val with = sentWith(line)
+                    if (with != null && with.size > 1) {
+                        addView(
+                            Look.words(context, getString(R.string.sent_to_each, with.size), size = 12f, muted = true).apply {
+                                setPadding(0, pad / 3, 0, 0)
+                                setOnClickListener { sentToEach(with) }
+                            },
+                        )
+                    }
+                }
                 // Its text shows the details; beside it, the rest of the line gives the menu its long press gives.
                 // Told by where the finger fell rather than by a row of its own: a row around it would size the bubble.
                 addView(

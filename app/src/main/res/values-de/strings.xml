@@ -273,4 +273,12 @@
         <item quantity="one">%d Empfänger</item>
         <item quantity="other">%d Empfänger</item>
     </plurals>
+    <!-- A message sent to each of several at once, in the conversation of each. -->
+    <string name="sent_to_each">⇉ an %1$d Personen gesendet</string>
+    <string name="write_to_each">✎ Neue Nachricht an diese %1$d Personen</string>
+    <!-- A sending to each that another application filed as one conversation, filed again in the conversation of each. -->
+    <string name="refile">⇉ In die Unterhaltung jedes Einzelnen einordnen</string>
+    <string name="refile_ask">Jede dieser Nachrichten, an %1$d Personen gesendet, wandert in die Unterhaltung ihres Empfängers, wo geantwortet wird; jede sagt weiterhin, an wen sie noch ging. Eine andere Nachrichten-App findet sie nicht mehr zusammen. Vorher eine Sicherung ist ratsam.</string>
+    <string name="refile_yes">Einordnen</string>
+    <string name="refiled">%1$d Nachrichten eingeordnet</string>
 </resources>

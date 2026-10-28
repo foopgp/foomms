@@ -217,13 +217,15 @@ class ManyActivity : AskingActivity() {
         val mms = piece != null || runCatching { Conf.asMms(Outbox.pieces(this, text.orEmpty()), Conf.preferMms(this)) }.getOrDefault(false)
         fun go() {
             val failed = ArrayList<String>()
+            // One moment for every copy: each in the conversation of whom it went to, known as one sending by it.
+            val at = System.currentTimeMillis()
             for (one in whom) {
                 runCatching {
-                    if (!mms) Outbox.text(this, one.number, text.orEmpty())
+                    if (!mms) Outbox.text(this, one.number, text.orEmpty(), at)
                     else {
                         val transaction = "T" + java.lang.Long.toHexString(System.nanoTime())
                         val parts = listOfNotNull(text?.let { Pdu.Part.text(it) }, piece)
-                        Outbox.send(this, listOf(one.number), Pdu.send(transaction, listOf(one.number), parts), transaction)
+                        Outbox.send(this, listOf(one.number), Pdu.send(transaction, listOf(one.number), parts), transaction, at)
                     }
                 }.onFailure { failed += one.name }
             }

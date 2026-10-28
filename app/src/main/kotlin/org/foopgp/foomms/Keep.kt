@@ -41,13 +41,14 @@ object Keep {
             },
         )
 
-    fun smsSent(context: Context, to: String, body: String): Uri? =
+    /** [at]: when it was sent -- the same for every copy of a sending to each, which is how they are known for one ([Store.sentWith]). */
+    fun smsSent(context: Context, to: String, body: String, at: Long = System.currentTimeMillis()): Uri? =
         context.contentResolver.insert(
             Telephony.Sms.Sent.CONTENT_URI,
             ContentValues().apply {
                 put(Telephony.Sms.ADDRESS, to)
                 put(Telephony.Sms.BODY, body)
-                put(Telephony.Sms.DATE, System.currentTimeMillis())
+                put(Telephony.Sms.DATE, at)
                 put(Telephony.Sms.READ, 1)
                 put(Telephony.Sms.SEEN, 1)
             },
@@ -68,15 +69,15 @@ object Keep {
         return mms(context, Telephony.Mms.Inbox.CONTENT_URI, others, from, message.to, message, size, incoming = true, subscription)
     }
 
-    fun mmsSent(context: Context, to: List<String>, pdu: ByteArray): Uri? =
-        mms(context, Telephony.Mms.Sent.CONTENT_URI, Phone.sent(to, Me.number(context)).toSet(), null, to, PduRead.read(pdu), pdu.size, incoming = false, -1)
+    fun mmsSent(context: Context, to: List<String>, pdu: ByteArray, at: Long = System.currentTimeMillis()): Uri? =
+        mms(context, Telephony.Mms.Sent.CONTENT_URI, Phone.sent(to, Me.number(context)).toSet(), null, to, PduRead.read(pdu), pdu.size, incoming = false, -1, at)
 
     private fun mms(
         context: Context, box: Uri, others: Set<String>, from: String?, to: List<String>,
-        message: PduRead.Message, size: Int, incoming: Boolean, subscription: Int,
+        message: PduRead.Message, size: Int, incoming: Boolean, subscription: Int, at: Long = System.currentTimeMillis(),
     ): Uri? {
         val resolver = context.contentResolver
-        val now = System.currentTimeMillis() / 1000
+        val now = at / 1000
         val written = resolver.insert(
             box,
             ContentValues().apply {
@@ -133,6 +134,30 @@ object Keep {
      */
     fun forget(context: Context, line: Store.Line): Boolean =
         ours(context) && runCatching { context.contentResolver.delete(line.uri, null, null) > 0 }.getOrDefault(false)
+
+    /**
+     * A sending to each that another application filed as one conversation,
+     * filed again as Android files a message by itself: each copy in the
+     * conversation of whom it went to, its date kept -- still known as one
+     * sending by it ([Store.sentWith]). Says how many moved.
+     */
+    fun refile(context: Context, thread: Long): Int {
+        if (!ours(context)) return 0
+        var moved = 0
+        val resolver = context.contentResolver
+        resolver.query(Telephony.Sms.CONTENT_URI, arrayOf("_id", "address"), "thread_id = ?", arrayOf(thread.toString()), null)?.use { rows ->
+            while (rows.moveToNext()) {
+                val address = rows.getString(1) ?: continue
+                val home = runCatching { Telephony.Threads.getOrCreateThreadId(context, address) }.getOrNull() ?: continue
+                if (home == thread) continue
+                val done = runCatching {
+                    resolver.update(Uri.withAppendedPath(Telephony.Sms.CONTENT_URI, rows.getLong(0).toString()), ContentValues().apply { put(Telephony.Sms.THREAD_ID, home) }, null, null)
+                }.getOrDefault(0)
+                moved += done
+            }
+        }
+        return moved
+    }
 
     fun forgetAll(context: Context, thread: Long): Boolean = ours(context) && runCatching {
         context.contentResolver.delete(Uri.parse("content://mms-sms/conversations/$thread"), null, null) > 0

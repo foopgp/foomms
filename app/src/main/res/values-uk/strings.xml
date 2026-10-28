@@ -283,4 +283,12 @@
         <item quantity="many">%d одержувачів</item>
         <item quantity="other">%d одержувача</item>
     </plurals>
+    <!-- A message sent to each of several at once, in the conversation of each. -->
+    <string name="sent_to_each">⇉ надіслано %1$d адресатам</string>
+    <string name="write_to_each">✎ Нове повідомлення цим %1$d адресатам</string>
+    <!-- A sending to each that another application filed as one conversation, filed again in the conversation of each. -->
+    <string name="refile">⇉ Розкласти по розмовах кожного</string>
+    <string name="refile_ask">Кожне з цих повідомлень, надісланих %1$d адресатам, перейде до розмови зі своїм одержувачем, де відповідають; кожне й далі казатиме, кому ще його надіслано. Інший застосунок повідомлень більше не знайде їх разом. Краще спершу зробити резервну копію.</string>
+    <string name="refile_yes">Розкласти</string>
+    <string name="refiled">Розкладено повідомлень: %1$d</string>
 </resources>

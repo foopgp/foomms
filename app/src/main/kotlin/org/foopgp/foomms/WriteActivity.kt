@@ -110,6 +110,18 @@ class WriteActivity : Activity() {
         )
         Edges.fit(this)
         drawPicked()
+        // Handed whom to write to -- those a message went to --: chosen already, by their names.
+        intent.getStringArrayExtra(EXTRA_NUMBERS)?.takeIf { it.isNotEmpty() }?.let { given ->
+            thread {
+                val found = given.map { whom(it, null) }
+                runOnUiThread {
+                    if (isFinishing || isDestroyed) return@runOnUiThread
+                    for (one in found) chosen[one.number] = one.name
+                    drawPicked()
+                    rows.notifyDataSetChanged()
+                }
+            }
+        }
         // The conversations, the latest first: whom one writes to is most often somebody one writes to.
         thread {
             val found = runCatching { Store.talks(this, MOST) }.getOrDefault(emptyList())
@@ -251,7 +263,10 @@ class WriteActivity : Activity() {
         }
     }
 
-    private companion object {
+    companion object {
+        /** Numbers chosen already when the page opens. */
+        const val EXTRA_NUMBERS = "numbers"
+
         /** How many recent conversations open the list. */
         const val MOST = 60
         /** The most a group MMS goes to: ten with this phone, under what the networks are said to bear. */

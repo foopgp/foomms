@@ -273,4 +273,12 @@
         <item quantity="one">%d destinatario</item>
         <item quantity="other">%d destinatari</item>
     </plurals>
+    <!-- A message sent to each of several at once, in the conversation of each. -->
+    <string name="sent_to_each">⇉ inviato a %1$d persone</string>
+    <string name="write_to_each">✎ Nuovo messaggio a queste %1$d persone</string>
+    <!-- A sending to each that another application filed as one conversation, filed again in the conversation of each. -->
+    <string name="refile">⇉ Riporre nella conversazione di ciascuno</string>
+    <string name="refile_ask">Ciascuno di questi messaggi, inviati a %1$d persone, andrà nella conversazione del suo destinatario, dove si risponde; ciascuno dirà ancora a chi altro è stato inviato. Un\'altra applicazione di messaggi non li troverà più insieme. Prima un backup è prudente.</string>
+    <string name="refile_yes">Riporre</string>
+    <string name="refiled">%1$d messaggi riposti</string>
 </resources>

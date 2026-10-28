@@ -712,6 +712,8 @@ class MainActivity : AskingActivity() {
 
     /** Pressed long, a conversation says what can be done about it and about who it is with. */
     private fun about(row: Row) {
+        // A sending to each, filed as one by another application: filed again in the conversation of each, if asked.
+        if (row.each) return refile(row)
         // A group's own menu comes with its name.
         if (row.talk.group) return
         val sender = row.talk.number ?: return
@@ -777,6 +779,35 @@ class MainActivity : AskingActivity() {
                 setPadding(Look.dp(context, 4), around, pad, around)
             }
         }
+    }
+
+    /**
+     * Each copy of a sending to each into the conversation of whom it went
+     * to, once the person has said so: it changes the phone's store, where
+     * another messaging application will no longer find them as one.
+     */
+    private fun refile(row: Row) {
+        val many = row.crowd?.size ?: 0
+        AlertDialog.Builder(this)
+            .setTitle(row.name)
+            .setItems(arrayOf(getString(R.string.refile))) { _, _ ->
+                AlertDialog.Builder(this)
+                    .setMessage(getString(R.string.refile_ask, many))
+                    .setPositiveButton(R.string.refile_yes) { _, _ ->
+                        thread {
+                            val moved = row.threads.sumOf { Keep.refile(this, it) }
+                            runOnUiThread {
+                                if (isFinishing || isDestroyed) return@runOnUiThread
+                                android.widget.Toast.makeText(this, getString(R.string.refiled, moved), android.widget.Toast.LENGTH_LONG).show()
+                                synchronized(lines) { lines.clear() }
+                                fill()
+                            }
+                        }
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+            }
+            .show()
     }
 
     /** Android asks the person; nothing changes unless they say so. */
