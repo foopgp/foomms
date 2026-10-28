@@ -273,13 +273,15 @@
     <string name="me_verifying">SMS wysłany na %1$s, czekam na jego powrót…</string>
     <string name="me_verified">Sprawdzony: SMS wrócił na ten telefon ✓</string>
     <string name="me_not_back">SMS nie wrócił: to raczej nie jest numer tego telefonu.</string>
-    <string name="me_tie">Powiąż z moim certyfikatem</string>
-    <string name="me_tied">Powiązany z moim certyfikatem.</string>
+    <string name="me_tie_mine">Powiąż z moim certyfikatem: %1$s</string>
+    <string name="me_tie_other">Powiąż z innym certyfikatem…</string>
+    <string name="me_tie_refresh">Odśwież z certyfikatu</string>
+    <string name="me_tied_to">Powiązany z certyfikatem: %1$s.</string>
     <string name="me_tag">(ja)</string>
     <string name="me_unknown">numer nieznany</string>
     <string name="me_sms">foomms: sprawdzanie numeru tego telefonu, kod %1$s.</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
     <string name="choose_name">Nazwa:</string>
-    <string name="name_contact">Zachowaj nazwę z kontaktu: %1$s</string>
-    <string name="name_certificate">Weź nazwę z certyfikatu: %1$s</string>
+    <string name="name_contact">Zachowaj nazwę z kontaktu:</string>
+    <string name="name_certificate">Weź nazwę z certyfikatu:</string>
 </resources>

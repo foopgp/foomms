@@ -12,11 +12,9 @@ import android.widget.ScrollView
 import android.widget.SeekBar
 
 /** What the person sets, a heading and a line of explanation above each, as foodjis lays its own out. */
-class ConfActivity : Activity() {
+class ConfActivity : AskingActivity() {
 
     private lateinit var column: LinearLayout
-
-    private val provider by lazy { Provider(this) }
 
     /** Whether foodjis holds an identity to encrypt to: unknown until it has said. */
     private var holdsOne: Boolean? = null
@@ -26,10 +24,8 @@ class ConfActivity : Activity() {
     @Volatile private var mineCert: Foodjis.Cert? = null
     @Volatile private var suggested: Book.Own? = null
 
-    /** Left by the top, as every page but the list. */
-    private val swipes by lazy { Swipes.watch(this) }
-
-    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean = swipes.feed(event) || super.dispatchTouchEvent(event)
+    /** The certificate one's own contact is tied to, as foodjis tells it. */
+    @Volatile private var ownCert: Foodjis.Cert? = null
 
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
@@ -55,11 +51,6 @@ class ConfActivity : Activity() {
         }
     }
 
-    override fun onDestroy() {
-        provider.close()
-        super.onDestroy()
-    }
-
     override fun onResume() {
         super.onResume()
         Me.onCheck = { if (!isFinishing && !isDestroyed) draw() }
@@ -75,6 +66,7 @@ class ConfActivity : Activity() {
     /** One's own contact read again: it may have been changed in the address book meanwhile. */
     private fun readOwn() = kotlin.concurrent.thread {
         own = Me.card(this)?.let { Book.own(this, it) }
+        ownCert = own?.fingerprint?.let { Foodjis.of(this).card(it) }
         runOnUiThread { if (!isFinishing && !isDestroyed) draw() }
     }
 
@@ -237,7 +229,7 @@ class ConfActivity : Activity() {
                     orientation = LinearLayout.HORIZONTAL
                     gravity = android.view.Gravity.CENTER_VERTICAL
                     setPadding(0, pad / 3, 0, pad / 3)
-                    val standing = cert?.takeIf { own.fingerprint.equals(it.fingerprint, ignoreCase = true) }?.validity
+                    val standing = ownCert?.validity
                     addView(Look.face(context, 44, own.photo, null, standing, framable = true, seed = Look.seed(own.fingerprint, own.numbers.firstOrNull())))
                     addView(Look.words(context, own.name, size = 17f).apply { setPadding(pad, 0, 0, 0) })
                 },
@@ -308,10 +300,18 @@ class ConfActivity : Activity() {
         )
         note(R.string.me_verify_note)
 
-        // Tied to one's certificate: the contact kept up to date from it, as anybody's is.
-        if (own != null && cert != null) {
-            if (own.fingerprint.equals(cert.fingerprint, ignoreCase = true)) note(R.string.me_tied)
-            else column.addView(Look.button(this, getString(R.string.me_tie)) { tieOwn(own, cert, toCheck) })
+        // Tied to a certificate as anybody's contact, the same way: the identity foodjis holds offered first --
+        // set, one hopes for a while only, on another entity, it is not the only choice --, any other from foodjis's list.
+        if (own != null) {
+            val tied = own.fingerprint
+            if (tied != null) note(getString(R.string.me_tied_to, ownCert?.name ?: tied.takeLast(16)))
+            if (cert != null && !cert.fingerprint.equals(tied, ignoreCase = true)) {
+                column.addView(Look.button(this, getString(R.string.me_tie_mine, cert.name)) { tieOwn(cert.fingerprint) })
+            }
+            column.addView(Look.button(this, getString(if (tied != null) R.string.me_tie_refresh else R.string.me_tie_other)) {
+                if (tied != null) tieOwn(tied) else pickCertificate()
+            })
+            if (tied != null) column.addView(Look.button(this, getString(R.string.me_tie_other)) { pickCertificate() })
         }
     }
 
@@ -334,20 +334,60 @@ class ConfActivity : Activity() {
         startActivityForResult(made, CREATE)
     }
 
-    /** One's own contact tied to one's certificate, as anybody's: written in that contact, not in whoever the number finds. */
-    private fun tieOwn(own: Book.Own, cert: Foodjis.Cert, number: String?) {
-        val with = number ?: own.numbers.firstOrNull() ?: return
+    /** foodjis's own list of certificates, over this page: the one pressed is tied to one's own contact. */
+    private fun pickCertificate() {
+        fun chosen(says: Intent?): Boolean {
+            val keyId = says?.getLongArrayExtra(Provider.EXTRA_KEY_IDS)?.firstOrNull() ?: return false
+            tieOwn("%016X".format(keyId))
+            return true
+        }
+        ask(Intent(Provider.GET_KEY_IDS).putExtra(Provider.EXTRA_SINGLE, true), null, ::say, ::chosen) { chosen(it.says) }
+    }
+
+    /**
+     * One's own contact tied to the certificate [named], or what it says
+     * refreshed, through the same window as anybody's ([Tying]): written in
+     * that contact, not in whoever the number finds.
+     */
+    private fun tieOwn(named: String) {
+        val own = own ?: return
+        val number = Me.number(this) ?: own.numbers.firstOrNull() ?: ""
         kotlin.concurrent.thread {
-            val card = Foodjis.of(this).vcard(cert.fingerprint)
-            val done = card != null && runCatching {
-                Book.tie(this, with, card, card.key?.takeIf { Fingerprint.of(it) == cert.fingerprint } ?: Fingerprint.address(cert.fingerprint), contact = own.contact)
-            }.isSuccess
+            val foodjis = Foodjis.of(this)
+            val whose = foodjis.card(named)
+            val stale = whose?.let { foodjis.vcard(it.fingerprint) }?.let { Book.stale(this, number, it, own.contact) }.orEmpty()
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
-                if (!done) android.widget.Toast.makeText(this, R.string.cert_not_found, android.widget.Toast.LENGTH_LONG).show()
+                when {
+                    foodjis.shut -> say(getString(R.string.foodjis_shut))
+                    whose == null -> say(getString(R.string.certificate_not_held))
+                    else -> Tying.offer(this, number, whose, stale, own.contact) { card, face, note, name -> writeOwn(own, number, whose, card, stale, face, note, name) }
+                }
+            }
+        }
+    }
+
+    private fun writeOwn(
+        own: Book.Own, number: String, whose: Foodjis.Cert, card: Card, stale: List<Book.Stale>, face: Book.Pick, note: Book.Pick, name: Book.Pick,
+    ) {
+        if (checkSelfPermission(android.Manifest.permission.WRITE_CONTACTS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            return requestPermissions(arrayOf(android.Manifest.permission.READ_CONTACTS, android.Manifest.permission.WRITE_CONTACTS), 2)
+        }
+        kotlin.concurrent.thread {
+            val outcome = runCatching {
+                Book.tie(this, number, card, card.key?.takeIf { Fingerprint.of(it) == whose.fingerprint } ?: Fingerprint.address(whose.fingerprint), stale, face, note, own.contact, name)
+                getString(R.string.tied, whose.name)
+            }.getOrElse { getString(R.string.failed, it.message) }
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                android.widget.Toast.makeText(this, outcome, android.widget.Toast.LENGTH_LONG).show()
                 readOwn()
             }
         }
+    }
+
+    private fun say(words: String) {
+        AlertDialog.Builder(this).setMessage(words).setPositiveButton(R.string.close, null).show()
     }
 
     /** How the last saving or restoring went: the page is drawn again on return, and it is kept for that. */

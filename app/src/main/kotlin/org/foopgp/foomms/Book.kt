@@ -51,6 +51,18 @@ object Book {
         }
     }.getOrNull()
 
+    /** The contact [contact] when it is given -- one's own --, else whoever [number] finds. */
+    private fun known(context: Context, number: String, contact: Long?): Person? =
+        if (contact != null) person(context, contact) else who(context, number)
+
+    /** A contact by its number in the address book, with its name, picture and certificate. */
+    fun person(context: Context, contact: Long): Person? = runCatching {
+        context.contentResolver.query(
+            android.content.ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contact),
+            arrayOf(ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts.PHOTO_THUMBNAIL_URI), null, null, null,
+        )?.use { rows -> if (rows.moveToFirst()) Person(contact, rows.getString(0).orEmpty(), rows.getString(1)?.let(Uri::parse), fingerprint(context, contact)) else null }
+    }.getOrNull()
+
     /** Counts each writing in the address book made from here: what was read of it before is to be read again. */
     @Volatile var written = 0
         private set
@@ -145,7 +157,7 @@ object Book {
         face: Pick = Pick.CONTACT, note: Pick = Pick.CONTACT, contact: Long? = null, name: Pick = Pick.CONTACT,
     ) {
         written++
-        val known = contact?.let { Person(it, card.name ?: number, null, null) } ?: who(context, number)
+        val known = known(context, number, contact)
         val raw = known?.let { rawOf(context, it.contact) } ?: create(context, number, card.name ?: number)
         val contact = known?.contact ?: contactOf(context, raw)
         val resolver = context.contentResolver
@@ -244,8 +256,8 @@ object Book {
     /** [name]: the contact's, when the certificate gives another. */
     class Differs(val face: android.graphics.Bitmap?, val notes: List<String>, val name: String? = null)
 
-    fun differs(context: Context, number: String, card: Card): Differs {
-        val known = who(context, number) ?: return Differs(null, emptyList())
+    fun differs(context: Context, number: String, card: Card, contact: Long? = null): Differs {
+        val known = known(context, number, contact) ?: return Differs(null, emptyList())
         val theirs = card.photo
         val face = if (theirs == null) null else face(context, known)?.takeIf { !Likeness.alike(it, theirs) }
         // The contact's notes, each as it is -- a contact may hold several --, when they are not the certificate's.
@@ -263,8 +275,8 @@ object Book {
      * say already: the certificate's address, or a line of its card, or its
      * face. Nothing, and there is nothing to ask the person.
      */
-    fun lacks(context: Context, number: String, card: Card, address: String): Boolean {
-        val known = who(context, number) ?: return true
+    fun lacks(context: Context, number: String, card: Card, address: String, contact: Long? = null): Boolean {
+        val known = known(context, number, contact) ?: return true
         fun missing(kind: String, column: String, value: String, same: (String, String) -> Boolean = { a, b -> a == b }) =
             missing(context, known.contact, kind, column, value, same)
         return missing(Website.CONTENT_ITEM_TYPE, Website.URL, address) ||
@@ -293,8 +305,8 @@ object Book {
      * carries: revoked in it, or taken off. Marked ones only; the
      * certificate's own address is replaced by [tie], never counted here.
      */
-    fun stale(context: Context, number: String, card: Card): List<Stale> {
-        val known = who(context, number) ?: return emptyList()
+    fun stale(context: Context, number: String, card: Card, contact: Long? = null): List<Stale> {
+        val known = known(context, number, contact) ?: return emptyList()
         val found = ArrayList<Stale>()
         fun look(kind: String, column: String, carried: List<String>, kept: (String) -> Boolean = { false }, same: (String, String) -> Boolean = { a, b -> a == b }) {
             // TYPE and LABEL are DATA2 and DATA3 in every kind of row: a custom type, labelled with the mark.

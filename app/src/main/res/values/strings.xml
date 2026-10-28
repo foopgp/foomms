@@ -268,13 +268,15 @@
     <string name="me_verifying">SMS sent to %1$s, waiting for it to come back…</string>
     <string name="me_verified">Checked: the SMS came back to this phone ✓</string>
     <string name="me_not_back">The SMS did not come back: this is probably not this phone\'s number.</string>
-    <string name="me_tie">Tie to my certificate</string>
-    <string name="me_tied">Tied to my certificate.</string>
+    <string name="me_tie_mine">Tie to my certificate: %1$s</string>
+    <string name="me_tie_other">Tie to another certificate…</string>
+    <string name="me_tie_refresh">Refresh from the certificate</string>
+    <string name="me_tied_to">Tied to the certificate of %1$s.</string>
     <string name="me_tag">(me)</string>
     <string name="me_unknown">number unknown</string>
     <string name="me_sms">foomms: checking this phone\'s number, code %1$s.</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
     <string name="choose_name">Name:</string>
-    <string name="name_contact">Keep the contact\'s: %1$s</string>
-    <string name="name_certificate">Take the certificate\'s: %1$s</string>
+    <string name="name_contact">Keep the contact\'s:</string>
+    <string name="name_certificate">Take the certificate\'s:</string>
 </resources>

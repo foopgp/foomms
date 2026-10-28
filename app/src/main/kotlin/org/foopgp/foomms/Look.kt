@@ -384,6 +384,41 @@ object Look {
         }
     }
 
+    /**
+     * A choice and its value on one line, the value on the right; when both
+     * do not fit, the value on the line below, still on the right. A name is
+     * never cut by the end of a line.
+     */
+    fun beside(context: Context, label: View, value: View): android.view.ViewGroup = object : android.view.ViewGroup(context) {
+        private var under = false
+
+        init { addView(label) ; addView(value) }
+
+        override fun onMeasure(widthSpec: Int, heightSpec: Int) {
+            val width = MeasureSpec.getSize(widthSpec)
+            val free = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            val most = MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST)
+            label.measure(most, free)
+            value.measure(free, free)
+            under = label.measuredWidth + dp(context, 8) + value.measuredWidth > width
+            if (under) value.measure(most, free)
+            val height = if (under) label.measuredHeight + value.measuredHeight else maxOf(label.measuredHeight, value.measuredHeight)
+            setMeasuredDimension(width, height)
+        }
+
+        override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+            val width = right - left
+            if (under) {
+                label.layout(0, 0, label.measuredWidth, label.measuredHeight)
+                value.layout(width - value.measuredWidth, label.measuredHeight, width, label.measuredHeight + value.measuredHeight)
+            } else {
+                val middle = measuredHeight / 2
+                label.layout(0, middle - label.measuredHeight / 2, label.measuredWidth, middle + (label.measuredHeight + 1) / 2)
+                value.layout(width - value.measuredWidth, middle - value.measuredHeight / 2, width, middle + (value.measuredHeight + 1) / 2)
+            }
+        }
+    }
+
     /** What a face of pixels is made from: a certificate's fingerprint, else the number. */
     fun seed(fingerprint: String?, number: String?): String? = fingerprint ?: number?.let(Phone::key)
 

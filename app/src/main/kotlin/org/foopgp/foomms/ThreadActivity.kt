@@ -1840,123 +1840,9 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
-    /**
-     * Nothing is written in the address book before the person has seen what
-     * would be: the card foodjis makes of the certificate, a line each, and
-     * the [stale] lines an earlier one wrote, which go.
-     */
-    private fun offer(whose: Foodjis.Cert, stale: List<Book.Stale> = emptyList()) {
-        thread {
-            val card = foodjis.vcard(whose.fingerprint)
-            // Where the contact has its own face or note, and the certificate another: the person chooses.
-            val differs = card?.takeIf { checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED }
-                ?.let { Book.differs(this, number, it) } ?: Book.Differs(null, emptyList())
-            runOnUiThread {
-                if (isFinishing || isDestroyed) return@runOnUiThread
-                if (card == null) return@runOnUiThread say(getString(R.string.no_card, whose.name))
-                // A face or a note the person chooses below is not also in the list of what is written.
-                val told = card.told(withNotes = differs.notes.isEmpty(), withName = differs.name == null).joinToString("\n") { "•  $it" } +
-                    (if (card.photo != null && differs.face == null) "\n•  " + getString(R.string.card_photo) else "") +
-                    "\n•  🔑 " + (card.key ?: Fingerprint.address(whose.fingerprint))
-                val pad = Look.dp(this, 20)
-                var face = Book.Pick.CONTACT
-                var note = Book.Pick.CONTACT
-                var name = Book.Pick.CONTACT
-                val column = LinearLayout(this).apply {
-                    orientation = LinearLayout.VERTICAL
-                    setPadding(pad, pad / 2, pad, 0)
-                    addView(
-                        Look.words(
-                            context,
-                            android.text.SpannableStringBuilder(getString(R.string.tie_ask_before)).append(" ")
-                                // Anything but certified, in bold: what the person is about to write in their address book.
-                                .append(
-                                    Look.standing(context, whose.validity).let { said ->
-                                        if (whose.certified) said
-                                        else android.text.SpannableString(said).apply { setSpan(android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, length, 0) }
-                                    },
-                                ).append(getString(R.string.tie_ask_after)).append("\n\n").append(told)
-                                .apply { if (stale.isNotEmpty()) append("\n\n").append(getString(R.string.tie_ask_removed)).append("\n").append(stale.joinToString("\n") { "•  ${it.value}" }) },
-                            size = 15f,
-                        ),
-                    )
-                    // The contact's name or the certificate's, as for the note: one or the other.
-                    val ours = differs.name
-                    val given = card.name
-                    if (ours != null && given != null) {
-                        addView(Look.words(context, getString(R.string.choose_name), size = 15f).apply { setPadding(0, pad, 0, pad / 3) })
-                        addView(
-                            android.widget.RadioGroup(context).apply {
-                                addView(android.widget.RadioButton(context).apply { id = 1 ; text = getString(R.string.name_contact, ours) ; textSize = 14f ; setTextColor(Look.INK) })
-                                addView(android.widget.RadioButton(context).apply { id = 2 ; text = getString(R.string.name_certificate, given) ; textSize = 14f ; setTextColor(Look.INK) })
-                                check(1)
-                                setOnCheckedChangeListener { _, id -> name = if (id == 2) Book.Pick.CERTIFICATE else Book.Pick.CONTACT }
-                            },
-                        )
-                    }
-                    // The two faces side by side, the contact's on the left: the one pressed is kept.
-                    val theirs = card.photo?.let { Media.thumbnail(it, Media.FACE) }
-                    if (differs.face != null && theirs != null) {
-                        addView(Look.words(context, getString(R.string.choose_face), size = 15f).apply { setPadding(0, pad, 0, pad / 3) })
-                        val faces = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL ; gravity = Gravity.CENTER }
-                        val frames = ArrayList<View>()
-                        fun choice(picture: Bitmap, said: Int, pick: Book.Pick) = LinearLayout(context).apply {
-                            orientation = LinearLayout.VERTICAL
-                            gravity = Gravity.CENTER_HORIZONTAL
-                            setPadding(pad / 3, pad / 3, pad / 3, pad / 3)
-                            addView(
-                                android.widget.ImageView(context).apply { setImageBitmap(picture) ; scaleType = android.widget.ImageView.ScaleType.CENTER_CROP },
-                                LinearLayout.LayoutParams(Look.dp(context, 96), Look.dp(context, 96)),
-                            )
-                            addView(Look.words(context, getString(said), size = 13f, muted = true))
-                            setOnClickListener { face = pick ; frames.forEach { it.background = null } ; background = Look.rounded(Look.ORANGE, Look.dp(context, 8)) }
-                        }.also { frames += it }
-                        faces.addView(choice(differs.face, R.string.face_contact, Book.Pick.CONTACT).apply { background = Look.rounded(Look.ORANGE, Look.dp(context, 8)) })
-                        faces.addView(View(context), LinearLayout.LayoutParams(pad, 1))
-                        faces.addView(choice(theirs, R.string.face_certificate, Book.Pick.CERTIFICATE))
-                        addView(faces)
-                    }
-                    // The contact's notes or the certificate's, each note in a frame of its own under its choice, cut when
-                    // long: one choice or the other, never both, so that notes do not pile up in the contact.
-                    if (differs.notes.isNotEmpty()) {
-                        addView(Look.words(context, getString(R.string.choose_note), size = 15f).apply { setPadding(0, pad, 0, pad / 3) })
-                        fun cut(text: String) = if (text.length <= NOTE_SHOWN) text else "${text.take(NOTE_SHOWN).trimEnd()}… " + getString(R.string.note_size, text.length)
-                        val picks = listOf(
-                            Triple(Book.Pick.CONTACT, if (differs.notes.size > 1) R.string.note_contact_many else R.string.note_contact, differs.notes),
-                            Triple(Book.Pick.CERTIFICATE, if (card.notes.size > 1) R.string.note_certificate_many else R.string.note_certificate, card.notes),
-                        )
-                        addView(
-                            android.widget.RadioGroup(context).apply {
-                                for ((at, pick) in picks.withIndex()) {
-                                    addView(android.widget.RadioButton(context).apply { id = at + 1 ; text = getString(pick.second) ; textSize = 14f ; setTextColor(Look.INK) })
-                                    // Pressed, a note chooses as its button does.
-                                    for (one in pick.third) {
-                                        addView(
-                                            Look.words(context, cut(one), size = 14f).apply {
-                                                setPadding(pad / 2, pad / 3, pad / 2, pad / 3)
-                                                background = Look.framed(context)
-                                                setOnClickListener { check(at + 1) }
-                                            },
-                                            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                                                .apply { marginStart = Look.dp(context, 32) ; bottomMargin = pad / 3 },
-                                        )
-                                    }
-                                }
-                                check(1)
-                                setOnCheckedChangeListener { _, id -> note = picks[id - 1].first }
-                            },
-                        )
-                    }
-                }
-                AlertDialog.Builder(this)
-                    .setTitle(getString(R.string.tie_ask, number, whose.name))
-                    .setView(android.widget.ScrollView(this).apply { addView(column) })
-                    .setPositiveButton(R.string.tie_write) { _, _ -> write(whose, card, stale, face, note, name) }
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show()
-            }
-        }
-    }
+    /** What would be written in the contact of this number, shown before it is ([Tying]). */
+    private fun offer(whose: Foodjis.Cert, stale: List<Book.Stale> = emptyList()) =
+        Tying.offer(this, number, whose, stale) { card, face, note, name -> write(whose, card, stale, face, note, name) }
 
     private var waiting: (() -> Unit)? = null
 
@@ -2026,8 +1912,6 @@ class ThreadActivity : AskingActivity() {
         private const val SAVE_PIECE = 12
         private const val VIDEO = 13
 
-        /** How much of a note is shown when the person chooses between two. */
-        private const val NOTE_SHOWN = 160
 
         /** How soon a picture pressed again after growing gives its menu, in milliseconds. */
         private const val AGAIN = 300L

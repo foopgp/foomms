@@ -265,13 +265,15 @@
     <string name="me_verifying">Το SMS στάλθηκε στο %1$s, αναμονή επιστροφής…</string>
     <string name="me_verified">Ελέγχθηκε: το SMS επέστρεψε σε αυτό το τηλέφωνο ✓</string>
     <string name="me_not_back">Το SMS δεν επέστρεψε: μάλλον δεν είναι ο αριθμός αυτού του τηλεφώνου.</string>
-    <string name="me_tie">Σύνδεση με το πιστοποιητικό μου</string>
-    <string name="me_tied">Συνδεδεμένη με το πιστοποιητικό μου.</string>
+    <string name="me_tie_mine">Σύνδεση με το πιστοποιητικό μου: %1$s</string>
+    <string name="me_tie_other">Σύνδεση με άλλο πιστοποιητικό…</string>
+    <string name="me_tie_refresh">Ανανέωση από το πιστοποιητικό</string>
+    <string name="me_tied_to">Συνδεδεμένη με το πιστοποιητικό: %1$s.</string>
     <string name="me_tag">(εγώ)</string>
     <string name="me_unknown">άγνωστος αριθμός</string>
     <string name="me_sms">foomms: έλεγχος του αριθμού αυτού του τηλεφώνου, κωδικός %1$s.</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
     <string name="choose_name">Όνομα:</string>
-    <string name="name_contact">Διατήρηση αυτού της επαφής: %1$s</string>
-    <string name="name_certificate">Χρήση αυτού του πιστοποιητικού: %1$s</string>
+    <string name="name_contact">Διατήρηση αυτού της επαφής:</string>
+    <string name="name_certificate">Χρήση αυτού του πιστοποιητικού:</string>
 </resources>
