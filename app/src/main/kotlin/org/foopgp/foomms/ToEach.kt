@@ -19,7 +19,10 @@ object ToEach {
 
     fun send(context: Context, whom: List<Pair<String, String>>, text: String?, piece: Pdu.Part?, mms: Boolean) {
         val at = System.currentTimeMillis()
-        val into = if (Keep.ours(context)) runCatching { android.provider.Telephony.Threads.getOrCreateThreadId(context, whom.map { it.first }.toSet()) }.getOrNull() else null
+        // Android names a conversation by its numbers: those of a group MMS may be these very ones. Its conversation
+        // is the group's then, and each copy goes to the conversation of whom it went to instead, its moment the same.
+        val into = if (Keep.ours(context)) runCatching { android.provider.Telephony.Threads.getOrCreateThreadId(context, whom.map { it.first }.toSet()) }.getOrNull()
+            ?.takeIf { Store.toEach(context, it) } else null
         thread {
             val failed = ArrayList<String>()
             for ((rank, one) in whom.withIndex()) {

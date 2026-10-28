@@ -525,7 +525,9 @@ class ThreadActivity : AskingActivity() {
             // A group's conversations, one after the other in time.
             // With one person: what another application sent them as one of several, filed elsewhere, shown here too.
             val elsewhere = if (group) emptyList() else Store.sentToEach(this, number)
+            // A group's: its MMS. An SMS there can only be a copy of a sending to each, shown in the conversation of whom it went to.
             val found = (given.ifEmpty { listOfNotNull(thread) }).flatMap { runCatching { Store.lines(this, it) }.getOrDefault(emptyList()) }
+                .let { lines -> if (group) lines.filter { it.mms } else lines }
                 .let { if (given.size > 1 || elsewhere.isNotEmpty()) (it + elsewhere).sortedBy { line -> line.at } else it }
             // The messages shown at once; signed ones verified from now.
             runOnUiThread {

@@ -61,13 +61,17 @@ object Store {
      * What was sent to [number] as one of several, filed in one conversation
      * of all of them as messaging applications file a sending to each: shown
      * in the conversation with [number] too, where an answer is written, and
-     * kept in its backup. Its SMS and its MMS.
+     * kept in its backup. Its SMS -- an SMS goes to one number: in a
+     * conversation of several, it can only be a copy of a sending to each,
+     * a group's conversation included --, and its MMS where they were sent
+     * to each.
      */
     fun sentToEach(context: Context, number: String): List<Line> = runCatching {
         val found = ArrayList<Line>()
         for (thread in eachWith(context, number)) {
+            val each = toEach(context, thread)
             for (line in lines(context, thread)) {
-                if (line.incoming) continue
+                if (line.incoming || (line.mms && !each)) continue
                 val to = addressOf(context, line) ?: continue
                 if (Phone.same(to, number) || to == number) found += line
             }
@@ -75,7 +79,7 @@ object Store {
         found
     }.getOrDefault(emptyList())
 
-    /** The conversations of several numbers, [number] among them, that hold sendings to each. */
+    /** The conversations of several numbers, [number] among them: where sendings to each are filed. */
     private fun eachWith(context: Context, number: String): List<Long> {
         val tail = Phone.key(number).takeIf { it.all(Char::isDigit) } ?: return emptyList()
         // The phone's own numbering of the addresses that are [number], however written.
@@ -90,7 +94,7 @@ object Store {
         context.contentResolver.query(THREADS, arrayOf("_id", "recipient_ids"), "trim(recipient_ids) LIKE '% %' AND message_count > 0", null, null)?.use { rows ->
             while (rows.moveToNext()) {
                 val members = rows.getString(1)?.trim()?.split(' ').orEmpty()
-                if (members.any { it in ids } && toEach(context, rows.getLong(0))) found += rows.getLong(0)
+                if (members.any { it in ids }) found += rows.getLong(0)
             }
         }
         return found
