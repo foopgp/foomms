@@ -819,8 +819,8 @@ class ThreadActivity : AskingActivity() {
         thread {
             val own = Me.card(this)?.let { Book.own(this, it) }
             val mineCert = foodjis.signer(key)
-            val all = listOf(Members.Member(own?.name ?: mineCert?.name ?: Me.number(this).orEmpty(), Me.number(this).orEmpty(), mineCert?.fingerprint)) +
-                members.map { Members.Member(it.name, it.number, it.card?.fingerprint) }
+            val all = listOf(Members.Member(own?.name ?: mineCert?.name ?: Me.number(this).orEmpty(), Me.number(this).orEmpty(), mineCert?.fingerprint, mineCert?.eid)) +
+                members.map { Members.Member(it.name, it.number, it.card?.fingerprint, it.card?.eid) }
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 ask(request(Mode.LOCK, armored = false, name = Members.INSIDE), Members.write(all), ::say) { sealed ->

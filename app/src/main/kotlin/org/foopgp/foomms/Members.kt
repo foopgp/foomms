@@ -2,8 +2,9 @@ package org.foopgp.foomms
 
 /**
  * What tells an encrypted group, carried in each of its messages: who is
- * in it, one vCard each -- the name, the number, and the address of the
- * certificate, which holds its fingerprint --, encrypted for all of them as
+ * in it, one vCard each -- the name, the number, the entity identifier when
+ * the certificate gives one, and the address of the certificate, which
+ * holds its fingerprint --, encrypted for all of them as
  * the message is. Networks are free to rewrite to whom an MMS went, and
  * some do; this is not rewritten. The keys it is encrypted for, which every
  * message names unencrypted, tell the group before anything is opened.
@@ -16,7 +17,7 @@ object Members {
     /** The name of the file inside, once opened. */
     const val INSIDE = "foomms-group.vcf"
 
-    class Member(val name: String, val number: String, val fingerprint: String?)
+    class Member(val name: String, val number: String, val fingerprint: String?, val eid: String? = null)
 
     fun isPart(name: String?): Boolean = name == PART
 
@@ -25,6 +26,7 @@ object Members {
         for (one in members) {
             append("BEGIN:VCARD\r\nVERSION:4.0\r\n")
             append("FN:").append(escape(one.name)).append("\r\n")
+            one.eid?.let { append("UID:urn:eid:").append(it).append("\r\n") }
             append("TEL;VALUE=uri:tel:").append(one.number.filterNot { it.isWhitespace() }).append("\r\n")
             one.fingerprint?.let { append("KEY:").append(Fingerprint.address(it)).append("\r\n") }
             append("END:VCARD\r\n")
@@ -37,8 +39,12 @@ object Members {
             if (!block.contains("BEGIN:VCARD")) return@mapNotNull null
             val card = Card.of(block.substringAfter("BEGIN:VCARD").let { "BEGIN:VCARD$it\r\nEND:VCARD" })
             val number = card.phones.firstOrNull()?.let { Phone.plain(it) } ?: return@mapNotNull null
-            Member(card.name ?: number, number, card.key?.let { Fingerprint.of(it) })
+            val eid = card.lines.firstOrNull { it.name == "UID" }?.value?.takeIf { it.startsWith(EID) }?.removePrefix(EID)
+            Member(card.name ?: number, number, card.key?.let { Fingerprint.of(it) }, eid)
         }
+
+    /** How an entity identifier is written as a vCard's UID. */
+    private const val EID = "urn:eid:"
 
     private fun escape(text: String) = text.replace("\\", "\\\\").replace(",", "\\,").replace(";", "\\;").replace("\n", "\\n")
 }
