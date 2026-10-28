@@ -277,8 +277,4 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Όλες οι επαφές (%1$d)</string>
     <string name="group_needs_keys">Μια κρυπτογραφημένη ομάδα χρειάζεται πιστοποιητικό για τον καθένα: λείπει για %1$s.</string>
-    <plurals name="locked_for_n">
-        <item quantity="one">⚿ Κρυπτογραφημένο μήνυμα για %d κλειδί</item>
-        <item quantity="other">⚿ Κρυπτογραφημένο μήνυμα για %d κλειδιά</item>
-    </plurals>
 </resources>

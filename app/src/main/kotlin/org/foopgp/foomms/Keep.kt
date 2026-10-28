@@ -107,6 +107,7 @@ object Keep {
      * certificate, the number it lacks.
      */
     fun joined(context: Context, part: Long, members: List<Members.Member>) {
+        Members.remember(context, members)
         if (!ours(context)) return
         val resolver = context.contentResolver
         val message = resolver.query(Uri.parse("content://mms/part/$part"), arrayOf("mid"), null, null, null)?.use { if (it.moveToFirst()) it.getLong(0) else null } ?: return

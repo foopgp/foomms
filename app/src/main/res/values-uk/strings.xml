@@ -285,10 +285,4 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Усі контакти (%1$d)</string>
     <string name="group_needs_keys">Зашифрованій групі потрібен сертифікат кожного учасника: його немає для %1$s.</string>
-    <plurals name="locked_for_n">
-        <item quantity="one">⚿ Повідомлення зашифровано для %d ключа</item>
-        <item quantity="few">⚿ Повідомлення зашифровано для %d ключів</item>
-        <item quantity="many">⚿ Повідомлення зашифровано для %d ключів</item>
-        <item quantity="other">⚿ Повідомлення зашифровано для %d ключа</item>
-    </plurals>
 </resources>

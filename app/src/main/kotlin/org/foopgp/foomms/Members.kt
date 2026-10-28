@@ -46,5 +46,20 @@ object Members {
     /** How an entity identifier is written as a vCard's UID. */
     private const val EID = "urn:eid:"
 
+    /** What a members part said of each, kept by number: the certificate a member is tied to from a group's menu. */
+    fun remember(context: android.content.Context, members: List<Member>) {
+        val edit = kept(context).edit()
+        for (one in members) edit.putString(Phone.key(one.number), listOf(one.name, one.number, one.fingerprint.orEmpty(), one.eid.orEmpty()).joinToString("\t"))
+        edit.apply()
+    }
+
+    /** What a members part last said of [number]. */
+    fun known(context: android.content.Context, number: String): Member? =
+        kept(context).getString(Phone.key(number), null)?.split('\t')?.takeIf { it.size >= 4 }?.let {
+            Member(it[0], it[1], it[2].ifEmpty { null }, it[3].ifEmpty { null })
+        }
+
+    private fun kept(context: android.content.Context) = context.getSharedPreferences("members", android.content.Context.MODE_PRIVATE)
+
     private fun escape(text: String) = text.replace("\\", "\\\\").replace(",", "\\,").replace(";", "\\;").replace("\n", "\\n")
 }

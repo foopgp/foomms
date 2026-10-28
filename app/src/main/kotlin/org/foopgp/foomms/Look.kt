@@ -419,6 +419,51 @@ object Look {
         }
     }
 
+    /**
+     * Views one after the other on a line, going on to the next when the
+     * line is full; each line kept to the right, the first one's first view
+     * on the left: words, then faces that never cross the edge.
+     */
+    fun flow(context: Context, gap: Int): android.view.ViewGroup = object : android.view.ViewGroup(context) {
+        private val lines = ArrayList<List<View>>()
+
+        override fun onMeasure(widthSpec: Int, heightSpec: Int) {
+            val most = MeasureSpec.getSize(widthSpec).takeIf { MeasureSpec.getMode(widthSpec) != MeasureSpec.UNSPECIFIED } ?: Int.MAX_VALUE
+            lines.clear()
+            var line = ArrayList<View>()
+            var width = 0
+            var widest = 0
+            var height = 0
+            fun close() { if (line.isNotEmpty()) { lines += line ; height += line.maxOf { it.measuredHeight } } ; line = ArrayList() ; width = 0 }
+            for (at in 0 until childCount) {
+                val one = getChildAt(at)
+                one.measure(MeasureSpec.makeMeasureSpec(most, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED))
+                val need = one.measuredWidth + if (line.isEmpty()) 0 else gap
+                if (line.isNotEmpty() && width + need > most) close()
+                width += if (line.isEmpty()) one.measuredWidth else need
+                line += one
+                widest = maxOf(widest, width)
+            }
+            close()
+            setMeasuredDimension(if (lines.size > 1 && most != Int.MAX_VALUE) most else widest, height)
+        }
+
+        override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+            var y = 0
+            for ((at, line) in lines.withIndex()) {
+                val tall = line.maxOf { it.measuredHeight }
+                val width = line.sumOf { it.measuredWidth } + gap * (line.size - 1)
+                var x = if (at == 0) 0 else (right - left) - width
+                for (one in line) {
+                    val down = y + (tall - one.measuredHeight) / 2
+                    one.layout(x, down, x + one.measuredWidth, down + one.measuredHeight)
+                    x += one.measuredWidth + gap
+                }
+                y += tall
+            }
+        }
+    }
+
     /** One of a group, as a small face shows them: their picture, what their certificate is worth, and what pixels would be made from. */
     class Mini(val face: Bitmap?, val standing: String?, val seed: String?)
 

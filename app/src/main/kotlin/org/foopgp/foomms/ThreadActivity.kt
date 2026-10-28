@@ -708,13 +708,14 @@ class ThreadActivity : AskingActivity() {
         var shown: AlertDialog? = null
         // Oneself first: the MMS goes to the others, and comes back to every one of them from all.
         val own = Me.card(this)?.let { Book.own(this, it) }
+        val ownStanding = own?.fingerprint?.let { foodjis.card(it) }?.validity
         val mine = Me.number(this)
         column.addView(
             LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 setPadding(0, Look.dp(context, 6), 0, Look.dp(context, 6))
-                addView(Look.face(context, 40, own?.photo, null, framable = true, seed = Look.seed(own?.fingerprint, mine)))
+                addView(Look.face(context, 40, own?.photo, null, ownStanding, framable = true, seed = Look.seed(own?.fingerprint, mine)))
                 addView(
                     LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
@@ -726,8 +727,7 @@ class ThreadActivity : AskingActivity() {
             },
         )
         for (one in members) {
-            val standing: CharSequence = one.card?.let { android.text.SpannableStringBuilder("🔑 ").append(Look.standing(this, it.validity)) }
-                ?: getString(R.string.no_certificate)
+            val standing: CharSequence? = one.card?.let { android.text.SpannableStringBuilder("🔑 ").append(Look.standing(this, it.validity)) }
             column.addView(
                 LinearLayout(this).apply {
                     orientation = LinearLayout.HORIZONTAL
@@ -739,8 +739,21 @@ class ThreadActivity : AskingActivity() {
                             orientation = LinearLayout.VERTICAL
                             setPadding(Look.dp(context, 12), 0, 0, 0)
                             addView(Look.words(context, one.name, size = 17f))
-                            addView(Look.words(context, if (one.name != one.number) android.text.SpannableStringBuilder("${one.number} — ").append(standing) else standing, size = 13f, muted = true))
+                            if (standing != null) {
+                                addView(Look.words(context, if (one.name != one.number) android.text.SpannableStringBuilder("${one.number} — ").append(standing) else standing, size = 13f, muted = true))
+                            } else {
+                                if (one.name != one.number) addView(Look.words(context, one.number, size = 13f, muted = true))
+                                // No contact, or one with no certificate: tied here, the contact made if there is none --
+                                // from the certificate the group's members part names, when one was read.
+                                addView(
+                                    Look.small(context, getString(if (one.person == null) R.string.contact_add else R.string.tie)) {
+                                        shown?.dismiss()
+                                        tieMember(one.number)
+                                    }.apply { isFocusable = false },
+                                )
+                            }
                         },
+                        LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
                     )
                     setOnClickListener {
                         shown?.dismiss()
@@ -768,6 +781,45 @@ class ThreadActivity : AskingActivity() {
             .setView(android.widget.ScrollView(this).apply { addView(column) })
             .setPositiveButton(R.string.close, null)
             .show()
+    }
+
+    /**
+     * A member of the group tied to a certificate, their contact made if
+     * they have none: the one the group's members part named, fetched by
+     * foodjis if it does not hold it; else one from foodjis's list. Through
+     * the same window as any tying ([Tying]).
+     */
+    private fun tieMember(to: String) {
+        val named = Members.known(this, to)?.fingerprint
+        if (named == null) {
+            fun chosen(says: Intent?): Boolean {
+                val keyId = says?.getLongArrayExtra(Provider.EXTRA_KEY_IDS)?.firstOrNull() ?: return false
+                offerFor(to, "%016X".format(keyId))
+                return true
+            }
+            return ask(Intent(Provider.GET_KEY_IDS).putExtra(Provider.EXTRA_SINGLE, true), null, ::say, ::chosen) { chosen(it.says) }
+        }
+        // Held, or asked of the key servers first.
+        thread {
+            val held = foodjis.card(named) != null
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                if (held) return@runOnUiThread offerFor(to, named)
+                ask(Intent(Provider.GET_KEY).putExtra(Provider.EXTRA_KEY_ID, Fingerprint.keyId(named)), null, ::say) { foodjis.fresh() ; offerFor(to, named) }
+            }
+        }
+    }
+
+    private fun offerFor(to: String, named: String) {
+        thread {
+            val whose = foodjis.card(named)
+            val stale = whose?.let { foodjis.vcard(it.fingerprint) }?.let { Book.stale(this, to, it) }.orEmpty()
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                if (whose == null) return@runOnUiThread say(getString(R.string.certificate_not_held))
+                Tying.offer(this, to, whose, stale) { card, face, note, name -> write(whose, card, stale, face, note, name, to) }
+            }
+        }
     }
 
     /** What a group is muted by: its members but this phone, whichever of its conversations a message comes to. */
@@ -1818,13 +1870,12 @@ class ThreadActivity : AskingActivity() {
                             orientation = LinearLayout.HORIZONTAL
                             gravity = Gravity.CENTER_VERTICAL
                             addView(text)
-                            // A few, their faces; more, how many: a row of faces would not fit.
-                            val keys = Pgp.recipients(armor!!)
-                            if (keys.size > FACES_FOR) text.text = resources.getQuantityString(R.plurals.locked_for_n, keys.size, keys.size)
-                            else for (id in keys) {
-                                addView(View(context), LinearLayout.LayoutParams(Look.dp(context, 4), 1))
-                                addView(Look.face(context, 22, null, meant[id]?.face))
-                            }
+                            // The faces after the words, going on to the next line on the right when the bubble is full.
+                            val faces = Look.flow(context, Look.dp(context, 4))
+                            for (id in Pgp.recipients(armor!!)) faces.addView(Look.face(context, 22, null, meant[id]?.face))
+                            removeView(text)
+                            faces.addView(text, 0)
+                            addView(faces)
                         },
                     )
                 } else if (words.isNotEmpty() || line.pieces.isEmpty()) {
@@ -1981,14 +2032,15 @@ class ThreadActivity : AskingActivity() {
     private fun write(
         whose: Foodjis.Cert, vcard: Card, stale: List<Book.Stale> = emptyList(),
         face: Book.Pick = Book.Pick.CONTACT, note: Book.Pick = Book.Pick.CONTACT, name: Book.Pick = Book.Pick.CONTACT,
+        to: String = number,
     ) {
         if (NEEDED_TO_WRITE.any { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }) {
-            waiting = { write(whose, vcard, stale, face, note, name) }
+            waiting = { write(whose, vcard, stale, face, note, name, to) }
             return requestPermissions(NEEDED_TO_WRITE, 2)
         }
         thread {
             val outcome = runCatching {
-                Book.tie(this, number, vcard, vcard.key?.takeIf { Fingerprint.of(it) == whose.fingerprint } ?: Fingerprint.address(whose.fingerprint), stale, face, note, name = name)
+                Book.tie(this, to, vcard, vcard.key?.takeIf { Fingerprint.of(it) == whose.fingerprint } ?: Fingerprint.address(whose.fingerprint), stale, face, note, name = name)
                 getString(R.string.tied, whose.name)
             }.getOrElse { getString(R.string.failed, it.message) }
             runOnUiThread {
@@ -2025,9 +2077,6 @@ class ThreadActivity : AskingActivity() {
         const val EXTRA_THREAD = "thread"
         /** Several conversations shown as one: a group's, with this phone among its numbers and without. */
         const val EXTRA_THREADS = "threads"
-
-        /** How many keys a message is encrypted for that its bubble shows as faces; more are counted. */
-        private const val FACES_FOR = 3
 
         /** Opened for something to be done at once: say whose certificate the number means, or read it again from foodjis. */
         const val EXTRA_ASK = "ask"
