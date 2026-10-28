@@ -790,6 +790,11 @@ class ThreadActivity : AskingActivity() {
      * the same window as any tying ([Tying]).
      */
     private fun tieMember(to: String) {
+        // What the group's members part said, kept when it was opened -- or opened already on this page, read now.
+        if (Members.known(this, to) == null) {
+            lines.flatMap { it.pieces }.filter { Members.isPart(it.name) }.firstNotNullOfOrNull { Opened.piece(it.id)?.bytes }
+                ?.let { Members.remember(this, Members.read(it)) }
+        }
         val named = Members.known(this, to)?.fingerprint
         if (named == null) {
             fun chosen(says: Intent?): Boolean {

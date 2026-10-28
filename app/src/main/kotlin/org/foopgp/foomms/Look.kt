@@ -421,8 +421,8 @@ object Look {
 
     /**
      * Views one after the other on a line, going on to the next when the
-     * line is full; each line kept to the right, the first one's first view
-     * on the left: words, then faces that never cross the edge.
+     * line is full; every line kept to the right but for the first view,
+     * on the left: words, then faces in columns, that never cross the edge.
      */
     fun flow(context: Context, gap: Int): android.view.ViewGroup = object : android.view.ViewGroup(context) {
         private val lines = ArrayList<List<View>>()
@@ -445,6 +445,7 @@ object Look {
                 widest = maxOf(widest, width)
             }
             close()
+            // Several lines: the whole width, for their right edges to meet.
             setMeasuredDimension(if (lines.size > 1 && most != Int.MAX_VALUE) most else widest, height)
         }
 
@@ -452,12 +453,13 @@ object Look {
             var y = 0
             for ((at, line) in lines.withIndex()) {
                 val tall = line.maxOf { it.measuredHeight }
-                val width = line.sumOf { it.measuredWidth } + gap * (line.size - 1)
-                var x = if (at == 0) 0 else (right - left) - width
-                for (one in line) {
+                // From the right edge leftwards; the very first view alone at the left.
+                var x = right - left
+                for ((rank, one) in line.withIndex().reversed()) {
                     val down = y + (tall - one.measuredHeight) / 2
-                    one.layout(x, down, x + one.measuredWidth, down + one.measuredHeight)
-                    x += one.measuredWidth + gap
+                    val from = if (at == 0 && rank == 0) 0 else x - one.measuredWidth
+                    one.layout(from, down, from + one.measuredWidth, down + one.measuredHeight)
+                    x = from - gap
                 }
                 y += tall
             }
