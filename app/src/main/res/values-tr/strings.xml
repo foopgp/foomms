@@ -269,4 +269,8 @@
     <string name="altered_title">Grup MMS\'i değiştirilmiş</string>
     <string name="altered">Gönderdiğiniz bir grup MMS\'i size farklı döndü: yolda büyük olasılıkla tüm alıcılar için değiştirildi.</string>
     <string name="channel_altered">Değiştirilmiş mesajlar</string>
+    <plurals name="recipients_n">
+        <item quantity="one">%d alıcı</item>
+        <item quantity="other">%d alıcı</item>
+    </plurals>
 </resources>

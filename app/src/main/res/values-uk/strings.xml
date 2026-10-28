@@ -277,4 +277,10 @@
     <string name="altered_title">Групове MMS змінено</string>
     <string name="altered">Надіслане вами групове MMS повернулося іншим: імовірно, його змінили в дорозі, для всіх одержувачів.</string>
     <string name="channel_altered">Змінені повідомлення</string>
+    <plurals name="recipients_n">
+        <item quantity="one">%d одержувач</item>
+        <item quantity="few">%d одержувачі</item>
+        <item quantity="many">%d одержувачів</item>
+        <item quantity="other">%d одержувача</item>
+    </plurals>
 </resources>

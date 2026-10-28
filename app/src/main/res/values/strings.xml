@@ -272,4 +272,8 @@
     <string name="altered_title">Group MMS altered</string>
     <string name="altered">A group MMS you sent came back different: it was most likely changed on its way, for everyone it went to.</string>
     <string name="channel_altered">Altered messages</string>
+    <plurals name="recipients_n">
+        <item quantity="one">%d recipient</item>
+        <item quantity="other">%d recipients</item>
+    </plurals>
 </resources>

@@ -37,10 +37,13 @@ class MainActivity : AskingActivity() {
         val standing: String? = null, val group: String? = null, val threads: List<Long> = listOf(talk.thread), val unread: Boolean = talk.unread,
         /** Whom a conversation between two is with: the number besides this phone's, whatever Android files it under. */
         val with: String? = talk.number,
-        /** A group's members as small faces, this phone last when there is room. */
+        /** A group's members as small faces, this phone last when there is room; a sending to each, those it went to. */
         val crowd: List<Look.Mini>? = null,
     ) {
         fun standing(now: String?) = Row(talk, person, face, name, verdict, last, now, group, threads, unread, with, crowd)
+
+        /** What another application sent to each of several separately, filed as one conversation: among the conversations, marked. */
+        val each: Boolean get() = talk.each
 
         /** Its face of pixels, with no picture: the certificate's, the number's, or the group's. */
         val seed: String? get() = group ?: Look.seed(person?.fingerprint, with)
@@ -160,7 +163,7 @@ class MainActivity : AskingActivity() {
             divider = null
             adapter = talks
             setOnItemLongClickListener { _, _, at, _ -> about(rows[at]) ; true }
-            setOnItemClickListener { _, _, at, _ -> open(rows[at].talk, threads = rows[at].threads, with = rows[at].with) }
+            setOnItemClickListener { _, _, at, _ -> open(rows[at].talk, threads = rows[at].threads, with = rows[at].with ?: rows[at].talk.number, each = rows[at].each) }
         }
         others = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -537,8 +540,9 @@ class MainActivity : AskingActivity() {
                 val mine = Me.all(this)
                 // Several besides this phone: a group. One: a conversation between two, whatever the numbers Android files it under.
                 val others = talk.members.filterNot { member -> mine.any { Phone.same(member, it) } }
-                val group = others.takeIf { it.size > 1 }
-                val with = others.firstOrNull() ?: talk.number
+                val group = others.takeIf { it.size > 1 && !talk.each }
+                // A sending to each is with nobody in particular: its own line, merged with none.
+                val with = if (talk.each) null else others.firstOrNull() ?: talk.number
                 val person = if (group != null) null else with?.let(::who)
                 // The face read here, off the page: drawn where it is shown, a contact's picture held the list still.
                 val face = person?.let { Book.face(this, it) } ?: person?.fingerprint?.let { foodjis.face(it) }
@@ -553,16 +557,16 @@ class MainActivity : AskingActivity() {
                     else -> Opened.words(armor)?.words ?: getString(if (Pgp.isLocked(armor)) R.string.locked_message else R.string.signed_message)
                 }
                 val standing = person?.fingerprint?.let { foodjis.card(it)?.validity }
-                val name = group?.joinToString(", ") { who(it)?.name ?: it } ?: person?.name ?: with ?: getString(R.string.unknown_number)
+                val name = (group ?: others.takeIf { talk.each })?.joinToString(", ") { who(it)?.name ?: it } ?: person?.name ?: with ?: getString(R.string.unknown_number)
                 // A group's members as small faces, and this phone after them -- unless the nine places are taken.
-                val crowd = group?.let { members ->
+                val crowd = (group ?: others.takeIf { talk.each })?.let { members ->
                     members.map { one ->
                         val them = who(one)
                         Look.Mini(
                             them?.let { Book.face(this, it) } ?: them?.fingerprint?.let { foodjis.face(it) },
                             them?.fingerprint?.let { foodjis.card(it)?.validity }, Look.seed(them?.fingerprint, one),
                         )
-                    } + listOfNotNull(myself.takeIf { members.size < 9 })
+                    } + listOfNotNull(myself.takeIf { members.size < 9 && !talk.each })
                 }
                 return Row(talk, person, face, name, verdict, last, standing, group?.let { Phone.group(talk.members, mine) }, with = with, crowd = crowd)
                     // A closed PGP message may be opened at any moment: its line is worked out each time.
@@ -688,8 +692,9 @@ class MainActivity : AskingActivity() {
         )
     }
 
-    private fun open(talk: Store.Talk, ask: String? = null, threads: List<Long> = listOf(talk.thread), with: String? = talk.number) = startActivity(
+    private fun open(talk: Store.Talk, ask: String? = null, threads: List<Long> = listOf(talk.thread), with: String? = talk.number, each: Boolean = false) = startActivity(
         Intent(this, ThreadActivity::class.java)
+            .putExtra(ThreadActivity.EXTRA_EACH, each)
             .putExtra(ThreadActivity.EXTRA_NUMBER, with ?: getString(R.string.unknown_number))
             .putExtra(ThreadActivity.EXTRA_THREAD, talk.thread)
             .putExtra(ThreadActivity.EXTRA_THREADS, threads.toLongArray())
@@ -730,7 +735,7 @@ class MainActivity : AskingActivity() {
                 // The colour of what the last message travelled as, down the edge of the conversation.
                 addView(View(context).apply { background = Look.rounded(Look.colour(row.talk.form), Look.dp(context, 3)) }, LinearLayout.LayoutParams(Look.dp(context, 6), Look.dp(context, if (row.crowd != null) CROWD else 44)))
                 addView(View(context), LinearLayout.LayoutParams(pad, 1))
-                addView(row.crowd?.let { Look.crowd(context, CROWD, it) } ?: Look.face(context, 44, null, row.face, row.standing, framable = true, seed = row.seed))
+                addView(row.crowd?.let { Look.crowd(context, CROWD, it, each = row.each) } ?: Look.face(context, 44, null, row.face, row.standing, framable = true, seed = row.seed))
                 addView(text, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
                 // A group's square is tall enough: less room above and below it.
                 val around = if (row.crowd != null) pad / 3 else pad

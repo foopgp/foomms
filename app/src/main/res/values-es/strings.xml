@@ -269,4 +269,8 @@
     <string name="altered_title">MMS de grupo alterado</string>
     <string name="altered">Un MMS de grupo que envió le volvió distinto: probablemente se alteró por el camino, para todos sus destinatarios.</string>
     <string name="channel_altered">Mensajes alterados</string>
+    <plurals name="recipients_n">
+        <item quantity="one">%d destinatario</item>
+        <item quantity="other">%d destinatarios</item>
+    </plurals>
 </resources>

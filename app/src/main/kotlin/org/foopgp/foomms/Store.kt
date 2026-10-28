@@ -15,9 +15,32 @@ object Store {
         val thread: Long, val number: String?, val at: Long, val last: String, val incoming: Boolean, val unread: Boolean, val form: Form = Form.of(last),
         /** Everybody the conversation is with: more than one, it is a group's. */
         val members: List<String> = listOfNotNull(number),
+        /** Several numbers, but each message to one of them alone: a sending to each, which another application filed as one. */
+        val each: Boolean = false,
     ) {
         val group: Boolean get() = members.size > 1
     }
+
+    /**
+     * Whether a conversation of several numbers holds what was sent to each
+     * of them separately -- an application other than this one filing a
+     * sending to each as one conversation -- rather than a group MMS: no MMS
+     * in it, or its latest went to one number alone.
+     */
+    fun toEach(context: Context, thread: Long): Boolean = runCatching {
+        val latest = context.contentResolver.query(MMS, arrayOf("_id"), "thread_id = ?", arrayOf(thread.toString()), "date DESC")?.use { rows ->
+            if (rows.moveToFirst()) rows.getLong(0) else null
+        } ?: return@runCatching true
+        val to = context.contentResolver.query(Uri.parse("content://mms/$latest/addr"), arrayOf("type"), null, null, null)?.use { rows ->
+            var many = 0
+            while (rows.moveToNext()) if (rows.getInt(0) in TO_OR_CC) many++
+            many
+        } ?: 0
+        to < 2
+    }.getOrDefault(false)
+
+    /** How the phone's store tells an MMS's recipients: To and Cc, as the PDU names them (OMA-MMS-ENC, table 12). */
+    private val TO_OR_CC = setOf(0x97, 0x82)
 
     /** What an MMS carries beside its words: a picture, a sound, a file. */
     class Piece(val id: Long, val type: String, val name: String?) {
@@ -102,6 +125,7 @@ object Store {
                     thread, number ?: number(context, thread), last?.at ?: rows.getLong(1),
                     words, last?.incoming ?: true, rows.getInt(4) == 0, formOf(context, words, last?.pieces.orEmpty()),
                     members.ifEmpty { listOfNotNull(number ?: number(context, thread)) },
+                    members.size > 1 && toEach(context, thread),
                 )
             }
         }
@@ -243,7 +267,7 @@ object Store {
             buildList {
                 while (rows.moveToNext()) {
                     val members = rows.getString(1)?.trim()?.split(' ')?.mapNotNull { it.toLongOrNull()?.let { id -> address(context, id) } }.orEmpty()
-                    if (Phone.group(members, mine) == key) add(rows.getLong(0))
+                    if (Phone.group(members, mine) == key && !toEach(context, rows.getLong(0))) add(rows.getLong(0))
                 }
             }
         }
@@ -355,8 +379,10 @@ object Store {
         val mine = Me.all(context)
         val groups = ArrayList<String>()
         runCatching {
-            context.contentResolver.query(THREADS, arrayOf("recipient_ids"), "trim(recipient_ids) LIKE '% %'", null, null)?.use { rows ->
+            context.contentResolver.query(THREADS, arrayOf("recipient_ids", "_id"), "trim(recipient_ids) LIKE '% %' AND message_count > 0", null, null)?.use { rows ->
                 while (rows.moveToNext()) {
+                    // A sending to each, filed as one conversation: not a group.
+                    if (toEach(context, rows.getLong(1))) continue
                     val members = rows.getString(0)?.trim()?.split(' ')?.mapNotNull { it.toLongOrNull()?.let { id -> address(context, id) } }.orEmpty()
                     groups += Phone.group(members, mine)
                 }

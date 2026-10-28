@@ -269,4 +269,8 @@
     <string name="altered_title">Gruppen-MMS verändert</string>
     <string name="altered">Eine von Ihnen gesendete Gruppen-MMS kam verändert zurück: Sie wurde wohl unterwegs verändert, für alle Empfänger.</string>
     <string name="channel_altered">Veränderte Nachrichten</string>
+    <plurals name="recipients_n">
+        <item quantity="one">%d Empfänger</item>
+        <item quantity="other">%d Empfänger</item>
+    </plurals>
 </resources>

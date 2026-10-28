@@ -428,25 +428,42 @@ object Look {
      * certificate is worth. The places a smaller group leaves stay empty:
      * how full the square is says how many it is.
      */
-    fun crowd(context: Context, side: Int, minis: List<Mini>): View {
+    fun crowd(context: Context, side: Int, minis: List<Mini>, each: Boolean = false): View {
         val line = 1
         val cell = (side - 6 * line) / 3
         val pad = dp(context, 3)
+        // Beyond nine, eight faces and how many more.
+        val shown: List<Mini?> = if (minis.size <= 9) minis else minis.take(8) + listOf(null)
+        val rows = (shown.size + 2) / 3
         return LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            // In a small frame of its own: one square, not nine faces adrift.
-            background = framed(context)
+            // The rows taken, in the middle of the square: the order of reading kept, the square balanced.
+            gravity = Gravity.CENTER_VERTICAL
+            // In a small frame of its own, faint: one square, not nine faces adrift. Dashed, a sending to each.
+            background = GradientDrawable().apply {
+                val faint = (MUTED and 0x00FFFFFF) or (0x44 shl 24)
+                if (each) setStroke(dp(context, 1), faint, dp(context, 3).toFloat(), dp(context, 2).toFloat()) else setStroke(dp(context, 1), faint)
+                cornerRadius = dp(context, 6).toFloat()
+            }
             setPadding(pad, pad, pad, pad)
             layoutParams = LinearLayout.LayoutParams(dp(context, side) + 2 * pad, dp(context, side) + 2 * pad)
-            for (row in 0 until 3) {
+            for (row in 0 until rows) {
                 addView(
                     LinearLayout(context).apply {
                         orientation = LinearLayout.HORIZONTAL
                         for (column in 0 until 3) {
-                            val one = minis.getOrNull(row * 3 + column)
+                            val at = row * 3 + column
+                            if (at >= shown.size) break
+                            val one = shown[at]
                             addView(
-                                if (one == null) View(context).apply { layoutParams = LinearLayout.LayoutParams(dp(context, cell + 2 * line), dp(context, cell + 2 * line)) }
-                                else face(context, cell, null, one.face, one.standing, framable = true, seed = one.seed, lineDp = line),
+                                if (one != null) face(context, cell, null, one.face, one.standing, framable = true, seed = one.seed, lineDp = line)
+                                else TextView(context).apply {
+                                    text = "+${minis.size - 8}"
+                                    gravity = Gravity.CENTER
+                                    setTextColor(MUTED)
+                                    setTextSize(TypedValue.COMPLEX_UNIT_DIP, cell * 0.45f)
+                                    layoutParams = LinearLayout.LayoutParams(dp(context, cell + 2 * line), dp(context, cell + 2 * line))
+                                },
                             )
                         }
                     },

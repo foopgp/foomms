@@ -269,4 +269,8 @@
     <string name="altered_title">Ομαδικό MMS αλλοιωμένο</string>
     <string name="altered">Ένα ομαδικό MMS που στείλατε επέστρεψε διαφορετικό: μάλλον αλλοιώθηκε στη διαδρομή, για όλους τους παραλήπτες.</string>
     <string name="channel_altered">Αλλοιωμένα μηνύματα</string>
+    <plurals name="recipients_n">
+        <item quantity="one">%d παραλήπτης</item>
+        <item quantity="other">%d παραλήπτες</item>
+    </plurals>
 </resources>

@@ -277,4 +277,10 @@
     <string name="altered_title">Групповое MMS изменено</string>
     <string name="altered">Отправленное вами групповое MMS вернулось другим: вероятно, его изменили в пути, для всех получателей.</string>
     <string name="channel_altered">Изменённые сообщения</string>
+    <plurals name="recipients_n">
+        <item quantity="one">%d получатель</item>
+        <item quantity="few">%d получателя</item>
+        <item quantity="many">%d получателей</item>
+        <item quantity="other">%d получателя</item>
+    </plurals>
 </resources>
