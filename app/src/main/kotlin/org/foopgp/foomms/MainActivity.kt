@@ -39,11 +39,13 @@ class MainActivity : AskingActivity() {
         val with: String? = talk.number,
         /** A group's members as small faces, this phone last when there is room; a sending to each, those it went to. */
         val crowd: List<Look.Mini>? = null,
+        /** A group's: who wrote its last message, beside their name. */
+        val speaker: Look.Mini? = null,
     ) {
-        fun standing(now: String?) = Row(talk, person, face, name, verdict, last, now, group, threads, unread, with, crowd)
+        fun standing(now: String?) = Row(talk, person, face, name, verdict, last, now, group, threads, unread, with, crowd, speaker)
 
         /** The line of one of those a sending to each went to: theirs, the sending shown in their conversation, not a conversation of its own. */
-        fun apart() = Row(talk, person, face, name, verdict, last, standing, group, emptyList(), unread, with, crowd)
+        fun apart() = Row(talk, person, face, name, verdict, last, standing, group, emptyList(), unread, with, crowd, speaker)
 
         /** Its face of pixels, with no picture: the certificate's, the number's, or the group's. */
         val seed: String? get() = group ?: Look.seed(person?.fingerprint, with)
@@ -69,7 +71,7 @@ class MainActivity : AskingActivity() {
             if (one is Row) one else groups.getValue(one as String).let { all ->
                 val latest = all.first()
                 if (all.size == 1) latest
-                else Row(latest.talk, latest.person, latest.face, latest.name, latest.verdict, latest.last, latest.standing, latest.group, all.flatMap { it.threads }.distinct(), all.any { it.unread }, latest.with, latest.crowd)
+                else Row(latest.talk, latest.person, latest.face, latest.name, latest.verdict, latest.last, latest.standing, latest.group, all.flatMap { it.threads }.distinct(), all.any { it.unread }, latest.with, latest.crowd, latest.speaker)
             }
         }
     }
@@ -530,6 +532,8 @@ class MainActivity : AskingActivity() {
         if (written != Book.written) { synchronized(people) { people.clear() } ; synchronized(lines) { lines.clear() } ; written = Book.written }
         thread {
             val foodjis = Foodjis.of(this)
+            // Oneself by name, when one wrote a group's last message.
+            val myName: String by lazy { Me.card(this)?.let { Book.own(this, it) }?.name ?: getString(R.string.me_tag) }
             // Oneself as a small face, last in each group's square: one's contact's picture, else pixels from one's number.
             val myself: Look.Mini by lazy {
                 val own = Me.card(this)?.let { Book.own(this, it) }
@@ -571,7 +575,11 @@ class MainActivity : AskingActivity() {
                     else -> Opened.words(armor)?.words ?: getString(if (Pgp.isLocked(armor)) R.string.locked_message else R.string.signed_message)
                 }
                 val standing = person?.fingerprint?.let { foodjis.card(it)?.validity }
-                val name = group?.joinToString(", ") { who(it)?.name ?: it } ?: person?.name ?: with ?: getString(R.string.unknown_number)
+                // A group's line is named by who wrote its last message, beside their face: its members are in its square.
+                val speaker = group?.let { talk.from }
+                val them = speaker?.let(::who)
+                val name = if (group != null) (if (talk.incoming) them?.name ?: speaker ?: getString(R.string.unknown_number) else myName)
+                    else person?.name ?: with ?: getString(R.string.unknown_number)
                 // A group's members as small faces, and this phone after them -- unless the nine places are taken.
                 val crowd = group?.let { members ->
                     members.map { one ->
@@ -582,7 +590,14 @@ class MainActivity : AskingActivity() {
                         )
                     } + listOfNotNull(myself.takeIf { members.size < 9 })
                 }
-                return Row(talk, person, face, name, verdict, last, standing, group?.let { Phone.group(talk.members, mine) }, with = with, crowd = crowd)
+                val said = group?.let {
+                    if (!talk.incoming) myself
+                    else Look.Mini(
+                        them?.let { Book.face(this, it) } ?: them?.fingerprint?.let { foodjis.face(it) },
+                        them?.fingerprint?.let { foodjis.card(it)?.validity }, Look.seed(them?.fingerprint, speaker),
+                    )
+                }
+                return Row(talk, person, face, name, verdict, last, standing, group?.let { Phone.group(talk.members, mine) }, with = with, crowd = crowd, speaker = said)
                     // A closed PGP message may be opened at any moment: its line is worked out each time.
                     .also { if (armor == null && kept) synchronized(lines) { lines[talk.thread] = it } }
             }
@@ -659,9 +674,9 @@ class MainActivity : AskingActivity() {
             detail.text = android.text.SpannableStringBuilder(
                 getString(R.string.count_detail, known.all, known.sms, known.mms, known.pgp, known.pgpSms, known.pgpMms, known.talks, weight),
             ).append("\n\n").append(
-                getString(R.string.count_detail_unread, known.unread),
+                resources.getQuantityString(R.plurals.unread_n, known.unread, known.unread),
                 android.text.style.StyleSpan(Typeface.BOLD), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
-            ).append(getString(R.string.count_detail_unread_rest, known.unreadPgp, known.unreadTalks))
+            ).append(resources.getQuantityString(R.plurals.count_detail_unread_rest, known.unreadTalks, known.unreadPgp, known.unreadTalks))
         }
         detail.visibility = if (onlyUnread && known != null) View.VISIBLE else View.GONE
         tools.visibility = detail.visibility
@@ -765,6 +780,13 @@ class MainActivity : AskingActivity() {
             val context = this@MainActivity
             val pad = Look.dp(context, 12)
             val names = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
+            // A group's: who wrote last, their face before their name.
+            row.speaker?.let { one ->
+                names.addView(
+                    Look.face(context, 18, null, one.face, one.standing, framable = true, seed = one.seed, lineDp = 1),
+                    LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { marginEnd = Look.dp(context, 6) },
+                )
+            }
             names.addView(
                 Look.words(context, marked(row), size = 17f).apply {
                     setTypeface(typeface, if (row.unread) Typeface.BOLD else Typeface.NORMAL)

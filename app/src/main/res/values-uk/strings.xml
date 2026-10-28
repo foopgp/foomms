@@ -128,8 +128,12 @@
     <string name="mark_read">○ Позначити як прочитане</string>
     <string name="mark_unread">● Позначити як непрочитане</string>
     <string name="count_detail">%1$d повідомлень: %2$d SMS + %3$d MMS\nз них %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d листувань — %8$s байтів</string>
-    <string name="count_detail_unread">%1$d непрочитаних</string>
-    <string name="count_detail_unread_rest">, з них %1$d PGP, у %2$d листуваннях</string>
+    <plurals name="count_detail_unread_rest">
+        <item quantity="one">, з них %1$d PGP, у %2$d листуванні</item>
+        <item quantity="few">, з них %1$d PGP, у %2$d листуваннях</item>
+        <item quantity="many">, з них %1$d PGP, у %2$d листуваннях</item>
+        <item quantity="other">, з них %1$d PGP, у %2$d листуваннях</item>
+    </plurals>
     <string name="switch_sign">Підписати</string>
     <string name="switch_lock">Зашифрувати</string>
     <string name="cert_show">🔑 Показати сертифікат</string>

@@ -131,8 +131,10 @@
     <string name="mark_read">○ Mark as read</string>
     <string name="mark_unread">● Mark as unread</string>
     <string name="count_detail">%1$d messages: %2$d SMS + %3$d MMS\n%4$d of them PGP: %5$d SMS + %6$d MMS\n\n%7$d conversations — %8$s bytes</string>
-    <string name="count_detail_unread">%1$d unread</string>
-    <string name="count_detail_unread_rest">, %1$d of them PGP, in %2$d conversations</string>
+    <plurals name="count_detail_unread_rest">
+        <item quantity="one">, %1$d of them PGP, in %2$d conversation</item>
+        <item quantity="other">, %1$d of them PGP, in %2$d conversations</item>
+    </plurals>
     <string name="switch_sign">Sign</string>
     <string name="switch_lock">Encrypt</string>
     <string name="cert_show">🔑 Show the certificate</string>

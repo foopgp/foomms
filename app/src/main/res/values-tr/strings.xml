@@ -128,8 +128,10 @@
     <string name="mark_read">○ Okundu olarak işaretle</string>
     <string name="mark_unread">● Okunmadı olarak işaretle</string>
     <string name="count_detail">%1$d mesaj: %2$d SMS + %3$d MMS\nbunların %4$d tanesi PGP: %5$d SMS + %6$d MMS\n\n%7$d konuşma — %8$s bayt</string>
-    <string name="count_detail_unread">%1$d okunmamış</string>
-    <string name="count_detail_unread_rest">, bunların %1$d tanesi PGP, %2$d konuşmada</string>
+    <plurals name="count_detail_unread_rest">
+        <item quantity="one">, bunların %1$d tanesi PGP, %2$d konuşmada</item>
+        <item quantity="other">, bunların %1$d tanesi PGP, %2$d konuşmada</item>
+    </plurals>
     <string name="switch_sign">İmzala</string>
     <string name="switch_lock">Şifrele</string>
     <string name="cert_show">🔑 Sertifikayı göster</string>

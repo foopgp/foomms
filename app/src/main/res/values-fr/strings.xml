@@ -128,8 +128,10 @@
     <string name="mark_read">○ Marquer comme lu</string>
     <string name="mark_unread">● Marquer comme non lu</string>
     <string name="count_detail">%1$d messages : %2$d SMS + %3$d MMS\ndont %4$d PGP : %5$d SMS + %6$d MMS\n\n%7$d conversations — %8$s octets</string>
-    <string name="count_detail_unread">%1$d non lus</string>
-    <string name="count_detail_unread_rest">, dont %1$d PGP, dans %2$d conversations</string>
+    <plurals name="count_detail_unread_rest">
+        <item quantity="one">, dont %1$d PGP, dans %2$d conversation</item>
+        <item quantity="other">, dont %1$d PGP, dans %2$d conversations</item>
+    </plurals>
     <string name="switch_sign">Signer</string>
     <string name="switch_lock">Chiffrer</string>
     <string name="cert_show">🔑 Afficher le certificat</string>

@@ -17,6 +17,8 @@ object Store {
         val members: List<String> = listOfNotNull(number),
         /** Several numbers, but each message to one of them alone: a sending to each, which another application filed as one. */
         val each: Boolean = false,
+        /** Who wrote the last message, when it was received. */
+        val from: String? = null,
     ) {
         val group: Boolean get() = members.size > 1
     }
@@ -203,11 +205,13 @@ object Store {
     /** [from]: how many of the latest to pass over -- the list read a block at a time, as it is scrolled. */
     fun talks(context: Context, most: Int, unreadOnly: Boolean = false, given: () -> Boolean = { false }, groupsOnly: Boolean = false, from: Int = 0): List<Talk> {
         val talks = ArrayList<Talk>()
+        // The unread, by their messages ([unreadThreads]).
+        val unread = if (unreadOnly) unreadThreads(context).ifEmpty { return talks } else null
         val listed = runCatching {
             // Only those that hold something unread, when that is all that is asked: a hundred to read rather than all.
             context.contentResolver.query(
                 THREADS, arrayOf("_id", "date", "snippet", "recipient_ids", "read"),
-                listOfNotNull("read = 0".takeIf { unreadOnly }, "trim(recipient_ids) LIKE '% %'".takeIf { groupsOnly }).joinToString(" AND ").ifEmpty { null },
+                listOfNotNull(unread?.let { "_id IN (${it.joinToString(",")})" }, "trim(recipient_ids) LIKE '% %'".takeIf { groupsOnly }).joinToString(" AND ").ifEmpty { null },
                 null, "date DESC",
             )
         }.getOrNull() ?: return everyTalk(context).filter { (!unreadOnly || it.unread) && (!groupsOnly || it.group) }.drop(from).take(most)
@@ -227,6 +231,7 @@ object Store {
                     words, last.incoming, rows.getInt(4) == 0, formOf(context, words, last.pieces),
                     members.ifEmpty { listOfNotNull(number ?: number(context, thread)) },
                     members.size > 1 && toEach(context, thread),
+                    if (last.incoming && members.size > 1) addressOf(context, last) else null,
                 )
             }
         }
@@ -374,10 +379,20 @@ object Store {
         }
     }.getOrNull().orEmpty()
 
+    /**
+     * The conversations that hold a message not read yet, the latest first:
+     * told by their messages, the mark Android keeps on a conversation not
+     * following a message moved to another.
+     */
     fun unreadThreads(context: Context): List<Long> = runCatching {
-        context.contentResolver.query(THREADS, arrayOf("_id"), "read = 0", null, "date DESC")?.use { rows ->
-            buildList { while (rows.moveToNext()) add(rows.getLong(0)) }
+        val at = HashMap<Long, Long>()
+        context.contentResolver.query(SMS, arrayOf("thread_id", "date"), "read = 0", null, null)?.use { rows ->
+            while (rows.moveToNext()) at.merge(rows.getLong(0), rows.getLong(1), ::maxOf)
         }
+        context.contentResolver.query(MMS, arrayOf("thread_id", "date"), "read = 0", null, null)?.use { rows ->
+            while (rows.moveToNext()) at.merge(rows.getLong(0), rows.getLong(1) * 1000, ::maxOf)
+        }
+        at.entries.sortedByDescending { it.value }.map { it.key }
     }.getOrNull().orEmpty()
 
     /** Who sent a message, or whom it went to: as the network wrote it, an MMS's asked of the phone only now. */
@@ -496,7 +511,7 @@ object Store {
             unread = count(SMS, "read = 0") + unreadMms.size,
             sms = sms, mms = mms,
             talks = count(THREADS, null),
-            unreadTalks = count(THREADS, "read = 0"),
+            unreadTalks = unreadThreads(context).size,
             // Several members besides this phone: a group; one, a conversation between two all the same.
             groups = groups.filter { ',' in it }.distinct().size, groupTalks = groups.count { ',' in it },
         )

@@ -128,8 +128,10 @@
     <string name="mark_read">○ Σήμανση ως αναγνωσμένο</string>
     <string name="mark_unread">● Σήμανση ως μη αναγνωσμένο</string>
     <string name="count_detail">%1$d μηνύματα: %2$d SMS + %3$d MMS\nαπό τα οποία %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d συνομιλίες — %8$s byte</string>
-    <string name="count_detail_unread">%1$d μη αναγνωσμένα</string>
-    <string name="count_detail_unread_rest">, από τα οποία %1$d PGP, σε %2$d συνομιλίες</string>
+    <plurals name="count_detail_unread_rest">
+        <item quantity="one">, από τα οποία %1$d PGP, σε %2$d συνομιλία</item>
+        <item quantity="other">, από τα οποία %1$d PGP, σε %2$d συνομιλίες</item>
+    </plurals>
     <string name="switch_sign">Υπογραφή</string>
     <string name="switch_lock">Κρυπτογράφηση</string>
     <string name="cert_show">🔑 Εμφάνιση του πιστοποιητικού</string>

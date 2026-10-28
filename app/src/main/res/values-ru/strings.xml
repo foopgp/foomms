@@ -128,8 +128,12 @@
     <string name="mark_read">○ Отметить как прочитанное</string>
     <string name="mark_unread">● Отметить как непрочитанное</string>
     <string name="count_detail">%1$d сообщений: %2$d SMS + %3$d MMS\nиз них %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d переписок — %8$s байт</string>
-    <string name="count_detail_unread">%1$d непрочитанных</string>
-    <string name="count_detail_unread_rest">, из них %1$d PGP, в %2$d переписках</string>
+    <plurals name="count_detail_unread_rest">
+        <item quantity="one">, из них %1$d PGP, в %2$d переписке</item>
+        <item quantity="few">, из них %1$d PGP, в %2$d переписках</item>
+        <item quantity="many">, из них %1$d PGP, в %2$d переписках</item>
+        <item quantity="other">, из них %1$d PGP, в %2$d переписках</item>
+    </plurals>
     <string name="switch_sign">Подписать</string>
     <string name="switch_lock">Зашифровать</string>
     <string name="cert_show">🔑 Показать сертификат</string>
