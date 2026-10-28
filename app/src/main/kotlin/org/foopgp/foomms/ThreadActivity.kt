@@ -113,7 +113,7 @@ class ThreadActivity : AskingActivity() {
     }
 
     /** A conversation with several numbers: a group MMS's. */
-    private val group get() = everyone.size > 1
+    private val group get() = everyone.count { !Me.mine(this, it) } > 1
 
     /** One of a group but this phone, and who they are. */
     class Member(val number: String, val person: Book.Person?, val card: Foodjis.Cert?, val face: Bitmap?) {

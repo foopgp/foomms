@@ -20,8 +20,12 @@ object Me {
      */
     fun number(context: Context): String? = chosen(context)
 
-    /** Every number this phone is, or likely was: to tell it among a group's members, whichever it was then. */
-    fun all(context: Context): List<String> = once(listOfNotNull(chosen(context)) + numbers(context))
+    /**
+     * The numbers to tell this phone by among a group's members: its own,
+     * once one's contact gives it -- a number it had once may be another
+     * phone's now --; until then, every number it has received MMS at.
+     */
+    fun all(context: Context): List<String> = chosen(context)?.let { listOf(it) } ?: numbers(context)
 
     /** Whether [number] is one of this phone's. */
     fun mine(context: Context, number: String): Boolean = all(context).any { Phone.same(it, number) || it == number }

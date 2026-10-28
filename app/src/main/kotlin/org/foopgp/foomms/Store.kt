@@ -85,7 +85,8 @@ object Store {
             // Only those that hold something unread, when that is all that is asked: a hundred to read rather than all.
             context.contentResolver.query(
                 THREADS, arrayOf("_id", "date", "snippet", "recipient_ids", "read"),
-                listOfNotNull("read = 0".takeIf { unreadOnly }, "trim(recipient_ids) LIKE '% %'".takeIf { groupsOnly }).joinToString(" AND ").ifEmpty { null },
+                // An empty conversation -- made for a message never sent -- is none to show.
+                (listOf("message_count > 0") + listOfNotNull("read = 0".takeIf { unreadOnly }, "trim(recipient_ids) LIKE '% %'".takeIf { groupsOnly })).joinToString(" AND "),
                 null, "date DESC",
             )
         }.getOrNull() ?: return everyTalk(context).filter { (!unreadOnly || it.unread) && (!groupsOnly || it.group) }.take(most)
@@ -369,7 +370,8 @@ object Store {
             sms = sms, mms = mms,
             talks = count(THREADS, null),
             unreadTalks = count(THREADS, "read = 0"),
-            groups = groups.distinct().size, groupTalks = groups.size,
+            // Several members besides this phone: a group; one, a conversation between two all the same.
+            groups = groups.filter { ',' in it }.distinct().size, groupTalks = groups.count { ',' in it },
         )
     }
 

@@ -119,12 +119,13 @@ object MeMenu {
         // None chosen yet: the latest this phone received at, offered.
         val now = Me.number(activity) ?: received.firstOrNull { one -> own.numbers.any { Phone.same(it, one) } }
         val shown = own.numbers.map { one -> if (received.any { Phone.same(it, one) }) "$one  ✓" else one }
+        var picked = own.numbers.indexOfFirst { now != null && (it == now || Phone.same(it, now)) }
         AlertDialog.Builder(activity)
             .setTitle(R.string.me_default)
-            .setSingleChoiceItems(shown.toTypedArray(), own.numbers.indexOfFirst { now != null && (it == now || Phone.same(it, now)) }) { asked, at ->
-                asked.dismiss()
-                Me.choose(activity, own.numbers[at])
-                changed()
+            // Picked, then said: "OK" on the right sets it, "Cancel" on the left leaves things as they were.
+            .setSingleChoiceItems(shown.toTypedArray(), picked) { _, at -> picked = at }
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                own.numbers.getOrNull(picked)?.let { Me.choose(activity, it) ; changed() }
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()

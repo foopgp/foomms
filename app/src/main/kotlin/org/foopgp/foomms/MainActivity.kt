@@ -35,26 +35,36 @@ class MainActivity : AskingActivity() {
     class Row(
         val talk: Store.Talk, val person: Book.Person?, val face: Bitmap?, val name: String, val verdict: Verdict, val last: String,
         val standing: String? = null, val group: String? = null, val threads: List<Long> = listOf(talk.thread), val unread: Boolean = talk.unread,
+        /** Whom a conversation between two is with: the number besides this phone's, whatever Android files it under. */
+        val with: String? = talk.number,
     ) {
-        fun standing(now: String?) = Row(talk, person, face, name, verdict, last, now, group, threads, unread)
+        fun standing(now: String?) = Row(talk, person, face, name, verdict, last, now, group, threads, unread, with)
 
         /** Its face of pixels, with no picture: the certificate's, the number's, or the group's. */
-        val seed: String? get() = group ?: Look.seed(person?.fingerprint, talk.number)
+        val seed: String? get() = group ?: Look.seed(person?.fingerprint, with)
+
+        /** What lines are one by: a group's members, or whom a conversation between two is with. */
+        val joint: String? get() = group ?: with?.let { "=" + Phone.key(it) }
     }
 
-    /** The lines of one group as one: the latest's, unread if any of them is. */
+    /**
+     * The lines of one group as one, and of one person: the latest's,
+     * unread if any of them is. Android keeps a conversation with this phone
+     * among its numbers apart from the one without.
+     */
     private fun merged(found: List<Row>): List<Row> {
         val groups = LinkedHashMap<String, MutableList<Row>>()
         val out = ArrayList<Any>()
         for (row in found) {
-            val key = row.group
+            val key = row.joint
             if (key == null) { out += row ; continue }
             groups.getOrPut(key) { ArrayList<Row>().also { out += key } } += row
         }
         return out.map { one ->
             if (one is Row) one else groups.getValue(one as String).let { all ->
                 val latest = all.first()
-                Row(latest.talk, null, null, latest.name, latest.verdict, latest.last, null, latest.group, all.map { it.talk.thread }, all.any { it.unread })
+                if (all.size == 1) latest
+                else Row(latest.talk, latest.person, latest.face, latest.name, latest.verdict, latest.last, latest.standing, latest.group, all.map { it.talk.thread }, all.any { it.unread }, latest.with)
             }
         }
     }
@@ -148,7 +158,7 @@ class MainActivity : AskingActivity() {
             divider = null
             adapter = talks
             setOnItemLongClickListener { _, _, at, _ -> about(rows[at]) ; true }
-            setOnItemClickListener { _, _, at, _ -> open(rows[at].talk, threads = rows[at].threads) }
+            setOnItemClickListener { _, _, at, _ -> open(rows[at].talk, threads = rows[at].threads, with = rows[at].with) }
         }
         others = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -514,8 +524,11 @@ class MainActivity : AskingActivity() {
                 }
                 // A group is named by its members but this phone; its face comes later.
                 val mine = Me.all(this)
-                val group = talk.members.filterNot { member -> mine.any { Phone.same(member, it) } }.takeIf { talk.group }
-                val person = if (group != null) null else talk.number?.let(::who)
+                // Several besides this phone: a group. One: a conversation between two, whatever the numbers Android files it under.
+                val others = talk.members.filterNot { member -> mine.any { Phone.same(member, it) } }
+                val group = others.takeIf { it.size > 1 }
+                val with = others.firstOrNull() ?: talk.number
+                val person = if (group != null) null else with?.let(::who)
                 // The face read here, off the page: drawn where it is shown, a contact's picture held the list still.
                 val face = person?.let { Book.face(this, it) } ?: person?.fingerprint?.let { foodjis.face(it) }
                 val armor = Pgp.armorIn(talk.last)?.let { Opened.inner(it) }
@@ -529,8 +542,8 @@ class MainActivity : AskingActivity() {
                     else -> Opened.words(armor)?.words ?: getString(if (Pgp.isLocked(armor)) R.string.locked_message else R.string.signed_message)
                 }
                 val standing = person?.fingerprint?.let { foodjis.card(it)?.validity }
-                val name = group?.joinToString(", ") { who(it)?.name ?: it } ?: person?.name ?: talk.number ?: getString(R.string.unknown_number)
-                return Row(talk, person, face, name, verdict, last, standing, group?.let { Phone.group(talk.members, mine) })
+                val name = group?.joinToString(", ") { who(it)?.name ?: it } ?: person?.name ?: with ?: getString(R.string.unknown_number)
+                return Row(talk, person, face, name, verdict, last, standing, group?.let { Phone.group(talk.members, mine) }, with = with)
                     // A closed PGP message may be opened at any moment: its line is worked out each time.
                     .also { if (armor == null) synchronized(lines) { lines[talk.thread] = it } }
             }
@@ -573,9 +586,9 @@ class MainActivity : AskingActivity() {
     private fun redraw() {
         rows = merged(
             when (page) {
-                Page.TALKS -> every.filterNot { it.talk.group }
+                Page.TALKS -> every.filter { it.group == null }
                 Page.UNREAD -> pageRows ?: every.filter { it.talk.unread }
-                Page.GROUPS -> pageRows ?: every.filter { it.talk.group }
+                Page.GROUPS -> (pageRows ?: every).filter { it.group != null }
             },
         )
         talks.notifyDataSetChanged()
@@ -654,9 +667,9 @@ class MainActivity : AskingActivity() {
         )
     }
 
-    private fun open(talk: Store.Talk, ask: String? = null, threads: List<Long> = listOf(talk.thread)) = startActivity(
+    private fun open(talk: Store.Talk, ask: String? = null, threads: List<Long> = listOf(talk.thread), with: String? = talk.number) = startActivity(
         Intent(this, ThreadActivity::class.java)
-            .putExtra(ThreadActivity.EXTRA_NUMBER, talk.number ?: getString(R.string.unknown_number))
+            .putExtra(ThreadActivity.EXTRA_NUMBER, with ?: getString(R.string.unknown_number))
             .putExtra(ThreadActivity.EXTRA_THREAD, talk.thread)
             .putExtra(ThreadActivity.EXTRA_THREADS, threads.toLongArray())
             .putExtra(ThreadActivity.EXTRA_ASK, ask),
