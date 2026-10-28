@@ -34,11 +34,12 @@ class Flip(context: Context, glyph: String, verb: Int, changed: () -> Unit) : Li
 
     /** Held as it is: shown as usable, not greyed, but not to be flipped -- an encrypted group's messages are encrypted. */
     var held = false
-        set(value) { field = value ; switch.isClickable = !value }
+        set(value) { field = value ; switch.isClickable = !value ; show() }
 
     private fun show() {
         showing = true
-        switch.isChecked = wanted && switch.isEnabled
+        // Greyed, it shows off -- but held, what it holds.
+        switch.isChecked = wanted && (switch.isEnabled || held)
         showing = false
     }
 

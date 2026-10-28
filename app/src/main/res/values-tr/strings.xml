@@ -277,4 +277,8 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Tüm kişiler (%1$d)</string>
     <string name="group_needs_keys">Şifreli grup herkes için bir sertifika ister: %1$s için yok.</string>
+    <plurals name="locked_for_n">
+        <item quantity="one">⚿ %d anahtar için şifreli mesaj</item>
+        <item quantity="other">⚿ %d anahtar için şifreli mesaj</item>
+    </plurals>
 </resources>

@@ -749,10 +749,45 @@ class ThreadActivity : AskingActivity() {
                 },
             )
         }
+        // Then what can be done about the conversation, as about one between two: its notifications, saving it, deleting it.
+        val key = groupKey()
+        val muted = Marks.muted(this, key)
+        val pad = Look.dp(this, 10)
+        fun action(words: Int, then: () -> Unit) = column.addView(
+            Look.words(this, getString(words), size = 16f).apply {
+                setPadding(0, pad, 0, pad)
+                setOnClickListener { shown?.dismiss() ; then() }
+            },
+        )
+        column.addView(View(this).apply { setBackgroundColor(Look.MUTED) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1).apply { topMargin = pad })
+        action(if (muted) R.string.unmute else R.string.mute) { Marks.mute(this, key, !muted) }
+        thread?.let { one -> action(R.string.backup_one) { Saving.save(this, one, title?.toString()) } }
+        action(R.string.forget_talk) { forgetGroup() }
         shown = AlertDialog.Builder(this)
             .setTitle(resources.getQuantityString(R.plurals.group_members, members.size + 1, members.size + 1))
             .setView(android.widget.ScrollView(this).apply { addView(column) })
             .setPositiveButton(R.string.close, null)
+            .show()
+    }
+
+    /** What a group is muted by: its members but this phone, whichever of its conversations a message comes to. */
+    private fun groupKey(): String = "group:" + Phone.group(everyone, Me.all(this))
+
+    /** Every message of the group's conversations, once the person has said so. */
+    private fun forgetGroup() {
+        AlertDialog.Builder(this)
+            .setMessage(getString(R.string.forget_talk_ask, title))
+            .setPositiveButton(R.string.forget_yes) { _, _ ->
+                thread {
+                    val went = given.ifEmpty { listOfNotNull(thread) }.map { Keep.forgetAll(this, it) }.all { it }
+                    runOnUiThread {
+                        if (isFinishing || isDestroyed) return@runOnUiThread
+                        if (went) finish()
+                        else say(getString(if (Keep.ours(this)) R.string.forget_failed else R.string.forget_not_ours))
+                    }
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 
@@ -779,9 +814,9 @@ class ThreadActivity : AskingActivity() {
     private fun paint() {
         // Nothing to encrypt for without a certificate that stands; nothing to sign with until foodjis has said whose identity this is.
         locks.isEnabled = lockable()
-        // An encrypted group's: encrypted, always.
+        // An encrypted group's: encrypted, always -- greyed when it cannot be yet, a certificate lacking, but shown on.
         locks.held = group
-        if (group && lockable() && !locks.isChecked) locks.isChecked = true
+        if (group && !locks.isChecked) locks.isChecked = true
         signs.isEnabled = mine != null
         val worth = worth(mode)
         options.setBackgroundColor(Look.pale(worth))
@@ -1783,7 +1818,10 @@ class ThreadActivity : AskingActivity() {
                             orientation = LinearLayout.HORIZONTAL
                             gravity = Gravity.CENTER_VERTICAL
                             addView(text)
-                            for (id in Pgp.recipients(armor!!)) {
+                            // A few, their faces; more, how many: a row of faces would not fit.
+                            val keys = Pgp.recipients(armor!!)
+                            if (keys.size > FACES_FOR) text.text = resources.getQuantityString(R.plurals.locked_for_n, keys.size, keys.size)
+                            else for (id in keys) {
                                 addView(View(context), LinearLayout.LayoutParams(Look.dp(context, 4), 1))
                                 addView(Look.face(context, 22, null, meant[id]?.face))
                             }
@@ -1987,6 +2025,9 @@ class ThreadActivity : AskingActivity() {
         const val EXTRA_THREAD = "thread"
         /** Several conversations shown as one: a group's, with this phone among its numbers and without. */
         const val EXTRA_THREADS = "threads"
+
+        /** How many keys a message is encrypted for that its bubble shows as faces; more are counted. */
+        private const val FACES_FOR = 3
 
         /** Opened for something to be done at once: say whose certificate the number means, or read it again from foodjis. */
         const val EXTRA_ASK = "ask"

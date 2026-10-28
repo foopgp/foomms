@@ -280,4 +280,8 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">All contacts (%1$d)</string>
     <string name="group_needs_keys">An encrypted group needs a certificate for everyone in it: none for %1$s.</string>
+    <plurals name="locked_for_n">
+        <item quantity="one">⚿ Encrypted message for %d key</item>
+        <item quantity="other">⚿ Encrypted message for %d keys</item>
+    </plurals>
 </resources>

@@ -277,4 +277,8 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Tutti i contatti (%1$d)</string>
     <string name="group_needs_keys">Un gruppo cifrato richiede un certificato per ciascuno: manca per %1$s.</string>
+    <plurals name="locked_for_n">
+        <item quantity="one">⚿ Messaggio cifrato per %d chiave</item>
+        <item quantity="other">⚿ Messaggio cifrato per %d chiavi</item>
+    </plurals>
 </resources>

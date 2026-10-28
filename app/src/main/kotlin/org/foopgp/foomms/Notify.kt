@@ -23,8 +23,9 @@ object Notify {
      * announced, and the receiver keeps the process alive until then.
      */
     fun arrived(context: Context, number: String, body: String, form: Form = Form.of(body), group: Long? = null, done: () -> Unit = {}) {
-        // Not announced: a sender the person asked not to hear of.
+        // Not announced: a sender the person asked not to hear of, or a group.
         if (Marks.muted(context, number)) return done()
+        if (group != null && Marks.muted(context, "group:" + Phone.group(Store.members(context, group), Me.all(context)))) return done()
         val manager = context.getSystemService(NotificationManager::class.java) ?: return done()
         manager.createNotificationChannel(
             NotificationChannel(CHANNEL, context.getString(R.string.channel_messages), NotificationManager.IMPORTANCE_HIGH),
