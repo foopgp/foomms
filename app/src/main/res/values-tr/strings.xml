@@ -272,4 +272,6 @@
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ %1$d kişiye gönderildi</string>
     <string name="write_to_each">✎ Bu %1$d kişiye yeni mesaj</string>
+    <!-- A new message: after the recent conversations, every contact one can write to. -->
+    <string name="all_contacts">Tüm kişiler (%1$d)</string>
 </resources>

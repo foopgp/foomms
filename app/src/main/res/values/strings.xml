@@ -275,4 +275,6 @@
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ sent to %1$d people</string>
     <string name="write_to_each">✎ New message to these %1$d people</string>
+    <!-- A new message: after the recent conversations, every contact one can write to. -->
+    <string name="all_contacts">All contacts (%1$d)</string>
 </resources>

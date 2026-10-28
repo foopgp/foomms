@@ -30,7 +30,15 @@ import kotlin.concurrent.thread
 class WriteActivity : Activity() {
 
     /** Somebody one can write to: a name, a number, a face when there is one. */
-    private class Whom(val number: String, val name: String, val face: Bitmap?, val typed: Boolean = false, val fingerprint: String? = null, val standing: String? = null)
+    /** [header]: not somebody, the heading of those that follow. [light]: only a name and a number, the rest read when shown. */
+    private class Whom(
+        val number: String, val name: String, val face: Bitmap?, val typed: Boolean = false, val fingerprint: String? = null, val standing: String? = null,
+        val header: String? = null, val light: Boolean = false,
+    )
+
+    /** The contacts of the A to Z, read in full when first shown. */
+    private val full = java.util.concurrent.ConcurrentHashMap<String, Whom>()
+    private val reading = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
 
     /** Several chosen: the same message to each, or one MMS to all of them. */
     private var asGroup = false
@@ -95,7 +103,7 @@ class WriteActivity : Activity() {
         list = ListView(this).apply {
             divider = null
             adapter = rows
-            setOnItemClickListener { _, _, at, _ -> shown.getOrNull(at)?.let { toggle(it) } }
+            setOnItemClickListener { _, _, at, _ -> shown.getOrNull(at)?.takeIf { it.header == null }?.let { toggle(it) } }
         }
         setContentView(
             LinearLayout(this).apply {
@@ -133,6 +141,23 @@ class WriteActivity : Activity() {
                 recent = found
                 if (asked.text.isEmpty()) show(recent)
             }
+            // Then every contact one can write to, from A to Z, under a heading: by name and number at first, the
+            // face and the certificate read as each comes into view.
+            if (!contacts) return@thread
+            val every = runCatching { Book.find(this, "", Int.MAX_VALUE) }.getOrDefault(emptyList()).map { Whom(it.number, it.name, null, light = true) }
+            runOnUiThread {
+                if (isFinishing || isDestroyed || every.isEmpty()) return@runOnUiThread
+                recent = found + listOf(Whom("", "", null, header = getString(R.string.all_contacts, every.size))) + every
+                if (asked.text.isEmpty()) show(recent)
+            }
+        }
+    }
+
+    private fun readFull(light: Whom) {
+        if (!reading.add(light.number)) return
+        thread {
+            full[light.number] = whom(light.number, light.name)
+            runOnUiThread { if (!isFinishing && !isDestroyed) rows.notifyDataSetChanged() }
         }
     }
 
@@ -237,8 +262,15 @@ class WriteActivity : Activity() {
         override fun getItemId(at: Int) = at.toLong()
 
         override fun getView(at: Int, old: View?, parent: ViewGroup): View {
-            val one = shown[at]
             val context = this@WriteActivity
+            shown[at].header?.let { heading ->
+                return Look.words(context, heading, size = 14f, muted = true).apply {
+                    setTypeface(typeface, Typeface.BOLD)
+                    setPadding(0, Look.dp(context, 16), 0, Look.dp(context, 4))
+                }
+            }
+            // One of the A to Z: read in full the first time it is shown, drawn again then.
+            val one = shown[at].let { light -> if (!light.light) light else full[light.number] ?: light.also { readFull(it) } }
             val pad = Look.dp(context, 8)
             val isChosen = chosen.keys.any { Phone.same(it, one.number) }
             return LinearLayout(context).apply {

@@ -280,4 +280,6 @@
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ надіслано %1$d адресатам</string>
     <string name="write_to_each">✎ Нове повідомлення цим %1$d адресатам</string>
+    <!-- A new message: after the recent conversations, every contact one can write to. -->
+    <string name="all_contacts">Усі контакти (%1$d)</string>
 </resources>

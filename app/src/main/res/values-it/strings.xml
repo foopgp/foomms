@@ -272,4 +272,6 @@
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ inviato a %1$d persone</string>
     <string name="write_to_each">✎ Nuovo messaggio a queste %1$d persone</string>
+    <!-- A new message: after the recent conversations, every contact one can write to. -->
+    <string name="all_contacts">Tutti i contatti (%1$d)</string>
 </resources>
