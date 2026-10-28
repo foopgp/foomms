@@ -258,6 +258,7 @@
     <string name="me_default">☎ Définir le numéro par défaut</string>
     <string name="me_link">Relier à « %1$s » (%2$s)</string>
     <string name="me_choose_for">Moi, au %1$s :</string>
+    <string name="me_no_number">Cette fiche contact ne porte aucun numéro de téléphone : elle ne peut pas être la vôtre ici. Ajoutez-y le numéro de ce téléphone, puis reliez-la depuis « Moi ».</string>
     <string name="me_tag">(moi)</string>
     <string name="me_unknown">numéro inconnu</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->

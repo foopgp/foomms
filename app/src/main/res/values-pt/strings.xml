@@ -258,6 +258,7 @@
     <string name="me_default">☎ Definir o número predefinido</string>
     <string name="me_link">Ligar a «%1$s» (%2$s)</string>
     <string name="me_choose_for">Eu, no %1$s:</string>
+    <string name="me_no_number">Esta ficha de contacto não tem número de telefone: aqui não pode ser a sua. Acrescente-lhe o número deste telefone e depois ligue-a a partir de «Eu».</string>
     <string name="me_tag">(eu)</string>
     <string name="me_unknown">número desconhecido</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->

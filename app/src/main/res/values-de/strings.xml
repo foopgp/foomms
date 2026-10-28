@@ -258,6 +258,7 @@
     <string name="me_default">☎ Standardnummer festlegen</string>
     <string name="me_link">Mit „%1$s“ verknüpfen (%2$s)</string>
     <string name="me_choose_for">Ich, unter %1$s:</string>
+    <string name="me_no_number">Diese Kontaktkarte trägt keine Telefonnummer: Sie kann hier nicht Ihre sein. Fügen Sie die Nummer dieses Telefons hinzu und verknüpfen Sie sie dann unter „Ich“.</string>
     <string name="me_tag">(ich)</string>
     <string name="me_unknown">Nummer unbekannt</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->

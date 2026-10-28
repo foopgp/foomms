@@ -258,6 +258,7 @@
     <string name="me_default">☎ Definir el número predeterminado</string>
     <string name="me_link">Vincular a «%1$s» (%2$s)</string>
     <string name="me_choose_for">Yo, en el %1$s:</string>
+    <string name="me_no_number">Esta ficha de contacto no lleva ningún número de teléfono: aquí no puede ser la suya. Añádale el número de este teléfono y vincúlela desde «Yo».</string>
     <string name="me_tag">(yo)</string>
     <string name="me_unknown">número desconocido</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->

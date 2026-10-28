@@ -266,6 +266,7 @@
     <string name="me_default">☎ Вибрати типовий номер</string>
     <string name="me_link">Пов\'язати з «%1$s» (%2$s)</string>
     <string name="me_choose_for">Я, за номером %1$s:</string>
+    <string name="me_no_number">У цій картці контакту немає номера телефона: тут вона не може бути вашою. Додайте до неї номер цього телефона, потім пов\'яжіть її в розділі «Я».</string>
     <string name="me_tag">(я)</string>
     <string name="me_unknown">номер невідомий</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->

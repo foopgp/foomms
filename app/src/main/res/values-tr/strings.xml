@@ -258,6 +258,7 @@
     <string name="me_default">☎ Varsayılan numarayı belirle</string>
     <string name="me_link">“%1$s” ile bağla (%2$s)</string>
     <string name="me_choose_for">Ben, %1$s numarasında:</string>
+    <string name="me_no_number">Bu kişi kartında telefon numarası yok: burada sizinki olamaz. Bu telefonun numarasını ekleyin, sonra “Ben” bölümünden bağlayın.</string>
     <string name="me_tag">(ben)</string>
     <string name="me_unknown">numara bilinmiyor</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->

@@ -258,6 +258,7 @@
     <string name="me_default">☎ Impostare il numero predefinito</string>
     <string name="me_link">Collegare a «%1$s» (%2$s)</string>
     <string name="me_choose_for">Io, al %1$s:</string>
+    <string name="me_no_number">Questa scheda contatto non porta alcun numero di telefono: qui non può essere la vostra. Aggiungetevi il numero di questo telefono, poi collegatela da «Io».</string>
     <string name="me_tag">(io)</string>
     <string name="me_unknown">numero sconosciuto</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->

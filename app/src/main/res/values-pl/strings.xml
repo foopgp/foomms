@@ -266,6 +266,7 @@
     <string name="me_default">☎ Ustaw numer domyślny</string>
     <string name="me_link">Powiąż z „%1$s” (%2$s)</string>
     <string name="me_choose_for">Ja, pod %1$s:</string>
+    <string name="me_no_number">Ta karta kontaktu nie ma numeru telefonu: tu nie może być Twoja. Dodaj do niej numer tego telefonu, a potem powiąż ją w „Ja”.</string>
     <string name="me_tag">(ja)</string>
     <string name="me_unknown">numer nieznany</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->

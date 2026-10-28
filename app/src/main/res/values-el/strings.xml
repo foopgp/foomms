@@ -258,6 +258,7 @@
     <string name="me_default">☎ Ορισμός προεπιλεγμένου αριθμού</string>
     <string name="me_link">Σύνδεση με «%1$s» (%2$s)</string>
     <string name="me_choose_for">Εγώ, στο %1$s:</string>
+    <string name="me_no_number">Αυτή η καρτέλα επαφής δεν έχει αριθμό τηλεφώνου: εδώ δεν μπορεί να είναι η δική σας. Προσθέστε τον αριθμό αυτού του τηλεφώνου και μετά συνδέστε την από το «Εγώ».</string>
     <string name="me_tag">(εγώ)</string>
     <string name="me_unknown">άγνωστος αριθμός</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->

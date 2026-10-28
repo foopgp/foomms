@@ -261,6 +261,7 @@
     <string name="me_default">☎ Set the default number</string>
     <string name="me_link">Tie to “%1$s” (%2$s)</string>
     <string name="me_choose_for">Me, at %1$s:</string>
+    <string name="me_no_number">This contact card carries no phone number: it cannot be yours here. Add this phone\'s number to it, then tie it from “Me”.</string>
     <string name="me_tag">(me)</string>
     <string name="me_unknown">number unknown</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->

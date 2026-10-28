@@ -266,6 +266,7 @@
     <string name="me_default">☎ Выбрать номер по умолчанию</string>
     <string name="me_link">Связать с «%1$s» (%2$s)</string>
     <string name="me_choose_for">Я, по номеру %1$s:</string>
+    <string name="me_no_number">В этой карточке контакта нет номера телефона: здесь она не может быть вашей. Добавьте в неё номер этого телефона, затем свяжите её в разделе «Я».</string>
     <string name="me_tag">(я)</string>
     <string name="me_unknown">номер неизвестен</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->

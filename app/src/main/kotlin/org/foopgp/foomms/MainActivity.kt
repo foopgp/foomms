@@ -101,6 +101,9 @@ class MainActivity : AskingActivity() {
     private lateinit var meBox: LinearLayout
     @Volatile private var me: MeMenu.State? = null
 
+    /** Whether this phone's numbers were read from the MMS it received, since the application started. */
+    private var looked = false
+
     /** The key of the identity foodjis holds, once it has said: the certificate offered first to tie one's contact to. */
     @Volatile private var mineKey: Long? = null
 
@@ -115,8 +118,6 @@ class MainActivity : AskingActivity() {
         super.onCreate(state)
         // foodjis started now, while the list is drawn, rather than when a conversation first needs it.
         Foodjis.of(this).wake()
-        // This phone's number, from the MMS it has received, for the groups.
-        if (state == null) thread { Me.look(applicationContext) }
         title = getString(R.string.app_title)
         // The counts of last time, until those of now are worked out.
         if (counts == null) {
@@ -362,6 +363,11 @@ class MainActivity : AskingActivity() {
         if (Look.wantsDark(this) != dressed) return recreate()
         Look.dress(this)
         Foodjis.of(this).fresh()
+        // This phone's numbers, from the MMS it has received: once the messages may be read -- on a first start, not yet.
+        if (!looked && checkSelfPermission(Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) {
+            looked = true
+            thread { Me.look(applicationContext) ; runOnUiThread { if (!isFinishing && !isDestroyed) readMe() } }
+        }
         // Whose identity foodjis holds, for oneself on the groups' page; asked without showing any of its screens.
         provider.ask(Intent(Provider.GET_SIGN_KEY_ID), null) { answer ->
             mineKey = (answer as? Provider.Answer.Done)?.says?.getLongExtra(Provider.EXTRA_SIGN_KEY_ID, 0L)?.takeIf { it != 0L }
