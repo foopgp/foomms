@@ -32,6 +32,8 @@ object Inbound {
             val from = pieces.firstOrNull()?.displayOriginatingAddress ?: return
             val body = pieces.joinToString("") { it.displayMessageBody.orEmpty() }
             val subscription = intent.getIntExtra("subscription", -1)
+            // The check of this phone's number, come back: not a message.
+            if (Me.answered(context, body)) return
             runCatching { Keep.smsReceived(context, from, body, pieces.first().timestampMillis, subscription) }
                 .onFailure { Log.e(TAG, "an SMS could not be written", it) }
             // Kept alive until a signed message has been verified for its notification.

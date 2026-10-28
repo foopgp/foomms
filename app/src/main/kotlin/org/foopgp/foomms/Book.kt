@@ -83,6 +83,41 @@ object Book {
         found
     }.getOrDefault(emptyList())
 
+    /** One's own contact, as the configuration shows it: its name, picture, numbers and certificate. */
+    class Own(val contact: Long, val key: String, val name: String, val photo: Uri?, val numbers: List<String>, val fingerprint: String?)
+
+    /** The contact a lookup key names, whatever its number in the address book has become since. */
+    fun own(context: Context, key: String): Own? = runCatching {
+        val asked = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI, key)
+        context.contentResolver.query(
+            asked, arrayOf(ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts.PHOTO_THUMBNAIL_URI, ContactsContract.Contacts.LOOKUP_KEY),
+            null, null, null,
+        )?.use { rows ->
+            if (!rows.moveToFirst()) return@use null
+            val contact = rows.getLong(0)
+            val numbers = ArrayList<String>()
+            for (one in values(context, contact, PhoneRow.CONTENT_ITEM_TYPE, PhoneRow.NUMBER)) if (numbers.none { Phone.same(it, one) || it == one }) numbers += one
+            Own(contact, rows.getString(3) ?: key, rows.getString(1).orEmpty(), rows.getString(2)?.let(Uri::parse), numbers, fingerprint(context, contact))
+        }
+    }.getOrNull()
+
+    /** The lookup key of a contact handed back by the address book: picked, or made. */
+    fun keyOf(context: Context, contact: Uri): String? = runCatching {
+        context.contentResolver.query(contact, arrayOf(ContactsContract.Contacts.LOOKUP_KEY), null, null, null)?.use { rows ->
+            if (rows.moveToFirst()) rows.getString(0) else null
+        }
+    }.getOrNull()
+
+    /** The lookup key of the contact tied to the certificate [fingerprint], if one is. */
+    fun tiedTo(context: Context, fingerprint: String): String? = runCatching {
+        context.contentResolver.query(
+            Data.CONTENT_URI, arrayOf(Data.LOOKUP_KEY, Website.URL), "${Data.MIMETYPE} = ?", arrayOf(Website.CONTENT_ITEM_TYPE), null,
+        )?.use { rows ->
+            while (rows.moveToNext()) if (Fingerprint.of(rows.getString(1).orEmpty()).equals(fingerprint, ignoreCase = true)) return@use rows.getString(0)
+            null
+        }
+    }.getOrNull()
+
     private fun fingerprint(context: Context, contact: Long): String? =
         values(context, contact, Website.CONTENT_ITEM_TYPE, Website.URL).firstNotNullOfOrNull { Fingerprint.of(it) }
 
@@ -104,12 +139,13 @@ object Book {
     /** Which of two to keep, when the contact and the certificate say otherwise: the contact's or the certificate's. */
     enum class Pick { CONTACT, CERTIFICATE }
 
+    /** [contact]: the one to write in, when it is known -- the person's own --, rather than whoever the number finds. */
     fun tie(
         context: Context, number: String, card: Card, address: String, stale: List<Stale> = emptyList(),
-        face: Pick = Pick.CONTACT, note: Pick = Pick.CONTACT,
+        face: Pick = Pick.CONTACT, note: Pick = Pick.CONTACT, contact: Long? = null,
     ) {
         written++
-        val known = who(context, number)
+        val known = contact?.let { Person(it, card.name ?: number, null, null) } ?: who(context, number)
         val raw = known?.let { rawOf(context, it.contact) } ?: create(context, number, card.name ?: number)
         val contact = known?.contact ?: contactOf(context, raw)
         val resolver = context.contentResolver

@@ -21,6 +21,11 @@ class ConfActivity : Activity() {
     /** Whether foodjis holds an identity to encrypt to: unknown until it has said. */
     private var holdsOne: Boolean? = null
 
+    /** One's own contact, once read; the certificate of the identity foodjis holds, and the contact tied to it. */
+    @Volatile private var own: Book.Own? = null
+    @Volatile private var mineCert: Foodjis.Cert? = null
+    @Volatile private var suggested: Book.Own? = null
+
     /** Left by the top, as every page but the list. */
     private val swipes by lazy { Swipes.watch(this) }
 
@@ -39,7 +44,14 @@ class ConfActivity : Activity() {
         // No identity in foodjis, nothing to encrypt to oneself: that switch is greyed, and off.
         provider.ask(Intent(Provider.GET_SIGN_KEY_ID), null) { answer ->
             holdsOne = answer is Provider.Answer.Done && answer.says.getLongExtra(Provider.EXTRA_SIGN_KEY_ID, 0L) != 0L
+            val key = (answer as? Provider.Answer.Done)?.says?.getLongExtra(Provider.EXTRA_SIGN_KEY_ID, 0L)?.takeIf { it != 0L }
             if (!isFinishing && !isDestroyed) draw()
+            // Whose identity it is, and the contact tied to its certificate: offered as one's own.
+            if (key != null) kotlin.concurrent.thread {
+                mineCert = Foodjis.of(this).signer(key)
+                suggested = mineCert?.fingerprint?.let { Book.tiedTo(this, it) }?.let { Book.own(this, it) }
+                runOnUiThread { if (!isFinishing && !isDestroyed) draw() }
+            }
         }
     }
 
@@ -50,7 +62,20 @@ class ConfActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        Me.onCheck = { if (!isFinishing && !isDestroyed) draw() }
+        readOwn()
         draw()
+    }
+
+    override fun onPause() {
+        Me.onCheck = null
+        super.onPause()
+    }
+
+    /** One's own contact read again: it may have been changed in the address book meanwhile. */
+    private fun readOwn() = kotlin.concurrent.thread {
+        own = Me.card(this)?.let { Book.own(this, it) }
+        runOnUiThread { if (!isFinishing && !isDestroyed) draw() }
     }
 
     private fun heading(words: Int) =
@@ -136,6 +161,8 @@ class ConfActivity : Activity() {
             },
         )
 
+        me()
+
         // What is locked: how much one use of the key opens, how long it stays open, and for whom it is locked.
         heading(R.string.conf_crypto)
         subheading(R.string.conf_around)
@@ -193,6 +220,136 @@ class ConfActivity : Activity() {
 
     }
 
+    /**
+     * Oneself: one's own contact -- chosen, made, or the one tied to one's
+     * certificate --, this phone's number among its numbers, the SMS that
+     * checks it, and the tie to one's certificate.
+     */
+    private fun me() {
+        heading(R.string.conf_me)
+        note(R.string.conf_me_note)
+        val own = own
+        val cert = mineCert
+        val pad = Look.dp(this, 12)
+        if (own != null) {
+            column.addView(
+                LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+                    setPadding(0, pad / 3, 0, pad / 3)
+                    val standing = cert?.takeIf { own.fingerprint.equals(it.fingerprint, ignoreCase = true) }?.validity
+                    addView(Look.face(context, 44, own.photo, null, standing, framable = true, seed = Look.seed(own.fingerprint, own.numbers.firstOrNull())))
+                    addView(Look.words(context, own.name, size = 17f).apply { setPadding(pad, 0, 0, 0) })
+                },
+            )
+        }
+        column.addView(
+            LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                addView(
+                    Look.button(context, getString(if (own == null) R.string.me_choose else R.string.me_change)) { pick() },
+                    LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+                )
+                if (own == null) addView(Look.button(context, getString(R.string.me_create)) { create() }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            },
+        )
+        val offered = suggested
+        if (own == null && offered != null) {
+            column.addView(Look.button(this, getString(R.string.me_suggest, offered.name)) { Me.card(this, offered.key) ; readOwn() })
+        }
+
+        subheading(R.string.me_number)
+        val learnt = Me.learnt(this)
+        note(learnt?.let { getString(R.string.me_learnt, it) } ?: getString(R.string.me_learnt_none))
+        val numbers = own?.numbers.orEmpty()
+        if (own != null && numbers.isEmpty()) note(R.string.me_no_number)
+        val current = Me.chosen(this)?.takeIf { chosen -> own == null || numbers.any { Phone.same(it, chosen) || it == chosen } }
+            ?: numbers.firstOrNull { learnt != null && Phone.same(it, learnt) }
+        if (numbers.isNotEmpty()) {
+            column.addView(
+                android.widget.RadioGroup(this).apply {
+                    for (one in numbers) {
+                        addView(
+                            android.widget.RadioButton(context).apply {
+                                id = View.generateViewId()
+                                text = one
+                                textSize = 17f
+                                setTextColor(Look.INK)
+                                isChecked = current != null && (one == current || Phone.same(one, current))
+                                setOnClickListener { Me.choose(this@ConfActivity, one) ; draw() }
+                            },
+                        )
+                    }
+                },
+            )
+        }
+        // The number to check: the one chosen, else the one learnt.
+        val toCheck = current ?: learnt
+        val verified = Me.verified(this)
+        val said = when {
+            Me.check == Me.Check.WAITING -> getString(R.string.me_verifying, toCheck.orEmpty())
+            toCheck != null && verified != null && Phone.same(verified, toCheck) -> getString(R.string.me_verified)
+            Me.check == Me.Check.LOST -> getString(R.string.me_not_back)
+            else -> null
+        }
+        said?.let { column.addView(Look.words(this, it, size = 15f).apply { setPadding(0, pad / 3, 0, pad / 3) }) }
+        column.addView(
+            Look.button(this, getString(R.string.me_verify)) {
+                val number = toCheck ?: return@button
+                if (checkSelfPermission(android.Manifest.permission.SEND_SMS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                    return@button requestPermissions(arrayOf(android.Manifest.permission.SEND_SMS), 1)
+                }
+                Me.verify(this, number)
+                draw()
+            }.apply {
+                isEnabled = toCheck != null && Me.check != Me.Check.WAITING
+                alpha = if (isEnabled) 1f else 0.38f
+            },
+        )
+        note(R.string.me_verify_note)
+
+        // Tied to one's certificate: the contact kept up to date from it, as anybody's is.
+        if (own != null && cert != null) {
+            if (own.fingerprint.equals(cert.fingerprint, ignoreCase = true)) note(R.string.me_tied)
+            else column.addView(Look.button(this, getString(R.string.me_tie)) { tieOwn(own, cert, toCheck) })
+        }
+    }
+
+    /** Android's own list of contacts, to pick one's own from: no permission asked, a page everybody knows. */
+    private fun pick() = runCatching {
+        @Suppress("DEPRECATION")
+        startActivityForResult(Intent(Intent.ACTION_PICK, android.provider.ContactsContract.Contacts.CONTENT_URI), PICK)
+    }
+
+    /** Android's page for a new contact, with what is known: the certificate's name, the number learnt. */
+    private fun create() = runCatching {
+        val made = Intent(android.provider.ContactsContract.Intents.Insert.ACTION).setType(android.provider.ContactsContract.RawContacts.CONTENT_TYPE)
+            .putExtra("finishActivityOnSaveCompleted", true)
+        mineCert?.name?.let { made.putExtra(android.provider.ContactsContract.Intents.Insert.NAME, it) }
+        Me.learnt(this)?.let {
+            made.putExtra(android.provider.ContactsContract.Intents.Insert.PHONE, it)
+                .putExtra(android.provider.ContactsContract.Intents.Insert.PHONE_TYPE, android.provider.ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
+        }
+        @Suppress("DEPRECATION")
+        startActivityForResult(made, CREATE)
+    }
+
+    /** One's own contact tied to one's certificate, as anybody's: written in that contact, not in whoever the number finds. */
+    private fun tieOwn(own: Book.Own, cert: Foodjis.Cert, number: String?) {
+        val with = number ?: own.numbers.firstOrNull() ?: return
+        kotlin.concurrent.thread {
+            val card = Foodjis.of(this).vcard(cert.fingerprint)
+            val done = card != null && runCatching {
+                Book.tie(this, with, card, card.key?.takeIf { Fingerprint.of(it) == cert.fingerprint } ?: Fingerprint.address(cert.fingerprint), contact = own.contact)
+            }.isSuccess
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                if (!done) android.widget.Toast.makeText(this, R.string.cert_not_found, android.widget.Toast.LENGTH_LONG).show()
+                readOwn()
+            }
+        }
+    }
+
     /** How the last saving or restoring went: the page is drawn again on return, and it is kept for that. */
     private var backup = ""
 
@@ -200,6 +357,12 @@ class ConfActivity : Activity() {
 
     override fun onActivityResult(request: Int, outcome: Int, data: Intent?) {
         super.onActivityResult(request, outcome, data)
+        // One's own contact, picked or made: kept by its lookup key, which outlives the address book's renumbering.
+        if (request == PICK || request == CREATE) {
+            if (outcome == RESULT_OK) data?.data?.let { Book.keyOf(this, it) }?.let { Me.card(this, it) ; Me.choose(this, null) }
+            readOwn()
+            return
+        }
         Saving.done(this, request, outcome, data, ::backedUp)
     }
 
@@ -225,4 +388,9 @@ class ConfActivity : Activity() {
             Conf.Hold.TWELVE_HOURS -> R.string.hold_twelve_hours
         },
     )
+
+    private companion object {
+        const val PICK = 41
+        const val CREATE = 42
+    }
 }

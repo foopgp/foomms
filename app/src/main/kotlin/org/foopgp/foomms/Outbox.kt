@@ -98,7 +98,7 @@ object Outbox {
 
     fun forget(context: Context) = journal(context).edit().clear().apply()
 
-    private fun manager(context: Context): SmsManager =
+    fun manager(context: Context): SmsManager =
         if (Build.VERSION.SDK_INT >= 31) context.getSystemService(SmsManager::class.java)
         else @Suppress("DEPRECATION") SmsManager.getDefault()
 

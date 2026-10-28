@@ -249,4 +249,25 @@
     <string name="send_each_note">Cada uno recibe su propio mensaje y solo le responde a usted.</string>
     <string name="send_group_note">Un solo MMS para todos: cada uno ve a quién se envió y las respuestas de todos.</string>
     <string name="send_group_most">Un MMS de grupo va de 2 a %1$d destinatarios.</string>
+    <!-- Oneself, in the configuration: one's own contact, this phone's number, the SMS that checks it. -->
+    <string name="conf_me">Yo</string>
+    <string name="conf_me_note">Su propio contacto y el número de este teléfono: sirve para reconocer su número entre los de un MMS de grupo.</string>
+    <string name="me_choose">Elegir mi contacto</string>
+    <string name="me_change">Cambiar de contacto</string>
+    <string name="me_create">Crear mi contacto</string>
+    <string name="me_suggest">Tomar «%1$s», vinculado a mi certificado</string>
+    <string name="me_number">Mi número en este teléfono</string>
+    <string name="me_learnt">Leído en los MMS recibidos: %1$s</string>
+    <string name="me_learnt_none">Aún no se ha recibido ningún MMS solo a este número.</string>
+    <string name="me_no_number">Este contacto no tiene número: añádaselo o elija otro contacto.</string>
+    <string name="me_verify">Verificar este número</string>
+    <string name="me_verify_note">Se envía un SMS con un código a este número; si vuelve a este teléfono, el número es el suyo. Ninguno de los dos queda en sus conversaciones.</string>
+    <string name="me_verifying">SMS enviado al %1$s, esperando su regreso…</string>
+    <string name="me_verified">Verificado: el SMS volvió a este teléfono ✓</string>
+    <string name="me_not_back">El SMS no volvió: probablemente no es el número de este teléfono.</string>
+    <string name="me_tie">Vincular a mi certificado</string>
+    <string name="me_tied">Vinculado a mi certificado.</string>
+    <string name="me_tag">(yo)</string>
+    <string name="me_unknown">número desconocido</string>
+    <string name="me_sms">foomms: verificación del número de este teléfono, código %1$s.</string>
 </resources>

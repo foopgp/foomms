@@ -249,4 +249,25 @@
     <string name="send_each_note">Cada um recebe a sua própria mensagem e responde só a si.</string>
     <string name="send_group_note">Um só MMS para todos: cada um vê a quem foi e as respostas de todos.</string>
     <string name="send_group_most">Um MMS de grupo vai de 2 a %1$d destinatários.</string>
+    <!-- Oneself, in the configuration: one's own contact, this phone's number, the SMS that checks it. -->
+    <string name="conf_me">Eu</string>
+    <string name="conf_me_note">O seu próprio contacto e o número deste telefone: serve para reconhecer o seu número entre os de um MMS de grupo.</string>
+    <string name="me_choose">Escolher o meu contacto</string>
+    <string name="me_change">Mudar de contacto</string>
+    <string name="me_create">Criar o meu contacto</string>
+    <string name="me_suggest">Usar «%1$s», ligado ao meu certificado</string>
+    <string name="me_number">O meu número neste telefone</string>
+    <string name="me_learnt">Lido nos MMS recebidos: %1$s</string>
+    <string name="me_learnt_none">Ainda nenhum MMS recebido só para este número.</string>
+    <string name="me_no_number">Este contacto não tem número: acrescente-o, ou escolha outro contacto.</string>
+    <string name="me_verify">Verificar este número</string>
+    <string name="me_verify_note">Um SMS com um código parte para este número; se voltar a este telefone, o número é o dele. Nenhum dos dois fica nas suas conversas.</string>
+    <string name="me_verifying">SMS enviado para %1$s, à espera do regresso…</string>
+    <string name="me_verified">Verificado: o SMS voltou a este telefone ✓</string>
+    <string name="me_not_back">O SMS não voltou: provavelmente não é o número deste telefone.</string>
+    <string name="me_tie">Ligar ao meu certificado</string>
+    <string name="me_tied">Ligado ao meu certificado.</string>
+    <string name="me_tag">(eu)</string>
+    <string name="me_unknown">número desconhecido</string>
+    <string name="me_sms">foomms: verificação do número deste telefone, código %1$s.</string>
 </resources>

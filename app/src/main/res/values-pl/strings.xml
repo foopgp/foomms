@@ -257,4 +257,25 @@
     <string name="send_each_note">Każdy dostaje własną wiadomość i odpowiada tylko Tobie.</string>
     <string name="send_group_note">Jeden MMS do wszystkich: każdy widzi, do kogo trafił, i odpowiedzi wszystkich.</string>
     <string name="send_group_most">MMS grupowy trafia do 2–%1$d odbiorców.</string>
+    <!-- Oneself, in the configuration: one's own contact, this phone's number, the SMS that checks it. -->
+    <string name="conf_me">Ja</string>
+    <string name="conf_me_note">Twój własny kontakt i numer tego telefonu: pozwala rozpoznać Twój numer wśród numerów grupowego MMS.</string>
+    <string name="me_choose">Wybierz mój kontakt</string>
+    <string name="me_change">Zmień kontakt</string>
+    <string name="me_create">Utwórz mój kontakt</string>
+    <string name="me_suggest">Weź „%1$s”, powiązany z moim certyfikatem</string>
+    <string name="me_number">Mój numer na tym telefonie</string>
+    <string name="me_learnt">Odczytany z odebranych MMS: %1$s</string>
+    <string name="me_learnt_none">Nie odebrano jeszcze MMS wysłanego tylko na ten numer.</string>
+    <string name="me_no_number">Ten kontakt nie ma numeru: dodaj go albo wybierz inny kontakt.</string>
+    <string name="me_verify">Sprawdź ten numer</string>
+    <string name="me_verify_note">Na ten numer wysyłany jest SMS z kodem; jeśli wróci na ten telefon, numer należy do niego. Żaden z nich nie zostaje w Twoich rozmowach.</string>
+    <string name="me_verifying">SMS wysłany na %1$s, czekam na jego powrót…</string>
+    <string name="me_verified">Sprawdzony: SMS wrócił na ten telefon ✓</string>
+    <string name="me_not_back">SMS nie wrócił: to raczej nie jest numer tego telefonu.</string>
+    <string name="me_tie">Powiąż z moim certyfikatem</string>
+    <string name="me_tied">Powiązany z moim certyfikatem.</string>
+    <string name="me_tag">(ja)</string>
+    <string name="me_unknown">numer nieznany</string>
+    <string name="me_sms">foomms: sprawdzanie numeru tego telefonu, kod %1$s.</string>
 </resources>

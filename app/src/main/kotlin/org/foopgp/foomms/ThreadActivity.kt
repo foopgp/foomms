@@ -659,6 +659,25 @@ class ThreadActivity : AskingActivity() {
     private fun groupMenu() {
         val column = Look.column(this)
         var shown: AlertDialog? = null
+        // Oneself first: the MMS goes to the others, and comes back to every one of them from all.
+        val own = Me.card(this)?.let { Book.own(this, it) }
+        val mine = Me.number(this)
+        column.addView(
+            LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(0, Look.dp(context, 6), 0, Look.dp(context, 6))
+                addView(Look.face(context, 40, own?.photo, null, framable = true, seed = Look.seed(own?.fingerprint, mine)))
+                addView(
+                    LinearLayout(context).apply {
+                        orientation = LinearLayout.VERTICAL
+                        setPadding(Look.dp(context, 12), 0, 0, 0)
+                        addView(Look.words(context, listOfNotNull(own?.name, getString(R.string.me_tag)).joinToString(" "), size = 17f))
+                        addView(Look.words(context, mine ?: getString(R.string.me_unknown), size = 13f, muted = true))
+                    },
+                )
+            },
+        )
         for (one in members) {
             val standing: CharSequence = one.card?.let { android.text.SpannableStringBuilder("🔑 ").append(Look.standing(this, it.validity)) }
                 ?: getString(R.string.no_certificate)
