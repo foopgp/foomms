@@ -644,10 +644,15 @@ class ThreadActivity : AskingActivity() {
             val named = numbers.map { one -> (if (contacts) Book.who(this, one)?.name else null)?.let { "$it — $one" } ?: one }
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
+                // The new message heads the list rather than sitting among the buttons: its words, on two lines
+                // there, pushed "Close" out of the dialog.
+                val write = android.text.SpannableString(getString(R.string.write_to_each, numbers.size)).apply {
+                    setSpan(android.text.style.ForegroundColorSpan(Look.ORANGE), 0, length, 0)
+                }
                 AlertDialog.Builder(this)
                     .setTitle(getString(R.string.sent_to_each, numbers.size))
-                    .setItems(named.toTypedArray(), null)
-                    .setPositiveButton(getString(R.string.write_to_each, numbers.size)) { _, _ ->
+                    .setItems((listOf<CharSequence>(write) + named).toTypedArray()) { _, which ->
+                        if (which != 0) return@setItems
                         // To all of them but oneself.
                         val them = numbers.filterNot { one -> Me.mine(this, one) || Me.numbers(this).any { Phone.same(it, one) } }
                         startActivity(Intent(this, WriteActivity::class.java).putExtra(WriteActivity.EXTRA_NUMBERS, them.toTypedArray()))
