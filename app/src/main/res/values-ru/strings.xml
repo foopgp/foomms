@@ -74,7 +74,7 @@
     <string name="conf_language_change">⚑ Изменить язык приложения</string>
     <string name="search_all">🔍 Поиск по перепискам</string>
     <string name="search_here">🔍 Поиск в этих сообщениях</string>
-    <string name="search_page">🔍 Искать на странице</string>
+    <string name="search_page">🔍 Искать в этой беседе</string>
     <string name="search_hint">Слова для поиска</string>
     <string name="hit_from">от %1$s</string>
     <string name="hit_to">для %1$s</string>

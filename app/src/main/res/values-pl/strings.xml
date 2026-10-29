@@ -74,7 +74,7 @@
     <string name="conf_language_change">⚑ Zmień język aplikacji</string>
     <string name="search_all">🔍 Szukaj w rozmowach</string>
     <string name="search_here">🔍 Szukaj w tych wiadomościach</string>
-    <string name="search_page">🔍 Szukaj na stronie</string>
+    <string name="search_page">🔍 Szukaj w tej rozmowie</string>
     <string name="search_hint">Szukane słowa</string>
     <string name="hit_from">od %1$s</string>
     <string name="hit_to">do %1$s</string>

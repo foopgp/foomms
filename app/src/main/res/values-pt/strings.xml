@@ -74,7 +74,7 @@
     <string name="conf_language_change">⚑ Mudar o idioma da aplicação</string>
     <string name="search_all">🔍 Pesquisar nas conversas</string>
     <string name="search_here">🔍 Pesquisar nestas mensagens</string>
-    <string name="search_page">🔍 Pesquisar na página</string>
+    <string name="search_page">🔍 Pesquisar nesta conversa</string>
     <string name="search_hint">Palavras a procurar</string>
     <string name="hit_from">de %1$s</string>
     <string name="hit_to">para %1$s</string>

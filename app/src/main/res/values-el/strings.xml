@@ -74,7 +74,7 @@
     <string name="conf_language_change">⚑ Αλλαγή γλώσσας της εφαρμογής</string>
     <string name="search_all">🔍 Αναζήτηση στις συνομιλίες</string>
     <string name="search_here">🔍 Αναζήτηση σε αυτά τα μηνύματα</string>
-    <string name="search_page">🔍 Αναζήτηση στη σελίδα</string>
+    <string name="search_page">🔍 Αναζήτηση σε αυτή τη συνομιλία</string>
     <string name="search_hint">Λέξεις προς αναζήτηση</string>
     <string name="hit_from">από %1$s</string>
     <string name="hit_to">προς %1$s</string>

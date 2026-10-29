@@ -6,16 +6,15 @@ import android.content.Intent
 
 /**
  * The search button, the same on every page: in the contacts, in every
- * conversation, or on the page itself -- what it shows, filtered as words
- * are typed.
+ * conversation, or, from a conversation, in that one alone.
  */
 object Searching {
 
-    fun ask(activity: Activity, onPage: () -> Unit) {
-        val choices = listOf<Pair<Int, () -> Unit>>(
+    fun ask(activity: Activity, inThisOne: (() -> Unit)? = null) {
+        val choices = listOfNotNull<Pair<Int, () -> Unit>>(
             R.string.search_contacts to { open(activity, SearchActivity.IN_CONTACTS) },
             R.string.search_all to { open(activity, SearchActivity.IN_TALKS) },
-            R.string.search_page to onPage,
+            inThisOne?.let { R.string.search_page to it },
         )
         AlertDialog.Builder(activity)
             .setItems(choices.map { activity.getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }

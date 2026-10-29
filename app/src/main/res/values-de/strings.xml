@@ -74,7 +74,7 @@
     <string name="conf_language_change">⚑ Sprache der App ändern</string>
     <string name="search_all">🔍 In den Unterhaltungen suchen</string>
     <string name="search_here">🔍 In diesen Nachrichten suchen</string>
-    <string name="search_page">🔍 Auf der Seite suchen</string>
+    <string name="search_page">🔍 In dieser Unterhaltung suchen</string>
     <string name="search_hint">Gesuchte Wörter</string>
     <string name="hit_from">von %1$s</string>
     <string name="hit_to">an %1$s</string>

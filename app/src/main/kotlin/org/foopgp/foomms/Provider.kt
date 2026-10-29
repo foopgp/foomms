@@ -144,8 +144,8 @@ class Provider(private val context: Context) {
          */
         /**
          * The version of the foodjis spoken to, when it is older than the one
-         * this build needs -- 1.4.3, the first to fetch a missing certificate
-         * --, or null: none to speak to, or recent enough.
+         * this build needs -- 1.5.0, the first to lay a signature made already
+         * inside the lock --, or null: none to speak to, or recent enough.
          */
         fun outdated(context: Context): String? {
             val found = whom(context)?.packageName ?: return null
@@ -154,8 +154,8 @@ class Provider(private val context: Context) {
         }
 
         /** The first foodjis that answers all that this build asks of it. */
-        const val NEEDED_CODE = 51L
-        const val NEEDED_NAME = "1.4.3"
+        const val NEEDED_CODE = 54L
+        const val NEEDED_NAME = "1.5.0"
 
         fun install(context: Context) {
             val wanted = FOODJIS
