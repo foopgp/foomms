@@ -322,8 +322,12 @@ class ManyActivity : AskingActivity() {
         val pieces = copies.maxOf { runCatching { Outbox.pieces(this, it.text.orEmpty()) }.getOrDefault(1) }
         val mms = copies.any { it.piece != null } || Conf.asMms(this, pieces)
         fun go() {
-            // Each copy's words, kept as written: every conversation shows what was sent, opened.
-            if (verdict != null) for (one in copies) one.text?.let { Opened.keep(this, it, written, null, verdict) }
+            // Each copy's words, kept as written, for the conversation it is filed in -- its recipient's, as Android
+            // files a message to one number --: every conversation shows what was sent, opened, and counts down.
+            if (verdict != null) for (one in copies) one.text?.let { armor ->
+                val thread = runCatching { android.provider.Telephony.Threads.getOrCreateThreadId(this, one.number) }.getOrDefault(Opened.NO_THREAD)
+                Opened.keep(this, armor, written, null, verdict, thread = thread)
+            }
             ToEach.send(applicationContext, copies, mms)
             Toast.makeText(this, getString(R.string.many_sent, whom.size), Toast.LENGTH_LONG).show()
             field.setText("")
