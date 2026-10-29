@@ -65,15 +65,9 @@
     <string name="message">Wiadomość</string>
     <string name="let_in">Poproś foodjis o dopuszczenie foomms</string>
     <string name="conf_mms">MMS</string>
-    <string name="conf_prefer_mms">Preferuj MMS</string>
-    <string name="conf_prefer_mms_note">Każdy tekst dłuższy niż jeden SMS jest wysyłany jako MMS: przydatne, gdy długie wiadomości docierają w kawałkach lub w nieładzie. MMS korzysta z danych komórkowych, a operator może za niego pobrać opłatę.</string>
-    <string name="conf_warn_mms">Ostrzegaj mnie przed każdym wysłaniem MMS</string>
-    <string name="conf_warn_mms_note">Tekst dłuższy niż pięć SMS-ów jest wysyłany jako MMS. Pytanie z wyprzedzeniem oszczędza opłaty, którą może naliczyć operator.</string>
-    <string name="mms_ask">Ta wiadomość jest długa: zostanie wysłana jako MMS, za który operator może pobrać opłatę.</string>
     <string name="plain_ask">Szyfrowanie jest możliwe w tej rozmowie, ale jest wyłączone. Wysłać tę wiadomość bez szyfrowania?</string>
     <string name="plain_send">Wyślij bez szyfrowania</string>
     <string name="plain_lock">⚿ Zaszyfruj i wyślij</string>
-    <string name="mms_send">Wyślij</string>
     <string name="language_name">polski</string>
     <string name="conf_language">Język</string>
     <string name="conf_language_note">Choć powstał we Francji, foomms mówi jedenastoma językami.</string>
@@ -290,4 +284,8 @@
     <string name="conf_group_most_note">Liczba odbiorców jest ograniczona w zależności od operatora. 10 zwykle przechodzi wszędzie; niektórzy operatorzy przyjmują znacznie więcej.</string>
     <string name="group_over">Ta grupa liczy %1$d członków, wliczając Ciebie, ponad limit %2$d ustawiony w konfiguracji: operator może odrzucić wiadomość albo dostarczyć ją każdemu osobno.</string>
     <string name="group_over_send">Wyślij mimo to</string>
+    <string name="conf_mms_on">Włącz MMS</string>
+    <string name="conf_mms_on_note">Włączone: tekst dłuższy niż jeden SMS idzie jako jeden MMS, a załączniki, wiadomości głosowe i grupowe MMS są możliwe. Wyłączone: długi tekst idzie w kilku SMS-ach, i nic z tego. Odebrane MMS nadal się wyświetlają.</string>
+    <string name="mms_off">MMS są wyłączone w konfiguracji: bez załączników, wiadomości głosowych i grupowych MMS.</string>
+    <string name="many_sms">Ta wiadomość pójdzie w %1$d SMS-ach: niektóre telefony źle je składają, a operator może naliczyć każdy osobno.</string>
 </resources>

@@ -212,7 +212,8 @@ class WriteActivity : Activity() {
         val known = Me.number(this) != null
         // Ten with oneself, or what the person set: some networks take far more.
         val most = Conf.groupMost(this) - 1
-        val groupable = chosen.size in 2..most && known
+        val mms = Conf.mms(this)
+        val groupable = chosen.size in 2..most && known && mms
         if (!groupable) asGroup = false
         how.visibility = if (chosen.size >= 2) View.VISIBLE else View.GONE
         toGroup.isEnabled = groupable
@@ -224,6 +225,7 @@ class WriteActivity : Activity() {
         howSaid.text = when {
             asGroup -> getString(R.string.send_group_note)
             groupable -> getString(R.string.send_each_note)
+            !mms -> getString(R.string.mms_off)
             !known -> getString(R.string.group_needs_me)
             else -> getString(R.string.send_group_most, most)
         }

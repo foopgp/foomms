@@ -65,15 +65,9 @@
     <string name="message">Сообщение</string>
     <string name="let_in">Попросить foodjis допустить foomms</string>
     <string name="conf_mms">MMS</string>
-    <string name="conf_prefer_mms">Предпочитать MMS</string>
-    <string name="conf_prefer_mms_note">Любой текст длиннее одного SMS отправляется как MMS: полезно, если длинные сообщения приходят по частям или не по порядку. MMS использует мобильные данные, и оператор может взимать за него плату.</string>
-    <string name="conf_warn_mms">Предупреждать перед отправкой MMS</string>
-    <string name="conf_warn_mms_note">Текст длиннее пяти SMS отправляется как MMS. Предупреждение избавит вас от платы, которую может взять оператор.</string>
-    <string name="mms_ask">Это сообщение длинное: оно будет отправлено как MMS, за который оператор может взять плату.</string>
     <string name="plain_ask">В этом разговоре возможно шифрование, но оно выключено. Отправить сообщение без шифрования?</string>
     <string name="plain_send">Отправить без шифрования</string>
     <string name="plain_lock">⚿ Зашифровать и отправить</string>
-    <string name="mms_send">Отправить</string>
     <string name="language_name">русский</string>
     <string name="conf_language">Язык</string>
     <string name="conf_language_note">Хотя foomms сделан во Франции, он говорит на одиннадцати языках.</string>
@@ -290,4 +284,8 @@
     <string name="conf_group_most_note">Число получателей ограничено в зависимости от оператора. 10 обычно проходят везде; некоторые операторы принимают гораздо больше.</string>
     <string name="group_over">В этой группе %1$d участников, включая вас, больше предела %2$d, заданного в настройках: оператор может отклонить сообщение или доставить его каждому по отдельности.</string>
     <string name="group_over_send">Всё равно отправить</string>
+    <string name="conf_mms_on">Включить MMS</string>
+    <string name="conf_mms_on_note">Включено: текст длиннее одного SMS уходит одним MMS, и можно отправлять вложения, голосовые сообщения и групповые MMS. Выключено: длинный текст уходит несколькими SMS, и ничего из этого. Полученные MMS по-прежнему показываются.</string>
+    <string name="mms_off">MMS выключены в настройках: ни вложений, ни голосовых сообщений, ни групповых MMS.</string>
+    <string name="many_sms">Это сообщение уйдёт %1$d SMS: некоторые телефоны плохо их склеивают, а оператор может брать плату за каждое.</string>
 </resources>

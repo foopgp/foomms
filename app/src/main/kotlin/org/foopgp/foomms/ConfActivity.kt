@@ -164,24 +164,23 @@ class ConfActivity : AskingActivity() {
         if (backup.isNotEmpty()) column.addView(Look.words(this, backup, size = 15f))
 
         heading(R.string.conf_mms)
-        column.addView(flip(R.string.conf_prefer_mms, Conf.preferMms(this)) { Conf.preferMms(this, it) ; draw() })
-        note(R.string.conf_prefer_mms_note)
-        // Left to itself, a long text still becomes an MMS: then one can ask to be told first.
+        val on = Conf.mms(this)
+        column.addView(flip(R.string.conf_mms_on, on) { Conf.mms(this, it) ; draw() })
+        note(R.string.conf_mms_on_note)
+        // What MMS may weigh, and how many a group MMS may go to: with MMS on only.
         // Heavier than the standard only where the operator says it takes more: greyed, and off, otherwise.
-        val theirs = Outbox.operators(this)
-        column.addView(
-            flip(R.string.conf_mms_size, Conf.operatorSize(this), usable = (theirs ?: 0) > Outbox.STANDARD) { Conf.operatorSize(this, it) }
-                .apply { (theirs ?: Outbox.STANDARD).let { most -> text = getString(R.string.conf_mms_size, most / 1024, (most - Outbox.MARGIN) / 1024) } },
-        )
-        note(getString(R.string.conf_mms_size_note, Outbox.STANDARD / 1024, (Outbox.STANDARD - Outbox.MARGIN) / 1024))
-        if (!Conf.preferMms(this)) {
-            column.addView(flip(R.string.conf_warn_mms, Conf.warnMms(this)) { Conf.warnMms(this, it) })
-            note(R.string.conf_warn_mms_note)
+        if (on) {
+            val theirs = Outbox.operators(this)
+            column.addView(
+                flip(R.string.conf_mms_size, Conf.operatorSize(this), usable = (theirs ?: 0) > Outbox.STANDARD) { Conf.operatorSize(this, it) }
+                    .apply { (theirs ?: Outbox.STANDARD).let { most -> text = getString(R.string.conf_mms_size, most / 1024, (most - Outbox.MARGIN) / 1024) } },
+            )
+            note(getString(R.string.conf_mms_size_note, Outbox.STANDARD / 1024, (Outbox.STANDARD - Outbox.MARGIN) / 1024))
+            // How many a group MMS may go to, oneself included.
+            subheading(R.string.conf_group_most)
+            note(R.string.conf_group_most_note)
+            slider(Conf.groupMost(this), Conf.GROUP_MOST_EVER, Conf.GROUP_MOST) { Conf.groupMost(this, it) }
         }
-        // How many a group MMS may go to, oneself included.
-        subheading(R.string.conf_group_most)
-        note(R.string.conf_group_most_note)
-        slider(Conf.groupMost(this), Conf.GROUP_MOST_EVER, Conf.GROUP_MOST) { Conf.groupMost(this, it) }
 
     }
 

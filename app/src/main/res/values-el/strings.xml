@@ -65,15 +65,9 @@
     <string name="message">Μήνυμα</string>
     <string name="let_in">Αίτημα στο foodjis να επιτρέψει το foomms</string>
     <string name="conf_mms">MMS</string>
-    <string name="conf_prefer_mms">Προτίμηση MMS</string>
-    <string name="conf_prefer_mms_note">Κάθε κείμενο μεγαλύτερο από ένα SMS στέλνεται ως MMS: χρήσιμο αν τα μεγάλα μηνύματα φτάνουν σε κομμάτια ή ανακατεμένα. Ένα MMS χρησιμοποιεί δεδομένα κινητής, και ο πάροχός σας μπορεί να το χρεώσει.</string>
-    <string name="conf_warn_mms">Προειδοποίηση πριν από κάθε αποστολή MMS</string>
-    <string name="conf_warn_mms_note">Ένα κείμενο μεγαλύτερο από πέντε SMS στέλνεται ως MMS. Μια ερώτηση πριν σας γλιτώνει από χρέωση που μπορεί να εφαρμόσει ο πάροχός σας.</string>
-    <string name="mms_ask">Αυτό το μήνυμα είναι μεγάλο: θα σταλεί ως MMS, που ο πάροχός σας μπορεί να χρεώσει.</string>
     <string name="plain_ask">Η κρυπτογράφηση είναι δυνατή σε αυτή τη συνομιλία, αλλά είναι απενεργοποιημένη. Αποστολή του μηνύματος χωρίς κρυπτογράφηση;</string>
     <string name="plain_send">Αποστολή χωρίς κρυπτογράφηση</string>
     <string name="plain_lock">⚿ Κρυπτογράφηση και αποστολή</string>
-    <string name="mms_send">Αποστολή</string>
     <string name="language_name">Ελληνικά</string>
     <string name="conf_language">Γλώσσα</string>
     <string name="conf_language_note">Αν και φτιαγμένο στη Γαλλία, το foomms μιλά έντεκα γλώσσες.</string>
@@ -280,4 +274,8 @@
     <string name="conf_group_most_note">Ο αριθμός των παραληπτών περιορίζεται ανάλογα με τον πάροχο. 10 περνούν συνήθως παντού· κάποιοι πάροχοι δέχονται πολύ περισσότερους.</string>
     <string name="group_over">Αυτή η ομάδα έχει %1$d μέλη, μαζί με εσάς, πάνω από το όριο των %2$d που ορίστηκε στη διαμόρφωση: ο πάροχος μπορεί να απορρίψει το μήνυμα ή να το παραδώσει στον καθένα χωριστά.</string>
     <string name="group_over_send">Αποστολή παρ\' όλα αυτά</string>
+    <string name="conf_mms_on">Ενεργοποίηση MMS</string>
+    <string name="conf_mms_on_note">Ενεργά: ένα κείμενο μεγαλύτερο από ένα SMS φεύγει ως ένα MMS, και μπορούν να σταλούν συνημμένα, φωνητικά μηνύματα και ομαδικά MMS. Ανενεργά: ένα μεγάλο κείμενο φεύγει σε πολλά SMS, και τίποτα από αυτά. Τα ληφθέντα MMS εμφανίζονται κανονικά.</string>
+    <string name="mms_off">Τα MMS είναι απενεργοποιημένα στη διαμόρφωση: ούτε συνημμένο, ούτε φωνητικό μήνυμα, ούτε ομαδικό MMS.</string>
+    <string name="many_sms">Αυτό το μήνυμα φεύγει σε %1$d SMS: κάποια τηλέφωνα τα ενώνουν άσχημα, και ο πάροχός σας μπορεί να χρεώσει το καθένα.</string>
 </resources>

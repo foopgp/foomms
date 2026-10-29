@@ -65,15 +65,9 @@
     <string name="message">Mesaj</string>
     <string name="let_in">foodjis\'ten foomms\'a izin vermesini iste</string>
     <string name="conf_mms">MMS</string>
-    <string name="conf_prefer_mms">MMS\'i tercih et</string>
-    <string name="conf_prefer_mms_note">Bir SMS\'ten uzun her metin MMS olarak gönderilir: uzun mesajlar parça parça ya da karışık sırayla geliyorsa yararlıdır. MMS mobil veri kullanır ve operatörünüz ücret alabilir.</string>
-    <string name="conf_warn_mms">Her MMS gönderiminden önce beni uyar</string>
-    <string name="conf_warn_mms_note">Beş SMS\'ten uzun bir metin MMS olarak gönderilir. Önceden sorulmak, operatörünüzün uygulayabileceği bir ücretten sizi korur.</string>
-    <string name="mms_ask">Bu mesaj uzun: MMS olarak gönderilecek ve operatörünüz ücret alabilir.</string>
     <string name="plain_ask">Bu konuşmada şifreleme mümkün, ancak kapalı. Bu mesaj şifrelenmeden gönderilsin mi?</string>
     <string name="plain_send">Şifrelemeden gönder</string>
     <string name="plain_lock">⚿ Şifrele ve gönder</string>
-    <string name="mms_send">Gönder</string>
     <string name="language_name">Türkçe</string>
     <string name="conf_language">Dil</string>
     <string name="conf_language_note">Fransa\'da yapılmış olsa da foomms on bir dil konuşuyor.</string>
@@ -280,4 +274,8 @@
     <string name="conf_group_most_note">Alıcı sayısı operatöre göre sınırlıdır. 10 genellikle her yerde geçer; bazı operatörler çok daha fazlasını kabul eder.</string>
     <string name="group_over">Bu grubun siz dahil %1$d üyesi var; yapılandırmada belirlenen %2$d sınırının üzerinde: operatör mesajı reddedebilir ya da her birine ayrı ayrı iletebilir.</string>
     <string name="group_over_send">Yine de gönder</string>
+    <string name="conf_mms_on">MMS\'i etkinleştir</string>
+    <string name="conf_mms_on_note">Açıkken bir SMS\'ten uzun metin tek MMS olarak gider; ekler, sesli mesajlar ve grup MMS\'leri gönderilebilir. Kapalıyken uzun metin birkaç SMS olarak gider ve bunların hiçbiri olmaz. Alınan MMS\'ler yine gösterilir.</string>
+    <string name="mms_off">MMS yapılandırmada kapalı: ek, sesli mesaj ya da grup MMS\'i yok.</string>
+    <string name="many_sms">Bu mesaj %1$d SMS olarak gider: bazı telefonlar onları kötü birleştirir ve operatörünüz her birini ayrı ücretlendirebilir.</string>
 </resources>

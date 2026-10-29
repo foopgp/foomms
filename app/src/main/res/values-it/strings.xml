@@ -65,15 +65,9 @@
     <string name="message">Messaggio</string>
     <string name="let_in">Chiedi a foodjis di autorizzare foomms</string>
     <string name="conf_mms">MMS</string>
-    <string name="conf_prefer_mms">Preferisci gli MMS</string>
-    <string name="conf_prefer_mms_note">Ogni testo più lungo di un SMS viene inviato come MMS: utile se i messaggi lunghi arrivano a pezzi o in disordine. Un MMS usa i dati mobili, e il tuo operatore potrebbe addebitarlo.</string>
-    <string name="conf_warn_mms">Avvisami prima di ogni invio di MMS</string>
-    <string name="conf_warn_mms_note">Un testo più lungo di cinque SMS viene inviato come MMS. Essere avvisato prima ti evita un costo che il tuo operatore potrebbe applicare.</string>
-    <string name="mms_ask">Questo messaggio è lungo: verrà inviato come MMS, che il tuo operatore potrebbe addebitare.</string>
     <string name="plain_ask">La cifratura è possibile in questa conversazione, ma è disattivata. Inviare questo messaggio senza cifrarlo?</string>
     <string name="plain_send">Invia senza cifrare</string>
     <string name="plain_lock">⚿ Cifra e invia</string>
-    <string name="mms_send">Invia</string>
     <string name="language_name">italiano</string>
     <string name="conf_language">Lingua</string>
     <string name="conf_language_note">Pur essendo fatto in Francia, foomms parla undici lingue.</string>
@@ -280,4 +274,8 @@
     <string name="conf_group_most_note">Il numero di destinatari è limitato a seconda dell\'operatore. 10 passano in genere ovunque; alcuni operatori ne accettano molti di più.</string>
     <string name="group_over">Questo gruppo conta %1$d membri, voi compresi, oltre il limite di %2$d fissato nella configurazione: l\'operatore potrebbe rifiutare il messaggio, o consegnarlo a ciascuno separatamente.</string>
     <string name="group_over_send">Inviare comunque</string>
+    <string name="conf_mms_on">Attivare gli MMS</string>
+    <string name="conf_mms_on_note">Attivati, un testo più lungo di un SMS parte come un MMS, e si possono inviare allegati, messaggi vocali e MMS di gruppo. Disattivati, un testo lungo parte in più SMS, e niente di tutto ciò. Gli MMS ricevuti si vedono comunque.</string>
+    <string name="mms_off">Gli MMS sono disattivati nella configurazione: né allegati, né messaggi vocali, né MMS di gruppo.</string>
+    <string name="many_sms">Questo messaggio parte in %1$d SMS: alcuni telefoni li ricompongono male, e il vostro operatore può addebitarli uno per uno.</string>
 </resources>

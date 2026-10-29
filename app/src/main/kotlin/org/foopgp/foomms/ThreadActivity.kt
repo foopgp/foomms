@@ -155,6 +155,8 @@ class ThreadActivity : AskingActivity() {
 
     /** The field held down while empty: record, if the microphone may be used, until it is let go. */
     private fun speak(): Boolean {
+        // A voice leaves as an MMS: not with MMS off.
+        if (!Conf.mms(this)) { say(getString(R.string.mms_off)) ; return true }
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), VOICE)
             return true
@@ -920,6 +922,8 @@ class ThreadActivity : AskingActivity() {
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)
         }
+        // MMS off: no part, no group.
+        if ((with != null || group) && !Conf.mms(this)) return say(getString(R.string.mms_off))
         if (!plainSaid && plainOrAsk(locks, ::paint) { send(plainSaid = true, manySaid = manySaid) }) return
         val mode = mode
         if (with != null) return sendWith(with, written, mode)
@@ -981,7 +985,7 @@ class ThreadActivity : AskingActivity() {
      * Signing both asks for the security key once.
      */
     private fun sendWith(with: Media.Attachment, written: String, mode: Mode) {
-        fun post(words: String?, piece: Pdu.Part, verdict: Verdict?) = confirmMms { withMembers(listOfNotNull(words?.let { Pdu.Part.text(it) }, piece)) { parts ->
+        fun post(words: String?, piece: Pdu.Part, verdict: Verdict?) = withMembers(listOfNotNull(words?.let { Pdu.Part.text(it) }, piece)) { parts ->
             val transaction = "T" + java.lang.Long.toHexString(System.currentTimeMillis())
             runCatching { Outbox.send(this, targets(), Pdu.send(transaction, targets(), parts), transaction) }
                 .onFailure { return@withMembers say(getString(R.string.failed, it.message)) }
@@ -991,7 +995,7 @@ class ThreadActivity : AskingActivity() {
             carry(null)
             Toast.makeText(this, getString(R.string.handed_mms, with.name), Toast.LENGTH_SHORT).show()
             list.postDelayed({ if (shown) load() }, 1500)
-        } }
+        }
         if (mode == Mode.PLAIN) return post(written.takeIf { it.isNotBlank() }, Pdu.Part(with.type, with.name, with.bytes), null)
         fun piece(sealed: Provider.Answer.Done) = Pdu.Part(Pgp.TYPE, Pgp.outerName(sealed.bytes), sealed.bytes)
         if (written.isBlank()) return ask(request(mode, armored = false, name = with.name), with.bytes, ::say) { post(null, piece(it), worth(mode)) }
@@ -1008,16 +1012,6 @@ class ThreadActivity : AskingActivity() {
                 ask(request(mode, armored = false, name = with.name), with.bytes, ::say) { post(armor, piece(it), worth(mode)) }
             }
         }
-    }
-
-    /** An operator may charge for an MMS: the person who asked to be told is, before one leaves. */
-    private fun confirmMms(go: () -> Unit) {
-        if (Conf.preferMms(this) || !Conf.warnMms(this)) return go()
-        AlertDialog.Builder(this)
-            .setMessage(R.string.mms_ask)
-            .setPositiveButton(R.string.mms_send) { _, _ -> go() }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
     }
 
     private fun carry(what: Media.Attachment?) {
@@ -1042,8 +1036,10 @@ class ThreadActivity : AskingActivity() {
             runCatching { startActivityForResult(asked, request) }.onFailure { say(getString(R.string.failed, it.message)) }
         }
         fun offered(asked: Intent) = asked.resolveActivity(packageManager) != null
+        // What leaves as an MMS, MMS being on; a place and pasted words are text.
+        val mms = Conf.mms(this)
         val camera = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
-        if (offered(camera)) {
+        if (mms && offered(camera)) {
             choices += R.string.attach_photo to {
                 val where = Outbox.shot(this)
                 launch(
@@ -1054,14 +1050,16 @@ class ThreadActivity : AskingActivity() {
                 )
             }
         }
-        // A short video, filmed here, under the photograph.
-        choices += R.string.attach_video to {
-            launch(Intent(this, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_MOST, (Outbox.heaviest(this) - Outbox.MARGIN).toLong()), VIDEO)
+        if (mms) {
+            // A short video, filmed here, under the photograph.
+            choices += R.string.attach_video to {
+                launch(Intent(this, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_MOST, (Outbox.heaviest(this) - Outbox.MARGIN).toLong()), VIDEO)
+            }
+            choices += R.string.attach_picture to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*"), PICTURE) }
+            choices += R.string.attach_contact to { launch(Intent(Intent.ACTION_PICK, android.provider.ContactsContract.Contacts.CONTENT_URI), CONTACT) }
         }
-        choices += R.string.attach_picture to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*"), PICTURE) }
-        choices += R.string.attach_contact to { launch(Intent(Intent.ACTION_PICK, android.provider.ContactsContract.Contacts.CONTENT_URI), CONTACT) }
         choices += R.string.attach_place to { place() }
-        choices += R.string.attach_file to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), FILE) }
+        if (mms) choices += R.string.attach_file to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), FILE) }
         choices += R.string.attach_text to { paste() }
         AlertDialog.Builder(this)
             .setItems(choices.map { getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }
@@ -1135,8 +1133,9 @@ class ThreadActivity : AskingActivity() {
      * charge for an MMS, and the person can ask to be told before one leaves.
      */
     private fun leave(text: String, written: String, verdict: Verdict?) {
-        // To a group, always one MMS to all.
-        val mms = group || runCatching { Conf.asMms(Outbox.pieces(this, text), Conf.preferMms(this)) }.getOrDefault(false)
+        // To a group, always one MMS to all; else an MMS once longer than one SMS, MMS being on.
+        val pieces = runCatching { Outbox.pieces(this, text) }.getOrDefault(1)
+        val mms = group || Conf.asMms(this, pieces)
         fun go() = withMembers(listOf(Pdu.Part.text(text))) { parts ->
             runCatching {
                 if (!mms) Outbox.text(this, number, text)
@@ -1151,7 +1150,16 @@ class ThreadActivity : AskingActivity() {
             // The phone writes what was sent a moment after taking it.
             list.postDelayed({ if (shown) load() }, 1500)
         }
-        if (mms) confirmMms(::go) else go()
+        // Many SMS: asked first.
+        if (!mms && pieces > Conf.MANY_SMS) {
+            AlertDialog.Builder(this)
+                .setMessage(getString(R.string.many_sms, pieces))
+                .setPositiveButton(R.string.group_over_send) { _, _ -> go() }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        } else {
+            go()
+        }
     }
 
     /**

@@ -68,15 +68,9 @@
     <string name="message">Message</string>
     <string name="let_in">Ask foodjis to let foomms in</string>
     <string name="conf_mms">MMS</string>
-    <string name="conf_prefer_mms">Prefer MMS</string>
-    <string name="conf_prefer_mms_note">Any text longer than one SMS is sent as an MMS: useful when long messages arrive in pieces or out of order. An MMS uses mobile data, and your operator may charge for it.</string>
-    <string name="conf_warn_mms">Warn me before sending any MMS</string>
-    <string name="conf_warn_mms_note">A text longer than five SMS is sent as an MMS. Being asked first spares you a charge your operator might apply.</string>
-    <string name="mms_ask">This message is long: it will be sent as an MMS, which your operator may charge for.</string>
     <string name="plain_ask">Encryption is possible in this conversation but switched off. Send this message unencrypted?</string>
     <string name="plain_send">Send unencrypted</string>
     <string name="plain_lock">⚿ Encrypt and send</string>
-    <string name="mms_send">Send</string>
     <string name="language_name">English</string>
     <string name="conf_language">Language</string>
     <string name="conf_language_note">Although made in France, foomms speaks eleven languages.</string>
@@ -283,4 +277,8 @@
     <string name="conf_group_most_note">How many recipients there may be depends on the network. 10 generally pass everywhere; some networks take far more.</string>
     <string name="group_over">This group has %1$d members, oneself included, beyond the limit of %2$d set in the configuration: the network may refuse the message, or deliver it to each alone.</string>
     <string name="group_over_send">Send all the same</string>
+    <string name="conf_mms_on">Enable MMS</string>
+    <string name="conf_mms_on_note">On, a text longer than one SMS leaves as one MMS, and attachments, voice messages and group MMS can be sent. Off, a long text leaves in several SMS, and none of these. MMS received show all the same.</string>
+    <string name="mms_off">MMS are off in the configuration: no attachment, voice message or group MMS.</string>
+    <string name="many_sms">This message leaves in %1$d SMS: some phones put them back together badly, and your network may charge each one.</string>
 </resources>

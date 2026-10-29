@@ -65,15 +65,9 @@
     <string name="message">Nachricht</string>
     <string name="let_in">foodjis bitten, foomms zuzulassen</string>
     <string name="conf_mms">MMS</string>
-    <string name="conf_prefer_mms">MMS bevorzugen</string>
-    <string name="conf_prefer_mms_note">Jeder Text, der länger als eine SMS ist, wird als MMS gesendet: nützlich, wenn lange Nachrichten in Stücken oder durcheinander ankommen. Eine MMS nutzt mobile Daten, und Ihr Anbieter kann dafür Gebühren berechnen.</string>
-    <string name="conf_warn_mms">Vor jedem MMS-Versand warnen</string>
-    <string name="conf_warn_mms_note">Ein Text, der länger als fünf SMS ist, wird als MMS gesendet. Eine Rückfrage erspart Ihnen Gebühren, die Ihr Anbieter berechnen könnte.</string>
-    <string name="mms_ask">Diese Nachricht ist lang: Sie wird als MMS gesendet, wofür Ihr Anbieter Gebühren berechnen kann.</string>
     <string name="plain_ask">Verschlüsselung ist in dieser Unterhaltung möglich, aber ausgeschaltet. Diese Nachricht unverschlüsselt senden?</string>
     <string name="plain_send">Unverschlüsselt senden</string>
     <string name="plain_lock">⚿ Verschlüsseln und senden</string>
-    <string name="mms_send">Senden</string>
     <string name="language_name">Deutsch</string>
     <string name="conf_language">Sprache</string>
     <string name="conf_language_note">Obwohl in Frankreich gemacht, spricht foomms elf Sprachen.</string>
@@ -280,4 +274,8 @@
     <string name="conf_group_most_note">Die Zahl der Empfänger ist je nach Netz begrenzt. 10 gehen im Allgemeinen überall durch, manche Netze nehmen weit mehr an.</string>
     <string name="group_over">Diese Gruppe hat %1$d Mitglieder, Sie eingeschlossen, über der in der Konfiguration festgelegten Grenze von %2$d: Das Netz könnte die Nachricht ablehnen oder sie jedem einzeln zustellen.</string>
     <string name="group_over_send">Trotzdem senden</string>
+    <string name="conf_mms_on">MMS aktivieren</string>
+    <string name="conf_mms_on_note">Aktiviert geht ein Text, der länger als eine SMS ist, als eine MMS; Anhänge, Sprachnachrichten und Gruppen-MMS sind möglich. Deaktiviert geht ein langer Text als mehrere SMS, und nichts davon. Empfangene MMS werden weiter angezeigt.</string>
+    <string name="mms_off">MMS sind in der Konfiguration deaktiviert: kein Anhang, keine Sprachnachricht, keine Gruppen-MMS.</string>
+    <string name="many_sms">Diese Nachricht geht als %1$d SMS: Manche Telefone setzen sie schlecht zusammen, und Ihr Netz kann jede einzeln berechnen.</string>
 </resources>

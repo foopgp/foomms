@@ -214,7 +214,9 @@ class ManyActivity : AskingActivity() {
      * rule as in a conversation; with a [piece], always an MMS of its own.
      */
     private fun leave(text: String?, written: String, verdict: Verdict?, piece: Pdu.Part?) {
-        val mms = piece != null || runCatching { Conf.asMms(Outbox.pieces(this, text.orEmpty()), Conf.preferMms(this)) }.getOrDefault(false)
+        if (piece != null && !Conf.mms(this)) return say(getString(R.string.mms_off))
+        val pieces = runCatching { Outbox.pieces(this, text.orEmpty()) }.getOrDefault(1)
+        val mms = piece != null || Conf.asMms(this, pieces)
         fun go() {
             if (verdict != null && text != null) Opened.keep(this, text, written, null, verdict)
             ToEach.send(applicationContext, whom.map { it.number to it.name }, text, piece, mms)
@@ -222,10 +224,11 @@ class ManyActivity : AskingActivity() {
             field.setText("")
             finish()
         }
-        if (mms && !Conf.preferMms(this) && Conf.warnMms(this)) {
+        // Many SMS: asked first.
+        if (!mms && pieces > Conf.MANY_SMS) {
             AlertDialog.Builder(this)
-                .setMessage(R.string.mms_ask)
-                .setPositiveButton(R.string.mms_send) { _, _ -> go() }
+                .setMessage(getString(R.string.many_sms, pieces))
+                .setPositiveButton(R.string.group_over_send) { _, _ -> go() }
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
         } else {
