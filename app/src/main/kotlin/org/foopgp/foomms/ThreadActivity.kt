@@ -701,7 +701,8 @@ class ThreadActivity : AskingActivity() {
         title = who?.name ?: number
         whoIs.text = who?.name ?: number
         portrait.removeAllViews()
-        portrait.addView(Look.face(this, 38, null, theirs))
+        // Framed as in the list: the colour of what its certificate is worth, the face of pixels when there is no picture.
+        portrait.addView(Look.face(this, 38, null, theirs, whose?.validity, framable = true, seed = Look.seed(who?.fingerprint, number)))
         val standing: CharSequence = when {
             who?.fingerprint == null -> getString(R.string.no_certificate)
             foodjis.shut -> getString(R.string.foodjis_shut)
