@@ -110,7 +110,7 @@ class ManyActivity : AskingActivity() {
             val most = Outbox.heaviest(this) - Outbox.MARGIN
             val picture = (intent.type ?: contentResolver.getType(shared).orEmpty()).startsWith("image/")
             thread {
-                val made = runCatching { if (picture) Media.picture(this, shared, most) else Media.file(this, shared, most) }.getOrNull()
+                val made = runCatching { if (picture) Media.picture(this, shared, most, Media.pictureName(this, shared)) else Media.file(this, shared, most) }.getOrNull()
                 runOnUiThread {
                     if (isFinishing || isDestroyed) return@runOnUiThread
                     if (made == null) return@runOnUiThread say(getString(R.string.too_heavy, most / 1024))

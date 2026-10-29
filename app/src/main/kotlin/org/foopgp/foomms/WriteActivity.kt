@@ -201,8 +201,24 @@ class WriteActivity : Activity() {
     private fun drawPicked() {
         picked.removeAllViews()
         for ((number, name) in chosen) {
+            // A name, not a button: in a thin frame, the red cross the one thing to press.
+            val pad = Look.dp(this, 8)
             picked.addView(
-                Look.small(this, "$name   ✕") { chosen.remove(number) ; drawPicked() ; rows.notifyDataSetChanged() },
+                LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    background = Look.framed(context)
+                    setPadding(pad, pad / 4, pad / 2, pad / 4)
+                    addView(Look.words(context, name, size = 14f).apply { maxLines = 1 })
+                    addView(
+                        Look.words(context, "✕", size = 16f).apply {
+                            setTypeface(typeface, Typeface.BOLD)
+                            setTextColor(Look.colour(Verdict.RED))
+                            setPadding(pad, 0, pad / 2, 0)
+                        },
+                    )
+                    setOnClickListener { chosen.remove(number) ; drawPicked() ; rows.notifyDataSetChanged() }
+                },
                 LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { marginEnd = Look.dp(this@WriteActivity, 6) },
             )
         }
@@ -218,8 +234,9 @@ class WriteActivity : Activity() {
         how.visibility = if (chosen.size >= 2) View.VISIBLE else View.GONE
         toGroup.isEnabled = groupable
         toGroup.alpha = if (groupable) 1f else 0.38f
+        // The one chosen orange, the other as any button: grey would read as not to be pressed.
         for ((button, on) in listOf(toEach to !asGroup, toGroup to asGroup)) {
-            button.background = Look.buttonFace(this, if (on) Look.ORANGE else Look.colour(Verdict.GREY))
+            button.background = Look.buttonFace(this, if (on) Look.ORANGE else Look.FACE)
             button.setTypeface(null, if (on) Typeface.BOLD else Typeface.NORMAL)
         }
         howSaid.text = when {

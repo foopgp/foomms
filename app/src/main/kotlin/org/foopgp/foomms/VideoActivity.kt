@@ -38,12 +38,12 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     /** How far the phone is turned from upright, clockwise, to the nearest quarter: 0, 90, 180 or 270. */
     private var turned = 0
 
-    /** What is recorded: its picture -- none for a sound alone --, what it weighs a second, and its file's first letter. */
+    /** What is recorded: its picture -- none for a sound alone --, what it weighs a second, and what its file is called. */
     private enum class Shape(val named: String, val wide: Int, val high: Int, val video: Int, val audio: Int, val kind: String, val over: Int) {
-        CIF("CIF", 352, 288, 180_000, 24_000, "v", 22),
-        QVGA("QVGA", 320, 240, 180_000, 24_000, "v", 11),
+        CIF("CIF", 352, 288, 180_000, 24_000, "video", 22),
+        QVGA("QVGA", 320, 240, 180_000, 24_000, "video", 11),
         // The sound of the videos, AAC, not the AMR of voice messages: a sound alone is chosen to be heard well.
-        SOUND("", 0, 0, 0, 24_000, "a", 10);
+        SOUND("", 0, 0, 0, 24_000, "audio", 10);
 
         /**
          * What it weighs a second, as filmed rather than as asked, [over] in

@@ -1117,7 +1117,9 @@ class ThreadActivity : AskingActivity() {
         thread {
             val made = runCatching {
                 when (request) {
-                    PICTURE, SHOT -> Media.picture(this, from, most)
+                    // A photograph just taken, named when it was; a picture chosen keeps its own name, as a JPEG.
+                    SHOT -> Media.picture(this, from, most, Media.named("photo", System.currentTimeMillis(), "jpg"))
+                    PICTURE -> Media.picture(this, from, most, Media.pictureName(this, from))
                     CONTACT -> Media.contact(this, from, most)
                     else -> Media.file(this, from, most)
                 }
@@ -1298,7 +1300,7 @@ class ThreadActivity : AskingActivity() {
         if (request == VIDEO) {
             if (outcome == RESULT_OK) {
                 val filmed = VideoActivity.file(this)
-                val name = data?.getStringExtra(VideoActivity.EXTRA_NAME) ?: Media.named("v", System.currentTimeMillis(), "3gp")
+                val name = data?.getStringExtra(VideoActivity.EXTRA_NAME) ?: Media.named("video", System.currentTimeMillis(), "3gp")
                 runCatching { filmed.readBytes() }.getOrNull()?.let { carry(Media.Attachment(data?.getStringExtra(VideoActivity.EXTRA_TYPE) ?: "video/3gpp", name, it, Media.lasting(it))) }
                 filmed.delete()
             }
