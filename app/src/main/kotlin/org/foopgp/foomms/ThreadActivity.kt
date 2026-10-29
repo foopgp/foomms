@@ -1971,18 +1971,10 @@ class ThreadActivity : AskingActivity() {
                         )
                     }
                 }
-                // Its text shows the details; beside it, the rest of the line gives the menu its long press gives.
-                // Told by where the finger fell rather than by a row of its own: a row around it would size the bubble.
+                // The whole line, its text as the rest, gives the menu the long press gives; the details are in it.
                 addView(
                     Look.words(context, under, size = 11f, muted = true).apply {
-                        var x = 0f
-                        var y = 0
-                        setOnTouchListener { _, event -> x = event.x ; y = event.y.toInt() ; false }
-                        setOnClickListener {
-                            val shown = layout
-                            val onText = shown == null || x - totalPaddingLeft <= shown.getLineWidth(shown.getLineForVertical(y - totalPaddingTop))
-                            if (onText) details(line) else about(at)
-                        }
+                        setOnClickListener { about(at) }
                         setOnLongClickListener { about(at) ; true }
                     },
                 )
