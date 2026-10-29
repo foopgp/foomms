@@ -148,6 +148,9 @@ class ThreadActivity : AskingActivity() {
     /** The member a message came from, as the network wrote their number. */
     private fun memberOf(address: String?): Member? = address?.let { from -> members.firstOrNull { Phone.same(it.number, from) || it.number == from } }
 
+    /** In a group, the members already asked whether a signer's certificate is theirs: once each, a page. */
+    private val offeredTo = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+
     /** Who sent each MMS received in a group: read after the page is shown, an asking each ([Store.addressOf]). */
     private val senders = java.util.concurrent.ConcurrentHashMap<Long, String>()
 
@@ -1680,6 +1683,20 @@ class ThreadActivity : AskingActivity() {
         bubbles.notifyDataSetChanged()
         // Opened onto another message: signed only, it is read at once, as any signed message is; locked, a press opens it.
         verifySigned()
+        // A group's: whoever sent that message, not the conversation's first number -- once a member, a page.
+        if (group) {
+            if (!offer || signature?.result !in VALID) return
+            val keyId = signature!!.keyId
+            val line = lines.firstOrNull { armorOf(it) == armor } ?: return
+            thread {
+                val from = line.address ?: senders[line.id] ?: Store.addressOf(this, line) ?: return@thread
+                val one = memberOf(from) ?: return@thread
+                if (one.person?.fingerprint != null || !offeredTo.add(Phone.key(from))) return@thread
+                val whose = foodjis.signer(keyId) ?: return@thread
+                runOnUiThread { if (!isFinishing && !isDestroyed) offerFor(from, whose.fingerprint) }
+            }
+            return
+        }
         // Signed, from a number that means no certificate yet: it may well mean the signer's.
         // Once a page: several signed messages from the same unknown number ask the same question.
         if (offer && !offered && person?.fingerprint == null && signature?.result in VALID) {
