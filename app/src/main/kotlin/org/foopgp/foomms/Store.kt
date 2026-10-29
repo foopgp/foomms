@@ -32,7 +32,7 @@ object Store {
     fun toEach(context: Context, thread: Long): Boolean = !groupOf(context, thread)
 
     fun groupOf(context: Context, thread: Long): Boolean = runCatching {
-        val ids = context.contentResolver.query(MMS, arrayOf("_id"), "thread_id = ?", arrayOf(thread.toString()), "date DESC")?.use { rows ->
+        val ids = context.contentResolver.query(MMS, arrayOf("_id"), "thread_id = ? AND $MMS_NOT_DRAFT", arrayOf(thread.toString()), "date DESC")?.use { rows ->
             buildList { while (rows.moveToNext() && size < LOOKED_AT) add(rows.getLong(0)) }
         }.orEmpty()
         if (ids.isEmpty()) return@runCatching false
@@ -357,14 +357,14 @@ object Store {
      */
     private fun last(context: Context, thread: Long): Line? {
         val sms = context.contentResolver.query(
-            SMS, arrayOf("date", "body", "type", "_id", "address"), "thread_id = ?", arrayOf(thread.toString()), "date DESC LIMIT 1",
+            SMS, arrayOf("date", "body", "type", "_id", "address"), "thread_id = ? AND $SMS_NOT_DRAFT", arrayOf(thread.toString()), "date DESC LIMIT 1",
         )?.use { rows ->
             if (rows.moveToFirst()) Line(rows.getLong(0), rows.getInt(2) == SMS_INBOX, rows.getString(1).orEmpty(), id = rows.getLong(3), address = rows.getString(4)) else null
         }
         // An MMS's date is in seconds, an SMS's in milliseconds.
         val mms = runCatching {
             context.contentResolver.query(
-                MMS, arrayOf("_id", "date", "msg_box"), "thread_id = ?", arrayOf(thread.toString()), "date DESC LIMIT 1",
+                MMS, arrayOf("_id", "date", "msg_box"), "thread_id = ? AND $MMS_NOT_DRAFT", arrayOf(thread.toString()), "date DESC LIMIT 1",
             )?.use { rows ->
                 if (!rows.moveToFirst()) return@use null
                 val (words, pieces) = parts(context, rows.getLong(0))
@@ -382,7 +382,7 @@ object Store {
             if (known == null || known.at < talk.at) latest[talk.thread] = talk
         }
         context.contentResolver.query(
-            SMS, arrayOf("thread_id", "address", "date", "body", "type", "read"), null, null, "date DESC",
+            SMS, arrayOf("thread_id", "address", "date", "body", "type", "read"), SMS_NOT_DRAFT, null, "date DESC",
         )?.use { rows ->
             val seen = HashSet<Long>()
             while (rows.moveToNext()) {
@@ -392,7 +392,7 @@ object Store {
                 offer(Talk(thread, rows.getString(1), rows.getLong(2), rows.getString(3).orEmpty(), rows.getInt(4) == SMS_INBOX, rows.getInt(5) == 0))
             }
         }
-        context.contentResolver.query(MMS, arrayOf("_id", "thread_id", "date", "msg_box", "read"), null, null, "date DESC")?.use { rows ->
+        context.contentResolver.query(MMS, arrayOf("_id", "thread_id", "date", "msg_box", "read"), MMS_NOT_DRAFT, null, "date DESC")?.use { rows ->
             val seen = HashSet<Long>()
             while (rows.moveToNext()) {
                 val thread = rows.getLong(1)
@@ -411,7 +411,7 @@ object Store {
     fun lines(context: Context, thread: Long): List<Line> {
         val lines = ArrayList<Line>()
         context.contentResolver.query(
-            SMS, arrayOf("date", "body", "type", "_id", "date_sent", "address", "read"), "thread_id = ?", arrayOf(thread.toString()), null,
+            SMS, arrayOf("date", "body", "type", "_id", "date_sent", "address", "read"), "thread_id = ? AND $SMS_NOT_DRAFT", arrayOf(thread.toString()), null,
         )?.use { rows ->
             while (rows.moveToNext()) {
                 lines += Line(
@@ -437,7 +437,7 @@ object Store {
     private fun mmsLines(context: Context, where: String, args: Array<String>?): List<Line> {
         class Head(val id: Long, val at: Long, val incoming: Boolean, val sentAt: Long, val unread: Boolean, val thread: Long)
         val heads = ArrayList<Head>()
-        context.contentResolver.query(MMS, arrayOf("_id", "date", "msg_box", "date_sent", "read", "thread_id"), where, args, null)?.use { rows ->
+        context.contentResolver.query(MMS, arrayOf("_id", "date", "msg_box", "date_sent", "read", "thread_id"), "($where) AND $MMS_NOT_DRAFT", args, null)?.use { rows ->
             while (rows.moveToNext()) {
                 heads += Head(rows.getLong(0), rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, rows.getLong(3) * 1000, rows.getInt(4) == 0, rows.getLong(5))
             }
@@ -478,10 +478,10 @@ object Store {
      */
     fun unreadThreads(context: Context): List<Long> = runCatching {
         val at = HashMap<Long, Long>()
-        context.contentResolver.query(SMS, arrayOf("thread_id", "date"), "read = 0", null, null)?.use { rows ->
+        context.contentResolver.query(SMS, arrayOf("thread_id", "date"), "read = 0 AND $SMS_NOT_DRAFT", null, null)?.use { rows ->
             while (rows.moveToNext()) at.merge(rows.getLong(0), rows.getLong(1), ::maxOf)
         }
-        context.contentResolver.query(MMS, arrayOf("thread_id", "date"), "read = 0", null, null)?.use { rows ->
+        context.contentResolver.query(MMS, arrayOf("thread_id", "date"), "read = 0 AND $MMS_NOT_DRAFT", null, null)?.use { rows ->
             while (rows.moveToNext()) at.merge(rows.getLong(0), rows.getLong(1) * 1000, ::maxOf)
         }
         at.entries.sortedByDescending { it.value }.map { it.key }
@@ -495,7 +495,7 @@ object Store {
      * holds, since asking the phone for it would make one.
      */
     fun thread(context: Context, number: String): Long? {
-        context.contentResolver.query(SMS, arrayOf("thread_id", "address"), null, null, "date DESC")?.use { rows ->
+        context.contentResolver.query(SMS, arrayOf("thread_id", "address"), SMS_NOT_DRAFT, null, "date DESC")?.use { rows ->
             val seen = HashSet<Long>()
             while (rows.moveToNext()) {
                 if (!seen.add(rows.getLong(0))) continue
@@ -509,10 +509,10 @@ object Store {
 
     /** The number of a conversation that has only MMS, or whose SMS did not say. */
     fun number(context: Context, thread: Long): String? {
-        context.contentResolver.query(SMS, arrayOf("address"), "thread_id = ?", arrayOf(thread.toString()), "date DESC")?.use { rows ->
+        context.contentResolver.query(SMS, arrayOf("address"), "thread_id = ? AND $SMS_NOT_DRAFT", arrayOf(thread.toString()), "date DESC")?.use { rows ->
             while (rows.moveToNext()) rows.getString(0)?.let { return it }
         }
-        context.contentResolver.query(MMS, arrayOf("_id", "msg_box"), "thread_id = ?", arrayOf(thread.toString()), "date DESC")?.use { rows ->
+        context.contentResolver.query(MMS, arrayOf("_id", "msg_box"), "thread_id = ? AND $MMS_NOT_DRAFT", arrayOf(thread.toString()), "date DESC")?.use { rows ->
             while (rows.moveToNext()) number(context, rows.getLong(0), rows.getInt(1) == MMS_INBOX)?.let { return it }
         }
         return null
@@ -550,8 +550,11 @@ object Store {
     }
 
     fun counts(context: Context): Counts {
+        // Drafts are not messages: they are counted apart.
         fun count(table: Uri, where: String?): Int = runCatching {
-            context.contentResolver.query(table, arrayOf("_id"), where, null, null)?.use { it.count }
+            val real = when (table) { SMS -> SMS_NOT_DRAFT ; MMS -> MMS_NOT_DRAFT ; else -> null }
+            val asked = listOfNotNull(where?.let { "($it)" }, real).joinToString(" AND ").ifEmpty { null }
+            context.contentResolver.query(table, arrayOf("_id"), asked, null, null)?.use { it.count }
         }.getOrNull() ?: 0
         val armored = "body LIKE '%$BANNER%'"
         // An MMS is PGP by a text part of it, or by a part that is a PGP message itself, as the conversation
@@ -564,7 +567,7 @@ object Store {
         }
         val unreadMms = HashSet<Long>()
         runCatching {
-            context.contentResolver.query(MMS, arrayOf("_id"), "read = 0", null, null)?.use { rows ->
+            context.contentResolver.query(MMS, arrayOf("_id"), "read = 0 AND $MMS_NOT_DRAFT", null, null)?.use { rows ->
                 while (rows.moveToNext()) unreadMms += rows.getLong(0)
             }
         }
@@ -574,12 +577,12 @@ object Store {
         // What it all weighs: the words of the SMS as they are kept, and the size each MMS was given.
         var bytes = 0L
         runCatching {
-            context.contentResolver.query(SMS, arrayOf("body"), null, null, null)?.use { rows ->
+            context.contentResolver.query(SMS, arrayOf("body"), SMS_NOT_DRAFT, null, null)?.use { rows ->
                 while (rows.moveToNext()) bytes += rows.getString(0)?.toByteArray()?.size ?: 0
             }
         }
         runCatching {
-            context.contentResolver.query(MMS, arrayOf("m_size"), null, null, null)?.use { rows ->
+            context.contentResolver.query(MMS, arrayOf("m_size"), MMS_NOT_DRAFT, null, null)?.use { rows ->
                 while (rows.moveToNext()) bytes += rows.getLong(0)
             }
         }
@@ -620,7 +623,7 @@ object Store {
         val asked = wanted.trim()
         if (asked.isEmpty()) return emptyList()
         val hits = ArrayList<Hit>()
-        val within = thread?.let { " AND thread_id = $it" }.orEmpty()
+        val within = (thread?.let { " AND thread_id = $it" }.orEmpty()) + " AND $SMS_NOT_DRAFT"
         val like = "%" + asked.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
         val columns = arrayOf("thread_id", "address", "date", "body", "type")
         context.contentResolver.query(
@@ -681,6 +684,10 @@ object Store {
     private const val BANNER = "-----BEGIN PGP MESSAGE-----"
     private const val MMS_INBOX = 1
     private const val MMS_SENT = 2
+
+    /** Not a draft: what is being written is not a message, sent or received, and is read apart. */
+    const val SMS_NOT_DRAFT = "type != ${android.provider.Telephony.Sms.MESSAGE_TYPE_DRAFT}"
+    const val MMS_NOT_DRAFT = "msg_box != ${android.provider.Telephony.Mms.MESSAGE_BOX_DRAFTS}"
     private const val FROM = 137
     private const val TO = 151
 }
