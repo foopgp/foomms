@@ -759,10 +759,28 @@ class ThreadActivity : AskingActivity() {
         bubbles.notifyDataSetChanged()
     }
 
-    /** A group's members, each with their face, name, number and what their certificate is worth; pressed, the conversation with them alone. */
+    /**
+     * A group's menu: what can be done about its conversation, then its members, each with their face, name,
+     * number and what their certificate is worth; pressed, the conversation with them alone.
+     */
     private fun groupMenu() {
         val column = Look.column(this)
         var shown: AlertDialog? = null
+        // First what can be done about the conversation, as about one between two: its notifications, saving it, deleting it.
+        val key = groupKey()
+        val muted = Marks.muted(this, key)
+        val pad = Look.dp(this, 10)
+        fun action(words: Int, then: () -> Unit) = column.addView(
+            Look.words(this, getString(words), size = 16f).apply {
+                setPadding(0, pad, 0, pad)
+                setOnClickListener { shown?.dismiss() ; then() }
+            },
+        )
+        action(if (muted) R.string.unmute else R.string.mute) { Marks.mute(this, key, !muted) }
+        thread?.let { one -> action(R.string.backup_one) { Saving.save(this, one, title?.toString()) } }
+        action(R.string.forget_talk) { forgetGroup() }
+        // Then the members, below a line.
+        column.addView(View(this).apply { setBackgroundColor(Look.MUTED) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1).apply { bottomMargin = pad / 2 })
         // Oneself first: the MMS goes to the others, and comes back to every one of them from all.
         val own = Me.card(this)?.let { Book.own(this, it) }
         val ownStanding = own?.fingerprint?.let { foodjis.card(it) }?.validity
@@ -819,20 +837,6 @@ class ThreadActivity : AskingActivity() {
                 },
             )
         }
-        // Then what can be done about the conversation, as about one between two: its notifications, saving it, deleting it.
-        val key = groupKey()
-        val muted = Marks.muted(this, key)
-        val pad = Look.dp(this, 10)
-        fun action(words: Int, then: () -> Unit) = column.addView(
-            Look.words(this, getString(words), size = 16f).apply {
-                setPadding(0, pad, 0, pad)
-                setOnClickListener { shown?.dismiss() ; then() }
-            },
-        )
-        column.addView(View(this).apply { setBackgroundColor(Look.MUTED) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1).apply { topMargin = pad })
-        action(if (muted) R.string.unmute else R.string.mute) { Marks.mute(this, key, !muted) }
-        thread?.let { one -> action(R.string.backup_one) { Saving.save(this, one, title?.toString()) } }
-        action(R.string.forget_talk) { forgetGroup() }
         shown = AlertDialog.Builder(this)
             .setTitle(resources.getQuantityString(R.plurals.group_members, members.size + 1, members.size + 1))
             .setView(android.widget.ScrollView(this).apply { addView(column) })
