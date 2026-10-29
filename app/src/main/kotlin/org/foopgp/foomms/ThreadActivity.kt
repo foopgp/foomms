@@ -431,8 +431,13 @@ class ThreadActivity : AskingActivity() {
     /** What is looked for, while the search is shown. */
     private val looked: String get() = if (seeker.visibility == View.VISIBLE) sought.text.toString().trim() else ""
 
-    /** The messages holding it, oldest first, and the one shown. */
-    private var hits: List<Int>? = null
+    /**
+     * Each place it is found, oldest first: a message and where in its words,
+     * or -1 for a part's name; and the one shown. Counted as marked, one by
+     * one, not message by message.
+     */
+    private class Hit(val line: Int, val at: Int)
+    private var hits: List<Hit>? = null
     private var hit = -1
 
     private fun seeking(on: Boolean) {
@@ -443,18 +448,31 @@ class ThreadActivity : AskingActivity() {
         bubbles.notifyDataSetChanged()
     }
 
-    /** What a message shows that can be looked for: its words when they can be read, and what its parts are called. */
-    private fun searchable(line: Store.Line): String {
+    /** Where [wanted] is in [text], whatever its case. */
+    private fun places(text: CharSequence, wanted: String): List<Int> {
+        val found = ArrayList<Int>()
+        var from = text.indexOf(wanted, ignoreCase = true)
+        while (from >= 0) {
+            found += from
+            from = text.indexOf(wanted, from + wanted.length, ignoreCase = true)
+        }
+        return found
+    }
+
+    /** What a message shows that can be looked for: each place in its words when they can be read, and each part whose name holds it. */
+    private fun hitsIn(index: Int, wanted: String): List<Hit> {
+        val line = lines[index]
         val armor = armorOf(line)
         val words = if (armor == null) line.body else Opened.words(armor)?.words.orEmpty()
-        return words + " " + line.pieces.joinToString(" ") { Opened.piece(it.id)?.name ?: it.name.orEmpty() }
+        val named = line.pieces.count { (Opened.piece(it.id)?.name ?: it.name.orEmpty()).contains(wanted, ignoreCase = true) }
+        return places(words, wanted).map { Hit(index, it) } + List(named) { Hit(index, -1) }
     }
 
     /** The next match up (-1) or down (1), round from one end to the other, or the latest one (0); the list scrolls to it. */
     private fun seek(way: Int) {
         val wanted = looked
         if (wanted.isEmpty()) { hitCount.text = "" ; bubbles.notifyDataSetChanged() ; return }
-        val all = hits ?: lines.indices.filter { searchable(lines[it]).contains(wanted, ignoreCase = true) }.also { hits = it }
+        val all = hits ?: lines.indices.flatMap { hitsIn(it, wanted) }.also { hits = it }
         if (all.isEmpty()) { hitCount.text = "0" ; bubbles.notifyDataSetChanged() ; return }
         hit = when {
             hit < 0 || way == 0 -> all.size - 1
@@ -462,18 +480,19 @@ class ThreadActivity : AskingActivity() {
         }
         hitCount.text = "${hit + 1}/${all.size}"
         bubbles.notifyDataSetChanged()
-        list.setSelection(all[hit])
+        list.setSelection(all[hit].line)
     }
 
-    /** [text] with what is looked for marked wherever it is. */
-    private fun marked(text: CharSequence): CharSequence {
+    /** [text], the words of message [index], with what is looked for marked wherever it is: the place shown fully, the others faintly. */
+    private fun marked(text: CharSequence, index: Int): CharSequence {
         val wanted = looked
         if (wanted.isEmpty()) return text
         val out = android.text.SpannableString(text)
-        var from = text.indexOf(wanted, ignoreCase = true)
-        while (from >= 0) {
-            out.setSpan(android.text.style.BackgroundColorSpan(Look.ORANGE), from, from + wanted.length, 0)
-            from = text.indexOf(wanted, from + wanted.length, ignoreCase = true)
+        val shown = hits?.getOrNull(hit)
+        val faint = (Look.ORANGE and 0x00FFFFFF) or 0x66000000
+        for (from in places(text, wanted)) {
+            val colour = if (shown != null && shown.line == index && shown.at == from) Look.ORANGE else faint
+            out.setSpan(android.text.style.BackgroundColorSpan(colour), from, from + wanted.length, 0)
         }
         return out
     }
@@ -1907,7 +1926,7 @@ class ThreadActivity : AskingActivity() {
                     ?.let { append("  ✍ ").append(it) }
             }
             val pad = Look.dp(context, 10)
-            val text = Look.words(context, if (closed) words else marked(words), size = 16f, muted = closed)
+            val text = Look.words(context, if (closed) words else marked(words, at), size = 16f, muted = closed)
             val bubble = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 background = Look.rounded(Look.pale(verdict), Look.dp(context, 14))
