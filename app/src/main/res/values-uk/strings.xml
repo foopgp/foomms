@@ -286,6 +286,8 @@
     <string name="write_to_each">✎ Нове повідомлення цим %1$d адресатам</string>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Усі контакти (%1$d)</string>
-    <string name="conf_group_most">Одержувачів групового MMS, щонайбільше</string>
-    <string name="conf_group_most_note">Включно з вами. %1$d проходять в усіх операторів, це типове значення; деякі, зокрема французькі, приймають значно більше.</string>
+    <string name="conf_group_most">Межа групового MMS</string>
+    <string name="conf_group_most_note">Кількість одержувачів обмежена залежно від оператора. 10 зазвичай проходять скрізь; деякі оператори приймають значно більше.</string>
+    <string name="group_over">У цій групі %1$d учасників, включно з вами, понад межу %2$d, задану в налаштуваннях: оператор може відхилити повідомлення або доставити його кожному окремо.</string>
+    <string name="group_over_send">Однаково надіслати</string>
 </resources>

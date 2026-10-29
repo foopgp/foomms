@@ -899,8 +899,8 @@ class ThreadActivity : AskingActivity() {
         sender.setTextColor(if (worth == Verdict.BLUE && !Look.dark) android.graphics.Color.WHITE else Look.INDIGO)
     }
 
-    /** [plainSaid]: the person was asked, and said it may leave unencrypted. */
-    private fun send(plainSaid: Boolean = false) {
+    /** [plainSaid]: the person was asked, and said it may leave unencrypted; [manySaid], to more than the group limit. */
+    private fun send(plainSaid: Boolean = false, manySaid: Boolean = false) {
         val written = field.text.toString()
         val with = carried
         if (written.isBlank() && with == null) return
@@ -908,10 +908,19 @@ class ThreadActivity : AskingActivity() {
         if (if (group) members.isEmpty() else Phone.plain(number) == null) return
         // To a group, this phone gets it back: not without its number, which one's own contact gives.
         if (group && Me.number(this) == null) return say(getString(R.string.group_needs_me))
+        // More than the limit set, oneself included: networks may refuse it, or deliver it to each alone. Asked.
+        if (group && !manySaid && members.size + 1 > Conf.groupMost(this)) {
+            AlertDialog.Builder(this)
+                .setMessage(getString(R.string.group_over, members.size + 1, Conf.groupMost(this)))
+                .setPositiveButton(R.string.group_over_send) { _, _ -> send(plainSaid, manySaid = true) }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+            return
+        }
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)
         }
-        if (!plainSaid && plainOrAsk(locks, ::paint) { send(plainSaid = true) }) return
+        if (!plainSaid && plainOrAsk(locks, ::paint) { send(plainSaid = true, manySaid = manySaid) }) return
         val mode = mode
         if (with != null) return sendWith(with, written, mode)
         if (mode == Mode.PLAIN) return leave(written, written, null)

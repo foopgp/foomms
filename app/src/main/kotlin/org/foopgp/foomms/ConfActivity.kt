@@ -48,8 +48,8 @@ class ConfActivity : AskingActivity() {
     private fun subheading(words: Int) =
         column.addView(Look.words(this, getString(words), size = 17f).apply { setPadding(0, Look.dp(context, 12), 0, 0) })
 
-    /** A number from 0 to [most], set by sliding, shown beside. */
-    private fun slider(now: Int, most: Int, set: (Int) -> Unit) {
+    /** A number from [least] to [most], set by sliding, shown beside. */
+    private fun slider(now: Int, most: Int, least: Int = 0, set: (Int) -> Unit) {
         val shown = Look.words(this, now.toString(), size = 18f)
         column.addView(
             LinearLayout(this).apply {
@@ -57,13 +57,13 @@ class ConfActivity : AskingActivity() {
                 gravity = android.view.Gravity.CENTER_VERTICAL
                 addView(
                     SeekBar(context).apply {
-                        max = most
-                        progress = now
+                        max = most - least
+                        progress = now - least
                         setOnSeekBarChangeListener(
                             object : SeekBar.OnSeekBarChangeListener {
                                 override fun onProgressChanged(bar: SeekBar?, value: Int, byHand: Boolean) {
-                                    set(value)
-                                    shown.text = value.toString()
+                                    set(value + least)
+                                    shown.text = (value + least).toString()
                                 }
                                 override fun onStartTrackingTouch(bar: SeekBar?) = Unit
                                 override fun onStopTrackingTouch(bar: SeekBar?) = Unit
@@ -180,8 +180,8 @@ class ConfActivity : AskingActivity() {
         }
         // How many a group MMS may go to, oneself included.
         subheading(R.string.conf_group_most)
-        note(getString(R.string.conf_group_most_note, Conf.GROUP_MOST))
-        slider(Conf.groupMost(this), Conf.GROUP_MOST_EVER) { Conf.groupMost(this, it) }
+        note(R.string.conf_group_most_note)
+        slider(Conf.groupMost(this), Conf.GROUP_MOST_EVER, Conf.GROUP_MOST) { Conf.groupMost(this, it) }
 
     }
 

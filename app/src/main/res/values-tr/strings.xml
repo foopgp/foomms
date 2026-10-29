@@ -276,6 +276,8 @@
     <string name="write_to_each">✎ Bu %1$d kişiye yeni mesaj</string>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Tüm kişiler (%1$d)</string>
-    <string name="conf_group_most">Bir grup MMS\'inin alıcı sayısı, en çok</string>
-    <string name="conf_group_most_note">Siz dahil. %1$d tüm operatörlerde geçer, varsayılan budur; aralarında Fransız operatörlerin de olduğu bazıları çok daha fazlasını kabul eder.</string>
+    <string name="conf_group_most">Grup MMS\'i sınırı</string>
+    <string name="conf_group_most_note">Alıcı sayısı operatöre göre sınırlıdır. 10 genellikle her yerde geçer; bazı operatörler çok daha fazlasını kabul eder.</string>
+    <string name="group_over">Bu grubun siz dahil %1$d üyesi var; yapılandırmada belirlenen %2$d sınırının üzerinde: operatör mesajı reddedebilir ya da her birine ayrı ayrı iletebilir.</string>
+    <string name="group_over_send">Yine de gönder</string>
 </resources>

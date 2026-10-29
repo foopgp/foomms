@@ -63,12 +63,12 @@ object Conf {
      * How many a group MMS may go to, this phone included: ten pass with
      * every network; French networks take far more.
      */
-    fun groupMost(context: Context): Int = kept(context).getInt("group_most", GROUP_MOST).coerceIn(GROUP_LEAST, GROUP_MOST_EVER)
+    fun groupMost(context: Context): Int = kept(context).getInt("group_most", GROUP_MOST).coerceIn(GROUP_MOST, GROUP_MOST_EVER)
 
-    fun groupMost(context: Context, most: Int) = kept(context).edit().putInt("group_most", most.coerceIn(GROUP_LEAST, GROUP_MOST_EVER)).apply()
+    fun groupMost(context: Context, most: Int) = kept(context).edit().putInt("group_most", most.coerceIn(GROUP_MOST, GROUP_MOST_EVER)).apply()
 
+    /** The default, and the least it may be set to. */
     const val GROUP_MOST = 10
-    const val GROUP_LEAST = 3
     const val GROUP_MOST_EVER = 255
 
     fun warnMms(context: Context): Boolean = kept(context).getBoolean("warn_mms", false)

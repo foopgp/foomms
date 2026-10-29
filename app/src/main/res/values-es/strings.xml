@@ -276,6 +276,8 @@
     <string name="write_to_each">✎ Nuevo mensaje a estas %1$d personas</string>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Todos los contactos (%1$d)</string>
-    <string name="conf_group_most">Destinatarios de un MMS de grupo, como máximo</string>
-    <string name="conf_group_most_note">Usted incluido. %1$d pasan con todos los operadores, el valor por defecto; algunos, entre ellos los franceses, aceptan muchos más.</string>
+    <string name="conf_group_most">Límite de grupo MMS</string>
+    <string name="conf_group_most_note">El número de destinatarios está limitado según el operador. 10 suelen pasar en todas partes; algunos operadores aceptan muchos más.</string>
+    <string name="group_over">Este grupo tiene %1$d miembros, usted incluido, por encima del límite de %2$d fijado en la configuración: el operador podría rechazar el mensaje, o entregarlo a cada uno por separado.</string>
+    <string name="group_over_send">Enviar de todos modos</string>
 </resources>
