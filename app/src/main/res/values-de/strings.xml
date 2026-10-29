@@ -271,7 +271,7 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Alle Kontakte (%1$d)</string>
     <string name="conf_group_most">Grenze für Gruppen-MMS</string>
-    <string name="conf_group_most_note">Die Zahl der Empfänger ist je nach Netz begrenzt. 10 gehen im Allgemeinen überall durch, manche Netze nehmen weit mehr an.</string>
+    <string name="conf_group_most_note">Die Zahl der Empfänger ist je nach Netz begrenzt. Mit zehn Empfängern geht eine MMS im Allgemeinen überall durch; manche Netze nehmen weit mehr an.</string>
     <string name="group_over">Diese Gruppe hat %1$d Mitglieder, Sie eingeschlossen, über der in der Konfiguration festgelegten Grenze von %2$d: Das Netz könnte die Nachricht ablehnen oder sie jedem einzeln zustellen.</string>
     <string name="group_over_send">Trotzdem senden</string>
     <string name="conf_mms_on">MMS aktivieren</string>

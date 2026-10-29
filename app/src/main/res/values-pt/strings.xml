@@ -271,7 +271,7 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Todos os contactos (%1$d)</string>
     <string name="conf_group_most">Limite de grupo MMS</string>
-    <string name="conf_group_most_note">O número de destinatários é limitado consoante o operador. 10 passam geralmente em todo o lado; alguns operadores aceitam muitos mais.</string>
+    <string name="conf_group_most_note">O número de destinatários é limitado consoante o operador. Com dez destinatários, um MMS passa geralmente em todo o lado; alguns operadores aceitam muitos mais.</string>
     <string name="group_over">Este grupo tem %1$d membros, incluindo si, acima do limite de %2$d fixado na configuração: o operador pode recusar a mensagem, ou entregá-la a cada um separadamente.</string>
     <string name="group_over_send">Enviar mesmo assim</string>
     <string name="conf_mms_on">Ativar os MMS</string>

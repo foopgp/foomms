@@ -175,6 +175,8 @@ class ManyActivity : AskingActivity() {
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)
         }
+        // MMS off: no part -- said before anything else.
+        if (with != null && !Conf.mms(this)) return say(getString(R.string.mms_off))
         if (!plainSaid && plainOrAsk(locks, ::paint) { send(plainSaid = true) }) return
         val locked = locks.isChecked && locks.isEnabled
         val signed = signs.isChecked && signs.isEnabled
@@ -214,7 +216,6 @@ class ManyActivity : AskingActivity() {
      * rule as in a conversation; with a [piece], always an MMS of its own.
      */
     private fun leave(text: String?, written: String, verdict: Verdict?, piece: Pdu.Part?) {
-        if (piece != null && !Conf.mms(this)) return say(getString(R.string.mms_off))
         val pieces = runCatching { Outbox.pieces(this, text.orEmpty()) }.getOrDefault(1)
         val mms = piece != null || Conf.asMms(this, pieces)
         fun go() {
