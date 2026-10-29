@@ -233,8 +233,8 @@ class ThreadActivity : AskingActivity() {
             customView = LinearLayout(this@ThreadActivity).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
-                val side = Look.dp(context, 38)
-                addView(portrait, LinearLayout.LayoutParams(side, side))
+                // As large as the face it holds, its frame included: never cut.
+                addView(portrait, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
                 addView(
                     LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
@@ -702,7 +702,8 @@ class ThreadActivity : AskingActivity() {
         whoIs.text = who?.name ?: number
         portrait.removeAllViews()
         // Framed as in the list: the colour of what its certificate is worth, the face of pixels when there is no picture.
-        portrait.addView(Look.face(this, 38, null, theirs, whose?.validity, framable = true, seed = Look.seed(who?.fingerprint, number)))
+        // 38 dp in all, as the bar has room for: the picture and its frame.
+        portrait.addView(Look.face(this, 32, null, theirs, whose?.validity, framable = true, seed = Look.seed(who?.fingerprint, number), lineDp = 3))
         val standing: CharSequence = when {
             who?.fingerprint == null -> getString(R.string.no_certificate)
             foodjis.shut -> getString(R.string.foodjis_shut)
@@ -764,13 +765,15 @@ class ThreadActivity : AskingActivity() {
      * number and what their certificate is worth; pressed, the conversation with them alone.
      */
     private fun groupMenu() {
-        val column = Look.column(this)
+        // What can be done and the title held at the top; only the members scroll.
+        val head = Look.column(this).apply { setPadding(paddingLeft, paddingTop, paddingRight, 0) }
+        val column = Look.column(this).apply { setPadding(paddingLeft, 0, paddingRight, paddingBottom) }
         var shown: AlertDialog? = null
         // First what can be done about the conversation, as about one between two: its notifications, saving it, deleting it.
         val key = groupKey()
         val muted = Marks.muted(this, key)
         val pad = Look.dp(this, 10)
-        fun action(words: Int, then: () -> Unit) = column.addView(
+        fun action(words: Int, then: () -> Unit) = head.addView(
             Look.words(this, getString(words), size = 16f).apply {
                 setPadding(0, pad, 0, pad)
                 setOnClickListener { shown?.dismiss() ; then() }
@@ -779,8 +782,13 @@ class ThreadActivity : AskingActivity() {
         action(if (muted) R.string.unmute else R.string.mute) { Marks.mute(this, key, !muted) }
         thread?.let { one -> action(R.string.backup_one) { Saving.save(this, one, title?.toString()) } }
         action(R.string.forget_talk) { forgetGroup() }
-        // Then the members, below a line.
-        column.addView(View(this).apply { setBackgroundColor(Look.MUTED) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1).apply { bottomMargin = pad / 2 })
+        // Then the members, below a line and their count.
+        head.addView(View(this).apply { setBackgroundColor(Look.MUTED) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1))
+        head.addView(
+            Look.words(this, resources.getQuantityString(R.plurals.group_members, members.size + 1, members.size + 1), size = 20f).apply {
+                setPadding(0, pad * 3 / 2, 0, pad / 2)
+            },
+        )
         // Oneself first: the MMS goes to the others, and comes back to every one of them from all.
         val own = Me.card(this)?.let { Book.own(this, it) }
         val ownStanding = own?.fingerprint?.let { foodjis.card(it) }?.validity
@@ -838,8 +846,13 @@ class ThreadActivity : AskingActivity() {
             )
         }
         shown = AlertDialog.Builder(this)
-            .setTitle(resources.getQuantityString(R.plurals.group_members, members.size + 1, members.size + 1))
-            .setView(android.widget.ScrollView(this).apply { addView(column) })
+            .setView(
+                LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    addView(head)
+                    addView(android.widget.ScrollView(context).apply { addView(column) })
+                },
+            )
             .setPositiveButton(R.string.close, null)
             .show()
     }
