@@ -25,20 +25,20 @@ object Store {
 
     /**
      * Whether a conversation of several numbers holds what was sent to each
-     * of them -- an envoi multiple, or a group MMS in clear, which networks
-     * deliver as they please -- rather than an encrypted group's: one of its
-     * latest MMS carries the members part ([Members]).
+     * of them -- an envoi multiple, or a group MMS another application sent,
+     * which networks deliver as they please -- rather than a group's: one of
+     * its latest MMS carries the members part ([Members]).
      */
-    fun toEach(context: Context, thread: Long): Boolean = !encryptedGroup(context, thread)
+    fun toEach(context: Context, thread: Long): Boolean = !groupOf(context, thread)
 
-    fun encryptedGroup(context: Context, thread: Long): Boolean = runCatching {
+    fun groupOf(context: Context, thread: Long): Boolean = runCatching {
         val ids = context.contentResolver.query(MMS, arrayOf("_id"), "thread_id = ?", arrayOf(thread.toString()), "date DESC")?.use { rows ->
             buildList { while (rows.moveToNext() && size < LOOKED_AT) add(rows.getLong(0)) }
         }.orEmpty()
         if (ids.isEmpty()) return@runCatching false
         context.contentResolver.query(
-            PARTS, arrayOf("_id"), "mid IN (${ids.joinToString(",")}) AND (name = ? OR cl = ?)", arrayOf(Members.PART, Members.PART), null,
-        )?.use { it.count > 0 } == true
+            PARTS, arrayOf("_id", "name", "cl"), "mid IN (${ids.joinToString(",")})", null, null,
+        )?.use { rows -> var found = false ; while (!found && rows.moveToNext()) found = Members.isPart(rows.getString(1)) || Members.isPart(rows.getString(2)) ; found } == true
     }.getOrDefault(false)
 
     /** How many of a conversation's latest MMS are looked at for a members part. */

@@ -231,7 +231,7 @@
     <string name="page_talks">Conversations</string>
     <string name="page_unread">Unread</string>
     <string name="page_unread_n">Unread (%1$d)</string>
-    <string name="page_groups">Encrypted groups</string>
+    <string name="page_groups">MMS groups</string>
     <plurals name="talks_n">
         <item quantity="one">%d conversation</item>
         <item quantity="other">%d conversations</item>
@@ -248,12 +248,12 @@
         <item quantity="one">%d member</item>
         <item quantity="other">%d members</item>
     </plurals>
-    <!-- Several chosen in a new message: the same to each, or one encrypted group. -->
+    <!-- Several chosen in a new message: the same to each, or one group MMS. -->
     <string name="send_each">Send to each</string>
-    <string name="send_group">Encrypted group</string>
+    <string name="send_group">Group MMS</string>
     <string name="send_each_note">Each gets their own message, and answers you alone.</string>
-    <string name="send_group_note">One encrypted MMS for all: each sees who is in the group, and everybody\'s answers.</string>
-    <string name="send_group_most">An encrypted group goes to 2 to %1$d people.</string>
+    <string name="send_group_note">One MMS for all: each sees who is in the group, and everybody\'s answers.</string>
+    <string name="send_group_most">A group MMS goes to 2 to %1$d people.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Change contact card</string>
     <string name="me_create">✚ Create my contact card</string>
@@ -270,10 +270,10 @@
     <string name="choose_name">Name:</string>
     <string name="name_contact">Keep the contact\'s:</string>
     <string name="name_certificate">Take the certificate\'s:</string>
-    <!-- An encrypted group goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">An encrypted group includes you, at your number: tie your own contact card first, under “Me” on the Encrypted groups page.</string>
+    <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
+    <string name="group_needs_me">A group MMS goes to you too, at your number: tie your own contact card first, under “Me” on the MMS groups page.</string>
     <string name="altered_title">Group message altered</string>
-    <string name="altered">An encrypted group message you sent came back different: it was most likely changed on its way, for everyone it went to.</string>
+    <string name="altered">A group message you sent came back different: it was most likely changed on its way, for everyone it went to.</string>
     <string name="channel_altered">Altered messages</string>
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ sent to %1$d people</string>
@@ -281,5 +281,4 @@
     <string name="write_to_each">✎ New message to these %1$d people</string>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">All contacts (%1$d)</string>
-    <string name="group_needs_keys">An encrypted group needs a certificate for everyone in it: none for %1$s.</string>
 </resources>

@@ -71,69 +71,40 @@ object Keep {
     fun mmsReceived(context: Context, message: PduRead.Message, size: Int, subscription: Int): Uri? {
         val from = message.from ?: return null
         Me.learn(context, message.to)
+        runCatching { members(context, message) }
         return mms(context, Telephony.Mms.Inbox.CONTENT_URI, conversationOf(context, from, message), from, message.to, message, size, incoming = true, subscription)
     }
 
     /**
-     * The numbers of the conversation an MMS received belongs to. An
-     * encrypted group's, told by the keys its members part is locked for
-     * ([Members]), when this phone knows whose they all are -- networks may
-     * have left none of the others in its "To" --; else those it went to,
-     * this phone among them, a group's when they are several.
+     * The numbers of the conversation an MMS received belongs to: a group's,
+     * as its members part says them -- networks may have left none of the
+     * others in its "To" --, this phone by the number it goes out with; else
+     * those it went to, this phone among them, a group's when they are
+     * several.
      */
     fun conversationOf(context: Context, from: String, message: PduRead.Message): Set<String> =
-        runCatching { encryptedGroup(context, from, message) }.getOrNull() ?: Phone.received(from, message.to).toSet()
+        runCatching { group(context, from, message) }.getOrNull() ?: Phone.received(from, message.to).toSet()
 
-    private fun encryptedGroup(context: Context, from: String, message: PduRead.Message): Set<String>? {
-        val part = message.parts.firstOrNull { Members.isPart(it.name ?: it.location) } ?: return null
+    private fun group(context: Context, from: String, message: PduRead.Message): Set<String>? {
+        val part = message.parts.firstOrNull { it.name == Members.PART || it.location == Members.PART } ?: return null
         val me = Me.number(context) ?: return null
-        val foodjis = Foodjis.of(context)
-        val mine = Me.card(context)?.let { Book.own(context, it) }?.fingerprint
-        val numbers = ArrayList<String>()
-        for (key in Pgp.recipients(part.bytes)) {
-            val whose = foodjis.signer(key)?.fingerprint ?: return null
-            if (whose.equals(mine, ignoreCase = true)) continue
-            numbers += numberOf(context, whose) ?: return null
-        }
         val all = ArrayList<String>()
-        for (one in numbers + from + me) if (all.none { Phone.same(it, one) || it == one } && (one == me || !Me.mine(context, one))) all += one
+        for (one in Members.read(part.bytes).map { it.number } + from + me) {
+            if (all.none { Phone.same(it, one) || it == one } && (one == me || !Me.mine(context, one))) all += one
+        }
         return all.toSet().takeIf { it.size > 2 }
     }
 
     /**
-     * The number a member of a group goes by: the one a members part said
-     * for that certificate; else the only one of the contact tied to it.
-     * A contact with several: none, rather than one that may not be the
-     * group's -- the message waits for its members part to be opened.
-     */
-    private fun numberOf(context: Context, fingerprint: String): String? =
-        Members.numberOf(context, fingerprint) ?: Book.numbersOf(context, fingerprint).singleOrNull()
-
-    /**
-     * A message of an encrypted group, its members part opened: moved to the
-     * group's conversation if it waited in its sender's, whose members were
-     * not all known; and to the contact tied to a member's certified
+     * A group's members part received: kept, for tying each from the
+     * group's menu; and to the contact tied to a member's certified
      * certificate, the number it lacks.
      */
-    fun joined(context: Context, part: Long, members: List<Members.Member>) {
+    fun members(context: Context, message: PduRead.Message) {
+        val part = message.parts.firstOrNull { it.name == Members.PART || it.location == Members.PART } ?: return
+        val members = Members.read(part.bytes)
         Members.remember(context, members)
         if (!ours(context)) return
-        val resolver = context.contentResolver
-        val message = resolver.query(Uri.parse("content://mms/part/$part"), arrayOf("mid"), null, null, null)?.use { if (it.moveToFirst()) it.getLong(0) else null } ?: return
-        // One's own, come back and kept before copies delivered one recipient at a time were known for such: gone.
-        val sender = resolver.query(Uri.parse("content://mms/$message/addr"), arrayOf("address", "type"), "type = 137", null, null)?.use { if (it.moveToFirst()) it.getString(0) else null }
-        val box = resolver.query(Uri.parse("content://mms/$message"), arrayOf("msg_box"), null, null, null)?.use { if (it.moveToFirst()) it.getInt(0) else null }
-        if (box == Telephony.Mms.MESSAGE_BOX_INBOX && sender != null && Me.mine(context, sender)) {
-            runCatching { resolver.delete(Uri.parse("content://mms/$message"), null, null) }
-            return
-        }
-        val me = Me.number(context) ?: return
-        val numbers = members.map { it.number }.filterNot { Me.mine(context, it) } + me
-        if (numbers.size > 2) runCatching {
-            val group = Telephony.Threads.getOrCreateThreadId(context, numbers.toSet())
-            val now = resolver.query(Uri.parse("content://mms/$message"), arrayOf("thread_id"), null, null, null)?.use { if (it.moveToFirst()) it.getLong(0) else null }
-            if (now != null && now != group) resolver.update(Uri.parse("content://mms/$message"), ContentValues().apply { put(Telephony.Mms.THREAD_ID, group) }, null, null)
-        }
         val foodjis = Foodjis.of(context)
         for (one in members) {
             val whose = one.fingerprint ?: continue

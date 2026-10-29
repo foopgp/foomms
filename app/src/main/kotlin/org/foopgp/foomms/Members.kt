@@ -11,15 +11,18 @@ package org.foopgp.foomms
  */
 object Members {
 
-    /** The name the part travels under: what tells a message of an encrypted group, before it is opened. */
-    const val PART = "foomms-group.vcf.pgp"
+    /** The name the part travels under: what tells a message of a group. */
+    const val PART = "foomms-group.vcf"
 
-    /** The name of the file inside, once opened. */
-    const val INSIDE = "foomms-group.vcf"
+    /** Its type, as contact cards are sent by MMS. */
+    const val TYPE = "text/x-vcard"
+
+    /** What the first trials sent, encrypted: still known for a group's, not read. */
+    private const val SEALED = "foomms-group.vcf.pgp"
 
     class Member(val name: String, val number: String, val fingerprint: String?, val eid: String? = null)
 
-    fun isPart(name: String?): Boolean = name == PART
+    fun isPart(name: String?): Boolean = name == PART || name == SEALED
 
     /** One vCard 4.0 after another (RFC 6350), lines ending in CRLF. */
     fun write(members: List<Member>): ByteArray = buildString {

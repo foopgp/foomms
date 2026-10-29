@@ -805,11 +805,7 @@ class ThreadActivity : AskingActivity() {
      * the same window as any tying ([Tying]).
      */
     private fun tieMember(to: String) {
-        // What the group's members part said, kept when it was opened -- or opened already on this page, read now.
-        if (Members.known(this, to) == null) {
-            lines.flatMap { it.pieces }.filter { Members.isPart(it.name) }.firstNotNullOfOrNull { Opened.piece(it.id)?.bytes }
-                ?.let { Members.remember(this, Members.read(it)) }
-        }
+        // What the group's members part said, kept when it came.
         val named = Members.known(this, to)?.fingerprint
         if (named == null) {
             fun chosen(says: Intent?): Boolean {
@@ -886,9 +882,6 @@ class ThreadActivity : AskingActivity() {
     private fun paint() {
         // Nothing to encrypt for without a certificate that stands; nothing to sign with until foodjis has said whose identity this is.
         locks.isEnabled = lockable()
-        // An encrypted group's: encrypted, always -- greyed when it cannot be yet, a certificate lacking, but shown on.
-        locks.held = group
-        if (group && !locks.isChecked) locks.isChecked = true
         signs.isEnabled = mine != null
         val worth = worth(mode)
         options.setBackgroundColor(Look.pale(worth))
@@ -905,16 +898,10 @@ class ThreadActivity : AskingActivity() {
         if (if (group) members.isEmpty() else Phone.plain(number) == null) return
         // To a group, this phone gets it back: not without its number, which one's own contact gives.
         if (group && Me.number(this) == null) return say(getString(R.string.group_needs_me))
-        // An encrypted group's is encrypted, for every one of its members: nothing leaves otherwise.
-        if (group) {
-            val lacking = members.filter { it.card?.usable != true }
-            if (lacking.isNotEmpty() || mine == null) return say(getString(R.string.group_needs_keys, lacking.joinToString(", ") { it.name }))
-            if (!locks.isChecked) { locks.isChecked = true ; paint() }
-        }
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)
         }
-        if (!plainSaid && !group && plainOrAsk(locks, ::paint) { send(plainSaid = true) }) return
+        if (!plainSaid && plainOrAsk(locks, ::paint) { send(plainSaid = true) }) return
         val mode = mode
         if (with != null) return sendWith(with, written, mode)
         if (mode == Mode.PLAIN) return leave(written, written, null)
@@ -926,24 +913,18 @@ class ThreadActivity : AskingActivity() {
     }
 
     /**
-     * [parts] and, to a group, the part that tells it ([Members]): everyone
-     * in it, oneself included, encrypted for all of them -- not signed, so
-     * that the key is not asked for it.
+     * [parts] and, to a group, the part that tells it ([Members]), as it is:
+     * everyone in it, oneself included, by the name their contact has here.
      */
     private fun withMembers(parts: List<Pdu.Part>, then: (List<Pdu.Part>) -> Unit) {
         if (!group) return then(parts)
-        val key = mine ?: return say(getString(R.string.group_needs_keys, ""))
         thread {
             val own = Me.card(this)?.let { Book.own(this, it) }
-            val mineCert = foodjis.signer(key)
-            val all = listOf(Members.Member(own?.name ?: mineCert?.name ?: Me.number(this).orEmpty(), Me.number(this).orEmpty(), mineCert?.fingerprint, mineCert?.eid)) +
+            val mineCert = mine?.let { foodjis.signer(it) }
+            val number = Me.number(this).orEmpty()
+            val all = listOf(Members.Member(own?.name ?: mineCert?.name ?: number, number, mineCert?.fingerprint, mineCert?.eid)) +
                 members.map { Members.Member(it.name, it.number, it.card?.fingerprint, it.card?.eid) }
-            runOnUiThread {
-                if (isFinishing || isDestroyed) return@runOnUiThread
-                ask(request(Mode.LOCK, armored = false, name = Members.INSIDE), Members.write(all), ::say) { sealed ->
-                    then(parts + Pdu.Part(Pgp.TYPE, Members.PART, sealed.bytes))
-                }
-            }
+            runOnUiThread { if (!isFinishing && !isDestroyed) then(parts + Pdu.Part(Members.TYPE, Members.PART, Members.write(all))) }
         }
     }
 
@@ -958,8 +939,7 @@ class ThreadActivity : AskingActivity() {
         ).putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, armored)
         name?.let { request.putExtra(Provider.EXTRA_ORIGINAL_FILENAME, it) }
         if (mode.locks) {
-            // A group's: every member's certificate, and always one's own -- the keys a message names tell its group,
-            // the same whoever in it sends.
+            // A group's: every member's certificate, and always one's own -- what one sent, one reads again.
             if (group) {
                 val keys = (members.mapNotNull { it.card?.fingerprint?.let(Fingerprint::keyId) } + listOfNotNull(mine)).distinct()
                 return request.putExtra(Provider.EXTRA_KEY_IDS, keys.toLongArray())

@@ -230,7 +230,7 @@
     <string name="page_talks">Розмови</string>
     <string name="page_unread">Непрочитані</string>
     <string name="page_unread_n">Непрочитані (%1$d)</string>
-    <string name="page_groups">Зашифровані групи</string>
+    <string name="page_groups">MMS-групи</string>
     <plurals name="talks_n">
         <item quantity="one">%d розмова</item>
         <item quantity="few">%d розмови</item>
@@ -255,12 +255,12 @@
         <item quantity="many">%d учасників</item>
         <item quantity="other">%d учасника</item>
     </plurals>
-    <!-- Several chosen in a new message: the same to each, or one encrypted group. -->
+    <!-- Several chosen in a new message: the same to each, or one group MMS. -->
     <string name="send_each">Кожному окремо</string>
-    <string name="send_group">Зашифрована група</string>
+    <string name="send_group">Групове MMS</string>
     <string name="send_each_note">Кожен отримує своє повідомлення й відповідає лише вам.</string>
-    <string name="send_group_note">Одне зашифроване MMS усім: кожен бачить, хто в групі, і відповіді всіх.</string>
-    <string name="send_group_most">Зашифрована група — від 2 до %1$d одержувачів.</string>
+    <string name="send_group_note">Одне MMS усім: кожен бачить, хто в групі, і відповіді всіх.</string>
+    <string name="send_group_most">Групове MMS — від 2 до %1$d одержувачів.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Змінити картку контакту</string>
     <string name="me_create">✚ Створити мою картку контакту</string>
@@ -277,10 +277,10 @@
     <string name="choose_name">Ім\'я:</string>
     <string name="name_contact">Залишити ім\'я з контакту:</string>
     <string name="name_certificate">Узяти ім\'я із сертифіката:</string>
-    <!-- An encrypted group goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">Зашифрована група включає вас, за вашим номером: спершу пов\'яжіть свою картку контакту в розділі «Я» на сторінці «Зашифровані групи».</string>
+    <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
+    <string name="group_needs_me">Групове MMS надходить і вам, на ваш номер: спершу пов\'яжіть свою картку контакту в розділі «Я» на сторінці «MMS-групи».</string>
     <string name="altered_title">Групове повідомлення змінено</string>
-    <string name="altered">Надіслане вами зашифроване групове повідомлення повернулося іншим: імовірно, його змінили в дорозі, для всіх одержувачів.</string>
+    <string name="altered">Надіслане вами групове повідомлення повернулося іншим: імовірно, його змінили в дорозі, для всіх одержувачів.</string>
     <string name="channel_altered">Змінені повідомлення</string>
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ надіслано %1$d адресатам</string>
@@ -288,5 +288,4 @@
     <string name="write_to_each">✎ Нове повідомлення цим %1$d адресатам</string>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Усі контакти (%1$d)</string>
-    <string name="group_needs_keys">Зашифрованій групі потрібен сертифікат кожного учасника: його немає для %1$s.</string>
 </resources>
