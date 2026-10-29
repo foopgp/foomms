@@ -40,7 +40,6 @@ class SearchActivity : Activity() {
     private var people: List<Whom> = emptyList()
     private var inContacts = false
     private lateinit var asked: EditText
-    private lateinit var where: android.widget.Button
 
     private val foodjis by lazy { Foodjis.of(this) }
 
@@ -52,8 +51,8 @@ class SearchActivity : Activity() {
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
         super.onCreate(state)
-        // Where it was asked to look, else where it looked last.
-        inContacts = number == null && (intent.getStringExtra(EXTRA_IN)?.let { it == IN_CONTACTS } ?: Conf.searchContacts(this))
+        // Where it was asked to look: the search button asks it ([Searching]).
+        inContacts = number == null && intent.getStringExtra(EXTRA_IN) == IN_CONTACTS
         asked = EditText(this).apply {
             inputType = InputType.TYPE_CLASS_TEXT
             setSingleLine()
@@ -87,9 +86,6 @@ class SearchActivity : Activity() {
                         orientation = LinearLayout.HORIZONTAL
                         gravity = android.view.Gravity.CENTER_VERTICAL
                         addView(asked, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-                        // Where to look, beside what to look for: only from the list of conversations.
-                        where = Look.small(context, "") { choose() }
-                        if (number == null) addView(where)
                     },
                 )
                 addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
@@ -100,22 +96,9 @@ class SearchActivity : Activity() {
         asked.requestFocus()
     }
 
-    /** The contacts or the conversations, asked in their own words; the choice is kept for the next time. */
-    private fun choose() {
-        val labels = arrayOf(getString(R.string.search_contacts), getString(R.string.search_all))
-        android.app.AlertDialog.Builder(this)
-            .setItems(labels) { _, which ->
-                inContacts = which == 0
-                Conf.searchContacts(this, inContacts)
-                dressFor()
-            }
-            .show()
-    }
-
     private fun dressFor() {
         Look.barTitle(this, getString(if (number != null) R.string.search_here else if (inContacts) R.string.search_contacts else R.string.search_all))
         asked.setHint(if (inContacts) R.string.whom_hint else R.string.search_hint)
-        where.text = getString(if (inContacts) R.string.contacts else R.string.talks) + " ▾"
         hits = emptyList()
         people = emptyList()
         found.notifyDataSetChanged()

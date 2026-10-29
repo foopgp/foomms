@@ -210,7 +210,9 @@ class WriteActivity : Activity() {
         // A group MMS goes to two to nine people: beyond, to each.
         // And this phone, which gets it back: its number, from one's own contact.
         val known = Me.number(this) != null
-        val groupable = chosen.size in 2..GROUP_MOST && known
+        // Ten with oneself, or what the person set: some networks take far more.
+        val most = Conf.groupMost(this) - 1
+        val groupable = chosen.size in 2..most && known
         if (!groupable) asGroup = false
         how.visibility = if (chosen.size >= 2) View.VISIBLE else View.GONE
         toGroup.isEnabled = groupable
@@ -223,7 +225,7 @@ class WriteActivity : Activity() {
             asGroup -> getString(R.string.send_group_note)
             groupable -> getString(R.string.send_each_note)
             !known -> getString(R.string.group_needs_me)
-            else -> getString(R.string.send_group_most, GROUP_MOST)
+            else -> getString(R.string.send_group_most, most)
         }
         go.isEnabled = chosen.isNotEmpty() || Phone.plain(asked.text.toString()) != null
     }
@@ -302,7 +304,5 @@ class WriteActivity : Activity() {
 
         /** How many recent conversations open the list. */
         const val MOST = 60
-        /** The most a group MMS goes to: ten with this phone, under what the networks are said to bear. */
-        const val GROUP_MOST = 9
     }
 }

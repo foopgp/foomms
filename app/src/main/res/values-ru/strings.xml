@@ -37,7 +37,6 @@
     <string name="standing_expired">истёк</string>
     <string name="standing_revoked">отозван</string>
     <string name="standing_broken">повреждён</string>
-    <string name="talks">Переписки</string>
     <string name="locked_for">⚿ Зашифрованное сообщение для</string>
     <string name="share">⤴ Поделиться</string>
     <string name="save">↧ Сохранить</string>
@@ -192,7 +191,6 @@
     <string name="write_to">Написать на %1$s</string>
     <string name="decrypt_this">⚿ Расшифровать это сообщение</string>
     <string name="search_contacts">🔍 Поиск по контактам</string>
-    <string name="contacts">Контакты</string>
     <string name="attach_text">📋 Текст</string>
     <string name="clipboard_empty">Нечего вставить: буфер обмена пуст.</string>
     <string name="restricted_hint">Установленный из файла foomms сможет читать и отправлять SMS, только когда Android это разрешит: в настройках foomms, меню ⋮ в правом верхнем углу, выберите «Разрешить настройки с ограниченным доступом», затем вернитесь сюда и нажмите «Разрешить».</string>
@@ -285,8 +283,9 @@
     <string name="channel_altered">Изменённые сообщения</string>
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ отправлено %1$d адресатам</string>
-    <string name="sent_also_to">⇉ отправлено также ещё %1$d адресатам</string>
     <string name="write_to_each">✎ Новое сообщение этим %1$d адресатам</string>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Все контакты (%1$d)</string>
+    <string name="conf_group_most">Получателей группового MMS, не более</string>
+    <string name="conf_group_most_note">Включая вас. %1$d проходят у всех операторов, это значение по умолчанию; некоторые, в том числе французские, принимают гораздо больше.</string>
 </resources>

@@ -49,11 +49,6 @@ object Conf {
     fun toMyself(context: Context, on: Boolean) = kept(context).edit().putBoolean("to_myself", on).apply()
 
     /** A text that takes more than one SMS leaves as an MMS; otherwise only one that takes more than [MOST_SMS]. */
-    /** Where the search of the list of conversations looks: the contacts, or the messages. */
-    fun searchContacts(context: Context): Boolean = kept(context).getBoolean("search_contacts", true)
-
-    fun searchContacts(context: Context, on: Boolean) = kept(context).edit().putBoolean("search_contacts", on).apply()
-
     fun preferMms(context: Context): Boolean = kept(context).getBoolean("prefer_mms", false)
 
     fun preferMms(context: Context, on: Boolean) = kept(context).edit().putBoolean("prefer_mms", on).apply()
@@ -64,6 +59,18 @@ object Conf {
     fun operatorSize(context: Context, on: Boolean) = kept(context).edit().putBoolean("operator_size", on).apply()
 
     /** Ask before a message leaves as an MMS, which an operator may charge for. */
+    /**
+     * How many a group MMS may go to, this phone included: ten pass with
+     * every network; French networks take far more.
+     */
+    fun groupMost(context: Context): Int = kept(context).getInt("group_most", GROUP_MOST).coerceIn(GROUP_LEAST, GROUP_MOST_EVER)
+
+    fun groupMost(context: Context, most: Int) = kept(context).edit().putInt("group_most", most.coerceIn(GROUP_LEAST, GROUP_MOST_EVER)).apply()
+
+    const val GROUP_MOST = 10
+    const val GROUP_LEAST = 3
+    const val GROUP_MOST_EVER = 255
+
     fun warnMms(context: Context): Boolean = kept(context).getBoolean("warn_mms", false)
 
     fun warnMms(context: Context, on: Boolean) = kept(context).edit().putBoolean("warn_mms", on).apply()

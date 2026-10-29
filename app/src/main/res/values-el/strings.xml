@@ -37,7 +37,6 @@
     <string name="standing_expired">ληγμένο</string>
     <string name="standing_revoked">ανακληθέν</string>
     <string name="standing_broken">κατεστραμμένο</string>
-    <string name="talks">Συνομιλίες</string>
     <string name="locked_for">⚿ Κρυπτογραφημένο μήνυμα για</string>
     <string name="share">⤴ Κοινοποίηση</string>
     <string name="save">↧ Αποθήκευση</string>
@@ -190,7 +189,6 @@
     <string name="write_to">Γράψτε στο %1$s</string>
     <string name="decrypt_this">⚿ Αποκρυπτογράφηση αυτού του μηνύματος</string>
     <string name="search_contacts">🔍 Αναζήτηση στις επαφές</string>
-    <string name="contacts">Επαφές</string>
     <string name="attach_text">📋 Κείμενο</string>
     <string name="clipboard_empty">Τίποτα για επικόλληση: το πρόχειρο είναι κενό.</string>
     <string name="restricted_hint">Εγκατεστημένο από αρχείο, το foomms μπορεί να διαβάζει και να στέλνει SMS μόνο όταν το επιτρέψει το Android: στις ρυθμίσεις του foomms, το μενού ⋮ πάνω δεξιά, επιλέξτε «Να επιτρέπονται οι περιορισμένες ρυθμίσεις», μετά επιστρέψτε εδώ και πατήστε Να επιτρέπεται.</string>
@@ -275,8 +273,9 @@
     <string name="channel_altered">Αλλοιωμένα μηνύματα</string>
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ στάλθηκε σε %1$d άτομα</string>
-    <string name="sent_also_to">⇉ στάλθηκε επίσης σε %1$d άλλα άτομα</string>
     <string name="write_to_each">✎ Νέο μήνυμα σε αυτά τα %1$d άτομα</string>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Όλες οι επαφές (%1$d)</string>
+    <string name="conf_group_most">Παραλήπτες ομαδικού MMS, το πολύ</string>
+    <string name="conf_group_most_note">Μαζί με εσάς. %1$d περνούν σε όλους τους παρόχους, η προεπιλογή· κάποιοι, ανάμεσά τους οι γαλλικοί, δέχονται πολύ περισσότερους.</string>
 </resources>

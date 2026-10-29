@@ -178,6 +178,10 @@ class ConfActivity : AskingActivity() {
             column.addView(flip(R.string.conf_warn_mms, Conf.warnMms(this)) { Conf.warnMms(this, it) })
             note(R.string.conf_warn_mms_note)
         }
+        // How many a group MMS may go to, oneself included.
+        subheading(R.string.conf_group_most)
+        note(getString(R.string.conf_group_most_note, Conf.GROUP_MOST))
+        slider(Conf.groupMost(this), Conf.GROUP_MOST_EVER) { Conf.groupMost(this, it) }
 
     }
 

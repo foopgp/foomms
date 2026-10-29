@@ -37,7 +37,6 @@
     <string name="standing_expired">abgelaufen</string>
     <string name="standing_revoked">widerrufen</string>
     <string name="standing_broken">defekt</string>
-    <string name="talks">Unterhaltungen</string>
     <string name="locked_for">⚿ Verschlüsselte Nachricht für</string>
     <string name="share">⤴ Teilen</string>
     <string name="save">↧ Speichern</string>
@@ -190,7 +189,6 @@
     <string name="write_to">An %1$s schreiben</string>
     <string name="decrypt_this">⚿ Diese Nachricht entschlüsseln</string>
     <string name="search_contacts">🔍 In den Kontakten suchen</string>
-    <string name="contacts">Kontakte</string>
     <string name="attach_text">📋 Einen Text</string>
     <string name="clipboard_empty">Nichts einzufügen: die Zwischenablage ist leer.</string>
     <string name="restricted_hint">Aus einer Datei installiert, darf foomms erst SMS lesen und senden, wenn Android es zulässt: in den Einstellungen von foomms, das Menü ⋮ oben rechts, „Eingeschränkte Einstellungen zulassen“ wählen, dann hierher zurückkehren und auf Erlauben drücken.</string>
@@ -275,8 +273,9 @@
     <string name="channel_altered">Veränderte Nachrichten</string>
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ an %1$d Personen gesendet</string>
-    <string name="sent_also_to">⇉ auch an %1$d weitere Personen gesendet</string>
     <string name="write_to_each">✎ Neue Nachricht an diese %1$d Personen</string>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Alle Kontakte (%1$d)</string>
+    <string name="conf_group_most">Höchstzahl der Empfänger einer Gruppen-MMS</string>
+    <string name="conf_group_most_note">Sie eingeschlossen. %1$d gehen bei allen Netzen durch, der Standard; manche, darunter die französischen, nehmen weit mehr an.</string>
 </resources>

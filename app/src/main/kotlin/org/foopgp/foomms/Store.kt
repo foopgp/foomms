@@ -194,14 +194,21 @@ object Store {
     fun sentWith(context: Context, line: Line): List<String> =
         if (!line.mms) sentWith(context, line.at, line.body, line.thread.takeIf { it >= 0 && members(context, it).size > 1 })
         else if (line.incoming) runCatching {
-            // Received: those it went to besides this phone, as its "To" says.
-            val found = ArrayList<String>()
+            // Received: everybody it went to but its sender, as its "To" says -- this phone once, whatever number it had.
+            var from: String? = null
+            val to = ArrayList<String>()
             context.contentResolver.query(Uri.parse("content://mms/${line.id}/addr"), arrayOf("address", "type"), null, null, null)?.use { rows ->
                 while (rows.moveToNext()) {
-                    if (rows.getInt(1) !in TO_OR_CC) continue
                     val one = rows.getString(0) ?: continue
-                    if (!Me.mine(context, one) && found.none { Phone.same(it, one) || it == one }) found += one
+                    if (rows.getInt(1) == FROM) from = one else if (rows.getInt(1) in TO_OR_CC) to += one
                 }
+            }
+            val found = ArrayList<String>()
+            var me = false
+            for (one in to) {
+                if (from?.let { Phone.same(it, one) || it == one } == true) continue
+                if (Me.mine(context, one) || Me.numbers(context).any { Phone.same(it, one) }) { if (!me) { me = true ; found += one } ; continue }
+                if (found.none { Phone.same(it, one) || it == one }) found += one
             }
             found
         }.getOrDefault(emptyList())

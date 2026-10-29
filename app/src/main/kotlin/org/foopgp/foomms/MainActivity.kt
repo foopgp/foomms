@@ -630,7 +630,7 @@ class MainActivity : AskingActivity() {
                             them?.let { Book.face(this, it) } ?: them?.fingerprint?.let { foodjis.face(it) },
                             them?.fingerprint?.let { foodjis.card(it)?.validity }, Look.seed(them?.fingerprint, one),
                         )
-                    } + listOfNotNull(myself.takeIf { members.size < 9 })
+                    } + myself
                 }
                 val said = group?.let {
                     if (!talk.incoming) myself

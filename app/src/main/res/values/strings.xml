@@ -40,7 +40,6 @@
     <string name="standing_expired">expired</string>
     <string name="standing_revoked">revoked</string>
     <string name="standing_broken">broken</string>
-    <string name="talks">Conversations</string>
     <string name="locked_for">⚿ Encrypted message for</string>
     <string name="share">⤴ Share</string>
     <string name="save">↧ Save</string>
@@ -193,7 +192,6 @@
     <string name="write_to">Write to %1$s</string>
     <string name="decrypt_this">⚿ Decrypt this message</string>
     <string name="search_contacts">🔍 Search the contacts</string>
-    <string name="contacts">Contacts</string>
     <string name="attach_text">📋 Some text</string>
     <string name="clipboard_empty">Nothing to paste: the clipboard is empty.</string>
     <string name="restricted_hint">Installed from a file, foomms may read and send SMS only once Android allows it: in foomms\'s settings, open the ⋮ menu at the top right and choose \"Allow restricted settings\", then come back here and press Allow.</string>
@@ -278,8 +276,9 @@
     <string name="channel_altered">Altered messages</string>
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ sent to %1$d people</string>
-    <string name="sent_also_to">⇉ also sent to %1$d other people</string>
     <string name="write_to_each">✎ New message to these %1$d people</string>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">All contacts (%1$d)</string>
+    <string name="conf_group_most">Recipients of a group MMS at most</string>
+    <string name="conf_group_most_note">You included. %1$d pass with every network, the default; some, the French ones among them, take far more.</string>
 </resources>

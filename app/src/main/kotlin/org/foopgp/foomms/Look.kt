@@ -471,7 +471,8 @@ object Look {
 
     /**
      * A group at a glance, in a square of [side]: three by three small
-     * faces, in reading order, each framed by what its
+     * faces, in reading order -- beyond nine, eight and how many more --,
+     * each framed by what its
      * certificate is worth. The places a smaller group leaves stay empty:
      * how full the square is says how many it is.
      */

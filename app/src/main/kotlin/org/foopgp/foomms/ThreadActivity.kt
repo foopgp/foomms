@@ -643,7 +643,9 @@ class ThreadActivity : AskingActivity() {
                     .setTitle(getString(R.string.sent_to_each, numbers.size))
                     .setItems(named.toTypedArray(), null)
                     .setPositiveButton(getString(R.string.write_to_each, numbers.size)) { _, _ ->
-                        startActivity(Intent(this, WriteActivity::class.java).putExtra(WriteActivity.EXTRA_NUMBERS, numbers.toTypedArray()))
+                        // To all of them but oneself.
+                        val them = numbers.filterNot { one -> Me.mine(this, one) || Me.numbers(this).any { Phone.same(it, one) } }
+                        startActivity(Intent(this, WriteActivity::class.java).putExtra(WriteActivity.EXTRA_NUMBERS, them.toTypedArray()))
                     }
                     .setNegativeButton(R.string.close, null)
                     .show()
@@ -707,9 +709,10 @@ class ThreadActivity : AskingActivity() {
         named.visibility = View.GONE
         crowd.visibility = View.VISIBLE
         crowd.removeAllViews()
-        for (one in found) crowd.addView(Look.face(this, 22, null, one.face, one.card?.validity, framable = true, seed = one.seed, lineDp = 2))
-        // Oneself last, as in the list's square.
-        myself?.let { crowd.addView(Look.face(this, 22, null, it.face, it.standing, framable = true, seed = it.seed, lineDp = 2)) }
+        // Oneself last, as in the list's square; beyond nine, eight faces and how many more.
+        val faces = found.map { Look.Mini(it.face, it.card?.validity, it.seed) } + listOfNotNull(myself)
+        for (one in if (faces.size > 9) faces.take(8) else faces) crowd.addView(Look.face(this, 22, null, one.face, one.standing, framable = true, seed = one.seed, lineDp = 2))
+        if (faces.size > 9) crowd.addView(Look.words(this, "+${faces.size - 8}", size = 15f).apply { setTextColor(android.graphics.Color.WHITE) ; setPadding(Look.dp(context, 6), 0, 0, 0) })
         crowd.addView(android.widget.TextView(this).apply {
             text = "⋮" ; setTextColor(android.graphics.Color.WHITE) ; paint.isFakeBoldText = true
             setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 22f) ; setPadding(Look.dp(context, 6), 0, Look.dp(context, 4), 0)
@@ -1896,8 +1899,8 @@ class ThreadActivity : AskingActivity() {
                 // Sent to each of several at once: said, and pressed, whom to. Received as one of several: who else.
                 if (!line.incoming || line.mms) {
                     val with = sentWith(line)
-                    if (with != null && with.size > (if (line.incoming) 0 else 1)) {
-                        val said = if (line.incoming) getString(R.string.sent_also_to, with.size) else getString(R.string.sent_to_each, with.size)
+                    if (with != null && with.size > 1) {
+                        val said = getString(R.string.sent_to_each, with.size)
                         addView(
                             Look.words(context, said, size = 12f, muted = true).apply {
                                 setPadding(0, pad / 3, 0, 0)
