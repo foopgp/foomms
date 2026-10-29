@@ -268,6 +268,8 @@
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ στάλθηκε σε %1$d άτομα</string>
     <string name="write_to_each">✎ Νέο μήνυμα σε αυτά τα %1$d άτομα</string>
+    <string name="draft_said">✎ Πρόχειρο: %1$s</string>
+    <string name="draft_found">Βρέθηκε πρόχειρο</string>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Όλες οι επαφές (%1$d)</string>
     <string name="conf_group_most">Όριο ομαδικού MMS</string>

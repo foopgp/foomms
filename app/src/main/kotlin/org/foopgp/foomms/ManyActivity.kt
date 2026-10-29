@@ -47,7 +47,7 @@ class ManyActivity : AskingActivity() {
 
     override fun onPause() {
         // Closed before anything was laid out -- fewer than two numbers --: nothing written to keep.
-        if (::field.isInitialized) Drafts.keep(this, numbers, field.text.toString())
+        if (::field.isInitialized) Drafts.keep(this, numbers, field.text.toString(), Drafts.How.EACH)
         super.onPause()
     }
 

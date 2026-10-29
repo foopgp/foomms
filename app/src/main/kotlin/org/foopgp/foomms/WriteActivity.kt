@@ -43,6 +43,9 @@ class WriteActivity : Activity() {
     /** Several chosen: the same message to each, or one MMS to all of them. */
     private var asGroup = false
 
+    /** The people last looked up for a draft: it is found once for them, not again at each drawing. */
+    private var draftOf: String? = null
+
     private val chosen = LinkedHashMap<String, String>()
     private var shown: List<Whom> = emptyList()
     private var recent: List<Whom> = emptyList()
@@ -230,6 +233,15 @@ class WriteActivity : Activity() {
         val most = Conf.groupMost(this) - 1
         val mms = Conf.mms(this)
         val groupable = chosen.size in 2..most && known && mms
+        // A draft to these very people: the way it was to leave chosen again, and said.
+        val these = chosen.keys.mapNotNull { Phone.plain(it) ?: it }.sorted().joinToString(",")
+        if (chosen.size >= 2 && these != draftOf) {
+            draftOf = these
+            Drafts.how(this, chosen.keys.toList())?.let { how ->
+                asGroup = how == Drafts.How.GROUP
+                android.widget.Toast.makeText(this, R.string.draft_found, android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
         if (!groupable) asGroup = false
         how.visibility = if (chosen.size >= 2) View.VISIBLE else View.GONE
         toGroup.isEnabled = groupable
@@ -262,15 +274,7 @@ class WriteActivity : Activity() {
         val next = if (chosen.size == 1) {
             Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, chosen.keys.first())
         } else if (asGroup) {
-            // The group's conversation: those it already has, with this phone among the numbers or without; else a new one.
-            val numbers = chosen.keys.toList()
-            val me = Me.number(this)
-            val threads = Store.groupThreads(this, numbers, Me.all(this)).ifEmpty {
-                listOfNotNull(runCatching { android.provider.Telephony.Threads.getOrCreateThreadId(this, (numbers + listOfNotNull(me)).toSet()) }.getOrNull())
-            }
-            Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, numbers.first())
-                .putExtra(ThreadActivity.EXTRA_THREAD, threads.firstOrNull() ?: -1L)
-                .putExtra(ThreadActivity.EXTRA_THREADS, threads.toLongArray())
+            ThreadActivity.forGroup(this, chosen.keys.toList())
         } else {
             Intent(this, ManyActivity::class.java).putExtra(ManyActivity.EXTRA_NUMBERS, chosen.keys.toTypedArray())
         }

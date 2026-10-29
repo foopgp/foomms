@@ -278,6 +278,8 @@
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ wysłano do %1$d osób</string>
     <string name="write_to_each">✎ Nowa wiadomość do tych %1$d osób</string>
+    <string name="draft_said">✎ Wersja robocza: %1$s</string>
+    <string name="draft_found">Odnaleziono wersję roboczą</string>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Wszystkie kontakty (%1$d)</string>
     <string name="conf_group_most">Limit grupowego MMS</string>

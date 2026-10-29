@@ -278,6 +278,8 @@
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ отправлено %1$d адресатам</string>
     <string name="write_to_each">✎ Новое сообщение этим %1$d адресатам</string>
+    <string name="draft_said">✎ Черновик: %1$s</string>
+    <string name="draft_found">Черновик найден</string>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Все контакты (%1$d)</string>
     <string name="conf_group_most">Предел группового MMS</string>

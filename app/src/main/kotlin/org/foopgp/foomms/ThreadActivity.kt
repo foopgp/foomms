@@ -516,7 +516,7 @@ class ThreadActivity : AskingActivity() {
 
     override fun onPause() {
         shown = false
-        Drafts.keep(this, drafted, field.text.toString())
+        Drafts.keep(this, drafted, field.text.toString(), if (group) Drafts.How.GROUP else Drafts.How.ONE)
         Listening.onChange = null
         playingPiece = null
         if (voice.recording) voice.drop()
@@ -2155,6 +2155,20 @@ class ThreadActivity : AskingActivity() {
     }
 
     companion object {
+        /**
+         * The page of the group of [numbers]: the conversations it already has, with this phone among the
+         * numbers or without; else a new one. From a new message, and from a draft's line.
+         */
+        fun forGroup(context: android.content.Context, numbers: List<String>): Intent {
+            val me = Me.number(context)
+            val threads = Store.groupThreads(context, numbers, Me.all(context)).ifEmpty {
+                listOfNotNull(runCatching { android.provider.Telephony.Threads.getOrCreateThreadId(context, (numbers + listOfNotNull(me)).toSet()) }.getOrNull())
+            }
+            return Intent(context, ThreadActivity::class.java).putExtra(EXTRA_NUMBER, numbers.first())
+                .putExtra(EXTRA_THREAD, threads.firstOrNull() ?: -1L)
+                .putExtra(EXTRA_THREADS, threads.toLongArray())
+        }
+
         const val EXTRA_NUMBER = "number"
 
         /** The conversation, when the page is opened from the list of them. */
