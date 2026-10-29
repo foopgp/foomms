@@ -17,21 +17,23 @@ import kotlin.concurrent.thread
  */
 object ToEach {
 
-    fun send(context: Context, whom: List<Pair<String, String>>, text: String?, piece: Pdu.Part?, mms: Boolean) {
+    /** One copy: to whom, by number and name, and what it carries -- the same for all, or encrypted for each alone. */
+    class Copy(val number: String, val name: String, val text: String?, val piece: Pdu.Part?)
+
+    fun send(context: Context, copies: List<Copy>, mms: Boolean) {
         val at = System.currentTimeMillis()
         thread {
             val failed = ArrayList<String>()
-            for ((rank, one) in whom.withIndex()) {
+            for ((rank, one) in copies.withIndex()) {
                 if (rank > 0) Thread.sleep(SPACING)
-                val (number, name) = one
                 runCatching {
-                    if (!mms) Outbox.text(context, number, text.orEmpty(), at)
+                    if (!mms) Outbox.text(context, one.number, one.text.orEmpty(), at)
                     else {
                         val transaction = "T" + java.lang.Long.toHexString(System.nanoTime())
-                        val parts = listOfNotNull(text?.let { Pdu.Part.text(it) }, piece)
-                        Outbox.send(context, listOf(number), Pdu.send(transaction, listOf(number), parts), transaction, at)
+                        val parts = listOfNotNull(one.text?.let { Pdu.Part.text(it) }, one.piece)
+                        Outbox.send(context, listOf(one.number), Pdu.send(transaction, listOf(one.number), parts), transaction, at)
                     }
-                }.onFailure { failed += name }
+                }.onFailure { failed += one.name }
             }
             if (failed.isNotEmpty()) Handler(Looper.getMainLooper()).post {
                 Toast.makeText(context, context.getString(R.string.many_failed, failed.joinToString(", ")), Toast.LENGTH_LONG).show()

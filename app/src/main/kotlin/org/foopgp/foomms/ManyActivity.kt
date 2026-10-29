@@ -180,47 +180,88 @@ class ManyActivity : AskingActivity() {
         if (!plainSaid && plainOrAsk(locks, ::paint) { send(plainSaid = true) }) return
         val locked = locks.isChecked && locks.isEnabled
         val signed = signs.isChecked && signs.isEnabled
-        if (!locked && !signed) return leave(written.takeIf { it.isNotBlank() }, written, null, with?.let { Pdu.Part(it.type, it.name, it.bytes) })
-        fun request(armored: Boolean) = Intent(if (locked && signed) Provider.SIGN_AND_ENCRYPT else if (locked) Provider.ENCRYPT else Provider.SIGN)
+        val file = with?.let { Pdu.Part(it.type, it.name, it.bytes) }
+        fun same(text: String?, piece: Pdu.Part?) = whom.map { ToEach.Copy(it.number, it.name, text, piece) }
+        if (!locked && !signed) return leave(same(written.takeIf { it.isNotBlank() }, file), written, null)
+        // Encrypted: a copy for each alone -- and for oneself, unless the person said not --, none of them naming the
+        // others' keys. Signed only: one, the same for all.
+        fun request(armored: Boolean, one: Whom?) = Intent(if (locked && signed) Provider.SIGN_AND_ENCRYPT else if (locked) Provider.ENCRYPT else Provider.SIGN)
             .putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, armored).apply {
                 // A file under its name, kept inside what is locked.
                 if (!armored) with?.name?.let { putExtra(Provider.EXTRA_ORIGINAL_FILENAME, it) }
-                if (locked) {
-                    val keys = (whom.mapNotNull { it.cert?.fingerprint?.let(Fingerprint::keyId) } + listOfNotNull(mine.takeIf { Conf.toMyself(this@ManyActivity) })).distinct()
+                if (locked && one != null) {
+                    val keys = (listOfNotNull(one.cert?.fingerprint?.let(Fingerprint::keyId)) + listOfNotNull(mine.takeIf { Conf.toMyself(this@ManyActivity) })).distinct()
                     putExtra(Provider.EXTRA_KEY_IDS, keys.toLongArray())
                 }
             }
         fun piece(sealed: Provider.Answer.Done) = Pdu.Part(Pgp.TYPE, Pgp.outerName(sealed.bytes), sealed.bytes)
-        if (with == null) {
-            return ask(request(true), written.toByteArray(), ::say) { answer ->
-                val armor = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
-                    ?: return@ask say(getString(R.string.failed, "what came back is not a PGP message"))
-                leave(armor, written, worth(), null)
+        fun armor(answer: Provider.Answer.Done) = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
+        val each = if (locked) whom else listOf(null)
+        // What foodjis is asked: for each copy, its words and its file.
+        val jobs = ArrayList<Pair<Intent, ByteArray>>()
+        for (one in each) {
+            if (written.isNotBlank()) jobs += request(true, one) to written.toByteArray()
+            if (with != null) jobs += request(false, one) to with.bytes
+        }
+        all(jobs) { done ->
+            var at = 0
+            val made = each.map { one ->
+                val words = if (written.isNotBlank()) armor(done[at++]) ?: return@all say(getString(R.string.failed, "what came back is not a PGP message")) else null
+                val sealed = if (with != null) piece(done[at++]) else null
+                one to (words to sealed)
+            }
+            val copies = if (locked) made.map { (one, it) -> ToEach.Copy(one!!.number, one.name, it.first, it.second) } else same(made[0].second.first, made[0].second.second)
+            leave(copies, written, worth())
+        }
+    }
+
+    /**
+     * Every one of [jobs] asked of foodjis, and one presentation of the key
+     * for all: the others told of first, so that foodjis knows what waits;
+     * then the first, which is when the key is asked for; then the others
+     * collected. [then] hears all the answers, in order.
+     */
+    private fun all(jobs: List<Pair<Intent, ByteArray>>, then: (List<Provider.Answer.Done>) -> Unit) {
+        if (jobs.isEmpty()) return
+        val done = arrayOfNulls<Provider.Answer.Done>(jobs.size)
+        fun collect() {
+            val missing = jobs.indices.filter { done[it] == null }
+            if (missing.isEmpty()) return then(done.map { it!! })
+            var left = missing.size
+            for (at in missing) {
+                provider.ask(Intent(jobs[at].first), jobs[at].second) { answer ->
+                    if (isFinishing || isDestroyed) return@ask
+                    if (answer is Provider.Answer.Done) done[at] = answer
+                    if (--left == 0) {
+                        if (done.all { it != null }) then(done.map { it!! }) else say(getString(R.string.failed, "foodjis did not answer for every copy"))
+                    }
+                }
             }
         }
-        if (written.isBlank()) return ask(request(false), with.bytes, ::say) { leave(null, written, worth(), piece(it)) }
-        // The file told of first, so that one presentation of the key does both, as in a conversation.
-        provider.ask(request(false), with.bytes) { first ->
-            if (isFinishing || isDestroyed) return@ask
-            ask(request(true), written.toByteArray(), ::say) { answer ->
-                val armor = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
-                    ?: return@ask say(getString(R.string.failed, "what came back is not a PGP message"))
-                if (first is Provider.Answer.Done) return@ask leave(armor, written, worth(), piece(first))
-                ask(request(false), with.bytes, ::say) { leave(armor, written, worth(), piece(it)) }
+        fun first() = ask(Intent(jobs[0].first), jobs[0].second, ::say) { done[0] = it ; collect() }
+        var told = jobs.size - 1
+        if (told == 0) return first()
+        for (at in 1 until jobs.size) {
+            provider.ask(Intent(jobs[at].first), jobs[at].second) { answer ->
+                if (isFinishing || isDestroyed) return@ask
+                if (answer is Provider.Answer.Done) done[at] = answer
+                if (--told == 0) first()
             }
         }
     }
+
 
     /**
      * The same to each, separately: a text as SMS or as an MMS by the same
      * rule as in a conversation; with a [piece], always an MMS of its own.
      */
-    private fun leave(text: String?, written: String, verdict: Verdict?, piece: Pdu.Part?) {
-        val pieces = runCatching { Outbox.pieces(this, text.orEmpty()) }.getOrDefault(1)
-        val mms = piece != null || Conf.asMms(this, pieces)
+    private fun leave(copies: List<ToEach.Copy>, written: String, verdict: Verdict?) {
+        val pieces = copies.maxOf { runCatching { Outbox.pieces(this, it.text.orEmpty()) }.getOrDefault(1) }
+        val mms = copies.any { it.piece != null } || Conf.asMms(this, pieces)
         fun go() {
-            if (verdict != null && text != null) Opened.keep(this, text, written, null, verdict)
-            ToEach.send(applicationContext, whom.map { it.number to it.name }, text, piece, mms)
+            // Each copy's words, kept as written: every conversation shows what was sent, opened.
+            if (verdict != null) for (one in copies) one.text?.let { Opened.keep(this, it, written, null, verdict) }
+            ToEach.send(applicationContext, copies, mms)
             Toast.makeText(this, getString(R.string.many_sent, whom.size), Toast.LENGTH_LONG).show()
             field.setText("")
             finish()
