@@ -291,8 +291,8 @@
     <string name="conf_group_most_note">Alıcı sayısı operatöre göre sınırlıdır. On alıcıyla bir MMS genellikle her yerde geçer; bazı operatörler çok daha fazlasını kabul eder.</string>
     <string name="group_over">Bu grubun siz dahil %1$d üyesi var; yapılandırmada belirlenen %2$d sınırının üzerinde: operatör mesajı reddedebilir ya da her birine ayrı ayrı iletebilir.</string>
     <string name="group_over_send">Yine de gönder</string>
-    <string name="conf_mms_on">MMS\'i etkinleştir</string>
-    <string name="conf_mms_on_note">Açıkken bir SMS\'ten uzun metin tek MMS olarak gider; ekler, sesli mesajlar ve grup MMS\'leri gönderilebilir. Kapalıyken uzun metin birkaç SMS olarak gider ve bunların hiçbiri olmaz. Alınan MMS\'ler yine gösterilir.</string>
-    <string name="mms_off">MMS yapılandırmada kapalı: ek, sesli mesaj ya da grup MMS\'i yok.</string>
+    <string name="conf_mms_on">MMS gönderimine izin ver</string>
+    <string name="conf_mms_on_note">İzin verildiğinde 8 SMS ve üzeri bir metin tek bir MMS olarak gider; ekler, sesli mesajlar ve grup MMS\'leri gönderilebilir; daha kısa bir metin, daha güvenle ulaşan SMS olarak gider. İzin verilmediğinde her şey SMS olarak gider ve bunların hiçbiri olmaz. Alınan MMS\'ler yine de görünür.</string>
+    <string name="mms_off">Yapılandırmada MMS gönderimine izin verilmiyor: ne ek, ne sesli mesaj, ne grup MMS\'i.</string>
     <string name="many_sms">Bu mesaj %1$d SMS olarak gider: bazı telefonlar onları kötü birleştirir ve operatörünüz her birini ayrı ücretlendirebilir.</string>
 </resources>

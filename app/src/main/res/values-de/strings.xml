@@ -291,8 +291,8 @@
     <string name="conf_group_most_note">Die Zahl der Empfänger ist je nach Netz begrenzt. Mit zehn Empfängern geht eine MMS im Allgemeinen überall durch; manche Netze nehmen weit mehr an.</string>
     <string name="group_over">Diese Gruppe hat %1$d Mitglieder, Sie eingeschlossen, über der in der Konfiguration festgelegten Grenze von %2$d: Das Netz könnte die Nachricht ablehnen oder sie jedem einzeln zustellen.</string>
     <string name="group_over_send">Trotzdem senden</string>
-    <string name="conf_mms_on">MMS aktivieren</string>
-    <string name="conf_mms_on_note">Aktiviert geht ein Text, der länger als eine SMS ist, als eine MMS; Anhänge, Sprachnachrichten und Gruppen-MMS sind möglich. Deaktiviert geht ein langer Text als mehrere SMS, und nichts davon. Empfangene MMS werden weiter angezeigt.</string>
-    <string name="mms_off">MMS sind in der Konfiguration deaktiviert: kein Anhang, keine Sprachnachricht, keine Gruppen-MMS.</string>
+    <string name="conf_mms_on">Senden von MMS erlauben</string>
+    <string name="conf_mms_on_note">Erlaubt, geht ein Text ab 8 SMS als eine MMS, und Anhänge, Sprachnachrichten und Gruppen-MMS sind möglich; ein kürzerer Text geht als SMS, die sicherer ankommen. Nicht erlaubt, geht alles als SMS, und nichts davon. Empfangene MMS werden trotzdem angezeigt.</string>
+    <string name="mms_off">Das Senden von MMS ist in der Konfiguration nicht erlaubt: weder Anhang noch Sprachnachricht noch Gruppen-MMS.</string>
     <string name="many_sms">Diese Nachricht geht als %1$d SMS: Manche Telefone setzen sie schlecht zusammen, und Ihr Netz kann jede einzeln berechnen.</string>
 </resources>

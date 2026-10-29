@@ -307,8 +307,8 @@
     <string name="conf_group_most_note">Liczba odbiorców jest ograniczona w zależności od operatora. Z dziesięcioma odbiorcami MMS zwykle przechodzi wszędzie; niektórzy operatorzy przyjmują znacznie więcej.</string>
     <string name="group_over">Ta grupa liczy %1$d członków, wliczając Ciebie, ponad limit %2$d ustawiony w konfiguracji: operator może odrzucić wiadomość albo dostarczyć ją każdemu osobno.</string>
     <string name="group_over_send">Wyślij mimo to</string>
-    <string name="conf_mms_on">Włącz MMS</string>
-    <string name="conf_mms_on_note">Włączone: tekst dłuższy niż jeden SMS idzie jako jeden MMS, a załączniki, wiadomości głosowe i grupowe MMS są możliwe. Wyłączone: długi tekst idzie w kilku SMS-ach, i nic z tego. Odebrane MMS nadal się wyświetlają.</string>
-    <string name="mms_off">MMS są wyłączone w konfiguracji: bez załączników, wiadomości głosowych i grupowych MMS.</string>
+    <string name="conf_mms_on">Zezwalaj na wysyłanie MMS</string>
+    <string name="conf_mms_on_note">Gdy dozwolone, tekst od 8 SMS-ów wychodzi jako jeden MMS, a załączniki, wiadomości głosowe i grupowe MMS są możliwe; krótszy tekst wychodzi jako SMS-y, które docierają pewniej. Gdy niedozwolone, wszystko wychodzi jako SMS-y i nic z tego. Odebrane MMS-y są wyświetlane jak zawsze.</string>
+    <string name="mms_off">Wysyłanie MMS nie jest dozwolone w konfiguracji: ani załącznika, ani wiadomości głosowej, ani grupowego MMS.</string>
     <string name="many_sms">Ta wiadomość pójdzie w %1$d SMS-ach: niektóre telefony źle je składają, a operator może naliczyć każdy osobno.</string>
 </resources>

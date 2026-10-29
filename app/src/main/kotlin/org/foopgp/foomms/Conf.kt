@@ -57,10 +57,17 @@ object Conf {
 
     fun mms(context: Context, on: Boolean) = kept(context).edit().putBoolean("mms", on).apply()
 
-    /** Whether a text that takes [pieces] SMS leaves as an MMS. */
+    /**
+     * Whether a text that takes [pieces] SMS leaves as an MMS: only a long
+     * one, and only when MMS may be sent. SMS arrive where MMS sometimes do
+     * not -- from one network to another --, and a few of them are no burden.
+     */
     fun asMms(context: Context, pieces: Int): Boolean = asMms(mms(context), pieces)
 
-    fun asMms(mms: Boolean, pieces: Int): Boolean = mms && pieces > 1
+    fun asMms(mms: Boolean, pieces: Int): Boolean = mms && pieces > SMS_MOST
+
+    /** The most SMS a text leaves in when it could be an MMS. */
+    const val SMS_MOST = 7
 
     /** Beyond this many SMS, the person is asked first: some phones put many back together badly, and each may be charged. */
     const val MANY_SMS = 10

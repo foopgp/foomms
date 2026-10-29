@@ -291,8 +291,8 @@
     <string name="conf_group_most_note">O número de destinatários é limitado consoante o operador. Com dez destinatários, um MMS passa geralmente em todo o lado; alguns operadores aceitam muitos mais.</string>
     <string name="group_over">Este grupo tem %1$d membros, incluindo si, acima do limite de %2$d fixado na configuração: o operador pode recusar a mensagem, ou entregá-la a cada um separadamente.</string>
     <string name="group_over_send">Enviar mesmo assim</string>
-    <string name="conf_mms_on">Ativar os MMS</string>
-    <string name="conf_mms_on_note">Ativados, um texto mais longo que um SMS parte como um MMS, e podem enviar-se anexos, mensagens de voz e MMS de grupo. Desativados, um texto longo parte em vários SMS, e nada disso. Os MMS recebidos continuam a aparecer.</string>
-    <string name="mms_off">Os MMS estão desativados na configuração: nem anexo, nem mensagem de voz, nem MMS de grupo.</string>
+    <string name="conf_mms_on">Permitir o envio de MMS</string>
+    <string name="conf_mms_on_note">Permitido, um texto de 8 SMS ou mais parte como um MMS, e é possível enviar anexos, mensagens de voz e grupos MMS; um texto mais curto parte como SMS, que chegam com mais segurança. Não permitido, tudo parte como SMS, e nada disso. Os MMS recebidos aparecem na mesma.</string>
+    <string name="mms_off">O envio de MMS não está permitido na configuração: nem anexo, nem mensagem de voz, nem grupo MMS.</string>
     <string name="many_sms">Esta mensagem parte em %1$d SMS: alguns telefones juntam-nos mal, e o seu operador pode cobrá-los um a um.</string>
 </resources>
