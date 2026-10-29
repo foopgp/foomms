@@ -196,6 +196,18 @@ class ManyActivity : AskingActivity() {
             }
         fun piece(sealed: Provider.Answer.Done) = Pdu.Part(Pgp.TYPE, Pgp.outerName(sealed.bytes), sealed.bytes)
         fun armor(answer: Provider.Answer.Done) = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
+        // Encrypted and signed: signed once, then each copy locked with that signature inside -- when foodjis takes one.
+        if (locked && signed) return signsOnce { once -> if (once) signedOnce(written, with) else eachSigned(written, with, ::request, ::piece, ::armor) }
+        eachSigned(written, with, ::request, ::piece, ::armor)
+    }
+
+    /** What foodjis is asked for every copy, signing each, or one for all when only signed. */
+    private fun eachSigned(
+        written: String, with: Media.Attachment?, request: (Boolean, Whom?) -> Intent,
+        piece: (Provider.Answer.Done) -> Pdu.Part, armor: (Provider.Answer.Done) -> String?,
+    ) {
+        val locked = locks.isChecked && locks.isEnabled
+        fun same(text: String?, part: Pdu.Part?) = whom.map { ToEach.Copy(it.number, it.name, text, part) }
         val each = if (locked) whom else listOf(null)
         // What foodjis is asked: for each copy, its words and its file.
         val jobs = ArrayList<Pair<Intent, ByteArray>>()
@@ -214,6 +226,57 @@ class ManyActivity : AskingActivity() {
             leave(copies, written, worth())
         }
     }
+
+    /**
+     * Encrypted and signed, signed once: the words and the file each signed
+     * by the key -- one presentation of it --, then a copy for each alone,
+     * locked with those signatures inside, which needs no key.
+     */
+    private fun signedOnce(written: String, with: Media.Attachment?) {
+        val inputs = listOfNotNull(written.toByteArray().takeIf { written.isNotBlank() }, with?.bytes)
+        val signing = inputs.map { Intent(Provider.DETACHED_SIGN).putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, false) to it }
+        all(signing) { signed ->
+            val signatures = signed.map { it.says.getByteArrayExtra(Provider.RESULT_DETACHED_SIGNATURE) ?: return@all say(getString(R.string.failed, "no signature came back")) }
+            val jobs = ArrayList<Pair<Intent, ByteArray>>()
+            for (one in whom) {
+                val keys = (listOfNotNull(one.cert?.fingerprint?.let(Fingerprint::keyId)) + listOfNotNull(mine.takeIf { Conf.toMyself(this) })).distinct().toLongArray()
+                var at = 0
+                if (written.isNotBlank()) jobs += Intent(Provider.ENCRYPT).putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, true)
+                    .putExtra(Provider.EXTRA_KEY_IDS, keys).putExtra(Provider.EXTRA_SIGNATURE, signatures[at++]) to written.toByteArray()
+                if (with != null) jobs += Intent(Provider.ENCRYPT).putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, false).putExtra(Provider.EXTRA_ORIGINAL_FILENAME, with.name)
+                    .putExtra(Provider.EXTRA_KEY_IDS, keys).putExtra(Provider.EXTRA_SIGNATURE, signatures[at]) to with.bytes
+            }
+            all(jobs) { done ->
+                var at = 0
+                val copies = whom.map { one ->
+                    val words = if (written.isNotBlank()) Pgp.armorIn(String(done[at++].bytes, Charsets.US_ASCII)) ?: return@all say(getString(R.string.failed, "what came back is not a PGP message")) else null
+                    val sealed = if (with != null) done[at++].let { Pdu.Part(Pgp.TYPE, Pgp.outerName(it.bytes), it.bytes) } else null
+                    ToEach.Copy(one.number, one.name, words, sealed)
+                }
+                leave(copies, written, worth())
+            }
+        }
+    }
+
+    /**
+     * Whether foodjis lays a signature made already inside a lock: asked
+     * once, with one that is not a signature -- refused, it reads the extra;
+     * taken, it does not, and every copy is signed on its own.
+     */
+    private fun signsOnce(then: (Boolean) -> Unit) {
+        knowsSignature?.let { return then(it) }
+        val key = mine ?: return then(false)
+        provider.ask(
+            Intent(Provider.ENCRYPT).putExtra(Provider.EXTRA_KEY_IDS, longArrayOf(key)).putExtra(Provider.EXTRA_SIGNATURE, byteArrayOf(0)),
+            "?".toByteArray(),
+        ) { answer ->
+            val knows = answer is Provider.Answer.Failed
+            knowsSignature = knows
+            if (!isFinishing && !isDestroyed) then(knows)
+        }
+    }
+
+    private var knowsSignature: Boolean? = null
 
     /**
      * Every one of [jobs] asked of foodjis, and one presentation of the key

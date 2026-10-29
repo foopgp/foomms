@@ -174,6 +174,11 @@ class Provider(private val context: Context) {
         const val SIGN_AND_ENCRYPT = "org.openintents.openpgp.action.SIGN_AND_ENCRYPT"
         const val DECRYPT_VERIFY = "org.openintents.openpgp.action.DECRYPT_VERIFY"
         const val SIGN = "org.openintents.openpgp.action.SIGN"
+        const val DETACHED_SIGN = "org.openintents.openpgp.action.DETACHED_SIGN"
+        const val RESULT_DETACHED_SIGNATURE = "detached_signature"
+
+        /** foodjis's own, with ENCRYPT: a signature over the same bytes, made already, laid inside the lock. */
+        const val EXTRA_SIGNATURE = "org.foopgp.foodjis.signature"
         const val GET_SIGN_KEY_ID = "org.openintents.openpgp.action.GET_SIGN_KEY_ID"
         const val EXTRA_API_VERSION = "api_version"
         const val EXTRA_USER_IDS = "user_ids"
