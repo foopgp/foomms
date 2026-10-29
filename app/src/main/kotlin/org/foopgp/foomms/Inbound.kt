@@ -78,8 +78,10 @@ object Inbound {
                 val pdu = file.readBytes()
                 val message = PduRead.read(pdu)
                 val from = message.from ?: intent.getStringExtra(EXTRA_FROM) ?: return
-                // A group MMS this phone sent, come back to it: kept already as sent, and held against it.
-                if (message.to.size > 1 && Me.mine(context, from)) return runCatching { Echo.back(context, message.to, message) }.let { }
+                // A group's MMS this phone sent, come back to it -- to several, or to this phone alone as some networks deliver
+                // a group's, its members part telling it --: kept already as sent, and held against it.
+                val ours = message.to.size > 1 || message.parts.any { Members.isPart(it.name ?: it.location) }
+                if (ours && Me.mine(context, from)) return runCatching { Echo.back(context, message.to, message) }.let { }
                 Keep.mmsReceived(context, message, pdu.size, intent.getIntExtra(EXTRA_SUBSCRIPTION, -1))
                 val words = message.parts.filter { it.isText }.joinToString("\n") { it.text() }
                     .ifEmpty { "📎".repeat(minOf(3, message.parts.count { it.type != "application/smil" })) }

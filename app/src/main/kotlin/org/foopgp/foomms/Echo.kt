@@ -32,9 +32,11 @@ object Echo {
      * found changed.
      */
     fun back(context: Context, to: List<String>, message: PduRead.Message): Boolean {
-        val group = Phone.group(to, Me.all(context))
+        // Come back with all it went to: held against what left for that group. With this phone alone in its "To" --
+        // a network that delivers a group's MMS one recipient at a time --, against whatever left.
+        val group = Phone.group(to, Me.all(context)).takeIf { to.size > 1 }
         val kept = kept(context)
-        val waiting = kept.all.mapNotNull { (key, line) -> (line as? String)?.split('\t')?.takeIf { it.size == 3 && it[1] == group }?.let { key to it } }
+        val waiting = kept.all.mapNotNull { (key, line) -> (line as? String)?.split('\t')?.takeIf { it.size == 3 && (group == null || it[1] == group) }?.let { key to it } }
             .sortedBy { it.first.toLongOrNull() ?: 0L }
         if (waiting.isEmpty()) return false
         val came = digests(message.parts).joinToString(",")

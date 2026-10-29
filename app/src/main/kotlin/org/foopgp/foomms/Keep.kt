@@ -93,12 +93,21 @@ object Keep {
         for (key in Pgp.recipients(part.bytes)) {
             val whose = foodjis.signer(key)?.fingerprint ?: return null
             if (whose.equals(mine, ignoreCase = true)) continue
-            numbers += Book.numbersOf(context, whose).firstOrNull() ?: return null
+            numbers += numberOf(context, whose) ?: return null
         }
         val all = ArrayList<String>()
         for (one in numbers + from + me) if (all.none { Phone.same(it, one) || it == one } && (one == me || !Me.mine(context, one))) all += one
         return all.toSet().takeIf { it.size > 2 }
     }
+
+    /**
+     * The number a member of a group goes by: the one a members part said
+     * for that certificate; else the only one of the contact tied to it.
+     * A contact with several: none, rather than one that may not be the
+     * group's -- the message waits for its members part to be opened.
+     */
+    private fun numberOf(context: Context, fingerprint: String): String? =
+        Members.numberOf(context, fingerprint) ?: Book.numbersOf(context, fingerprint).singleOrNull()
 
     /**
      * A message of an encrypted group, its members part opened: moved to the
@@ -111,6 +120,13 @@ object Keep {
         if (!ours(context)) return
         val resolver = context.contentResolver
         val message = resolver.query(Uri.parse("content://mms/part/$part"), arrayOf("mid"), null, null, null)?.use { if (it.moveToFirst()) it.getLong(0) else null } ?: return
+        // One's own, come back and kept before copies delivered one recipient at a time were known for such: gone.
+        val sender = resolver.query(Uri.parse("content://mms/$message/addr"), arrayOf("address", "type"), "type = 137", null, null)?.use { if (it.moveToFirst()) it.getString(0) else null }
+        val box = resolver.query(Uri.parse("content://mms/$message"), arrayOf("msg_box"), null, null, null)?.use { if (it.moveToFirst()) it.getInt(0) else null }
+        if (box == Telephony.Mms.MESSAGE_BOX_INBOX && sender != null && Me.mine(context, sender)) {
+            runCatching { resolver.delete(Uri.parse("content://mms/$message"), null, null) }
+            return
+        }
         val me = Me.number(context) ?: return
         val numbers = members.map { it.number }.filterNot { Me.mine(context, it) } + me
         if (numbers.size > 2) runCatching {

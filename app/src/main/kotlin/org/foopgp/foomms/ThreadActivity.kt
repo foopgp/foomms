@@ -557,11 +557,17 @@ class ThreadActivity : AskingActivity() {
                 }
                 Notify.seen(this, number)
             }
-            // A group's: who sent each MMS, for its face beside it.
+            // A group's: who sent each MMS, for its face beside it. One sent from this phone and come back -- kept before
+            // copies delivered one recipient at a time were known for such --: gone, being there already as sent.
             if (group) thread {
+                var gone = false
                 for (line in found.filter { it.incoming && it.mms && it.address == null && !senders.containsKey(it.id) }) {
-                    Store.addressOf(this, line)?.let { senders[line.id] = it ; drip() }
+                    val from = Store.addressOf(this, line) ?: continue
+                    if (Me.mine(this, from) && line.pieces.any { Members.isPart(it.name) }) { gone = Keep.forget(this, line) || gone ; continue }
+                    senders[line.id] = from
+                    drip()
                 }
+                if (gone) runOnUiThread { if (!isFinishing && !isDestroyed) load() }
             }
             val pieces = found.flatMap { it.pieces }
             // The pictures, the lengths, and whom each locked part is for -- at the head of its bytes, and whether it
