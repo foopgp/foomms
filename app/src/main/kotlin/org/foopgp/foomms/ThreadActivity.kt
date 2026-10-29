@@ -96,11 +96,16 @@ class ThreadActivity : AskingActivity() {
      */
     private val everyone: List<String> by lazy {
         val all = ArrayList<String>()
-        for (one in given.flatMap { runCatching { Store.members(this, it) }.getOrDefault(emptyList()) }) {
+        // A group heard only from the headers of MMS filed elsewhere: its members, as the list read them.
+        val heard = if (elsewhere.isEmpty()) emptyList() else intent.getStringArrayExtra(EXTRA_MEMBERS)?.toList().orEmpty()
+        for (one in given.flatMap { runCatching { Store.members(this, it) }.getOrDefault(emptyList()) } + heard) {
             if (all.none { Phone.same(it, one) || it == one }) all += one
         }
         all.ifEmpty { listOf(number) }
     }
+
+    /** A group's MMS filed in their senders' conversations by another application, by number: shown with its own. */
+    private val elsewhere: List<Long> by lazy { intent.getLongArrayExtra(EXTRA_MESSAGES)?.toList().orEmpty() }
 
     /**
      * The conversations the page was opened on: one, or those Android keeps
@@ -529,10 +534,12 @@ class ThreadActivity : AskingActivity() {
             }
             // The conversation it was opened from, when it was opened from one: a sender that is a name and not a
             // number -- a bank, a shop -- has a conversation all the same.
-            val thread: Long? = given.firstOrNull() ?: runCatching { Store.thread(this, number) }.getOrNull()
+            // A group heard only from MMS filed in their senders' conversations has none of its own yet: not its sender's.
+            val thread: Long? = given.firstOrNull() ?: if (elsewhere.isNotEmpty()) null else runCatching { Store.thread(this, number) }.getOrNull()
             // A group's conversations, one after the other in time.
             // With one person: what another application sent them as one of several, filed elsewhere, shown here too.
-            val elsewhere = if (group) emptyList() else Store.sentToEach(this, number)
+            // A group's: its MMS filed in their senders' conversations.
+            val elsewhere = if (group) Store.linesOf(this, this.elsewhere) else Store.sentToEach(this, number)
             // A group's: its MMS. An SMS there can only be a copy of a sending to each, shown in the conversation of whom it went to.
             val found = (given.ifEmpty { listOfNotNull(thread) }).flatMap { runCatching { Store.lines(this, it) }.getOrDefault(emptyList()) }
                 .let { lines -> if (group) lines.filter { it.mms } else lines }
@@ -2077,6 +2084,9 @@ class ThreadActivity : AskingActivity() {
         const val EXTRA_THREAD = "thread"
         /** Several conversations shown as one: a group's, with this phone among its numbers and without. */
         const val EXTRA_THREADS = "threads"
+        /** A group's MMS filed elsewhere, and its members: one heard only from the headers of received MMS. */
+        const val EXTRA_MESSAGES = "messages"
+        const val EXTRA_MEMBERS = "members"
 
         /** Opened for something to be done at once: say whose certificate the number means, or read it again from foodjis. */
         const val EXTRA_ASK = "ask"

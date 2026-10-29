@@ -41,11 +41,16 @@ class MainActivity : AskingActivity() {
         val crowd: List<Look.Mini>? = null,
         /** A group's: who wrote its last message, beside their name. */
         val speaker: Look.Mini? = null,
+        /** A group's MMS filed elsewhere -- in their sender's conversation, by another application --, by number. */
+        val messages: List<Long> = emptyList(),
     ) {
-        fun standing(now: String?) = Row(talk, person, face, name, verdict, last, now, group, threads, unread, with, crowd, speaker)
+        fun standing(now: String?) = Row(talk, person, face, name, verdict, last, now, group, threads, unread, with, crowd, speaker, messages)
 
         /** The line of one of those a sending to each went to: theirs, the sending shown in their conversation, not a conversation of its own. */
         fun apart() = Row(talk, person, face, name, verdict, last, standing, group, emptyList(), unread, with, crowd, speaker)
+
+        /** A group heard from the headers of [messages], filed in their senders' conversations: none of those is its. */
+        fun heard(messages: List<Long>) = Row(talk, person, face, name, verdict, last, standing, group, emptyList(), unread, with, crowd, speaker, messages)
 
         /** Its face of pixels, with no picture: the certificate's, the number's, or the group's. */
         val seed: String? get() = group ?: Look.seed(person?.fingerprint, with)
@@ -71,7 +76,10 @@ class MainActivity : AskingActivity() {
             if (one is Row) one else groups.getValue(one as String).let { all ->
                 val latest = all.first()
                 if (all.size == 1) latest
-                else Row(latest.talk, latest.person, latest.face, latest.name, latest.verdict, latest.last, latest.standing, latest.group, all.flatMap { it.threads }.distinct(), all.any { it.unread }, latest.with, latest.crowd, latest.speaker)
+                else Row(
+                    latest.talk, latest.person, latest.face, latest.name, latest.verdict, latest.last, latest.standing, latest.group,
+                    all.flatMap { it.threads }.distinct(), all.any { it.unread }, latest.with, latest.crowd, latest.speaker, all.flatMap { it.messages }.distinct(),
+                )
             }
         }
     }
@@ -175,7 +183,7 @@ class MainActivity : AskingActivity() {
                     }
                 },
             )
-            setOnItemClickListener { _, _, at, _ -> open(rows[at].talk, threads = rows[at].threads, with = rows[at].with ?: rows[at].talk.number) }
+            setOnItemClickListener { _, _, at, _ -> open(rows[at].talk, threads = rows[at].threads, with = rows[at].with ?: rows[at].talk.number, messages = rows[at].messages) }
         }
         others = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -625,7 +633,10 @@ class MainActivity : AskingActivity() {
                 runOnUiThread { if (!isFinishing && !isDestroyed) redraw() }
             }
             if (apart) {
-                show(runCatching { Store.talks(this, Int.MAX_VALUE, unreadOnly = unreadOnly, given = stale, groupsOnly = groupsOnly) }.getOrDefault(emptyList()).flatMap(::rowsOf))
+                val found = runCatching { Store.talks(this, Int.MAX_VALUE, unreadOnly = unreadOnly, given = stale, groupsOnly = groupsOnly) }.getOrDefault(emptyList()).flatMap(::rowsOf)
+                // The groups: those only the headers of received MMS tell too, merged with theirs, by time.
+                val heard = if (!groupsOnly) emptyList() else runCatching { Store.heard(this) }.getOrDefault(emptyList()).map { row(it.talk, kept = false).heard(it.messages) }
+                show((found + heard).sortedByDescending { it.talk.at })
                 if (!stale()) count()
             } else {
                 // The latest first, and no more than were shown already: the rest comes a block at a time, as the list is scrolled ([more]).
@@ -761,8 +772,10 @@ class MainActivity : AskingActivity() {
         )
     }
 
-    private fun open(talk: Store.Talk, ask: String? = null, threads: List<Long> = listOf(talk.thread), with: String? = talk.number) = startActivity(
+    private fun open(talk: Store.Talk, ask: String? = null, threads: List<Long> = listOf(talk.thread), with: String? = talk.number, messages: List<Long> = emptyList()) = startActivity(
         Intent(this, ThreadActivity::class.java)
+            .putExtra(ThreadActivity.EXTRA_MESSAGES, messages.toLongArray())
+            .putExtra(ThreadActivity.EXTRA_MEMBERS, talk.members.toTypedArray())
             .putExtra(ThreadActivity.EXTRA_NUMBER, with ?: getString(R.string.unknown_number))
             // None for one who has only received a sending to each: their own conversation, by their number.
             .putExtra(ThreadActivity.EXTRA_THREAD, threads.firstOrNull() ?: -1L)

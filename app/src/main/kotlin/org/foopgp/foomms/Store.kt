@@ -25,9 +25,9 @@ object Store {
 
     /**
      * Whether a conversation of several numbers holds what was sent to each
-     * of them -- an envoi multiple, or a group MMS another application sent,
-     * which networks deliver as they please -- rather than a group's: one of
-     * its latest MMS carries the members part ([Members]).
+     * of them -- an envoi multiple -- rather than a group's: one of its
+     * latest MMS carries the members part ([Members]), or names in its
+     * header two people or more besides this phone.
      */
     fun toEach(context: Context, thread: Long): Boolean = !groupOf(context, thread)
 
@@ -36,10 +36,64 @@ object Store {
             buildList { while (rows.moveToNext() && size < LOOKED_AT) add(rows.getLong(0)) }
         }.orEmpty()
         if (ids.isEmpty()) return@runCatching false
-        context.contentResolver.query(
+        ids.any { others(context, it).size > 1 } || context.contentResolver.query(
             PARTS, arrayOf("_id", "name", "cl"), "mid IN (${ids.joinToString(",")})", null, null,
         )?.use { rows -> var found = false ; while (!found && rows.moveToNext()) found = Members.isPart(rows.getString(1)) || Members.isPart(rows.getString(2)) ; found } == true
     }.getOrDefault(false)
+
+    /** Who an MMS's header names besides this phone -- its sender and those it went to --, each once; read once a message. */
+    fun others(context: Context, message: Long): List<String> = synchronized(headers) { headers[message] } ?: run {
+        val found = ArrayList<String>()
+        context.contentResolver.query(Uri.parse("content://mms/$message/addr"), arrayOf("address", "type"), null, null, null)?.use { rows ->
+            while (rows.moveToNext()) {
+                if (rows.getInt(1) != FROM && rows.getInt(1) !in TO_OR_CC) continue
+                val one = rows.getString(0)?.takeIf { Phone.plain(it) != null } ?: continue
+                if (!Me.mine(context, one) && found.none { Phone.same(it, one) || it == one }) found += one
+            }
+        }
+        found.also { synchronized(headers) { headers[message] = it } }
+    }
+
+    private val headers = HashMap<Long, List<String>>()
+
+    /** A group a received MMS's header names, filed by another application in its sender's conversation. */
+    class Heard(val numbers: List<String>, val messages: List<Long>, val talk: Talk)
+
+    /**
+     * The groups the headers of received MMS name, two people or more
+     * besides this phone, filed in their sender's conversation as other
+     * applications did: each with its messages, the latest first. Not on
+     * the main thread.
+     */
+    fun heard(context: Context): List<Heard> = runCatching {
+        val alone = HashMap<Long, Boolean>()
+        val found = LinkedHashMap<String, MutableList<Pair<Long, Long>>>()
+        val numbers = HashMap<String, List<String>>()
+        val mine = Me.all(context)
+        context.contentResolver.query(MMS, arrayOf("_id", "thread_id"), "msg_box = $MMS_INBOX", null, "date DESC")?.use { rows ->
+            while (rows.moveToNext()) {
+                val id = rows.getLong(0)
+                val thread = rows.getLong(1)
+                if (!alone.getOrPut(thread) { members(context, thread).size <= 1 }) continue
+                val them = others(context, id).takeIf { it.size > 1 } ?: continue
+                val key = Phone.group(them, mine)
+                numbers.getOrPut(key) { them }
+                found.getOrPut(key) { ArrayList() } += id to thread
+            }
+        }
+        found.map { (key, ids) ->
+            val (latest, thread) = ids.first()
+            val line = linesOf(context, listOf(latest)).firstOrNull()
+            Heard(
+                numbers.getValue(key), ids.map { it.first },
+                Talk(
+                    thread, number(context, latest, true), line?.at ?: 0L, line?.body.orEmpty(), true, line?.unread == true,
+                    formOf(context, line?.body.orEmpty(), line?.pieces.orEmpty()), numbers.getValue(key) + listOfNotNull(Me.number(context)),
+                    from = number(context, latest, true),
+                ),
+            )
+        }
+    }.getOrDefault(emptyList())
 
     /** How many of a conversation's latest MMS are looked at for a members part. */
     private const val LOOKED_AT = 20
@@ -346,23 +400,32 @@ object Store {
                 )
             }
         }
-        // The MMS, then all their parts in one asking rather than one each: a conversation of many MMS opened in a
-        // fraction of the time. Who sent each is not asked here, being only shown in its details ([addressOf]).
-        class Head(val id: Long, val at: Long, val incoming: Boolean, val sentAt: Long, val unread: Boolean)
+        lines += mmsLines(context, "thread_id = ?", arrayOf(thread.toString()))
+        return lines.sortedBy { it.at }
+    }
+
+    /** Some MMS, by their numbers in the phone's store, wherever filed. */
+    fun linesOf(context: Context, messages: List<Long>): List<Line> =
+        if (messages.isEmpty()) emptyList() else mmsLines(context, "_id IN (${messages.joinToString(",")})", null).sortedBy { it.at }
+
+    /**
+     * MMS, then all their parts in one asking rather than one each: a
+     * conversation of many MMS opened in a fraction of the time. Who sent
+     * each is not asked here, being only shown in its details ([addressOf]).
+     */
+    private fun mmsLines(context: Context, where: String, args: Array<String>?): List<Line> {
+        class Head(val id: Long, val at: Long, val incoming: Boolean, val sentAt: Long, val unread: Boolean, val thread: Long)
         val heads = ArrayList<Head>()
-        context.contentResolver.query(
-            MMS, arrayOf("_id", "date", "msg_box", "date_sent", "read"), "thread_id = ?", arrayOf(thread.toString()), null,
-        )?.use { rows ->
+        context.contentResolver.query(MMS, arrayOf("_id", "date", "msg_box", "date_sent", "read", "thread_id"), where, args, null)?.use { rows ->
             while (rows.moveToNext()) {
-                heads += Head(rows.getLong(0), rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, rows.getLong(3) * 1000, rows.getInt(4) == 0)
+                heads += Head(rows.getLong(0), rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, rows.getLong(3) * 1000, rows.getInt(4) == 0, rows.getLong(5))
             }
         }
         val parts = parts(context, heads.map { it.id })
-        for (head in heads) {
+        return heads.map { head ->
             val (words, pieces) = parts[head.id] ?: ("" to emptyList())
-            lines += Line(head.at, head.incoming, words, pieces, id = head.id, mms = true, sentAt = head.sentAt, unread = head.unread, thread = thread)
+            Line(head.at, head.incoming, words, pieces, id = head.id, mms = true, sentAt = head.sentAt, unread = head.unread, thread = head.thread)
         }
-        return lines.sortedBy { it.at }
     }
 
     /** Everybody a conversation is with, as the phone lists them. */
@@ -512,6 +575,8 @@ object Store {
                 }
             }
         }
+        // And the groups only the headers of received MMS tell, filed in their senders' conversations.
+        val heard = runCatching { heard(context).map { Phone.group(it.numbers, mine) } }.getOrDefault(emptyList())
         return Counts(
             pgp = pgpSms + sealed.size, pgpSms = pgpSms, pgpMms = sealed.size, bytes = bytes,
             all = sms + mms,
@@ -521,7 +586,7 @@ object Store {
             talks = count(THREADS, null),
             unreadTalks = unreadThreads(context).size,
             // Several members besides this phone: a group; one, a conversation between two all the same.
-            groups = groups.filter { ',' in it }.distinct().size, groupTalks = groups.count { ',' in it },
+            groups = (groups.filter { ',' in it } + heard).distinct().size, groupTalks = groups.count { ',' in it },
         )
     }
 
