@@ -702,8 +702,8 @@ class ThreadActivity : AskingActivity() {
         whoIs.text = who?.name ?: number
         portrait.removeAllViews()
         // Framed as in the list: the colour of what its certificate is worth, the face of pixels when there is no picture.
-        // 38 dp in all, as the bar has room for: the picture and its frame.
-        portrait.addView(Look.face(this, 32, null, theirs, whose?.validity, framable = true, seed = Look.seed(who?.fingerprint, number), lineDp = 3))
+        // The frame comes on top of the picture's 38 dp, never out of them.
+        portrait.addView(Look.face(this, 38, null, theirs, whose?.validity, framable = true, seed = Look.seed(who?.fingerprint, number)))
         val standing: CharSequence = when {
             who?.fingerprint == null -> getString(R.string.no_certificate)
             foodjis.shut -> getString(R.string.foodjis_shut)
@@ -766,7 +766,8 @@ class ThreadActivity : AskingActivity() {
      */
     private fun groupMenu() {
         // What can be done and the title held at the top; only the members scroll.
-        val head = Look.column(this).apply { setPadding(paddingLeft, paddingTop, paddingRight, 0) }
+        // No margin above the first action: the room its own line keeps above it is the room it keeps above the rule.
+        val head = Look.column(this).apply { setPadding(paddingLeft, 0, paddingRight, 0) }
         val column = Look.column(this).apply { setPadding(paddingLeft, 0, paddingRight, paddingBottom) }
         var shown: AlertDialog? = null
         // First what can be done about the conversation, as about one between two: its notifications, saving it, deleting it.
