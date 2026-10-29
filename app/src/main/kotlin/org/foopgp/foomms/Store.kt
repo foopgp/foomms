@@ -77,12 +77,19 @@ object Store {
             val each = toEach(context, thread)
             for (line in lines(context, thread)) {
                 if (line.incoming || (line.mms && !each)) continue
-                val to = addressOf(context, line) ?: continue
-                if (Phone.same(to, number) || to == number) found += line
+                // An MMS may have gone to several at once: to [number] if it is among them.
+                val to = if (line.mms) recipients(context, line.id) else listOfNotNull(addressOf(context, line))
+                if (to.any { Phone.same(it, number) || it == number }) found += line
             }
         }
         found
     }.getOrDefault(emptyList())
+
+    /** Everybody an MMS sent went to, as its "To" and "Cc" say. */
+    private fun recipients(context: Context, message: Long): List<String> =
+        context.contentResolver.query(Uri.parse("content://mms/$message/addr"), arrayOf("address", "type"), null, null, null)?.use { rows ->
+            buildList { while (rows.moveToNext()) if (rows.getInt(1) in TO_OR_CC) rows.getString(0)?.let { add(it) } }
+        }.orEmpty()
 
     /** The conversations of several numbers, [number] among them: where sendings to each are filed. */
     private fun eachWith(context: Context, number: String): List<Long> {

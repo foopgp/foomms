@@ -17,12 +17,9 @@ object Members {
     /** Its type, as contact cards are sent by MMS. */
     const val TYPE = "text/x-vcard"
 
-    /** What the first trials sent, encrypted: still known for a group's, not read. */
-    private const val SEALED = "foomms-group.vcf.pgp"
-
     class Member(val name: String, val number: String, val fingerprint: String?, val eid: String? = null)
 
-    fun isPart(name: String?): Boolean = name == PART || name == SEALED
+    fun isPart(name: String?): Boolean = name == PART
 
     /** One vCard 4.0 after another (RFC 6350), lines ending in CRLF. */
     fun write(members: List<Member>): ByteArray = buildString {
