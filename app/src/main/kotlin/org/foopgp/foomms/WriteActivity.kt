@@ -236,7 +236,10 @@ class WriteActivity : Activity() {
         toGroup.alpha = if (groupable) 1f else 0.38f
         // The one chosen orange, the other as any button: grey would read as not to be pressed.
         for ((button, on) in listOf(toEach to !asGroup, toGroup to asGroup)) {
+            // A new face brings its own padding, thinner: the button's own put back, so that it keeps its size.
+            val (left, top, right, bottom) = listOf(button.paddingLeft, button.paddingTop, button.paddingRight, button.paddingBottom)
             button.background = Look.buttonFace(this, if (on) Look.ORANGE else Look.FACE)
+            button.setPadding(left, top, right, bottom)
             button.setTypeface(null, if (on) Typeface.BOLD else Typeface.NORMAL)
         }
         howSaid.text = when {
