@@ -99,4 +99,12 @@ class PduReadTest {
         assertEquals("text_0.txt", read.parts[1].name)
         assertEquals("<text_0>", read.parts[1].id)
     }
+
+    @Test fun `a group's members part goes and comes back with its alphabet`() {
+        val card = Members.write(listOf(Members.Member("Hélène", "+33611111111", null)))
+        val pdu = Pdu.send("T1", listOf("+33611111111", "+33622222222"), listOf(Pdu.Part.text("Bonjour"), Pdu.Part(Members.TYPE, Members.PART, card)))
+        val part = PduRead.read(pdu).parts.first { it.name == Members.PART || it.location == Members.PART }
+        org.junit.Assert.assertEquals("Hélène", Members.read(part.bytes).single().name)
+        org.junit.Assert.assertEquals(106, part.charset)
+    }
 }

@@ -48,31 +48,40 @@ object Conf {
 
     fun toMyself(context: Context, on: Boolean) = kept(context).edit().putBoolean("to_myself", on).apply()
 
-    /** A text that takes more than one SMS leaves as an MMS; otherwise only one that takes more than [MOST_SMS]. */
-    /** Where the search of the list of conversations looks: the contacts, or the messages. */
-    fun searchContacts(context: Context): Boolean = kept(context).getBoolean("search_contacts", true)
+    /**
+     * MMS on: a text longer than one SMS leaves as an MMS, and parts, voices
+     * and group MMS can be sent. Off: a long text leaves in as many SMS as it
+     * takes, and none of those. MMS received show all the same.
+     */
+    fun mms(context: Context): Boolean = kept(context).getBoolean("mms", true)
 
-    fun searchContacts(context: Context, on: Boolean) = kept(context).edit().putBoolean("search_contacts", on).apply()
+    fun mms(context: Context, on: Boolean) = kept(context).edit().putBoolean("mms", on).apply()
 
-    fun preferMms(context: Context): Boolean = kept(context).getBoolean("prefer_mms", false)
+    /** Whether a text that takes [pieces] SMS leaves as an MMS. */
+    fun asMms(context: Context, pieces: Int): Boolean = asMms(mms(context), pieces)
 
-    fun preferMms(context: Context, on: Boolean) = kept(context).edit().putBoolean("prefer_mms", on).apply()
+    fun asMms(mms: Boolean, pieces: Int): Boolean = mms && pieces > 1
+
+    /** Beyond this many SMS, the person is asked first: some phones put many back together badly, and each may be charged. */
+    const val MANY_SMS = 10
 
     /** Send MMS as heavy as the operator says it takes, beyond the standard's 300 kB. */
     fun operatorSize(context: Context): Boolean = kept(context).getBoolean("operator_size", false)
 
     fun operatorSize(context: Context, on: Boolean) = kept(context).edit().putBoolean("operator_size", on).apply()
 
-    /** Ask before a message leaves as an MMS, which an operator may charge for. */
-    fun warnMms(context: Context): Boolean = kept(context).getBoolean("warn_mms", false)
+    /**
+     * How many a group MMS may go to, this phone included: ten pass with
+     * every network; French networks take far more.
+     */
+    fun groupMost(context: Context): Int = kept(context).getInt("group_most", GROUP_MOST).coerceIn(GROUP_MOST, GROUP_MOST_EVER)
 
-    fun warnMms(context: Context, on: Boolean) = kept(context).edit().putBoolean("warn_mms", on).apply()
+    fun groupMost(context: Context, most: Int) = kept(context).edit().putInt("group_most", most.coerceIn(GROUP_MOST, GROUP_MOST_EVER)).apply()
 
-    /** Beyond this many SMS, a text leaves as one MMS whatever was set. */
-    const val MOST_SMS = 5
+    /** The default, and the least it may be set to. */
+    const val GROUP_MOST = 10
+    const val GROUP_MOST_EVER = 255
 
-    /** Whether a text that would take [pieces] SMS leaves as an MMS. */
-    fun asMms(pieces: Int, prefer: Boolean): Boolean = pieces > if (prefer) 1 else MOST_SMS
 
     private inline fun <reified T : Enum<T>> named(name: String?, otherwise: T): T =
         enumValues<T>().firstOrNull { it.name == name } ?: otherwise

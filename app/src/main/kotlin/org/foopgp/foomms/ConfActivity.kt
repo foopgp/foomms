@@ -12,19 +12,12 @@ import android.widget.ScrollView
 import android.widget.SeekBar
 
 /** What the person sets, a heading and a line of explanation above each, as foodjis lays its own out. */
-class ConfActivity : Activity() {
+class ConfActivity : AskingActivity() {
 
     private lateinit var column: LinearLayout
 
-    private val provider by lazy { Provider(this) }
-
     /** Whether foodjis holds an identity to encrypt to: unknown until it has said. */
     private var holdsOne: Boolean? = null
-
-    /** Left by the top, as every page but the list. */
-    private val swipes by lazy { Swipes.watch(this) }
-
-    override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean = swipes.feed(event) || super.dispatchTouchEvent(event)
 
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
@@ -43,11 +36,6 @@ class ConfActivity : Activity() {
         }
     }
 
-    override fun onDestroy() {
-        provider.close()
-        super.onDestroy()
-    }
-
     override fun onResume() {
         super.onResume()
         draw()
@@ -60,8 +48,8 @@ class ConfActivity : Activity() {
     private fun subheading(words: Int) =
         column.addView(Look.words(this, getString(words), size = 17f).apply { setPadding(0, Look.dp(context, 12), 0, 0) })
 
-    /** A number from 0 to [most], set by sliding, shown beside. */
-    private fun slider(now: Int, most: Int, set: (Int) -> Unit) {
+    /** A number from [least] to [most], set by sliding, shown beside. */
+    private fun slider(now: Int, most: Int, least: Int = 0, set: (Int) -> Unit) {
         val shown = Look.words(this, now.toString(), size = 18f)
         column.addView(
             LinearLayout(this).apply {
@@ -69,13 +57,13 @@ class ConfActivity : Activity() {
                 gravity = android.view.Gravity.CENTER_VERTICAL
                 addView(
                     SeekBar(context).apply {
-                        max = most
-                        progress = now
+                        max = most - least
+                        progress = now - least
                         setOnSeekBarChangeListener(
                             object : SeekBar.OnSeekBarChangeListener {
                                 override fun onProgressChanged(bar: SeekBar?, value: Int, byHand: Boolean) {
-                                    set(value)
-                                    shown.text = value.toString()
+                                    set(value + least)
+                                    shown.text = (value + least).toString()
                                 }
                                 override fun onStartTrackingTouch(bar: SeekBar?) = Unit
                                 override fun onStopTrackingTouch(bar: SeekBar?) = Unit
@@ -176,20 +164,24 @@ class ConfActivity : Activity() {
         if (backup.isNotEmpty()) column.addView(Look.words(this, backup, size = 15f))
 
         heading(R.string.conf_mms)
-        column.addView(flip(R.string.conf_prefer_mms, Conf.preferMms(this)) { Conf.preferMms(this, it) ; draw() })
-        note(R.string.conf_prefer_mms_note)
-        // Left to itself, a long text still becomes an MMS: then one can ask to be told first.
+        val on = Conf.mms(this)
+        column.addView(flip(R.string.conf_mms_on, on) { Conf.mms(this, it) ; draw() })
+        note(R.string.conf_mms_on_note)
+        // What MMS may weigh, and how many a group MMS may go to: with MMS on only.
         // Heavier than the standard only where the operator says it takes more: greyed, and off, otherwise.
-        val theirs = Outbox.operators(this)
-        column.addView(
-            flip(R.string.conf_mms_size, Conf.operatorSize(this), usable = (theirs ?: 0) > Outbox.STANDARD) { Conf.operatorSize(this, it) }
-                .apply { (theirs ?: Outbox.STANDARD).let { most -> text = getString(R.string.conf_mms_size, most / 1024, (most - Outbox.MARGIN) / 1024) } },
-        )
-        note(getString(R.string.conf_mms_size_note, Outbox.STANDARD / 1024, (Outbox.STANDARD - Outbox.MARGIN) / 1024))
-        if (!Conf.preferMms(this)) {
-            column.addView(flip(R.string.conf_warn_mms, Conf.warnMms(this)) { Conf.warnMms(this, it) })
-            note(R.string.conf_warn_mms_note)
+        if (on) {
+            val theirs = Outbox.operators(this)
+            column.addView(
+                flip(R.string.conf_mms_size, Conf.operatorSize(this), usable = (theirs ?: 0) > Outbox.STANDARD) { Conf.operatorSize(this, it) }
+                    .apply { (theirs ?: Outbox.STANDARD).let { most -> text = getString(R.string.conf_mms_size, most / 1024, (most - Outbox.MARGIN) / 1024) } },
+            )
+            note(getString(R.string.conf_mms_size_note, Outbox.STANDARD / 1024, (Outbox.STANDARD - Outbox.MARGIN) / 1024))
+            // How many a group MMS may go to, oneself included.
+            subheading(R.string.conf_group_most)
+            note(R.string.conf_group_most_note)
+            slider(Conf.groupMost(this), Conf.GROUP_MOST_EVER, Conf.GROUP_MOST) { Conf.groupMost(this, it) }
         }
+
     }
 
     /** How the last saving or restoring went: the page is drawn again on return, and it is kept for that. */

@@ -89,10 +89,77 @@ class ThreadActivity : AskingActivity() {
     /** This conversation, as what is opened in it is counted down: none yet, the conversation of nobody. */
     private fun here(): Long = thread ?: Opened.NO_THREAD
 
+    /**
+     * Everybody the conversation is with, this phone included when it is a
+     * group's: the numbers Android names its conversation by. Read at once,
+     * the drafts being kept under them.
+     */
+    private val everyone: List<String> by lazy {
+        val all = ArrayList<String>()
+        // A group heard only from the headers of MMS filed elsewhere: its members, as the list read them.
+        val heard = if (elsewhere.isEmpty()) emptyList() else intent.getStringArrayExtra(EXTRA_MEMBERS)?.toList().orEmpty()
+        for (one in given.flatMap { runCatching { Store.members(this, it) }.getOrDefault(emptyList()) } + heard) {
+            if (all.none { Phone.same(it, one) || it == one }) all += one
+        }
+        all.ifEmpty { listOf(number) }
+    }
+
+    /** A group's MMS filed in their senders' conversations by another application, by number: shown with its own. */
+    private val elsewhere: List<Long> by lazy { intent.getLongArrayExtra(EXTRA_MESSAGES)?.toList().orEmpty() }
+
+    /**
+     * The conversations the page was opened on: one, or those Android keeps
+     * apart for the same group -- with this phone among the numbers, or
+     * without --, shown as one.
+     */
+    private val given: List<Long> by lazy {
+        intent.getLongArrayExtra(EXTRA_THREADS)?.toList()?.takeIf { it.isNotEmpty() }
+            ?: listOfNotNull(intent.getLongExtra(EXTRA_THREAD, -1L).takeIf { it >= 0 })
+    }
+
+    /** A conversation with several numbers: a group MMS's. */
+    private val group get() = everyone.count { !Me.mine(this, it) } > 1
+
+    /** One of a group but this phone, and who they are. */
+    class Member(val number: String, val person: Book.Person?, val card: Foodjis.Cert?, val face: Bitmap?) {
+        val name: String get() = person?.name ?: number
+        val seed: String? get() = Look.seed(card?.fingerprint ?: person?.fingerprint, number)
+    }
+
+    /** The bar's first line: a name and its dots, or a group's faces and its dots. */
+    private lateinit var named: View
+    private lateinit var crowd: LinearLayout
+
+    /** A group's members but this phone, once known; none in a conversation between two. */
+    @Volatile private var members: List<Member> = emptyList()
+
+    /** A group's drafts, under its members but this phone: the same, from whichever of its conversations. */
+    private val drafted: List<String> by lazy {
+        if (!group) listOf(number) else everyone.filterNot { Me.mine(this, it) }
+    }
+
+    /**
+     * Whom what is written goes to: one number, or every member of the group
+     * and this phone, which gets it back -- what a group is, is then always
+     * the list of whom its messages go to.
+     */
+    private fun targets(): List<String> = if (group) members.map { it.number } + listOfNotNull(Me.number(this)) else listOf(number)
+
+    /** The member a message came from, as the network wrote their number. */
+    private fun memberOf(address: String?): Member? = address?.let { from -> members.firstOrNull { Phone.same(it.number, from) || it.number == from } }
+
+    /** In a group, the members already asked whether a signer's certificate is theirs: once each, a page. */
+    private val offeredTo = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+
+    /** Who sent each MMS received in a group: read after the page is shown, an asking each ([Store.addressOf]). */
+    private val senders = java.util.concurrent.ConcurrentHashMap<Long, String>()
+
     private val voice by lazy { Voice(this) }
 
     /** The field held down while empty: record, if the microphone may be used, until it is let go. */
     private fun speak(): Boolean {
+        // A voice leaves as an MMS: not with MMS off.
+        if (!Conf.mms(this)) { say(getString(R.string.mms_off)) ; return true }
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), VOICE)
             return true
@@ -172,13 +239,18 @@ class ThreadActivity : AskingActivity() {
                     LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
                         setPadding(Look.dp(context, 10), 0, 0, 0)
-                        // The dots that say the bar can be pressed, on its first line.
-                        addView(Look.pressable(context, whoIs), LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+                        // The dots that say the bar can be pressed, on its first line. A group's: its members' faces.
+                        named = Look.pressable(context, whoIs)
+                        addView(named, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+                        crowd = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL ; gravity = Gravity.CENTER_VERTICAL ; visibility = View.GONE }
+                        addView(crowd, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
                         addView(under, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
                     },
                     LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f),
                 )
                 setOnClickListener {
+                    // A group's: its members.
+                    if (group) return@setOnClickListener groupMenu()
                     // Taken now: what changed forgets who the number is with before the refresh is done.
                     val tied = person?.fingerprint
                     TalkMenu.show(
@@ -190,7 +262,7 @@ class ThreadActivity : AskingActivity() {
                         letIn = if (foodjis.shut) ({ letIn() }) else null,
                     )
                 }
-                addView(Look.icon(context, R.drawable.search, getString(R.string.search_here)) { seeking(seeker.visibility != View.VISIBLE) })
+                addView(Look.icon(context, R.drawable.search, getString(R.string.search_here)) { Searching.ask(this@ThreadActivity) { seeking(true) } })
             }
             customView.layoutParams = android.app.ActionBar.LayoutParams(android.app.ActionBar.LayoutParams.MATCH_PARENT, android.app.ActionBar.LayoutParams.WRAP_CONTENT)
         }
@@ -264,7 +336,7 @@ class ThreadActivity : AskingActivity() {
         // Words handed over with the page -- shared from another application, or a link's "sms_body" -- are already written;
         // otherwise what was being written here and not sent, the page having been closed meanwhile.
         val handed = if (state == null) intent.getStringExtra(Intent.EXTRA_TEXT) ?: intent.getStringExtra("sms_body") else null
-        (handed ?: Drafts.of(this, number).takeIf { it.isNotEmpty() })?.let { field.setText(it) ; field.setSelection(it.length) }
+        (handed ?: Drafts.of(this, drafted).takeIf { it.isNotEmpty() })?.let { field.setText(it) ; field.setSelection(it.length) }
         // And what was shared with them: a picture made small enough for an MMS, any other file if it fits.
         @Suppress("DEPRECATION")
         if (state == null) intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)?.let { shared ->
@@ -356,33 +428,53 @@ class ThreadActivity : AskingActivity() {
     }
     private val hitCount by lazy { Look.words(this, "", size = 13f, muted = true).apply { setPadding(Look.dp(context, 6), 0, Look.dp(context, 6), 0) } }
 
-    /** What is looked for, while the search is shown. */
-    private val looked: String get() = if (seeker.visibility == View.VISIBLE) sought.text.toString().trim() else ""
+    /** What is looked for, while the search is shown: as typed, spaces and punctuation included -- "je " is not "je". */
+    private val looked: String get() = if (seeker.visibility == View.VISIBLE) sought.text.toString().takeIf { it.isNotBlank() }.orEmpty() else ""
 
-    /** The messages holding it, oldest first, and the one shown. */
-    private var hits: List<Int>? = null
+    /**
+     * Each place it is found, oldest first: a message and where in its words,
+     * or -1 for a part's name; and the one shown. Counted as marked, one by
+     * one, not message by message.
+     */
+    private class Hit(val line: Int, val at: Int)
+    private var hits: List<Hit>? = null
     private var hit = -1
 
     private fun seeking(on: Boolean) {
         seeker.visibility = if (on) View.VISIBLE else View.GONE
+        // Kept at the bottom, the list went back there each time the marks were drawn again, undoing the step to a match.
+        list.transcriptMode = if (on) ListView.TRANSCRIPT_MODE_DISABLED else ListView.TRANSCRIPT_MODE_NORMAL
         val keys = getSystemService(android.view.inputmethod.InputMethodManager::class.java)
         if (on) { sought.requestFocus() ; keys?.showSoftInput(sought, 0) } else { keys?.hideSoftInputFromWindow(sought.windowToken, 0) ; field.requestFocus() }
         hits = null ; hit = -1
         bubbles.notifyDataSetChanged()
     }
 
-    /** What a message shows that can be looked for: its words when they can be read, and what its parts are called. */
-    private fun searchable(line: Store.Line): String {
+    /** Where [wanted] is in [text], whatever its case. */
+    private fun places(text: CharSequence, wanted: String): List<Int> {
+        val found = ArrayList<Int>()
+        var from = text.indexOf(wanted, ignoreCase = true)
+        while (from >= 0) {
+            found += from
+            from = text.indexOf(wanted, from + wanted.length, ignoreCase = true)
+        }
+        return found
+    }
+
+    /** What a message shows that can be looked for: each place in its words when they can be read, and each part whose name holds it. */
+    private fun hitsIn(index: Int, wanted: String): List<Hit> {
+        val line = lines[index]
         val armor = armorOf(line)
         val words = if (armor == null) line.body else Opened.words(armor)?.words.orEmpty()
-        return words + " " + line.pieces.joinToString(" ") { Opened.piece(it.id)?.name ?: it.name.orEmpty() }
+        val named = line.pieces.count { (Opened.piece(it.id)?.name ?: it.name.orEmpty()).contains(wanted, ignoreCase = true) }
+        return places(words, wanted).map { Hit(index, it) } + List(named) { Hit(index, -1) }
     }
 
     /** The next match up (-1) or down (1), round from one end to the other, or the latest one (0); the list scrolls to it. */
     private fun seek(way: Int) {
         val wanted = looked
         if (wanted.isEmpty()) { hitCount.text = "" ; bubbles.notifyDataSetChanged() ; return }
-        val all = hits ?: lines.indices.filter { searchable(lines[it]).contains(wanted, ignoreCase = true) }.also { hits = it }
+        val all = hits ?: lines.indices.flatMap { hitsIn(it, wanted) }.also { hits = it }
         if (all.isEmpty()) { hitCount.text = "0" ; bubbles.notifyDataSetChanged() ; return }
         hit = when {
             hit < 0 || way == 0 -> all.size - 1
@@ -390,18 +482,19 @@ class ThreadActivity : AskingActivity() {
         }
         hitCount.text = "${hit + 1}/${all.size}"
         bubbles.notifyDataSetChanged()
-        list.setSelection(all[hit])
+        list.setSelectionFromTop(all[hit].line, list.height / 3)
     }
 
-    /** [text] with what is looked for marked wherever it is. */
-    private fun marked(text: CharSequence): CharSequence {
+    /** [text], the words of message [index], with what is looked for marked wherever it is: the place shown fully, the others faintly. */
+    private fun marked(text: CharSequence, index: Int): CharSequence {
         val wanted = looked
         if (wanted.isEmpty()) return text
         val out = android.text.SpannableString(text)
-        var from = text.indexOf(wanted, ignoreCase = true)
-        while (from >= 0) {
-            out.setSpan(android.text.style.BackgroundColorSpan(Look.ORANGE), from, from + wanted.length, 0)
-            from = text.indexOf(wanted, from + wanted.length, ignoreCase = true)
+        val shown = hits?.getOrNull(hit)
+        val faint = (Look.ORANGE and 0x00FFFFFF) or 0x66000000
+        for (from in places(text, wanted)) {
+            val colour = if (shown != null && shown.line == index && shown.at == from) Look.ORANGE else faint
+            out.setSpan(android.text.style.BackgroundColorSpan(colour), from, from + wanted.length, 0)
         }
         return out
     }
@@ -423,7 +516,7 @@ class ThreadActivity : AskingActivity() {
 
     override fun onPause() {
         shown = false
-        Drafts.keep(this, number, field.text.toString())
+        Drafts.keep(this, drafted, field.text.toString())
         Listening.onChange = null
         playingPiece = null
         if (voice.recording) voice.drop()
@@ -444,8 +537,22 @@ class ThreadActivity : AskingActivity() {
     private fun load(first: Boolean = false) {
         val contacts = checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
         thread {
-            // Who the number is, beside the messages: its head drawn as soon as known.
-            thread {
+            // Who the number is, beside the messages: its head drawn as soon as known. A group's, each member.
+            if (group) thread {
+                val found = everyone.filterNot { Me.mine(this, it) }.map { one ->
+                    val who = if (contacts) Book.who(this, one) else null
+                    val whose = who?.fingerprint?.let { foodjis.card(it) }
+                    Member(one, who, whose, who?.let { Book.face(this, it) } ?: who?.fingerprint?.let { foodjis.face(it) })
+                }
+                // And oneself, a member too: one's face, and whether one's own contact is tied to a certificate that can be locked for.
+                val own = Me.card(this)?.let { Book.own(this, it) }
+                val mineCert = own?.fingerprint?.let { foodjis.card(it) }
+                val myself = Look.Mini(
+                    own?.photo?.let { Media.thumbnail(this, it, Media.FACE) } ?: own?.fingerprint?.let { foodjis.face(it) },
+                    mineCert?.validity, Look.seed(own?.fingerprint, Me.number(this)),
+                )
+                runOnUiThread { if (!isFinishing && !isDestroyed) groupHead(found, first, mineCert?.usable == true, myself) }
+            } else thread {
                 val who = if (contacts) Book.who(this, number) else null
                 val whose = who?.fingerprint?.let { foodjis.card(it) }
                 val theirs = who?.let { Book.face(this, it) } ?: who?.fingerprint?.let { foodjis.face(it) }
@@ -453,8 +560,16 @@ class ThreadActivity : AskingActivity() {
             }
             // The conversation it was opened from, when it was opened from one: a sender that is a name and not a
             // number -- a bank, a shop -- has a conversation all the same.
-            val thread: Long? = intent.getLongExtra(EXTRA_THREAD, -1L).takeIf { it >= 0 } ?: runCatching { Store.thread(this, number) }.getOrNull()
-            val found = runCatching { thread?.let { Store.lines(this, it) } }.getOrNull().orEmpty()
+            // A group heard only from MMS filed in their senders' conversations has none of its own yet: not its sender's.
+            val thread: Long? = given.firstOrNull() ?: if (elsewhere.isNotEmpty()) null else runCatching { Store.thread(this, number) }.getOrNull()
+            // A group's conversations, one after the other in time.
+            // With one person: what another application sent them as one of several, filed elsewhere, shown here too.
+            // A group's: its MMS filed in their senders' conversations.
+            val elsewhere = if (group) Store.linesOf(this, this.elsewhere) else Store.sentToEach(this, number)
+            // A group's: its MMS. An SMS there can only be a copy of a sending to each, shown in the conversation of whom it went to.
+            val found = (given.ifEmpty { listOfNotNull(thread) }).flatMap { runCatching { Store.lines(this, it) }.getOrDefault(emptyList()) }
+                .let { lines -> if (group) lines.filter { it.mms } else lines }
+                .let { if (given.size > 1 || elsewhere.isNotEmpty()) (it + elsewhere).sortedBy { line -> line.at } else it }
             // The messages shown at once; signed ones verified from now.
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
@@ -470,8 +585,22 @@ class ThreadActivity : AskingActivity() {
             }
             if (shown) {
                 // Read, but for what is still locked, which waits to be opened, and what the person made unread again.
-                thread?.let { Keep.read(this, it, found.filter { line -> lockedAndClosed(line) || line.key in keptUnread }) }
+                for (one in given.ifEmpty { listOfNotNull(thread) }) {
+                    Keep.read(this, one, found.filter { line -> line.thread == one && (lockedAndClosed(line) || line.key in keptUnread) })
+                }
                 Notify.seen(this, number)
+            }
+            // A group's: who sent each MMS, for its face beside it. One sent from this phone and come back -- kept before
+            // copies delivered one recipient at a time were known for such --: gone, being there already as sent.
+            if (group) thread {
+                var gone = false
+                for (line in found.filter { it.incoming && it.mms && it.address == null && !senders.containsKey(it.id) }) {
+                    val from = Store.addressOf(this, line) ?: continue
+                    if (Me.mine(this, from) && line.pieces.any { Members.isPart(it.name) }) { gone = Keep.forget(this, line) || gone ; continue }
+                    senders[line.id] = from
+                    drip()
+                }
+                if (gone) runOnUiThread { if (!isFinishing && !isDestroyed) load() }
             }
             val pieces = found.flatMap { it.pieces }
             // The pictures, the lengths, and whom each locked part is for -- at the head of its bytes, and whether it
@@ -519,6 +648,42 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
+    /** Whom each message sent went to, when it went to each of several: asked once a message, off the page. */
+    private val sentTo = java.util.concurrent.ConcurrentHashMap<String, List<String>>()
+    private val askingSentTo = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+
+    private fun sentWith(line: Store.Line): List<String>? {
+        sentTo[line.key]?.let { return it }
+        if (askingSentTo.add(line.key)) thread { sentTo[line.key] = Store.sentWith(this, line) ; drip() }
+        return null
+    }
+
+    /** Whom a message went to, each by name; and a new message to all of them, from the page that starts one. */
+    private fun sentToEach(numbers: List<String>) {
+        thread {
+            val contacts = checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
+            val named = numbers.map { one -> (if (contacts) Book.who(this, one)?.name else null)?.let { "$it — $one" } ?: one }
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                // The new message heads the list rather than sitting among the buttons: its words, on two lines
+                // there, pushed "Close" out of the dialog.
+                val write = android.text.SpannableString(getString(R.string.write_to_each, numbers.size)).apply {
+                    setSpan(android.text.style.ForegroundColorSpan(Look.ORANGE), 0, length, 0)
+                }
+                AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.sent_to_each, numbers.size))
+                    .setItems((listOf<CharSequence>(write) + named).toTypedArray()) { _, which ->
+                        if (which != 0) return@setItems
+                        // To all of them but oneself.
+                        val them = numbers.filterNot { one -> Me.mine(this, one) || Me.numbers(this).any { Phone.same(it, one) } }
+                        startActivity(Intent(this, WriteActivity::class.java).putExtra(WriteActivity.EXTRA_NUMBERS, them.toTypedArray()))
+                    }
+                    .setNegativeButton(R.string.close, null)
+                    .show()
+            }
+        }
+    }
+
     /** The page drawn again soon, once for all that arrived meanwhile: not once per picture. */
     private val dripping = java.util.concurrent.atomic.AtomicBoolean(false)
 
@@ -563,6 +728,181 @@ class ThreadActivity : AskingActivity() {
         bubbles.notifyDataSetChanged()
     }
 
+    /** A group's head: its members by name, how many of them have a certificate, and the switches as they can be for all. */
+    private fun groupHead(found: List<Member>, first: Boolean, mineUsable: Boolean = false, myself: Look.Mini? = null) {
+        members = found
+        val name = found.joinToString(", ") { it.name }
+        thread?.let { Opened.title(it, name, number) }
+        title = name
+        whoIs.text = name
+        // Faces rather than names, which never fit: ten on a line.
+        portrait.visibility = View.GONE
+        named.visibility = View.GONE
+        crowd.visibility = View.VISIBLE
+        crowd.removeAllViews()
+        // Oneself last, as in the list's square; beyond nine, eight faces and how many more.
+        val faces = found.map { Look.Mini(it.face, it.card?.validity, it.seed) } + listOfNotNull(myself)
+        for (one in if (faces.size > 9) faces.take(8) else faces) crowd.addView(Look.face(this, 22, null, one.face, one.standing, framable = true, seed = one.seed, lineDp = 2))
+        if (faces.size > 9) crowd.addView(Look.words(this, "+${faces.size - 8}", size = 15f).apply { setTextColor(android.graphics.Color.WHITE) ; setPadding(Look.dp(context, 6), 0, 0, 0) })
+        crowd.addView(android.widget.TextView(this).apply {
+            text = "⋮" ; setTextColor(android.graphics.Color.WHITE) ; paint.isFakeBoldText = true
+            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 22f) ; setPadding(Look.dp(context, 6), 0, Look.dp(context, 4), 0)
+        })
+        // Counted with oneself, a member as the others are.
+        val all = found.size + 1
+        val usable = found.count { it.card?.usable == true } + (if (mineUsable) 1 else 0)
+        under.text = android.text.SpannableStringBuilder(resources.getQuantityString(R.plurals.group_members, all, all))
+            .append("  ·  🔑 $usable/$all")
+        if (first) { locks.isChecked = lockable() ; signs.isChecked = lockable() }
+        paint()
+        bubbles.notifyDataSetChanged()
+    }
+
+    /** A group's members, each with their face, name, number and what their certificate is worth; pressed, the conversation with them alone. */
+    private fun groupMenu() {
+        val column = Look.column(this)
+        var shown: AlertDialog? = null
+        // Oneself first: the MMS goes to the others, and comes back to every one of them from all.
+        val own = Me.card(this)?.let { Book.own(this, it) }
+        val ownStanding = own?.fingerprint?.let { foodjis.card(it) }?.validity
+        val mine = Me.number(this)
+        column.addView(
+            LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(0, Look.dp(context, 6), 0, Look.dp(context, 6))
+                addView(Look.face(context, 40, own?.photo, null, ownStanding, framable = true, seed = Look.seed(own?.fingerprint, mine)))
+                addView(
+                    LinearLayout(context).apply {
+                        orientation = LinearLayout.VERTICAL
+                        setPadding(Look.dp(context, 12), 0, 0, 0)
+                        addView(Look.words(context, listOfNotNull(own?.name, getString(R.string.me_tag)).joinToString(" "), size = 17f))
+                        addView(Look.words(context, mine ?: getString(R.string.me_unknown), size = 13f, muted = true))
+                    },
+                )
+            },
+        )
+        for (one in members) {
+            val standing: CharSequence? = one.card?.let { android.text.SpannableStringBuilder("🔑 ").append(Look.standing(this, it.validity)) }
+            column.addView(
+                LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    setPadding(0, Look.dp(context, 6), 0, Look.dp(context, 6))
+                    addView(Look.face(context, 40, null, one.face, one.card?.validity, framable = true, seed = one.seed))
+                    addView(
+                        LinearLayout(context).apply {
+                            orientation = LinearLayout.VERTICAL
+                            setPadding(Look.dp(context, 12), 0, 0, 0)
+                            addView(Look.words(context, one.name, size = 17f))
+                            if (standing != null) {
+                                addView(Look.words(context, if (one.name != one.number) android.text.SpannableStringBuilder("${one.number} — ").append(standing) else standing, size = 13f, muted = true))
+                            } else {
+                                if (one.name != one.number) addView(Look.words(context, one.number, size = 13f, muted = true))
+                                // No contact, or one with no certificate: tied here, the contact made if there is none --
+                                // from the certificate the group's members part names, when one was read.
+                                addView(
+                                    Look.small(context, getString(if (one.person == null) R.string.contact_add else R.string.tie)) {
+                                        shown?.dismiss()
+                                        tieMember(one.number)
+                                    }.apply { isFocusable = false },
+                                )
+                            }
+                        },
+                        LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+                    )
+                    setOnClickListener {
+                        shown?.dismiss()
+                        startActivity(Intent(context, ThreadActivity::class.java).putExtra(EXTRA_NUMBER, one.number))
+                    }
+                },
+            )
+        }
+        // Then what can be done about the conversation, as about one between two: its notifications, saving it, deleting it.
+        val key = groupKey()
+        val muted = Marks.muted(this, key)
+        val pad = Look.dp(this, 10)
+        fun action(words: Int, then: () -> Unit) = column.addView(
+            Look.words(this, getString(words), size = 16f).apply {
+                setPadding(0, pad, 0, pad)
+                setOnClickListener { shown?.dismiss() ; then() }
+            },
+        )
+        column.addView(View(this).apply { setBackgroundColor(Look.MUTED) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1).apply { topMargin = pad })
+        action(if (muted) R.string.unmute else R.string.mute) { Marks.mute(this, key, !muted) }
+        thread?.let { one -> action(R.string.backup_one) { Saving.save(this, one, title?.toString()) } }
+        action(R.string.forget_talk) { forgetGroup() }
+        shown = AlertDialog.Builder(this)
+            .setTitle(resources.getQuantityString(R.plurals.group_members, members.size + 1, members.size + 1))
+            .setView(android.widget.ScrollView(this).apply { addView(column) })
+            .setPositiveButton(R.string.close, null)
+            .show()
+    }
+
+    /**
+     * A member of the group tied to a certificate, their contact made if
+     * they have none: the one the group's members part named, fetched by
+     * foodjis if it does not hold it; else one from foodjis's list. Through
+     * the same window as any tying ([Tying]).
+     */
+    private fun tieMember(to: String) {
+        // What the group's members part said, kept when it came.
+        val named = Members.known(this, to)?.fingerprint
+        if (named == null) {
+            fun chosen(says: Intent?): Boolean {
+                val keyId = says?.getLongArrayExtra(Provider.EXTRA_KEY_IDS)?.firstOrNull() ?: return false
+                offerFor(to, "%016X".format(keyId))
+                return true
+            }
+            return ask(Intent(Provider.GET_KEY_IDS).putExtra(Provider.EXTRA_SINGLE, true), null, ::say, ::chosen) { chosen(it.says) }
+        }
+        // Held, or asked of the key servers first.
+        thread {
+            val held = foodjis.card(named) != null
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                if (held) return@runOnUiThread offerFor(to, named)
+                ask(Intent(Provider.GET_KEY).putExtra(Provider.EXTRA_KEY_ID, Fingerprint.keyId(named)), null, ::say) { foodjis.fresh() ; offerFor(to, named) }
+            }
+        }
+    }
+
+    private fun offerFor(to: String, named: String) {
+        thread {
+            val whose = foodjis.card(named)
+            val stale = whose?.let { foodjis.vcard(it.fingerprint) }?.let { Book.stale(this, to, it) }.orEmpty()
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                if (whose == null) return@runOnUiThread say(getString(R.string.certificate_not_held))
+                Tying.offer(this, to, whose, stale) { card, face, note, name -> write(whose, card, stale, face, note, name, to) }
+            }
+        }
+    }
+
+    /** What a group is muted by: its members but this phone, whichever of its conversations a message comes to. */
+    private fun groupKey(): String = "group:" + Phone.group(everyone, Me.all(this))
+
+    /** Every message of the group's conversations, once the person has said so. */
+    private fun forgetGroup() {
+        AlertDialog.Builder(this)
+            .setMessage(getString(R.string.forget_talk_ask, title))
+            .setPositiveButton(R.string.forget_yes) { _, _ ->
+                thread {
+                    val went = given.ifEmpty { listOfNotNull(thread) }.map { Keep.forgetAll(this, it) }.all { it }
+                    runOnUiThread {
+                        if (isFinishing || isDestroyed) return@runOnUiThread
+                        if (went) finish()
+                        else say(getString(if (Keep.ours(this)) R.string.forget_failed else R.string.forget_not_ours))
+                    }
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    /** Whether what is written can be encrypted: for the certificate of the number, or of every member of the group. */
+    private fun lockable(): Boolean = if (group) members.isNotEmpty() && members.all { it.card?.usable == true } else card?.usable == true
+
     /** The key of the identity foodjis holds, by the id the interface names it with; none until foodjis has said. */
     private var mine: Long? = null
 
@@ -582,7 +922,7 @@ class ThreadActivity : AskingActivity() {
     /** The switches as they can be, and the colour of what they add up to. */
     private fun paint() {
         // Nothing to encrypt for without a certificate that stands; nothing to sign with until foodjis has said whose identity this is.
-        locks.isEnabled = card?.usable == true
+        locks.isEnabled = lockable()
         signs.isEnabled = mine != null
         val worth = worth(mode)
         options.setBackgroundColor(Look.pale(worth))
@@ -590,16 +930,30 @@ class ThreadActivity : AskingActivity() {
         sender.setTextColor(if (worth == Verdict.BLUE && !Look.dark) android.graphics.Color.WHITE else Look.INDIGO)
     }
 
-    /** [plainSaid]: the person was asked, and said it may leave unencrypted. */
-    private fun send(plainSaid: Boolean = false) {
+    /** [plainSaid]: the person was asked, and said it may leave unencrypted; [manySaid], to more than the group limit. */
+    private fun send(plainSaid: Boolean = false, manySaid: Boolean = false) {
         val written = field.text.toString()
         val with = carried
         if (written.isBlank() && with == null) return
-        if (Phone.plain(number) == null) return
+        // A group's: to all its members, once they are known.
+        if (if (group) members.isEmpty() else Phone.plain(number) == null) return
+        // MMS off: no part, no group -- said before anything else.
+        if ((with != null || group) && !Conf.mms(this)) return say(getString(R.string.mms_off))
+        // To a group, this phone gets it back: not without its number, which one's own contact gives.
+        if (group && Me.number(this) == null) return say(getString(R.string.group_needs_me))
+        // More than the limit set, oneself included: networks may refuse it, or deliver it to each alone. Asked.
+        if (group && !manySaid && members.size + 1 > Conf.groupMost(this)) {
+            AlertDialog.Builder(this)
+                .setMessage(getString(R.string.group_over, members.size + 1, Conf.groupMost(this)))
+                .setPositiveButton(R.string.group_over_send) { _, _ -> send(plainSaid, manySaid = true) }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+            return
+        }
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)
         }
-        if (!plainSaid && plainOrAsk(locks, ::paint) { send(plainSaid = true) }) return
+        if (!plainSaid && plainOrAsk(locks, ::paint) { send(plainSaid = true, manySaid = manySaid) }) return
         val mode = mode
         if (with != null) return sendWith(with, written, mode)
         if (mode == Mode.PLAIN) return leave(written, written, null)
@@ -610,8 +964,24 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
-    /** What foodjis is asked for a message leaving the way [mode] says. */
-    private fun request(mode: Mode, armored: Boolean): Intent {
+    /**
+     * [parts] and, to a group, the part that tells it ([Members]), as it is:
+     * everyone in it, oneself included, by the name their contact has here.
+     */
+    private fun withMembers(parts: List<Pdu.Part>, then: (List<Pdu.Part>) -> Unit) {
+        if (!group) return then(parts)
+        thread {
+            val own = Me.card(this)?.let { Book.own(this, it) }
+            val mineCert = mine?.let { foodjis.signer(it) }
+            val number = Me.number(this).orEmpty()
+            val all = listOf(Members.Member(own?.name ?: mineCert?.name ?: number, number, mineCert?.fingerprint, mineCert?.eid)) +
+                members.map { Members.Member(it.name, it.number, it.card?.fingerprint, it.card?.eid) }
+            runOnUiThread { if (!isFinishing && !isDestroyed) then(parts + Pdu.Part(Members.TYPE, Members.PART, Members.write(all))) }
+        }
+    }
+
+    /** What foodjis is asked for a message leaving the way [mode] says; a file under its [name], kept inside. */
+    private fun request(mode: Mode, armored: Boolean, name: String? = null): Intent {
         val request = Intent(
             when (mode) {
                 Mode.SIGN_AND_LOCK -> Provider.SIGN_AND_ENCRYPT
@@ -619,7 +989,13 @@ class ThreadActivity : AskingActivity() {
                 else -> Provider.SIGN
             },
         ).putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, armored)
+        name?.let { request.putExtra(Provider.EXTRA_ORIGINAL_FILENAME, it) }
         if (mode.locks) {
+            // A group's: every member's certificate, and always one's own -- what one sent, one reads again.
+            if (group) {
+                val keys = (members.mapNotNull { it.card?.fingerprint?.let(Fingerprint::keyId) } + listOfNotNull(mine)).distinct()
+                return request.putExtra(Provider.EXTRA_KEY_IDS, keys.toLongArray())
+            }
             // The certificate the address book ties to this number; with none, whoever foodjis knows by the number.
             val whose = person?.fingerprint
             // And for oneself, unless the person said not: what is locked for another alone cannot be read again.
@@ -638,44 +1014,33 @@ class ThreadActivity : AskingActivity() {
      * Signing both asks for the security key once.
      */
     private fun sendWith(with: Media.Attachment, written: String, mode: Mode) {
-        fun post(words: String?, piece: Pdu.Part, verdict: Verdict?) = confirmMms {
+        fun post(words: String?, piece: Pdu.Part, verdict: Verdict?) = withMembers(listOfNotNull(words?.let { Pdu.Part.text(it) }, piece)) { parts ->
             val transaction = "T" + java.lang.Long.toHexString(System.currentTimeMillis())
-            val parts = listOfNotNull(words?.let { Pdu.Part.text(it) }, piece)
-            runCatching { Outbox.send(this, number, Pdu.send(transaction, listOf(number), parts), transaction) }
-                .onFailure { return@confirmMms say(getString(R.string.failed, it.message)) }
+            runCatching { Outbox.send(this, targets(), Pdu.send(transaction, targets(), parts), transaction) }
+                .onFailure { return@withMembers say(getString(R.string.failed, it.message)) }
             if (verdict != null && words != null) Opened.keep(this, words, written, null, verdict, thread = here())
             field.setText("")
-            Drafts.keep(this, number, "")
+            Drafts.keep(this, drafted, "")
             carry(null)
             Toast.makeText(this, getString(R.string.handed_mms, with.name), Toast.LENGTH_SHORT).show()
             list.postDelayed({ if (shown) load() }, 1500)
         }
         if (mode == Mode.PLAIN) return post(written.takeIf { it.isNotBlank() }, Pdu.Part(with.type, with.name, with.bytes), null)
         fun piece(sealed: Provider.Answer.Done) = Pdu.Part(Pgp.TYPE, Pgp.outerName(sealed.bytes), sealed.bytes)
-        if (written.isBlank()) return ask(request(mode, armored = false), with.bytes, ::say) { post(null, piece(it), worth(mode)) }
+        if (written.isBlank()) return ask(request(mode, armored = false, name = with.name), with.bytes, ::say) { post(null, piece(it), worth(mode)) }
         // Two things for foodjis to do, and one presentation of the key for
         // both: it is told of the file first, so that it knows what waits;
         // then asked for the words, which is when it asks for the key; and
         // what the key did for the file is then there to collect.
-        provider.ask(request(mode, armored = false), with.bytes) { first ->
+        provider.ask(request(mode, armored = false, name = with.name), with.bytes) { first ->
             if (isFinishing || isDestroyed) return@ask
             ask(request(mode, armored = true), written.toByteArray(), ::say) { answer ->
                 val armor = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
                     ?: return@ask say(getString(R.string.failed, "what came back is not a PGP message"))
                 if (first is Provider.Answer.Done) return@ask post(armor, piece(first), worth(mode))
-                ask(request(mode, armored = false), with.bytes, ::say) { post(armor, piece(it), worth(mode)) }
+                ask(request(mode, armored = false, name = with.name), with.bytes, ::say) { post(armor, piece(it), worth(mode)) }
             }
         }
-    }
-
-    /** An operator may charge for an MMS: the person who asked to be told is, before one leaves. */
-    private fun confirmMms(go: () -> Unit) {
-        if (Conf.preferMms(this) || !Conf.warnMms(this)) return go()
-        AlertDialog.Builder(this)
-            .setMessage(R.string.mms_ask)
-            .setPositiveButton(R.string.mms_send) { _, _ -> go() }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
     }
 
     private fun carry(what: Media.Attachment?) {
@@ -700,8 +1065,10 @@ class ThreadActivity : AskingActivity() {
             runCatching { startActivityForResult(asked, request) }.onFailure { say(getString(R.string.failed, it.message)) }
         }
         fun offered(asked: Intent) = asked.resolveActivity(packageManager) != null
+        // What leaves as an MMS, MMS being on; a place and pasted words are text.
+        val mms = Conf.mms(this)
         val camera = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
-        if (offered(camera)) {
+        if (mms && offered(camera)) {
             choices += R.string.attach_photo to {
                 val where = Outbox.shot(this)
                 launch(
@@ -712,14 +1079,16 @@ class ThreadActivity : AskingActivity() {
                 )
             }
         }
-        // A short video, filmed here, under the photograph.
-        choices += R.string.attach_video to {
-            launch(Intent(this, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_MOST, (Outbox.heaviest(this) - Outbox.MARGIN).toLong()), VIDEO)
+        if (mms) {
+            // A short video, filmed here, under the photograph.
+            choices += R.string.attach_video to {
+                launch(Intent(this, VideoActivity::class.java).putExtra(VideoActivity.EXTRA_MOST, (Outbox.heaviest(this) - Outbox.MARGIN).toLong()), VIDEO)
+            }
+            choices += R.string.attach_picture to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*"), PICTURE) }
+            choices += R.string.attach_contact to { launch(Intent(Intent.ACTION_PICK, android.provider.ContactsContract.Contacts.CONTENT_URI), CONTACT) }
         }
-        choices += R.string.attach_picture to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*"), PICTURE) }
-        choices += R.string.attach_contact to { launch(Intent(Intent.ACTION_PICK, android.provider.ContactsContract.Contacts.CONTENT_URI), CONTACT) }
         choices += R.string.attach_place to { place() }
-        choices += R.string.attach_file to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), FILE) }
+        if (mms) choices += R.string.attach_file to { launch(Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*"), FILE) }
         choices += R.string.attach_text to { paste() }
         AlertDialog.Builder(this)
             .setItems(choices.map { getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }
@@ -774,7 +1143,9 @@ class ThreadActivity : AskingActivity() {
         thread {
             val made = runCatching {
                 when (request) {
-                    PICTURE, SHOT -> Media.picture(this, from, most)
+                    // A photograph just taken, named when it was; a picture chosen keeps its own name, as a JPEG.
+                    SHOT -> Media.picture(this, from, most, Media.named("photo", System.currentTimeMillis(), "jpg"))
+                    PICTURE -> Media.picture(this, from, most, Media.pictureName(this, from))
                     CONTACT -> Media.contact(this, from, most)
                     else -> Media.file(this, from, most)
                 }
@@ -793,22 +1164,33 @@ class ThreadActivity : AskingActivity() {
      * charge for an MMS, and the person can ask to be told before one leaves.
      */
     private fun leave(text: String, written: String, verdict: Verdict?) {
-        val mms = runCatching { Conf.asMms(Outbox.pieces(this, text), Conf.preferMms(this)) }.getOrDefault(false)
-        fun go() {
+        // To a group, always one MMS to all; else an MMS once longer than one SMS, MMS being on.
+        val pieces = runCatching { Outbox.pieces(this, text) }.getOrDefault(1)
+        val mms = group || Conf.asMms(this, pieces)
+        fun go() = withMembers(listOf(Pdu.Part.text(text))) { parts ->
             runCatching {
                 if (!mms) Outbox.text(this, number, text)
                 else {
                     val transaction = "T" + java.lang.Long.toHexString(System.currentTimeMillis())
-                    Outbox.send(this, number, Pdu.send(transaction, listOf(number), listOf(Pdu.Part.text(text))), transaction)
+                    Outbox.send(this, targets(), Pdu.send(transaction, targets(), parts), transaction)
                 }
-            }.onFailure { return say(getString(R.string.failed, it.message)) }
+            }.onFailure { return@withMembers say(getString(R.string.failed, it.message)) }
             if (verdict != null) Opened.keep(this, text, written, null, verdict, thread = here())
             field.setText("")
-            Drafts.keep(this, number, "")
+            Drafts.keep(this, drafted, "")
             // The phone writes what was sent a moment after taking it.
             list.postDelayed({ if (shown) load() }, 1500)
         }
-        if (mms) confirmMms(::go) else go()
+        // Many SMS: asked first.
+        if (!mms && pieces > Conf.MANY_SMS) {
+            AlertDialog.Builder(this)
+                .setMessage(getString(R.string.many_sms, pieces))
+                .setPositiveButton(R.string.group_over_send) { _, _ -> go() }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        } else {
+            go()
+        }
     }
 
     /**
@@ -847,8 +1229,8 @@ class ThreadActivity : AskingActivity() {
      * A message pressed, and the closed ones near it, opened by one use of the
      * key ([Unlocking.open]); with them, as many not read yet in the other
      * conversations as the person set, kept for when theirs is opened. What
-     * opens here is read; what foodjis refuses outright, before the person's
-     * eyes, is read too.
+     * opens here is read; what foodjis says is locked for somebody else, before
+     * the person's eyes, is read too: nothing will ever open it here.
      */
     private fun openAll(chosen: Store.Line, near: List<Store.Line>) {
         val elsewhere = Conf.unreadAll(this)
@@ -863,7 +1245,7 @@ class ThreadActivity : AskingActivity() {
                 val why: (String) -> Unit = { words -> if (first is Unlocking.Job.Words) closed(first.armor, words) else say(words) }
                 Unlocking.open(
                     provider, first, rest,
-                    ask = { input, then -> ask(Intent(Provider.DECRYPT_VERIFY), input, why, refused = { read(chosen) }, done = then) },
+                    ask = { input, then -> ask(Intent(Provider.DECRYPT_VERIFY), input, why, notForUs = { read(chosen) }, done = then) },
                     alive = { !isFinishing && !isDestroyed },
                 ) { job, answer ->
                     if (job.line.thread != here) return@open Unlocking.keep(this, job, answer)
@@ -944,7 +1326,7 @@ class ThreadActivity : AskingActivity() {
         if (request == VIDEO) {
             if (outcome == RESULT_OK) {
                 val filmed = VideoActivity.file(this)
-                val name = data?.getStringExtra(VideoActivity.EXTRA_NAME) ?: Media.named("v", System.currentTimeMillis(), "3gp")
+                val name = data?.getStringExtra(VideoActivity.EXTRA_NAME) ?: Media.named("video", System.currentTimeMillis(), "3gp")
                 runCatching { filmed.readBytes() }.getOrNull()?.let { carry(Media.Attachment(data?.getStringExtra(VideoActivity.EXTRA_TYPE) ?: "video/3gpp", name, it, Media.lasting(it))) }
                 filmed.delete()
             }
@@ -1329,6 +1711,20 @@ class ThreadActivity : AskingActivity() {
         bubbles.notifyDataSetChanged()
         // Opened onto another message: signed only, it is read at once, as any signed message is; locked, a press opens it.
         verifySigned()
+        // A group's: whoever sent that message, not the conversation's first number -- once a member, a page.
+        if (group) {
+            if (!offer || signature?.result !in VALID) return
+            val keyId = signature!!.keyId
+            val line = lines.firstOrNull { armorOf(it) == armor } ?: return
+            thread {
+                val from = line.address ?: senders[line.id] ?: Store.addressOf(this, line) ?: return@thread
+                val one = memberOf(from) ?: return@thread
+                if (one.person?.fingerprint != null || !offeredTo.add(Phone.key(from))) return@thread
+                val whose = foodjis.signer(keyId) ?: return@thread
+                runOnUiThread { if (!isFinishing && !isDestroyed) offerFor(from, whose.fingerprint) }
+            }
+            return
+        }
         // Signed, from a number that means no certificate yet: it may well mean the signer's.
         // Once a page: several signed messages from the same unknown number ask the same question.
         if (offer && !offered && person?.fingerprint == null && signature?.result in VALID) {
@@ -1532,7 +1928,7 @@ class ThreadActivity : AskingActivity() {
                     ?.let { append("  ✍ ").append(it) }
             }
             val pad = Look.dp(context, 10)
-            val text = Look.words(context, if (closed) words else marked(words), size = 16f, muted = closed)
+            val text = Look.words(context, if (closed) words else marked(words, at), size = 16f, muted = closed)
             val bubble = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 background = Look.rounded(Look.pale(verdict), Look.dp(context, 14))
@@ -1546,10 +1942,12 @@ class ThreadActivity : AskingActivity() {
                             orientation = LinearLayout.HORIZONTAL
                             gravity = Gravity.CENTER_VERTICAL
                             addView(text)
-                            for (id in Pgp.recipients(armor!!)) {
-                                addView(View(context), LinearLayout.LayoutParams(Look.dp(context, 4), 1))
-                                addView(Look.face(context, 22, null, meant[id]?.face))
-                            }
+                            // The faces after the words, going on to the next line on the right when the bubble is full.
+                            val faces = Look.flow(context, Look.dp(context, 4))
+                            for (id in Pgp.recipients(armor!!)) faces.addView(Look.face(context, 22, null, meant[id]?.face))
+                            removeView(text)
+                            faces.addView(text, 0)
+                            addView(faces)
                         },
                     )
                 } else if (words.isNotEmpty() || line.pieces.isEmpty()) {
@@ -1558,7 +1956,21 @@ class ThreadActivity : AskingActivity() {
                     text.setOnLongClickListener { about(at, words = true) ; true }
                     addView(text)
                 }
-                for (piece in line.pieces) addView(shownPiece(piece, at))
+                // An encrypted group's members part is for foomms, not for reading.
+                for (piece in line.pieces.filterNot { Members.isPart(it.name) }) addView(shownPiece(piece, at))
+                // Sent to each of several at once: said, and pressed, whom to. Received as one of several: who else.
+                if (!line.incoming || line.mms) {
+                    val with = sentWith(line)
+                    if (with != null && with.size > 1) {
+                        val said = getString(R.string.sent_to_each, with.size)
+                        addView(
+                            Look.words(context, said, size = 12f, muted = true).apply {
+                                setPadding(0, pad / 3, 0, 0)
+                                setOnClickListener { sentToEach(with) }
+                            },
+                        )
+                    }
+                }
                 // Its text shows the details; beside it, the rest of the line gives the menu its long press gives.
                 // Told by where the finger fell rather than by a row of its own: a row around it would size the bubble.
                 addView(
@@ -1597,6 +2009,19 @@ class ThreadActivity : AskingActivity() {
                     marginStart = pad / 3 ; marginEnd = pad / 3
                 }
                 addView(mark, stripe)
+                // In a group, who wrote it: their face beside what they wrote, framed by what their certificate is worth.
+                if (group && line.incoming) {
+                    val who = memberOf(line.address ?: senders[line.id])
+                    addView(
+                        Look.face(context, 32, null, who?.face, who?.card?.validity, framable = true, seed = who?.seed ?: (line.address ?: senders[line.id])?.let(Phone::key)).apply {
+                            // Pressed, who it is.
+                            setOnClickListener { Toast.makeText(context, who?.let { if (it.name != it.number) "${it.name} — ${it.number}" else it.number } ?: (line.address ?: senders[line.id]).orEmpty(), Toast.LENGTH_SHORT).show() }
+                        },
+                        LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                            gravity = Gravity.TOP ; marginEnd = pad / 2
+                        },
+                    )
+                }
                 addView(bubble, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
             }
         }
@@ -1663,129 +2088,31 @@ class ThreadActivity : AskingActivity() {
                 when {
                     foodjis.shut -> say(getString(R.string.foodjis_shut))
                     whose == null -> say(getString(R.string.certificate_not_held))
-                    lacks || stale.isNotEmpty() || differs?.face != null || differs?.notes?.isNotEmpty() == true -> offer(whose, stale)
+                    lacks || stale.isNotEmpty() || differs?.face != null || differs?.notes?.isNotEmpty() == true || differs?.name != null -> offer(whose, stale)
                     else -> Toast.makeText(this, R.string.cert_refreshed, Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
 
-    /**
-     * Nothing is written in the address book before the person has seen what
-     * would be: the card foodjis makes of the certificate, a line each, and
-     * the [stale] lines an earlier one wrote, which go.
-     */
-    private fun offer(whose: Foodjis.Cert, stale: List<Book.Stale> = emptyList()) {
-        thread {
-            val card = foodjis.vcard(whose.fingerprint)
-            // Where the contact has its own face or note, and the certificate another: the person chooses.
-            val differs = card?.takeIf { checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED }
-                ?.let { Book.differs(this, number, it) } ?: Book.Differs(null, emptyList())
-            runOnUiThread {
-                if (isFinishing || isDestroyed) return@runOnUiThread
-                if (card == null) return@runOnUiThread say(getString(R.string.no_card, whose.name))
-                // A face or a note the person chooses below is not also in the list of what is written.
-                val told = card.told(withNotes = differs.notes.isEmpty()).joinToString("\n") { "•  $it" } +
-                    (if (card.photo != null && differs.face == null) "\n•  " + getString(R.string.card_photo) else "") +
-                    "\n•  🔑 " + (card.key ?: Fingerprint.address(whose.fingerprint))
-                val pad = Look.dp(this, 20)
-                var face = Book.Pick.CONTACT
-                var note = Book.Pick.CONTACT
-                val column = LinearLayout(this).apply {
-                    orientation = LinearLayout.VERTICAL
-                    setPadding(pad, pad / 2, pad, 0)
-                    addView(
-                        Look.words(
-                            context,
-                            android.text.SpannableStringBuilder(getString(R.string.tie_ask_before)).append(" ")
-                                // Anything but certified, in bold: what the person is about to write in their address book.
-                                .append(
-                                    Look.standing(context, whose.validity).let { said ->
-                                        if (whose.certified) said
-                                        else android.text.SpannableString(said).apply { setSpan(android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, length, 0) }
-                                    },
-                                ).append(getString(R.string.tie_ask_after)).append("\n\n").append(told)
-                                .apply { if (stale.isNotEmpty()) append("\n\n").append(getString(R.string.tie_ask_removed)).append("\n").append(stale.joinToString("\n") { "•  ${it.value}" }) },
-                            size = 15f,
-                        ),
-                    )
-                    // The two faces side by side, the contact's on the left: the one pressed is kept.
-                    val theirs = card.photo?.let { Media.thumbnail(it, Media.FACE) }
-                    if (differs.face != null && theirs != null) {
-                        addView(Look.words(context, getString(R.string.choose_face), size = 15f).apply { setPadding(0, pad, 0, pad / 3) })
-                        val faces = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL ; gravity = Gravity.CENTER }
-                        val frames = ArrayList<View>()
-                        fun choice(picture: Bitmap, said: Int, pick: Book.Pick) = LinearLayout(context).apply {
-                            orientation = LinearLayout.VERTICAL
-                            gravity = Gravity.CENTER_HORIZONTAL
-                            setPadding(pad / 3, pad / 3, pad / 3, pad / 3)
-                            addView(
-                                android.widget.ImageView(context).apply { setImageBitmap(picture) ; scaleType = android.widget.ImageView.ScaleType.CENTER_CROP },
-                                LinearLayout.LayoutParams(Look.dp(context, 96), Look.dp(context, 96)),
-                            )
-                            addView(Look.words(context, getString(said), size = 13f, muted = true))
-                            setOnClickListener { face = pick ; frames.forEach { it.background = null } ; background = Look.rounded(Look.ORANGE, Look.dp(context, 8)) }
-                        }.also { frames += it }
-                        faces.addView(choice(differs.face, R.string.face_contact, Book.Pick.CONTACT).apply { background = Look.rounded(Look.ORANGE, Look.dp(context, 8)) })
-                        faces.addView(View(context), LinearLayout.LayoutParams(pad, 1))
-                        faces.addView(choice(theirs, R.string.face_certificate, Book.Pick.CERTIFICATE))
-                        addView(faces)
-                    }
-                    // The contact's notes or the certificate's, each note in a frame of its own under its choice, cut when
-                    // long: one choice or the other, never both, so that notes do not pile up in the contact.
-                    if (differs.notes.isNotEmpty()) {
-                        addView(Look.words(context, getString(R.string.choose_note), size = 15f).apply { setPadding(0, pad, 0, pad / 3) })
-                        fun cut(text: String) = if (text.length <= NOTE_SHOWN) text else "${text.take(NOTE_SHOWN).trimEnd()}… " + getString(R.string.note_size, text.length)
-                        val picks = listOf(
-                            Triple(Book.Pick.CONTACT, if (differs.notes.size > 1) R.string.note_contact_many else R.string.note_contact, differs.notes),
-                            Triple(Book.Pick.CERTIFICATE, if (card.notes.size > 1) R.string.note_certificate_many else R.string.note_certificate, card.notes),
-                        )
-                        addView(
-                            android.widget.RadioGroup(context).apply {
-                                for ((at, pick) in picks.withIndex()) {
-                                    addView(android.widget.RadioButton(context).apply { id = at + 1 ; text = getString(pick.second) ; textSize = 14f ; setTextColor(Look.INK) })
-                                    // Pressed, a note chooses as its button does.
-                                    for (one in pick.third) {
-                                        addView(
-                                            Look.words(context, cut(one), size = 14f).apply {
-                                                setPadding(pad / 2, pad / 3, pad / 2, pad / 3)
-                                                background = Look.framed(context)
-                                                setOnClickListener { check(at + 1) }
-                                            },
-                                            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                                                .apply { marginStart = Look.dp(context, 32) ; bottomMargin = pad / 3 },
-                                        )
-                                    }
-                                }
-                                check(1)
-                                setOnCheckedChangeListener { _, id -> note = picks[id - 1].first }
-                            },
-                        )
-                    }
-                }
-                AlertDialog.Builder(this)
-                    .setTitle(getString(R.string.tie_ask, number, whose.name))
-                    .setView(android.widget.ScrollView(this).apply { addView(column) })
-                    .setPositiveButton(R.string.tie_write) { _, _ -> write(whose, card, stale, face, note) }
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show()
-            }
-        }
-    }
+    /** What would be written in the contact of this number, shown before it is ([Tying]). */
+    private fun offer(whose: Foodjis.Cert, stale: List<Book.Stale> = emptyList()) =
+        Tying.offer(this, number, whose, stale) { card, face, note, name -> write(whose, card, stale, face, note, name) }
 
     private var waiting: (() -> Unit)? = null
 
     private fun write(
         whose: Foodjis.Cert, vcard: Card, stale: List<Book.Stale> = emptyList(),
-        face: Book.Pick = Book.Pick.CONTACT, note: Book.Pick = Book.Pick.CONTACT,
+        face: Book.Pick = Book.Pick.CONTACT, note: Book.Pick = Book.Pick.CONTACT, name: Book.Pick = Book.Pick.CONTACT,
+        to: String = number,
     ) {
         if (NEEDED_TO_WRITE.any { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }) {
-            waiting = { write(whose, vcard, stale, face, note) }
+            waiting = { write(whose, vcard, stale, face, note, name, to) }
             return requestPermissions(NEEDED_TO_WRITE, 2)
         }
         thread {
             val outcome = runCatching {
-                Book.tie(this, number, vcard, vcard.key?.takeIf { Fingerprint.of(it) == whose.fingerprint } ?: Fingerprint.address(whose.fingerprint), stale, face, note)
+                Book.tie(this, to, vcard, vcard.key?.takeIf { Fingerprint.of(it) == whose.fingerprint } ?: Fingerprint.address(whose.fingerprint), stale, face, note, name = name)
                 getString(R.string.tied, whose.name)
             }.getOrElse { getString(R.string.failed, it.message) }
             runOnUiThread {
@@ -1820,6 +2147,11 @@ class ThreadActivity : AskingActivity() {
 
         /** The conversation, when the page is opened from the list of them. */
         const val EXTRA_THREAD = "thread"
+        /** Several conversations shown as one: a group's, with this phone among its numbers and without. */
+        const val EXTRA_THREADS = "threads"
+        /** A group's MMS filed elsewhere, and its members: one heard only from the headers of received MMS. */
+        const val EXTRA_MESSAGES = "messages"
+        const val EXTRA_MEMBERS = "members"
 
         /** Opened for something to be done at once: say whose certificate the number means, or read it again from foodjis. */
         const val EXTRA_ASK = "ask"
@@ -1839,8 +2171,6 @@ class ThreadActivity : AskingActivity() {
         private const val SAVE_PIECE = 12
         private const val VIDEO = 13
 
-        /** How much of a note is shown when the person chooses between two. */
-        private const val NOTE_SHOWN = 160
 
         /** How soon a picture pressed again after growing gives its menu, in milliseconds. */
         private const val AGAIN = 300L

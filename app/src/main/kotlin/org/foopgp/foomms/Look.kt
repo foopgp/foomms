@@ -151,32 +151,27 @@ object Look {
      * red revoked or broken.
      */
     fun standing(context: Context, validity: String): CharSequence {
-        val (word, ground, ink) = when (validity) {
-            "certified" -> Triple(R.string.standing_certified, Color.rgb(0x00, 0xD3, 0x90), Color.rgb(0x00, 0x4C, 0x39))
-            "uncertified" -> Triple(R.string.standing_uncertified, Color.rgb(0xFA, 0xCC, 0x15), Color.BLACK)
-            "expired" -> Triple(R.string.standing_expired, Color.rgb(0xF9, 0x73, 0x16), Color.WHITE)
-            "revoked" -> Triple(R.string.standing_revoked, Color.rgb(0xFF, 0x62, 0x7D), Color.rgb(0x4D, 0x02, 0x18))
-            else -> Triple(R.string.standing_broken, Color.rgb(0xDB, 0x3A, 0x60), Color.WHITE)
+        val (word, ink) = when (validity) {
+            "certified" -> R.string.standing_certified to Color.rgb(0x00, 0x4C, 0x39)
+            "uncertified" -> R.string.standing_uncertified to Color.BLACK
+            "expired" -> R.string.standing_expired to Color.WHITE
+            "revoked" -> R.string.standing_revoked to Color.rgb(0x4D, 0x02, 0x18)
+            else -> R.string.standing_broken to Color.WHITE
         }
-        // On a ground with rounded corners, as the letters of the list are; the ground leaves room each side.
-        return android.text.SpannableString(context.getString(word)).apply { setSpan(Badge(ground, ink), 0, length, 0) }
+        // On a ground with rounded corners, the colour that frames the faces; the ground leaves room each side.
+        return android.text.SpannableString(context.getString(word)).apply { setSpan(Badge(standingColour(validity), ink), 0, length, 0) }
     }
 
     /**
-     * A certificate's standing as the contacts page of foodjis marks it: a
-     * letter on its colour -- C certified, U not certified, E expired, R
-     * revoked, B broken. The letter carries the meaning, for whoever does not
-     * tell the colours apart.
+     * The colour foodjis gives a certificate's standing, by the word it
+     * says it with: what frames the face of whoever the number means.
      */
-    fun badge(validity: String): CharSequence {
-        val (letter, ground, ink) = when (validity) {
-            "certified" -> Triple("C", Color.rgb(0x00, 0xD3, 0x90), Color.rgb(0x00, 0x4C, 0x39))
-            "uncertified" -> Triple("U", Color.rgb(0xFA, 0xCC, 0x15), Color.BLACK)
-            "expired" -> Triple("E", Color.rgb(0xF9, 0x73, 0x16), Color.WHITE)
-            "revoked" -> Triple("R", Color.rgb(0xFF, 0x62, 0x7D), Color.rgb(0x4D, 0x02, 0x18))
-            else -> Triple("B", Color.rgb(0xDB, 0x3A, 0x60), Color.WHITE)
-        }
-        return android.text.SpannableString(letter).apply { setSpan(Badge(ground, ink), 0, length, 0) }
+    fun standingColour(validity: String): Int = when (validity) {
+        "certified" -> Color.rgb(0x00, 0xD3, 0x90)
+        "uncertified" -> Color.rgb(0xFA, 0xCC, 0x15)
+        "expired" -> Color.rgb(0xF9, 0x73, 0x16)
+        "revoked" -> Color.rgb(0xFF, 0x62, 0x7D)
+        else -> Color.rgb(0xDB, 0x3A, 0x60)
     }
 
     /** A letter on a coloured ground with rounded corners, sitting on the line like the text beside it. */
@@ -345,11 +340,24 @@ object Look {
      * A face: the contact's own picture, else the one the certificate carries,
      * else the mark foodjis shows where there is none.
      */
-    fun face(context: Context, side: Int, photo: Uri?, avatar: Bitmap?): View {
+    /**
+     * [framable]: room is kept around the picture for a frame, whether one is drawn or not, so that a list
+     * of faces stays aligned and every picture keeps its [side].
+     */
+    /** [seed]: with no picture, the face of pixels it makes ([pixels]); [lineDp], the frame's width. */
+    fun face(
+        context: Context, side: Int, photo: Uri?, avatar: Bitmap?, standing: String? = null, framable: Boolean = false,
+        seed: String? = null, lineDp: Int = 4,
+    ): View {
         val px = dp(context, side)
         val inner: View = when {
             photo != null -> ImageView(context).apply { setImageURI(photo) ; scaleType = ImageView.ScaleType.CENTER_CROP }
             avatar != null -> ImageView(context).apply { setImageBitmap(avatar) ; scaleType = ImageView.ScaleType.CENTER_CROP }
+            // Its pixels kept sharp, not blurred as a photo is when it grows.
+            seed != null -> ImageView(context).apply {
+                setImageDrawable(android.graphics.drawable.BitmapDrawable(context.resources, pixels(seed)).apply { isFilterBitmap = false })
+                scaleType = ImageView.ScaleType.FIT_XY
+            }
             else -> TextView(context).apply {
                 text = "👤"
                 setTextSize(TypedValue.COMPLEX_UNIT_DIP, side * 0.5f)
@@ -357,14 +365,194 @@ object Look {
                 gravity = Gravity.CENTER
             }
         }
+        val radius = px / 5f
+        // Tied to a certificate, the face is framed in the colour of its standing: the line is added around the
+        // picture, which keeps its whole size, and the picture's corners follow the line's inner edge.
+        val line = if (standing != null || framable) dp(context, lineDp) else 0
+        inner.outlineProvider = object : ViewOutlineProvider() {
+            override fun getOutline(view: View, outline: Outline) = outline.setRoundRect(0, 0, view.width, view.height, radius)
+        }
+        inner.clipToOutline = true
+        inner.background = rounded(HOLLOW, px / 5)
         return FrameLayout(context).apply {
-            layoutParams = LinearLayout.LayoutParams(px, px)
-            background = rounded(HOLLOW, px / 5)
-            outlineProvider = object : ViewOutlineProvider() {
-                override fun getOutline(view: View, outline: Outline) = outline.setRoundRect(0, 0, view.width, view.height, px / 5f)
-            }
-            clipToOutline = true
+            layoutParams = LinearLayout.LayoutParams(px + 2 * line, px + 2 * line)
+            // The line is drawn half its width inside its rectangle: rounded on radius + line/2, its inner edge
+            // falls exactly on the picture's corners, and its outer edge rounds on radius + line.
+            standing?.let { background = GradientDrawable().apply { cornerRadius = radius + line / 2f ; setStroke(line, standingColour(it)) } }
+            setPadding(line, line, line, line)
             addView(inner, FrameLayout.LayoutParams(px, px))
+        }
+    }
+
+    /**
+     * A choice and its value on one line, the value on the right; when both
+     * do not fit, the value on the line below, still on the right. A name is
+     * never cut by the end of a line.
+     */
+    fun beside(context: Context, label: View, value: View): android.view.ViewGroup = object : android.view.ViewGroup(context) {
+        private var under = false
+
+        init { addView(label) ; addView(value) }
+
+        override fun onMeasure(widthSpec: Int, heightSpec: Int) {
+            val width = MeasureSpec.getSize(widthSpec)
+            val free = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            val most = MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST)
+            label.measure(most, free)
+            value.measure(free, free)
+            under = label.measuredWidth + dp(context, 8) + value.measuredWidth > width
+            if (under) value.measure(most, free)
+            val height = if (under) label.measuredHeight + value.measuredHeight else maxOf(label.measuredHeight, value.measuredHeight)
+            setMeasuredDimension(width, height)
+        }
+
+        override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+            val width = right - left
+            if (under) {
+                label.layout(0, 0, label.measuredWidth, label.measuredHeight)
+                value.layout(width - value.measuredWidth, label.measuredHeight, width, label.measuredHeight + value.measuredHeight)
+            } else {
+                val middle = measuredHeight / 2
+                label.layout(0, middle - label.measuredHeight / 2, label.measuredWidth, middle + (label.measuredHeight + 1) / 2)
+                value.layout(width - value.measuredWidth, middle - value.measuredHeight / 2, width, middle + (value.measuredHeight + 1) / 2)
+            }
+        }
+    }
+
+    /**
+     * Views one after the other on a line, going on to the next when the
+     * line is full; every line kept to the right but for the first view,
+     * on the left: words, then faces in columns, that never cross the edge.
+     */
+    fun flow(context: Context, gap: Int): android.view.ViewGroup = object : android.view.ViewGroup(context) {
+        private val lines = ArrayList<List<View>>()
+
+        override fun onMeasure(widthSpec: Int, heightSpec: Int) {
+            val most = MeasureSpec.getSize(widthSpec).takeIf { MeasureSpec.getMode(widthSpec) != MeasureSpec.UNSPECIFIED } ?: Int.MAX_VALUE
+            lines.clear()
+            var line = ArrayList<View>()
+            var width = 0
+            var widest = 0
+            var height = 0
+            fun close() { if (line.isNotEmpty()) { lines += line ; height += line.maxOf { it.measuredHeight } } ; line = ArrayList() ; width = 0 }
+            for (at in 0 until childCount) {
+                val one = getChildAt(at)
+                one.measure(MeasureSpec.makeMeasureSpec(most, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED))
+                val need = one.measuredWidth + if (line.isEmpty()) 0 else gap
+                if (line.isNotEmpty() && width + need > most) close()
+                width += if (line.isEmpty()) one.measuredWidth else need
+                line += one
+                widest = maxOf(widest, width)
+            }
+            close()
+            // Several lines: the whole width, for their right edges to meet.
+            setMeasuredDimension(if (lines.size > 1 && most != Int.MAX_VALUE) most else widest, height)
+        }
+
+        override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+            var y = 0
+            for ((at, line) in lines.withIndex()) {
+                val tall = line.maxOf { it.measuredHeight }
+                // From the right edge leftwards; the very first view alone at the left.
+                var x = right - left
+                for ((rank, one) in line.withIndex().reversed()) {
+                    val down = y + (tall - one.measuredHeight) / 2
+                    val from = if (at == 0 && rank == 0) 0 else x - one.measuredWidth
+                    one.layout(from, down, from + one.measuredWidth, down + one.measuredHeight)
+                    x = from - gap
+                }
+                y += tall
+            }
+        }
+    }
+
+    /** One of a group, as a small face shows them: their picture, what their certificate is worth, and what pixels would be made from. */
+    class Mini(val face: Bitmap?, val standing: String?, val seed: String?)
+
+    /**
+     * A group at a glance, in a square of [side]: three by three small
+     * faces, in reading order -- beyond nine, eight and how many more --,
+     * each framed by what its
+     * certificate is worth. The places a smaller group leaves stay empty:
+     * how full the square is says how many it is.
+     */
+    fun crowd(context: Context, side: Int, minis: List<Mini>): View {
+        val line = 1
+        val cell = (side - 6 * line) / 3
+        val pad = dp(context, 3)
+        // Beyond nine, eight faces and how many more.
+        val shown: List<Mini?> = if (minis.size <= 9) minis else minis.take(8) + listOf(null)
+        val rows = (shown.size + 2) / 3
+        return LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            // The rows taken, in the middle of the square: the order of reading kept, the square balanced.
+            gravity = Gravity.CENTER_VERTICAL
+            // In a small frame of its own, faint: one square, not nine faces adrift.
+            background = GradientDrawable().apply {
+                setStroke(dp(context, 1), (MUTED and 0x00FFFFFF) or (0x44 shl 24))
+                cornerRadius = dp(context, 6).toFloat()
+            }
+            setPadding(pad, pad, pad, pad)
+            layoutParams = LinearLayout.LayoutParams(dp(context, side) + 2 * pad, dp(context, side) + 2 * pad)
+            for (row in 0 until rows) {
+                addView(
+                    LinearLayout(context).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        for (column in 0 until 3) {
+                            val at = row * 3 + column
+                            if (at >= shown.size) break
+                            val one = shown[at]
+                            addView(
+                                if (one != null) face(context, cell, null, one.face, one.standing, framable = true, seed = one.seed, lineDp = line)
+                                else TextView(context).apply {
+                                    text = "+${minis.size - 8}"
+                                    gravity = Gravity.CENTER
+                                    setTextColor(MUTED)
+                                    setTextSize(TypedValue.COMPLEX_UNIT_DIP, cell * 0.45f)
+                                    layoutParams = LinearLayout.LayoutParams(dp(context, cell + 2 * line), dp(context, cell + 2 * line))
+                                },
+                            )
+                        }
+                    },
+                )
+            }
+        }
+    }
+
+    /** What a face of pixels is made from: a certificate's fingerprint, else the number. */
+    fun seed(fingerprint: String?, number: String?): String? = fingerprint ?: number?.let(Phone::key)
+
+    private val drawn = HashMap<String, Bitmap>()
+
+    /**
+     * A face for whoever has no picture, made of pixels from [seed]: five by
+     * five, the left mirrored on the right, as forges draw them. The same
+     * seed, the same face, wherever it is shown. Its hue is kept away from
+     * those of a certificate's frame -- green, yellow, orange, red -- and
+     * from the violet of what is signed: cyan to indigo, or magenta.
+     */
+    fun pixels(seed: String): Bitmap = synchronized(drawn) {
+        drawn.getOrPut(seed) {
+            val hash = java.security.MessageDigest.getInstance("SHA-256").digest(seed.toByteArray())
+            fun byte(at: Int) = hash[at].toInt() and 0xFF
+            val hue = if (byte(0) % 4 == 3) 300f + byte(1) % 25 else 180f + byte(1) % 70
+            val ink = Color.HSVToColor(floatArrayOf(hue, 0.55f + byte(2) % 30 / 100f, 0.62f + byte(3) % 25 / 100f))
+            val cell = 8
+            val margin = cell / 2
+            val bitmap = Bitmap.createBitmap(5 * cell + 2 * margin, 5 * cell + 2 * margin, Bitmap.Config.ARGB_8888)
+            bitmap.eraseColor(Color.rgb(0xEE, 0xEE, 0xF2))
+            val canvas = android.graphics.Canvas(bitmap)
+            val paint = android.graphics.Paint().apply { color = ink }
+            for (row in 0 until 5) for (column in 0 until 3) {
+                if (byte(4 + row * 3 + column) % 2 == 0) continue
+                for (x in setOf(column, 4 - column)) {
+                    canvas.drawRect(
+                        (margin + x * cell).toFloat(), (margin + row * cell).toFloat(),
+                        (margin + (x + 1) * cell).toFloat(), (margin + (row + 1) * cell).toFloat(), paint,
+                    )
+                }
+            }
+            bitmap
         }
     }
 }

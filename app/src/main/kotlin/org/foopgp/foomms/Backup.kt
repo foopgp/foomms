@@ -26,12 +26,18 @@ object Backup {
     /** Write every message, or those of one conversation, to [out]. */
     fun write(context: Context, out: OutputStream, thread: Long?): Done {
         val resolver = context.contentResolver
-        val within = thread?.let { "thread_id = $it" }
+        // One person's conversation: with what was sent to them as one of several, filed in a conversation of all of
+        // them. Put back, each goes to the person's conversation: which others it went to is not kept, and need not be.
+        val alsoSent = thread?.let { Store.members(context, it).singleOrNull() }?.let { Store.sentToEach(context, it) }.orEmpty()
+        fun within(mms: Boolean): String? = thread?.let { mine ->
+            val also = alsoSent.filter { it.mms == mms }.map { it.id }
+            "thread_id = $mine" + if (also.isEmpty()) "" else " OR _id IN (${also.joinToString(",")})"
+        }
         val xml = Xml.newSerializer()
         xml.setOutput(out, "UTF-8")
         xml.startDocument("UTF-8", true)
-        val sms = resolver.query(Uri.parse("content://sms"), null, within, null, "date ASC")
-        val mms = resolver.query(Uri.parse("content://mms"), null, within, null, "date ASC")
+        val sms = resolver.query(Uri.parse("content://sms"), null, within(false), null, "date ASC")
+        val mms = resolver.query(Uri.parse("content://mms"), null, within(true), null, "date ASC")
         var smsCount = 0
         var mmsCount = 0
         xml.startTag(null, "smses")

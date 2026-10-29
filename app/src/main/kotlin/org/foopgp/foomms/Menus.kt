@@ -4,14 +4,10 @@ import android.app.Activity
 import android.content.Intent
 
 /**
- * Where the title bars lead -- the search, the configuration -- and the
+ * Where the title bars lead -- the configuration -- and the
  * writing of a new message. No page has a menu: what it offers is in its bar.
  */
 object Menus {
-
-    /** Searching every conversation, or only the one with [number]. */
-    fun search(activity: Activity, number: String? = null) =
-        activity.startActivity(Intent(activity, SearchActivity::class.java).putExtra(SearchActivity.EXTRA_NUMBER, number))
 
     fun configure(activity: Activity) = activity.startActivity(Intent(activity, ConfActivity::class.java))
 

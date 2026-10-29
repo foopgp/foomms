@@ -51,6 +51,18 @@ object Book {
         }
     }.getOrNull()
 
+    /** The contact [contact] when it is given -- one's own --, else whoever [number] finds. */
+    private fun known(context: Context, number: String, contact: Long?): Person? =
+        if (contact != null) person(context, contact) else who(context, number)
+
+    /** A contact by its number in the address book, with its name, picture and certificate. */
+    fun person(context: Context, contact: Long): Person? = runCatching {
+        context.contentResolver.query(
+            android.content.ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contact),
+            arrayOf(ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts.PHOTO_THUMBNAIL_URI), null, null, null,
+        )?.use { rows -> if (rows.moveToFirst()) Person(contact, rows.getString(0).orEmpty(), rows.getString(1)?.let(Uri::parse), fingerprint(context, contact)) else null }
+    }.getOrNull()
+
     /** Counts each writing in the address book made from here: what was read of it before is to be read again. */
     @Volatile var written = 0
         private set
@@ -59,7 +71,7 @@ object Book {
     fun untie(context: Context, contact: Long) {
         for (old in values(context, contact, Website.CONTENT_ITEM_TYPE, Website.URL).filter { Fingerprint.of(it) != null }) {
             context.contentResolver.delete(
-                Data.CONTENT_URI, "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ? AND ${Website.URL} = ?",
+                dataOf(contact), "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ? AND ${Website.URL} = ?",
                 arrayOf(contact.toString(), Website.CONTENT_ITEM_TYPE, old),
             )
         }
@@ -83,13 +95,102 @@ object Book {
         found
     }.getOrDefault(emptyList())
 
+    /** One's own contact, as the configuration shows it: its name, picture, numbers and certificate. */
+    class Own(val contact: Long, val key: String, val name: String, val photo: Uri?, val numbers: List<String>, val fingerprint: String?)
+
+    /** The contact a lookup key names, whatever its number in the address book has become since. */
+    fun own(context: Context, key: String): Own? = runCatching {
+        // The phone's own profile goes by a key of its own, and lives apart from the address book.
+        val asked = if (key == PROFILE) ContactsContract.Profile.CONTENT_URI else Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI, key)
+        context.contentResolver.query(
+            asked, arrayOf(ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts.PHOTO_THUMBNAIL_URI, ContactsContract.Contacts.LOOKUP_KEY),
+            null, null, null,
+        )?.use { rows ->
+            if (!rows.moveToFirst()) return@use null
+            val contact = rows.getLong(0)
+            val numbers = ArrayList<String>()
+            for (one in values(context, contact, PhoneRow.CONTENT_ITEM_TYPE, PhoneRow.NUMBER)) if (numbers.none { Phone.same(it, one) || it == one }) numbers += one
+            Own(contact, rows.getString(3) ?: key, rows.getString(1).orEmpty(), rows.getString(2)?.let(Uri::parse), numbers, fingerprint(context, contact))
+        }
+    }.getOrNull()
+
+    /** The lookup key Android gives the phone's own profile -- "Me", "My profile" in the contacts applications. */
+    const val PROFILE = "profile"
+
+    /** The phone's own profile, when its contacts application has one and Android shows it: its name, picture, numbers. */
+    fun profile(context: Context): Own? = own(context, PROFILE)
+
+    /**
+     * Every contact that carries one of [numbers], the phone's own profile
+     * among them when Android shows it: those one's own contact may be. In
+     * the order of the numbers, each contact once.
+     */
+    fun carrying(context: Context, numbers: List<String>): List<Own> {
+        val keys = LinkedHashSet<String>()
+        val profile = profile(context)
+        for (number in numbers) {
+            if (profile != null && profile.numbers.any { Phone.same(it, number) }) keys += profile.key
+            runCatching {
+                context.contentResolver.query(
+                    Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number)),
+                    arrayOf(ContactsContract.PhoneLookup.LOOKUP_KEY), null, null, null,
+                )?.use { rows -> while (rows.moveToNext()) rows.getString(0)?.let { keys += it } }
+            }
+        }
+        return keys.mapNotNull { own(context, it) }
+    }
+
+    /** The lookup key of a contact handed back by the address book: picked, or made. */
+    fun keyOf(context: Context, contact: Uri): String? = runCatching {
+        context.contentResolver.query(contact, arrayOf(ContactsContract.Contacts.LOOKUP_KEY), null, null, null)?.use { rows ->
+            if (rows.moveToFirst()) rows.getString(0) else null
+        }
+    }.getOrNull()
+
+    /** The numbers of the contact tied to the certificate [fingerprint], mobile ones first; none when no contact is. */
+    fun numbersOf(context: Context, fingerprint: String): List<String> = tiedTo(context, fingerprint)?.let { own(context, it) }?.numbers.orEmpty()
+
+    /** A number written in a contact where it has none like it: what a certificate's own member list says, certified. */
+    fun addNumber(context: Context, contact: Long, number: String) {
+        if (values(context, contact, PhoneRow.CONTENT_ITEM_TYPE, PhoneRow.NUMBER).any { Phone.same(it, number) }) return
+        val raw = rawOf(context, contact) ?: return
+        context.contentResolver.insert(
+            Data.CONTENT_URI,
+            ContentValues().apply {
+                put(Data.RAW_CONTACT_ID, raw) ; put(Data.MIMETYPE, PhoneRow.CONTENT_ITEM_TYPE) ; put(PhoneRow.NUMBER, number)
+                put(PhoneRow.TYPE, PhoneRow.TYPE_CUSTOM) ; put(PhoneRow.LABEL, MARK)
+            },
+        )
+        written++
+    }
+
+    /** The lookup key of the contact tied to the certificate [fingerprint], if one is: the phone's own profile first. */
+    fun tiedTo(context: Context, fingerprint: String): String? = profile(context)?.takeIf { it.fingerprint.equals(fingerprint, ignoreCase = true) }?.key ?: runCatching {
+        context.contentResolver.query(
+            Data.CONTENT_URI, arrayOf(Data.LOOKUP_KEY, Website.URL), "${Data.MIMETYPE} = ?", arrayOf(Website.CONTENT_ITEM_TYPE), null,
+        )?.use { rows ->
+            while (rows.moveToNext()) if (Fingerprint.of(rows.getString(1).orEmpty()).equals(fingerprint, ignoreCase = true)) return@use rows.getString(0)
+            null
+        }
+    }.getOrNull()
+
     private fun fingerprint(context: Context, contact: Long): String? =
         values(context, contact, Website.CONTENT_ITEM_TYPE, Website.URL).firstNotNullOfOrNull { Fingerprint.of(it) }
+
+    /**
+     * Where a contact's rows are: the address book's, or for the phone's own
+     * profile ("Me", "My profile"), the profile's, which Android keeps apart.
+     */
+    private fun dataOf(contact: Long): Uri =
+        if (ContactsContract.isProfileId(contact)) Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI, "data") else Data.CONTENT_URI
+
+    private fun rawsOf(contact: Long): Uri =
+        if (ContactsContract.isProfileId(contact)) ContactsContract.Profile.CONTENT_RAW_CONTACTS_URI else RawContacts.CONTENT_URI
 
     private fun values(context: Context, contact: Long, kind: String, column: String): List<String> {
         val found = ArrayList<String>()
         context.contentResolver.query(
-            Data.CONTENT_URI, arrayOf(column), "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ?",
+            dataOf(contact), arrayOf(column), "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ?",
             arrayOf(contact.toString(), kind), null,
         )?.use { rows -> while (rows.moveToNext()) rows.getString(0)?.let { found += it } }
         return found
@@ -104,12 +205,13 @@ object Book {
     /** Which of two to keep, when the contact and the certificate say otherwise: the contact's or the certificate's. */
     enum class Pick { CONTACT, CERTIFICATE }
 
+    /** [contact]: the one to write in, when it is known -- the person's own --, rather than whoever the number finds. */
     fun tie(
         context: Context, number: String, card: Card, address: String, stale: List<Stale> = emptyList(),
-        face: Pick = Pick.CONTACT, note: Pick = Pick.CONTACT,
+        face: Pick = Pick.CONTACT, note: Pick = Pick.CONTACT, contact: Long? = null, name: Pick = Pick.CONTACT,
     ) {
         written++
-        val known = who(context, number)
+        val known = known(context, number, contact)
         val raw = known?.let { rawOf(context, it.contact) } ?: create(context, number, card.name ?: number)
         val contact = known?.contact ?: contactOf(context, raw)
         val resolver = context.contentResolver
@@ -121,7 +223,7 @@ object Book {
         val former = values(context, contact, Website.CONTENT_ITEM_TYPE, Website.URL).filter { Fingerprint.of(it) != null }
         for (old in former) {
             resolver.delete(
-                Data.CONTENT_URI, "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ? AND ${Website.URL} = ?",
+                dataOf(contact), "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ? AND ${Website.URL} = ?",
                 arrayOf(contact.toString(), Website.CONTENT_ITEM_TYPE, old),
             )
         }
@@ -164,6 +266,22 @@ object Book {
             if (notes.isNotEmpty()) gone(context, contact, Note.CONTENT_ITEM_TYPE)
             row(Note.CONTENT_ITEM_TYPE, Note.NOTE, card.notes.joinToString("\n\n"))
         }
+        // The certificate's name, in place of the contact's when the person chose so: written over the name rows,
+        // their parts emptied for the address book to cut the new name anew -- given name, family name.
+        val named = card.name
+        if (name == Pick.CERTIFICATE && !named.isNullOrBlank()) {
+            val parts = ContentValues().apply {
+                put(StructuredName.DISPLAY_NAME, named)
+                for (part in listOf(
+                    StructuredName.GIVEN_NAME, StructuredName.FAMILY_NAME, StructuredName.MIDDLE_NAME, StructuredName.PREFIX, StructuredName.SUFFIX,
+                    StructuredName.PHONETIC_GIVEN_NAME, StructuredName.PHONETIC_FAMILY_NAME, StructuredName.PHONETIC_MIDDLE_NAME,
+                )) putNull(part)
+            }
+            val changed = resolver.update(
+                dataOf(contact), parts, "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ?", arrayOf(contact.toString(), StructuredName.CONTENT_ITEM_TYPE),
+            )
+            if (changed == 0) row(StructuredName.CONTENT_ITEM_TYPE, StructuredName.DISPLAY_NAME, named)
+        }
         // The certificate's face: where the contact has none, or in place of its own when the person chose so.
         val picture = card.photo
         if (picture != null && (known?.photo == null || face == Pick.CERTIFICATE)) {
@@ -181,7 +299,7 @@ object Book {
 
     /** Every row of a [kind] the contact holds, gone. */
     private fun gone(context: Context, contact: Long, kind: String) {
-        context.contentResolver.delete(Data.CONTENT_URI, "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ?", arrayOf(contact.toString(), kind))
+        context.contentResolver.delete(dataOf(contact), "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ?", arrayOf(contact.toString(), kind))
     }
 
     /**
@@ -189,17 +307,21 @@ object Book {
      * they are not the same: the contact's, to set beside the certificate's.
      * Faces are compared as a person would ([Likeness]), notes word for word.
      */
-    class Differs(val face: android.graphics.Bitmap?, val notes: List<String>)
+    /** [name]: the contact's, when the certificate gives another. */
+    class Differs(val face: android.graphics.Bitmap?, val notes: List<String>, val name: String? = null)
 
-    fun differs(context: Context, number: String, card: Card): Differs {
-        val known = who(context, number) ?: return Differs(null, emptyList())
+    fun differs(context: Context, number: String, card: Card, contact: Long? = null): Differs {
+        val known = known(context, number, contact) ?: return Differs(null, emptyList())
         val theirs = card.photo
         val face = if (theirs == null) null else face(context, known)?.takeIf { !Likeness.alike(it, theirs) }
         // The contact's notes, each as it is -- a contact may hold several --, when they are not the certificate's.
         val mine = values(context, known.contact, Note.CONTENT_ITEM_TYPE, Note.NOTE).filter { it.isNotBlank() }
         val said = card.notes.joinToString("\n\n")
         val notes = mine.takeIf { it.isNotEmpty() && said.isNotBlank() && it.joinToString("\n\n").trim() != said.trim() }.orEmpty()
-        return Differs(face, notes)
+        // Names compared as read: case and spaces aside.
+        fun read(name: String) = name.trim().replace(Regex("\\s+"), " ").lowercase()
+        val name = known.name.takeIf { theirs -> card.name?.isNotBlank() == true && read(theirs) != read(card.name!!) }
+        return Differs(face, notes, name)
     }
 
     /**
@@ -207,8 +329,8 @@ object Book {
      * say already: the certificate's address, or a line of its card, or its
      * face. Nothing, and there is nothing to ask the person.
      */
-    fun lacks(context: Context, number: String, card: Card, address: String): Boolean {
-        val known = who(context, number) ?: return true
+    fun lacks(context: Context, number: String, card: Card, address: String, contact: Long? = null): Boolean {
+        val known = known(context, number, contact) ?: return true
         fun missing(kind: String, column: String, value: String, same: (String, String) -> Boolean = { a, b -> a == b }) =
             missing(context, known.contact, kind, column, value, same)
         return missing(Website.CONTENT_ITEM_TYPE, Website.URL, address) ||
@@ -237,13 +359,13 @@ object Book {
      * carries: revoked in it, or taken off. Marked ones only; the
      * certificate's own address is replaced by [tie], never counted here.
      */
-    fun stale(context: Context, number: String, card: Card): List<Stale> {
-        val known = who(context, number) ?: return emptyList()
+    fun stale(context: Context, number: String, card: Card, contact: Long? = null): List<Stale> {
+        val known = known(context, number, contact) ?: return emptyList()
         val found = ArrayList<Stale>()
         fun look(kind: String, column: String, carried: List<String>, kept: (String) -> Boolean = { false }, same: (String, String) -> Boolean = { a, b -> a == b }) {
             // TYPE and LABEL are DATA2 and DATA3 in every kind of row: a custom type, labelled with the mark.
             context.contentResolver.query(
-                Data.CONTENT_URI, arrayOf(Data._ID, column),
+                dataOf(known.contact), arrayOf(Data._ID, column),
                 "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ? AND ${Data.DATA2} = ? AND ${Data.DATA3} = ?",
                 arrayOf(known.contact.toString(), kind, ContactsContract.CommonDataKinds.BaseTypes.TYPE_CUSTOM.toString(), MARK), null,
             )?.use { rows ->
@@ -266,7 +388,7 @@ object Book {
 
     private fun rawOf(context: Context, contact: Long): Long? =
         context.contentResolver.query(
-            RawContacts.CONTENT_URI, arrayOf(RawContacts._ID), "${RawContacts.CONTACT_ID} = ?", arrayOf(contact.toString()), null,
+            rawsOf(contact), arrayOf(RawContacts._ID), "${RawContacts.CONTACT_ID} = ?", arrayOf(contact.toString()), null,
         )?.use { rows -> if (rows.moveToFirst()) rows.getLong(0) else null }
 
     private fun contactOf(context: Context, raw: Long): Long =

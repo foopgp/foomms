@@ -78,6 +78,10 @@ object Inbound {
                 val pdu = file.readBytes()
                 val message = PduRead.read(pdu)
                 val from = message.from ?: intent.getStringExtra(EXTRA_FROM) ?: return
+                // A group's MMS this phone sent, come back to it -- to several, or to this phone alone as some networks deliver
+                // a group's, its members part telling it --: kept already as sent, and held against it.
+                val ours = message.to.size > 1 || message.parts.any { Members.isPart(it.name ?: it.location) }
+                if (ours && Me.mine(context, from)) return runCatching { Echo.back(context, message.to, message) }.let { }
                 Keep.mmsReceived(context, message, pdu.size, intent.getIntExtra(EXTRA_SUBSCRIPTION, -1))
                 val words = message.parts.filter { it.isText }.joinToString("\n") { it.text() }
                     .ifEmpty { "📎".repeat(minOf(3, message.parts.count { it.type != "application/smil" })) }
@@ -85,7 +89,10 @@ object Inbound {
                 val sealed = message.parts.filter { !it.isText && (it.type == Pgp.TYPE || it.name.orEmpty().lowercase().let { n -> n.endsWith(".pgp") || n.endsWith(".gpg") || n.endsWith(".asc") }) }
                 val form = Form.of(Form.of(words) == Form.LOCKED || sealed.any { Pgp.isLocked(it.bytes) }, Form.of(words) != Form.PLAIN || sealed.isNotEmpty())
                 val pending = goAsync()
-                runCatching { Notify.arrived(context, from, words, form) { pending.finish() } }.onFailure { pending.finish() }
+                // To several, the group's conversation is the one to open.
+                val group = Keep.conversationOf(context, from, message).takeIf { it.size > 1 }
+                    ?.let { runCatching { android.provider.Telephony.Threads.getOrCreateThreadId(context, it.toSet()) }.getOrNull() }
+                runCatching { Notify.arrived(context, from, words, form, group) { pending.finish() } }.onFailure { pending.finish() }
             } catch (failed: Exception) {
                 Log.e(TAG, "an MMS could not be read or written", failed)
             } finally {

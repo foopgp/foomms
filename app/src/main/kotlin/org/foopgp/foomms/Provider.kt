@@ -34,7 +34,8 @@ class Provider(private val context: Context) {
         /** A screen of the provider's is to be shown, and the question asked again. */
         class Ask(val screen: PendingIntent) : Answer
 
-        class Failed(val says: String) : Answer
+        /** Refused: why, in the person's language, and the number the provider gives the reason ([ERROR_NOT_FOR_US]). */
+        class Failed(val says: String, val code: Int = ERROR_GENERIC) : Answer
     }
 
     private val main = Handler(Looper.getMainLooper())
@@ -96,7 +97,7 @@ class Provider(private val context: Context) {
                     ?: Answer.Failed("a screen was announced and none was given")
             else ->
                 @Suppress("DEPRECATION")
-                Answer.Failed(says.getParcelableExtra<OpenPgpError>(RESULT_ERROR)?.message ?: "refused")
+                says.getParcelableExtra<OpenPgpError>(RESULT_ERROR).let { Answer.Failed(it?.message ?: "refused", it?.errorId ?: ERROR_GENERIC) }
         }
     }
 
@@ -107,6 +108,11 @@ class Provider(private val context: Context) {
     }
 
     companion object {
+        const val ERROR_GENERIC = 0
+
+        /** foodjis's own, from 1.4.5: the message is locked for none of the keys of the phone's identity. */
+        const val ERROR_NOT_FOR_US = 100
+
         const val FOODJIS = "org.foopgp.foodjis"
         const val FOODJIS_DEV = "org.foopgp.foodjis.dev"
 
@@ -138,8 +144,8 @@ class Provider(private val context: Context) {
          */
         /**
          * The version of the foodjis spoken to, when it is older than the one
-         * this build needs -- 1.4.3, the first to fetch a missing certificate
-         * --, or null: none to speak to, or recent enough.
+         * this build needs -- 1.5.0, the first to lay a signature made already
+         * inside the lock --, or null: none to speak to, or recent enough.
          */
         fun outdated(context: Context): String? {
             val found = whom(context)?.packageName ?: return null
@@ -148,8 +154,8 @@ class Provider(private val context: Context) {
         }
 
         /** The first foodjis that answers all that this build asks of it. */
-        const val NEEDED_CODE = 51L
-        const val NEEDED_NAME = "1.4.3"
+        const val NEEDED_CODE = 54L
+        const val NEEDED_NAME = "1.5.0"
 
         fun install(context: Context) {
             val wanted = FOODJIS
@@ -168,6 +174,11 @@ class Provider(private val context: Context) {
         const val SIGN_AND_ENCRYPT = "org.openintents.openpgp.action.SIGN_AND_ENCRYPT"
         const val DECRYPT_VERIFY = "org.openintents.openpgp.action.DECRYPT_VERIFY"
         const val SIGN = "org.openintents.openpgp.action.SIGN"
+        const val DETACHED_SIGN = "org.openintents.openpgp.action.DETACHED_SIGN"
+        const val RESULT_DETACHED_SIGNATURE = "detached_signature"
+
+        /** foodjis's own, with ENCRYPT: a signature over the same bytes, made already, laid inside the lock. */
+        const val EXTRA_SIGNATURE = "org.foopgp.foodjis.signature"
         const val GET_SIGN_KEY_ID = "org.openintents.openpgp.action.GET_SIGN_KEY_ID"
         const val EXTRA_API_VERSION = "api_version"
         const val EXTRA_USER_IDS = "user_ids"
@@ -181,6 +192,10 @@ class Provider(private val context: Context) {
         /** foodjis's own: one contact is wanted from its list, not several. */
         const val EXTRA_SINGLE = "org.foopgp.foodjis.extra.SINGLE"
         const val EXTRA_REQUEST_ASCII_ARMOR = "ascii_armor"
+
+        /** A file's name, kept inside what is locked: told back as [RESULT_METADATA] by foodjis from 1.4.5. */
+        const val EXTRA_ORIGINAL_FILENAME = "original_filename"
+        const val RESULT_METADATA = "metadata"
         const val RESULT_CODE = "result_code"
         const val RESULT_ERROR = "error"
         const val RESULT_INTENT = "intent"

@@ -18,9 +18,9 @@ object Media {
     class Attachment(val type: String, val name: String, val bytes: ByteArray, val millis: Long? = null)
 
     /**
-     * The name of a recording: what it is -- `a` for a sound alone, `v` for a
-     * video --, and when it began, in ISO 8601's basic form and in UTC:
-     * `a20261019T145503Z.3gp`. Sorted by name, recordings sort by time, and
+     * The name of what was made here: what it is -- `audio`, `video`,
+     * `photo` --, and when it began, in ISO 8601's basic form and in UTC:
+     * `audio20261019T145503Z.3gp`. Sorted by name, they sort by time, and
      * two from different phones do not take each other's name.
      */
     fun named(kind: String, at: Long, extension: String): String =
@@ -131,7 +131,8 @@ object Media {
      * A picture, as JPEG, no heavier than [most]: made smaller, then lighter,
      * until it fits. Null when it is not a picture one can read.
      */
-    fun picture(context: Context, from: Uri, most: Int): Attachment? {
+    /** [name]: the picture's own, a photograph just taken being named when it was taken ([named]). */
+    fun picture(context: Context, from: Uri, most: Int, name: String = "photo.jpg"): Attachment? {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         context.contentResolver.openInputStream(from)?.use { BitmapFactory.decodeStream(it, null, bounds) }
         if (bounds.outWidth <= 0) return null
@@ -146,12 +147,22 @@ object Media {
             for (quality in listOf(85, 70, 55)) {
                 val out = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.JPEG, quality, out)
-                if (out.size() <= most) return Attachment("image/jpeg", "photo.jpg", out.toByteArray())
+                if (out.size() <= most) return Attachment("image/jpeg", name, out.toByteArray())
             }
             if (longest <= 320) return null
             longest = longest * 3 / 4
         }
     }
+
+    /** A picture chosen, as it is sent: a JPEG under its own name. */
+    fun pictureName(context: Context, from: Uri): String = shownName(context, from)?.substringBeforeLast('.')?.let { "$it.jpg" } ?: "photo.jpg"
+
+    /** The name a picked file is shown under, when its provider says one. */
+    fun shownName(context: Context, from: Uri): String? = runCatching {
+        context.contentResolver.query(from, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { rows ->
+            if (rows.moveToFirst()) rows.getString(0) else null
+        }
+    }.getOrNull()?.takeIf { it.isNotBlank() }
 
     /** A file as it is -- a sound, most often --, or null when it is heavier than [most]. */
     fun file(context: Context, from: Uri, most: Int): Attachment? {

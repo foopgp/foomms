@@ -22,14 +22,26 @@ import kotlin.concurrent.thread
  * A new message begins with whom it is for: chosen in a list that starts as
  * the list of conversations does -- the latest first, each behind its face --
  * and narrows to the contacts whose name or number holds what is typed. One
- * chosen, their conversation opens; several, the same message goes to each.
+ * chosen, their conversation opens; several, the same message goes to each,
+ * or -- from two to nine -- one MMS goes to all of them, a group's.
  * A page of its own, as messaging applications have it: a window over the
  * list of conversations sent fingers looking for a recipient behind it.
  */
 class WriteActivity : Activity() {
 
     /** Somebody one can write to: a name, a number, a face when there is one. */
-    private class Whom(val number: String, val name: String, val face: Bitmap?, val typed: Boolean = false)
+    /** [header]: not somebody, the heading of those that follow. [light]: only a name and a number, the rest read when shown. */
+    private class Whom(
+        val number: String, val name: String, val face: Bitmap?, val typed: Boolean = false, val fingerprint: String? = null, val standing: String? = null,
+        val header: String? = null, val light: Boolean = false,
+    )
+
+    /** The contacts of the A to Z, read in full when first shown. */
+    private val full = java.util.concurrent.ConcurrentHashMap<String, Whom>()
+    private val reading = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+
+    /** Several chosen: the same message to each, or one MMS to all of them. */
+    private var asGroup = false
 
     private val chosen = LinkedHashMap<String, String>()
     private var shown: List<Whom> = emptyList()
@@ -39,6 +51,12 @@ class WriteActivity : Activity() {
     private lateinit var asked: EditText
     private lateinit var picked: LinearLayout
     private lateinit var go: android.widget.Button
+
+    /** Under those chosen, when there are several: to each, or as a group; and what that means. */
+    private lateinit var how: LinearLayout
+    private lateinit var toEach: android.widget.Button
+    private lateinit var toGroup: android.widget.Button
+    private lateinit var howSaid: android.widget.TextView
     private lateinit var list: ListView
 
     private val contacts by lazy { checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED }
@@ -68,10 +86,24 @@ class WriteActivity : Activity() {
         // Whom it is for so far, one small button each: pressed, that one is taken off.
         picked = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
         go = Look.button(this, getString(R.string.whom_write)) { write() }
+        toEach = Look.small(this, getString(R.string.send_each)) { asGroup = false ; drawPicked() }.apply { textSize = 15f }
+        toGroup = Look.small(this, getString(R.string.send_group)) { asGroup = true ; drawPicked() }.apply { textSize = 15f }
+        howSaid = Look.words(this, "", size = 13f, muted = true).apply { setPadding(Look.dp(context, 4), 0, Look.dp(context, 4), Look.dp(context, 4)) }
+        how = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(
+                LinearLayout(context).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    addView(toEach, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                    addView(toGroup, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                },
+            )
+            addView(howSaid)
+        }
         list = ListView(this).apply {
             divider = null
             adapter = rows
-            setOnItemClickListener { _, _, at, _ -> shown.getOrNull(at)?.let { toggle(it) } }
+            setOnItemClickListener { _, _, at, _ -> shown.getOrNull(at)?.takeIf { it.header == null }?.let { toggle(it) } }
         }
         setContentView(
             LinearLayout(this).apply {
@@ -79,12 +111,25 @@ class WriteActivity : Activity() {
                 setPadding(pad, pad / 2, pad, pad / 2)
                 addView(asked)
                 addView(HorizontalScrollView(context).apply { addView(picked) ; isHorizontalScrollBarEnabled = false })
+                addView(how)
                 addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
                 addView(go, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
             },
         )
         Edges.fit(this)
         drawPicked()
+        // Handed whom to write to -- those a message went to --: chosen already, by their names.
+        intent.getStringArrayExtra(EXTRA_NUMBERS)?.takeIf { it.isNotEmpty() }?.let { given ->
+            thread {
+                val found = given.map { whom(it, null) }
+                runOnUiThread {
+                    if (isFinishing || isDestroyed) return@runOnUiThread
+                    for (one in found) chosen[one.number] = one.name
+                    drawPicked()
+                    rows.notifyDataSetChanged()
+                }
+            }
+        }
         // The conversations, the latest first: whom one writes to is most often somebody one writes to.
         thread {
             val found = runCatching { Store.talks(this, MOST) }.getOrDefault(emptyList())
@@ -96,6 +141,23 @@ class WriteActivity : Activity() {
                 recent = found
                 if (asked.text.isEmpty()) show(recent)
             }
+            // Then every contact one can write to, from A to Z, under a heading: by name and number at first, the
+            // face and the certificate read as each comes into view.
+            if (!contacts) return@thread
+            val every = runCatching { Book.find(this, "", Int.MAX_VALUE) }.getOrDefault(emptyList()).map { Whom(it.number, it.name, null, light = true) }
+            runOnUiThread {
+                if (isFinishing || isDestroyed || every.isEmpty()) return@runOnUiThread
+                recent = found + listOf(Whom("", "", null, header = getString(R.string.all_contacts, every.size))) + every
+                if (asked.text.isEmpty()) show(recent)
+            }
+        }
+    }
+
+    private fun readFull(light: Whom) {
+        if (!reading.add(light.number)) return
+        thread {
+            full[light.number] = whom(light.number, light.name)
+            runOnUiThread { if (!isFinishing && !isDestroyed) rows.notifyDataSetChanged() }
         }
     }
 
@@ -103,7 +165,9 @@ class WriteActivity : Activity() {
     private fun whom(number: String, name: String?): Whom {
         val person = if (contacts) Book.who(this, number) else null
         val face = person?.let { Book.face(this, it) } ?: person?.fingerprint?.let { foodjis.face(it) }
-        return Whom(number, name ?: person?.name ?: number, face)
+        val standing = person?.fingerprint?.let { foodjis.card(it)?.validity }
+        // Kept, for the light lines of the A to Z.
+        return Whom(number, name ?: person?.name ?: number, face, fingerprint = person?.fingerprint, standing = standing).also { full[number] = it }
     }
 
     /** What is typed narrows the list to the contacts that hold it; a number typed in full is offered as it is. */
@@ -137,12 +201,54 @@ class WriteActivity : Activity() {
     private fun drawPicked() {
         picked.removeAllViews()
         for ((number, name) in chosen) {
+            // A name, not a button: in a thin frame, the red cross the one thing to press.
+            val pad = Look.dp(this, 8)
             picked.addView(
-                Look.small(this, "$name   ✕") { chosen.remove(number) ; drawPicked() ; rows.notifyDataSetChanged() },
+                LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    background = Look.framed(context)
+                    setPadding(pad, pad / 4, pad / 2, pad / 4)
+                    addView(Look.words(context, name, size = 14f).apply { maxLines = 1 })
+                    addView(
+                        Look.words(context, "✕", size = 16f).apply {
+                            setTypeface(typeface, Typeface.BOLD)
+                            setTextColor(Look.colour(Verdict.RED))
+                            setPadding(pad, 0, pad / 2, 0)
+                        },
+                    )
+                    setOnClickListener { chosen.remove(number) ; drawPicked() ; rows.notifyDataSetChanged() }
+                },
                 LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { marginEnd = Look.dp(this@WriteActivity, 6) },
             )
         }
         (picked.parent as? View)?.visibility = if (chosen.isEmpty()) View.GONE else View.VISIBLE
+        // A group MMS goes to two to nine people: beyond, to each.
+        // And this phone, which gets it back: its number, from one's own contact.
+        val known = Me.number(this) != null
+        // Ten with oneself, or what the person set: some networks take far more.
+        val most = Conf.groupMost(this) - 1
+        val mms = Conf.mms(this)
+        val groupable = chosen.size in 2..most && known && mms
+        if (!groupable) asGroup = false
+        how.visibility = if (chosen.size >= 2) View.VISIBLE else View.GONE
+        toGroup.isEnabled = groupable
+        toGroup.alpha = if (groupable) 1f else 0.38f
+        // The one chosen orange, the other as any button: grey would read as not to be pressed.
+        for ((button, on) in listOf(toEach to !asGroup, toGroup to asGroup)) {
+            // A new face brings its own padding, thinner: the button's own put back, so that it keeps its size.
+            val (left, top, right, bottom) = listOf(button.paddingLeft, button.paddingTop, button.paddingRight, button.paddingBottom)
+            button.background = Look.buttonFace(this, if (on) Look.ORANGE else Look.FACE)
+            button.setPadding(left, top, right, bottom)
+            button.setTypeface(null, if (on) Typeface.BOLD else Typeface.NORMAL)
+        }
+        howSaid.text = when {
+            asGroup -> getString(R.string.send_group_note)
+            groupable -> getString(R.string.send_each_note)
+            !mms -> getString(R.string.mms_off)
+            !known -> getString(R.string.group_needs_me)
+            else -> getString(R.string.send_group_most, most)
+        }
         go.isEnabled = chosen.isNotEmpty() || Phone.plain(asked.text.toString()) != null
     }
 
@@ -155,6 +261,16 @@ class WriteActivity : Activity() {
         val carried = intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)
         val next = if (chosen.size == 1) {
             Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, chosen.keys.first())
+        } else if (asGroup) {
+            // The group's conversation: those it already has, with this phone among the numbers or without; else a new one.
+            val numbers = chosen.keys.toList()
+            val me = Me.number(this)
+            val threads = Store.groupThreads(this, numbers, Me.all(this)).ifEmpty {
+                listOfNotNull(runCatching { android.provider.Telephony.Threads.getOrCreateThreadId(this, (numbers + listOfNotNull(me)).toSet()) }.getOrNull())
+            }
+            Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, numbers.first())
+                .putExtra(ThreadActivity.EXTRA_THREAD, threads.firstOrNull() ?: -1L)
+                .putExtra(ThreadActivity.EXTRA_THREADS, threads.toLongArray())
         } else {
             Intent(this, ManyActivity::class.java).putExtra(ManyActivity.EXTRA_NUMBERS, chosen.keys.toTypedArray())
         }
@@ -171,15 +287,23 @@ class WriteActivity : Activity() {
         override fun getItemId(at: Int) = at.toLong()
 
         override fun getView(at: Int, old: View?, parent: ViewGroup): View {
-            val one = shown[at]
             val context = this@WriteActivity
+            shown[at].header?.let { heading ->
+                return Look.words(context, heading, size = 14f, muted = true).apply {
+                    setTypeface(typeface, Typeface.BOLD)
+                    setPadding(0, Look.dp(context, 16), 0, Look.dp(context, 4))
+                }
+            }
+            // One of the A to Z: read in full the first time it is shown, drawn again then.
+            val one = shown[at].let { light -> if (!light.light) light else full[light.number] ?: light.also { readFull(it) } }
             val pad = Look.dp(context, 8)
             val isChosen = chosen.keys.any { Phone.same(it, one.number) }
             return LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 setPadding(0, pad, 0, pad)
-                addView(Look.face(context, 44, null, one.face))
+                // Framed by what their certificate is worth, as in the list of conversations.
+                addView(Look.face(context, 44, null, one.face, one.standing, framable = true, seed = Look.seed(one.fingerprint, one.number)))
                 addView(
                     LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
@@ -196,7 +320,10 @@ class WriteActivity : Activity() {
         }
     }
 
-    private companion object {
+    companion object {
+        /** Numbers chosen already when the page opens. */
+        const val EXTRA_NUMBERS = "numbers"
+
         /** How many recent conversations open the list. */
         const val MOST = 60
     }

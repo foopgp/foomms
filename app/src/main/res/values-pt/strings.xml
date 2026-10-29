@@ -37,7 +37,6 @@
     <string name="standing_expired">expirado</string>
     <string name="standing_revoked">revogado</string>
     <string name="standing_broken">defeituoso</string>
-    <string name="talks">Conversas</string>
     <string name="locked_for">⚿ Mensagem cifrada para</string>
     <string name="share">⤴ Partilhar</string>
     <string name="save">↧ Guardar</string>
@@ -66,26 +65,19 @@
     <string name="message">Mensagem</string>
     <string name="let_in">Pedir ao foodjis que autorize o foomms</string>
     <string name="conf_mms">MMS</string>
-    <string name="conf_prefer_mms">Preferir MMS</string>
-    <string name="conf_prefer_mms_note">Qualquer texto mais longo do que um SMS é enviado como MMS: útil se as mensagens longas chegam aos pedaços ou fora de ordem. Um MMS usa dados móveis, e o seu operador pode cobrá-lo.</string>
-    <string name="conf_warn_mms">Avisar-me antes de enviar qualquer MMS</string>
-    <string name="conf_warn_mms_note">Um texto mais longo do que cinco SMS é enviado como MMS. Ser avisado antes poupa-lhe um custo que o seu operador possa aplicar.</string>
-    <string name="mms_ask">Esta mensagem é longa: será enviada como MMS, que o seu operador pode cobrar.</string>
     <string name="plain_ask">A cifragem é possível nesta conversa, mas está desativada. Enviar esta mensagem sem a cifrar?</string>
     <string name="plain_send">Enviar sem cifrar</string>
     <string name="plain_lock">⚿ Cifrar e enviar</string>
-    <string name="mms_send">Enviar</string>
     <string name="language_name">português</string>
     <string name="conf_language">Idioma</string>
     <string name="conf_language_note">Embora feito em França, o foomms fala onze línguas.</string>
     <string name="conf_language_change">⚑ Mudar o idioma da aplicação</string>
     <string name="search_all">🔍 Pesquisar nas conversas</string>
     <string name="search_here">🔍 Pesquisar nestas mensagens</string>
+    <string name="search_page">🔍 Pesquisar nesta conversa</string>
     <string name="search_hint">Palavras a procurar</string>
     <string name="hit_from">de %1$s</string>
     <string name="hit_to">para %1$s</string>
-    <string name="count_all">%1$d/%2$d mensagens PGP</string>
-    <string name="count_unread">%1$d/%2$d por ler</string>
     <string name="carrying">%1$s\n%2$d kB</string>
     <string name="too_heavy">Demasiado pesado para um MMS nesta rede (%1$d kB no máximo), ou impossível de ler.</string>
     <string name="handed_mms">MMS entregue ao telemóvel: %1$s</string>
@@ -125,15 +117,15 @@
     <string name="tie_ask_before">O certificado está</string>
     <string name="tie_ask_after">. Isto será escrito na sua lista de contactos, onde o contacto ainda não o indica:</string>
     <string name="whom_hint">Um nome ou um número de telemóvel</string>
-    <string name="show_unread">Detalhar</string>
     <string name="mark_all_read">○ Marcar tudo como lido</string>
     <string name="mark_all_read_ask">Marcar as %1$d mensagens não lidas como lidas?</string>
     <string name="mark_read">○ Marcar como lida</string>
     <string name="mark_unread">● Marcar como não lida</string>
-    <string name="show_all">Mostrar tudo</string>
     <string name="count_detail">%1$d mensagens: %2$d SMS + %3$d MMS\ndas quais %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d conversas — %8$s bytes</string>
-    <string name="count_detail_unread">%1$d por ler</string>
-    <string name="count_detail_unread_rest">, das quais %1$d PGP, em %2$d conversas</string>
+    <plurals name="count_detail_unread_rest">
+        <item quantity="one">, das quais %1$d PGP, em %2$d conversa</item>
+        <item quantity="other">, das quais %1$d PGP, em %2$d conversas</item>
+    </plurals>
     <string name="switch_sign">Assinar</string>
     <string name="switch_lock">Cifrar</string>
     <string name="cert_show">🔑 Mostrar o certificado</string>
@@ -191,7 +183,6 @@
     <string name="write_to">Escrever para %1$s</string>
     <string name="decrypt_this">⚿ Decifrar esta mensagem</string>
     <string name="search_contacts">🔍 Pesquisar nos contactos</string>
-    <string name="contacts">Contactos</string>
     <string name="attach_text">📋 Um texto</string>
     <string name="clipboard_empty">Nada para colar: a área de transferência está vazia.</string>
     <string name="restricted_hint">Instalado a partir de um ficheiro, o foomms só pode ler e enviar SMS quando o Android o permitir: nas definições do foomms, o menu ⋮ no canto superior direito, escolha «Permitir definições restritas», volte aqui e prima Permitir.</string>
@@ -226,4 +217,65 @@
     <string name="video_camera">Câmara traseira ou frontal</string>
     <string name="video_light">Luz</string>
     <string name="video_sound">Só áudio (%1$s)</string>
+    <!-- The three pages of the list, and what each counts under its name. -->
+    <string name="page_talks">Conversas</string>
+    <string name="page_unread">Não lidas</string>
+    <string name="page_unread_n">Não lidas (%1$d)</string>
+    <string name="page_groups">Grupos MMS</string>
+    <plurals name="talks_n">
+        <item quantity="one">%d conversa</item>
+        <item quantity="other">%d conversas</item>
+    </plurals>
+    <plurals name="unread_n">
+        <item quantity="one">%d não lida</item>
+        <item quantity="other">%d não lidas</item>
+    </plurals>
+    <plurals name="groups_n">
+        <item quantity="one">%d grupo</item>
+        <item quantity="other">%d grupos</item>
+    </plurals>
+    <plurals name="group_members">
+        <item quantity="one">%d membro</item>
+        <item quantity="other">%d membros</item>
+    </plurals>
+    <!-- Several chosen in a new message: the same to each, or one group MMS. -->
+    <string name="send_each">Envio múltiplo</string>
+    <string name="send_group">MMS de grupo</string>
+    <string name="send_each_note">Cada um recebe a sua própria mensagem e responde só a si.</string>
+    <string name="send_group_note">Um só MMS para todos: cada um vê quem faz parte do grupo, e as respostas de todos.</string>
+    <string name="send_group_most">Um MMS de grupo vai de 2 a %1$d destinatários.</string>
+    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <string name="me_change">⇄ Mudar de ficha de contacto</string>
+    <string name="me_create">✚ Criar a minha ficha de contacto</string>
+    <string name="me_tie_mine">Ligar ao meu certificado: %1$s</string>
+    <string name="me_tie_other">Ligar a outro certificado…</string>
+    <string name="me_label">Eu:</string>
+    <string name="me_default">☎ Definir o número predefinido</string>
+    <string name="me_link">Ligar a «%1$s» (%2$s)</string>
+    <string name="me_choose_for">Eu, no %1$s:</string>
+    <string name="me_no_number">Esta ficha de contacto não tem número de telefone: aqui não pode ser a sua. Acrescente-lhe o número deste telefone e depois ligue-a a partir de «Eu».</string>
+    <string name="me_tag">(eu)</string>
+    <string name="me_unknown">número desconhecido</string>
+    <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
+    <string name="choose_name">Nome:</string>
+    <string name="name_contact">Manter o do contacto:</string>
+    <string name="name_certificate">Usar o do certificado:</string>
+    <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
+    <string name="group_needs_me">Um MMS de grupo também lhe é enviado, para o seu número: ligue primeiro a sua ficha de contacto, em «Eu» na página Grupos MMS.</string>
+    <string name="altered_title">Mensagem de grupo alterada</string>
+    <string name="altered">Uma mensagem de grupo que enviou voltou diferente: foi provavelmente alterada pelo caminho, para todos os destinatários.</string>
+    <string name="channel_altered">Mensagens alteradas</string>
+    <!-- A message sent to each of several at once, in the conversation of each. -->
+    <string name="sent_to_each">⇉ enviado a %1$d pessoas</string>
+    <string name="write_to_each">✎ Nova mensagem para estas %1$d pessoas</string>
+    <!-- A new message: after the recent conversations, every contact one can write to. -->
+    <string name="all_contacts">Todos os contactos (%1$d)</string>
+    <string name="conf_group_most">Limite de grupo MMS</string>
+    <string name="conf_group_most_note">O número de destinatários é limitado consoante o operador. Com dez destinatários, um MMS passa geralmente em todo o lado; alguns operadores aceitam muitos mais.</string>
+    <string name="group_over">Este grupo tem %1$d membros, incluindo si, acima do limite de %2$d fixado na configuração: o operador pode recusar a mensagem, ou entregá-la a cada um separadamente.</string>
+    <string name="group_over_send">Enviar mesmo assim</string>
+    <string name="conf_mms_on">Ativar os MMS</string>
+    <string name="conf_mms_on_note">Ativados, um texto mais longo que um SMS parte como um MMS, e podem enviar-se anexos, mensagens de voz e MMS de grupo. Desativados, um texto longo parte em vários SMS, e nada disso. Os MMS recebidos continuam a aparecer.</string>
+    <string name="mms_off">Os MMS estão desativados na configuração: nem anexo, nem mensagem de voz, nem MMS de grupo.</string>
+    <string name="many_sms">Esta mensagem parte em %1$d SMS: alguns telefones juntam-nos mal, e o seu operador pode cobrá-los um a um.</string>
 </resources>

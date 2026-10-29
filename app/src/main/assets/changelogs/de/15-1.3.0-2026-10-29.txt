@@ -1,0 +1,6 @@
+• Drei Seiten: Unterhaltungen, Ungelesen und MMS-Gruppen, beim Blättern nachgeladen.
+• MMS-Gruppen: Die Mitglieder reisen mit der Nachricht, auch wenn das Netz sie trennt; Verschlüsselung nach Wahl; „Ich“ oben auf der Seite.
+• Einzeln senden: jede Kopie in der Unterhaltung ihres Empfängers; nur für ihn verschlüsselt, nur einmal signiert.
+• Ein einziger Schalter „MMS aktivieren“.
+• Pixel-Gesichter, Suche in einer Unterhaltung, alle Kontakte von A bis Z.
+• Erfordert foodjis 1.5.0.

@@ -1,0 +1,6 @@
+• Three pages: Conversations, Unread and MMS groups, loaded as you scroll.
+• MMS groups: the members travel with the message, even when the network splits it; encryption as you choose; "Me" at the top of the page.
+• Send to each: each copy in its recipient's conversation; encrypted for them alone, signed only once.
+• A single "Enable MMS" switch.
+• Pixel faces, search within a conversation, every contact from A to Z.
+• Requires foodjis 1.5.0.

@@ -41,13 +41,19 @@ object Keep {
             },
         )
 
-    fun smsSent(context: Context, to: String, body: String): Uri? =
+    /**
+     * [at]: when it was sent -- for a sending to each, the moment it was
+     * asked, the same for every copy, while each copy's own leaving is its
+     * date sent.
+     */
+    fun smsSent(context: Context, to: String, body: String, at: Long = System.currentTimeMillis()): Uri? =
         context.contentResolver.insert(
             Telephony.Sms.Sent.CONTENT_URI,
             ContentValues().apply {
                 put(Telephony.Sms.ADDRESS, to)
                 put(Telephony.Sms.BODY, body)
-                put(Telephony.Sms.DATE, System.currentTimeMillis())
+                put(Telephony.Sms.DATE, at)
+                put(Telephony.Sms.DATE_SENT, System.currentTimeMillis())
                 put(Telephony.Sms.READ, 1)
                 put(Telephony.Sms.SEEN, 1)
             },
@@ -62,24 +68,65 @@ object Keep {
 
     fun mmsReceived(context: Context, message: PduRead.Message, size: Int, subscription: Int): Uri? {
         val from = message.from ?: return null
-        return mms(context, Telephony.Mms.Inbox.CONTENT_URI, setOf(from), from, message.to, message, size, incoming = true, subscription)
+        Me.learn(context, message.to)
+        runCatching { members(context, message) }
+        return mms(context, Telephony.Mms.Inbox.CONTENT_URI, conversationOf(context, from, message), from, message.to, message, size, incoming = true, subscription)
     }
 
-    fun mmsSent(context: Context, to: String, pdu: ByteArray): Uri? =
-        mms(context, Telephony.Mms.Sent.CONTENT_URI, setOf(to), null, listOf(to), PduRead.read(pdu), pdu.size, incoming = false, -1)
+    /**
+     * The numbers of the conversation an MMS received belongs to: a group's,
+     * as its members part says them -- networks may have left none of the
+     * others in its "To" --, this phone by the number it goes out with; else
+     * those it went to, this phone among them, a group's when they are
+     * several.
+     */
+    fun conversationOf(context: Context, from: String, message: PduRead.Message): Set<String> =
+        runCatching { group(context, from, message) }.getOrNull() ?: Phone.received(from, message.to).toSet()
+
+    private fun group(context: Context, from: String, message: PduRead.Message): Set<String>? {
+        val part = message.parts.firstOrNull { it.name == Members.PART || it.location == Members.PART } ?: return null
+        val me = Me.number(context) ?: return null
+        val all = ArrayList<String>()
+        for (one in Members.read(part.bytes).map { it.number } + from + me) {
+            if (all.none { Phone.same(it, one) || it == one } && (one == me || !Me.mine(context, one))) all += one
+        }
+        return all.toSet().takeIf { it.size > 2 }
+    }
+
+    /**
+     * A group's members part received: kept, for tying each from the
+     * group's menu; and to the contact tied to a member's certified
+     * certificate, the number it lacks.
+     */
+    fun members(context: Context, message: PduRead.Message) {
+        val part = message.parts.firstOrNull { it.name == Members.PART || it.location == Members.PART } ?: return
+        val members = Members.read(part.bytes)
+        Members.remember(context, members)
+        if (!ours(context)) return
+        val foodjis = Foodjis.of(context)
+        for (one in members) {
+            val whose = one.fingerprint ?: continue
+            if (Me.mine(context, one.number) || foodjis.card(whose)?.certified != true) continue
+            val contact = Book.tiedTo(context, whose)?.let { Book.own(context, it) } ?: continue
+            runCatching { Book.addNumber(context, contact.contact, one.number) }
+        }
+    }
+
+    fun mmsSent(context: Context, to: List<String>, pdu: ByteArray, at: Long = System.currentTimeMillis()): Uri? =
+        mms(context, Telephony.Mms.Sent.CONTENT_URI, Phone.sent(to, Me.number(context)).toSet(), null, to, PduRead.read(pdu), pdu.size, incoming = false, -1, at)
 
     private fun mms(
         context: Context, box: Uri, others: Set<String>, from: String?, to: List<String>,
-        message: PduRead.Message, size: Int, incoming: Boolean, subscription: Int,
+        message: PduRead.Message, size: Int, incoming: Boolean, subscription: Int, at: Long = System.currentTimeMillis(),
     ): Uri? {
         val resolver = context.contentResolver
-        val now = System.currentTimeMillis() / 1000
+        val now = at / 1000
         val written = resolver.insert(
             box,
             ContentValues().apply {
                 put(Telephony.Mms.THREAD_ID, Telephony.Threads.getOrCreateThreadId(context, others))
                 put(Telephony.Mms.DATE, now)
-                put(Telephony.Mms.DATE_SENT, message.date ?: now)
+                put(Telephony.Mms.DATE_SENT, if (incoming) message.date ?: now else System.currentTimeMillis() / 1000)
                 put(Telephony.Mms.READ, if (incoming) 0 else 1)
                 put(Telephony.Mms.SEEN, if (incoming) 0 else 1)
                 put(Telephony.Mms.MESSAGE_TYPE, if (incoming) PduRead.RETRIEVED else PduRead.SEND)
@@ -146,7 +193,7 @@ object Keep {
         }
     }
 
-    /** One message read: opened from its lock, refused by foodjis before the person's eyes, or said read by them. */
+    /** One message read: opened from its lock, said by foodjis to be locked for somebody else, or said read by the person. */
     fun read(context: Context, line: Store.Line) {
         if (!ours(context) || line.id < 0) return
         runCatching { context.contentResolver.update(line.uri, ContentValues().apply { put("read", 1) ; put("seen", 1) }, "read = 0", null) }

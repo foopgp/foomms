@@ -37,7 +37,6 @@
     <string name="standing_expired">süresi dolmuş</string>
     <string name="standing_revoked">iptal edilmiş</string>
     <string name="standing_broken">bozuk</string>
-    <string name="talks">Konuşmalar</string>
     <string name="locked_for">⚿ Şifreli mesaj, alıcı:</string>
     <string name="share">⤴ Paylaş</string>
     <string name="save">↧ Kaydet</string>
@@ -66,26 +65,19 @@
     <string name="message">Mesaj</string>
     <string name="let_in">foodjis\'ten foomms\'a izin vermesini iste</string>
     <string name="conf_mms">MMS</string>
-    <string name="conf_prefer_mms">MMS\'i tercih et</string>
-    <string name="conf_prefer_mms_note">Bir SMS\'ten uzun her metin MMS olarak gönderilir: uzun mesajlar parça parça ya da karışık sırayla geliyorsa yararlıdır. MMS mobil veri kullanır ve operatörünüz ücret alabilir.</string>
-    <string name="conf_warn_mms">Her MMS gönderiminden önce beni uyar</string>
-    <string name="conf_warn_mms_note">Beş SMS\'ten uzun bir metin MMS olarak gönderilir. Önceden sorulmak, operatörünüzün uygulayabileceği bir ücretten sizi korur.</string>
-    <string name="mms_ask">Bu mesaj uzun: MMS olarak gönderilecek ve operatörünüz ücret alabilir.</string>
     <string name="plain_ask">Bu konuşmada şifreleme mümkün, ancak kapalı. Bu mesaj şifrelenmeden gönderilsin mi?</string>
     <string name="plain_send">Şifrelemeden gönder</string>
     <string name="plain_lock">⚿ Şifrele ve gönder</string>
-    <string name="mms_send">Gönder</string>
     <string name="language_name">Türkçe</string>
     <string name="conf_language">Dil</string>
     <string name="conf_language_note">Fransa\'da yapılmış olsa da foomms on bir dil konuşuyor.</string>
     <string name="conf_language_change">⚑ Uygulamanın dilini değiştir</string>
     <string name="search_all">🔍 Konuşmalarda ara</string>
     <string name="search_here">🔍 Bu mesajlarda ara</string>
+    <string name="search_page">🔍 Bu konuşmada ara</string>
     <string name="search_hint">Aranacak sözcükler</string>
     <string name="hit_from">%1$s kişisinden</string>
     <string name="hit_to">%1$s kişisine</string>
-    <string name="count_all">%1$d/%2$d PGP mesajı</string>
-    <string name="count_unread">%1$d/%2$d okunmamış</string>
     <string name="carrying">%1$s\n%2$d kB</string>
     <string name="too_heavy">Bu şebekede bir MMS için fazla büyük (en çok %1$d kB) ya da okunamıyor.</string>
     <string name="handed_mms">MMS telefona teslim edildi: %1$s</string>
@@ -125,15 +117,15 @@
     <string name="tie_ask_before">Sertifikası</string>
     <string name="tie_ask_after">. Bu, kişide henüz yazmıyorsa adres defterinize kaydedilecek:</string>
     <string name="whom_hint">Bir ad ya da telefon numarası</string>
-    <string name="show_unread">Ayrıntılar</string>
     <string name="mark_all_read">○ Tümünü okundu olarak işaretle</string>
     <string name="mark_all_read_ask">%1$d okunmamış mesaj okundu olarak işaretlensin mi?</string>
     <string name="mark_read">○ Okundu olarak işaretle</string>
     <string name="mark_unread">● Okunmadı olarak işaretle</string>
-    <string name="show_all">Tümünü göster</string>
     <string name="count_detail">%1$d mesaj: %2$d SMS + %3$d MMS\nbunların %4$d tanesi PGP: %5$d SMS + %6$d MMS\n\n%7$d konuşma — %8$s bayt</string>
-    <string name="count_detail_unread">%1$d okunmamış</string>
-    <string name="count_detail_unread_rest">, bunların %1$d tanesi PGP, %2$d konuşmada</string>
+    <plurals name="count_detail_unread_rest">
+        <item quantity="one">, bunların %1$d tanesi PGP, %2$d konuşmada</item>
+        <item quantity="other">, bunların %1$d tanesi PGP, %2$d konuşmada</item>
+    </plurals>
     <string name="switch_sign">İmzala</string>
     <string name="switch_lock">Şifrele</string>
     <string name="cert_show">🔑 Sertifikayı göster</string>
@@ -191,7 +183,6 @@
     <string name="write_to">%1$s numarasına yaz</string>
     <string name="decrypt_this">⚿ Bu mesajın şifresini çöz</string>
     <string name="search_contacts">🔍 Kişilerde ara</string>
-    <string name="contacts">Kişiler</string>
     <string name="attach_text">📋 Metin</string>
     <string name="clipboard_empty">Yapıştırılacak bir şey yok: pano boş.</string>
     <string name="restricted_hint">Bir dosyadan kurulan foomms, ancak Android izin verdiğinde SMS okuyup gönderebilir: foomms ayarlarında, sağ üstteki ⋮ menüsünden «Kısıtlanmış ayarlara izin ver»i seçin, sonra buraya dönüp İzin ver\'e basın.</string>
@@ -226,4 +217,65 @@
     <string name="video_camera">Arka ya da ön kamera</string>
     <string name="video_light">Işık</string>
     <string name="video_sound">Yalnızca ses (%1$s)</string>
+    <!-- The three pages of the list, and what each counts under its name. -->
+    <string name="page_talks">Konuşmalar</string>
+    <string name="page_unread">Okunmamış</string>
+    <string name="page_unread_n">Okunmamış (%1$d)</string>
+    <string name="page_groups">MMS grupları</string>
+    <plurals name="talks_n">
+        <item quantity="one">%d konuşma</item>
+        <item quantity="other">%d konuşma</item>
+    </plurals>
+    <plurals name="unread_n">
+        <item quantity="one">%d okunmamış</item>
+        <item quantity="other">%d okunmamış</item>
+    </plurals>
+    <plurals name="groups_n">
+        <item quantity="one">%d grup</item>
+        <item quantity="other">%d grup</item>
+    </plurals>
+    <plurals name="group_members">
+        <item quantity="one">%d üye</item>
+        <item quantity="other">%d üye</item>
+    </plurals>
+    <!-- Several chosen in a new message: the same to each, or one group MMS. -->
+    <string name="send_each">Herkese ayrı</string>
+    <string name="send_group">Grup MMS\'i</string>
+    <string name="send_each_note">Herkes kendi mesajını alır ve yalnızca size yanıt verir.</string>
+    <string name="send_group_note">Herkese tek MMS: herkes grupta kimlerin olduğunu ve herkesin yanıtlarını görür.</string>
+    <string name="send_group_most">Grup MMS\'i 2 ile %1$d alıcı arasına gider.</string>
+    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <string name="me_change">⇄ Kişi kartını değiştir</string>
+    <string name="me_create">✚ Kişi kartımı oluştur</string>
+    <string name="me_tie_mine">Sertifikama bağla: %1$s</string>
+    <string name="me_tie_other">Başka bir sertifikaya bağla…</string>
+    <string name="me_label">Ben:</string>
+    <string name="me_default">☎ Varsayılan numarayı belirle</string>
+    <string name="me_link">“%1$s” ile bağla (%2$s)</string>
+    <string name="me_choose_for">Ben, %1$s numarasında:</string>
+    <string name="me_no_number">Bu kişi kartında telefon numarası yok: burada sizinki olamaz. Bu telefonun numarasını ekleyin, sonra “Ben” bölümünden bağlayın.</string>
+    <string name="me_tag">(ben)</string>
+    <string name="me_unknown">numara bilinmiyor</string>
+    <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
+    <string name="choose_name">Ad:</string>
+    <string name="name_contact">Kişi kartındakini koru:</string>
+    <string name="name_certificate">Sertifikadakini al:</string>
+    <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
+    <string name="group_needs_me">Grup MMS\'i size de, numaranıza gider: önce MMS grupları sayfasındaki “Ben” bölümünden kişi kartınızı bağlayın.</string>
+    <string name="altered_title">Grup mesajı değiştirilmiş</string>
+    <string name="altered">Gönderdiğiniz bir grup mesajı size farklı döndü: yolda büyük olasılıkla tüm alıcılar için değiştirildi.</string>
+    <string name="channel_altered">Değiştirilmiş mesajlar</string>
+    <!-- A message sent to each of several at once, in the conversation of each. -->
+    <string name="sent_to_each">⇉ %1$d kişiye gönderildi</string>
+    <string name="write_to_each">✎ Bu %1$d kişiye yeni mesaj</string>
+    <!-- A new message: after the recent conversations, every contact one can write to. -->
+    <string name="all_contacts">Tüm kişiler (%1$d)</string>
+    <string name="conf_group_most">Grup MMS\'i sınırı</string>
+    <string name="conf_group_most_note">Alıcı sayısı operatöre göre sınırlıdır. On alıcıyla bir MMS genellikle her yerde geçer; bazı operatörler çok daha fazlasını kabul eder.</string>
+    <string name="group_over">Bu grubun siz dahil %1$d üyesi var; yapılandırmada belirlenen %2$d sınırının üzerinde: operatör mesajı reddedebilir ya da her birine ayrı ayrı iletebilir.</string>
+    <string name="group_over_send">Yine de gönder</string>
+    <string name="conf_mms_on">MMS\'i etkinleştir</string>
+    <string name="conf_mms_on_note">Açıkken bir SMS\'ten uzun metin tek MMS olarak gider; ekler, sesli mesajlar ve grup MMS\'leri gönderilebilir. Kapalıyken uzun metin birkaç SMS olarak gider ve bunların hiçbiri olmaz. Alınan MMS\'ler yine gösterilir.</string>
+    <string name="mms_off">MMS yapılandırmada kapalı: ek, sesli mesaj ya da grup MMS\'i yok.</string>
+    <string name="many_sms">Bu mesaj %1$d SMS olarak gider: bazı telefonlar onları kötü birleştirir ve operatörünüz her birini ayrı ücretlendirebilir.</string>
 </resources>

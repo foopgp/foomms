@@ -1,4 +1,5 @@
-• Pisana wiadomość nie ginie już po przejściu do innej aplikacji, także do wielu odbiorców.
-• Karta kontaktu: każda notatka we własnej ramce i „Zachowaj te z kontaktu”, gdy jest ich kilka.
-• Wideo na pełnym ekranie dostosowane do nowszych wersji Androida.
-• Lżejsza i szybsza aplikacja.
+• Pisana wiadomość już nie ginie, także do wielu odbiorców.
+• Zaszyfrowana wiadomość pozostaje nieprzeczytana, dopóki nie zostanie odszyfrowana; „Oznacz jako przeczytane / nieprzeczytane” dla odebranych.
+• Potwierdzenie przed wysłaniem bez szyfrowania, gdy szyfrowanie jest możliwe.
+• Zdjęcia działają z aparatem /e/OS; załącznik usuwa się czerwonym krzyżykiem.
+• Karta kontaktu: każda notatka we własnej ramce. Lżejsza aplikacja.

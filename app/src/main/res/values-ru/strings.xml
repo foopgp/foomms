@@ -37,7 +37,6 @@
     <string name="standing_expired">истёк</string>
     <string name="standing_revoked">отозван</string>
     <string name="standing_broken">повреждён</string>
-    <string name="talks">Переписки</string>
     <string name="locked_for">⚿ Зашифрованное сообщение для</string>
     <string name="share">⤴ Поделиться</string>
     <string name="save">↧ Сохранить</string>
@@ -66,26 +65,19 @@
     <string name="message">Сообщение</string>
     <string name="let_in">Попросить foodjis допустить foomms</string>
     <string name="conf_mms">MMS</string>
-    <string name="conf_prefer_mms">Предпочитать MMS</string>
-    <string name="conf_prefer_mms_note">Любой текст длиннее одного SMS отправляется как MMS: полезно, если длинные сообщения приходят по частям или не по порядку. MMS использует мобильные данные, и оператор может взимать за него плату.</string>
-    <string name="conf_warn_mms">Предупреждать перед отправкой MMS</string>
-    <string name="conf_warn_mms_note">Текст длиннее пяти SMS отправляется как MMS. Предупреждение избавит вас от платы, которую может взять оператор.</string>
-    <string name="mms_ask">Это сообщение длинное: оно будет отправлено как MMS, за который оператор может взять плату.</string>
     <string name="plain_ask">В этом разговоре возможно шифрование, но оно выключено. Отправить сообщение без шифрования?</string>
     <string name="plain_send">Отправить без шифрования</string>
     <string name="plain_lock">⚿ Зашифровать и отправить</string>
-    <string name="mms_send">Отправить</string>
     <string name="language_name">русский</string>
     <string name="conf_language">Язык</string>
     <string name="conf_language_note">Хотя foomms сделан во Франции, он говорит на одиннадцати языках.</string>
     <string name="conf_language_change">⚑ Изменить язык приложения</string>
     <string name="search_all">🔍 Поиск по перепискам</string>
     <string name="search_here">🔍 Поиск в этих сообщениях</string>
+    <string name="search_page">🔍 Искать в этой беседе</string>
     <string name="search_hint">Слова для поиска</string>
     <string name="hit_from">от %1$s</string>
     <string name="hit_to">для %1$s</string>
-    <string name="count_all">%1$d/%2$d сообщений PGP</string>
-    <string name="count_unread">%1$d/%2$d непрочитанных</string>
     <string name="carrying">%1$s\n%2$d КБ</string>
     <string name="too_heavy">Слишком большой для MMS в этой сети (не более %1$d КБ) или нечитаемый.</string>
     <string name="handed_mms">MMS передано телефону: %1$s</string>
@@ -125,15 +117,17 @@
     <string name="tie_ask_before">Его сертификат</string>
     <string name="tie_ask_after">. Это будет записано в вашу адресную книгу, где у контакта этого ещё нет:</string>
     <string name="whom_hint">Имя или номер телефона</string>
-    <string name="show_unread">Подробнее</string>
     <string name="mark_all_read">○ Отметить всё как прочитанное</string>
     <string name="mark_all_read_ask">Отметить непрочитанные сообщения (%1$d) как прочитанные?</string>
     <string name="mark_read">○ Отметить как прочитанное</string>
     <string name="mark_unread">● Отметить как непрочитанное</string>
-    <string name="show_all">Показать все</string>
     <string name="count_detail">%1$d сообщений: %2$d SMS + %3$d MMS\nиз них %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d переписок — %8$s байт</string>
-    <string name="count_detail_unread">%1$d непрочитанных</string>
-    <string name="count_detail_unread_rest">, из них %1$d PGP, в %2$d переписках</string>
+    <plurals name="count_detail_unread_rest">
+        <item quantity="one">, из них %1$d PGP, в %2$d переписке</item>
+        <item quantity="few">, из них %1$d PGP, в %2$d переписках</item>
+        <item quantity="many">, из них %1$d PGP, в %2$d переписках</item>
+        <item quantity="other">, из них %1$d PGP, в %2$d переписках</item>
+    </plurals>
     <string name="switch_sign">Подписать</string>
     <string name="switch_lock">Зашифровать</string>
     <string name="cert_show">🔑 Показать сертификат</string>
@@ -191,7 +185,6 @@
     <string name="write_to">Написать на %1$s</string>
     <string name="decrypt_this">⚿ Расшифровать это сообщение</string>
     <string name="search_contacts">🔍 Поиск по контактам</string>
-    <string name="contacts">Контакты</string>
     <string name="attach_text">📋 Текст</string>
     <string name="clipboard_empty">Нечего вставить: буфер обмена пуст.</string>
     <string name="restricted_hint">Установленный из файла foomms сможет читать и отправлять SMS, только когда Android это разрешит: в настройках foomms, меню ⋮ в правом верхнем углу, выберите «Разрешить настройки с ограниченным доступом», затем вернитесь сюда и нажмите «Разрешить».</string>
@@ -226,4 +219,73 @@
     <string name="video_camera">Задняя или передняя камера</string>
     <string name="video_light">Подсветка</string>
     <string name="video_sound">Только звук (%1$s)</string>
+    <!-- The three pages of the list, and what each counts under its name. -->
+    <string name="page_talks">Беседы</string>
+    <string name="page_unread">Непрочитанные</string>
+    <string name="page_unread_n">Непрочитанные (%1$d)</string>
+    <string name="page_groups">MMS-группы</string>
+    <plurals name="talks_n">
+        <item quantity="one">%d беседа</item>
+        <item quantity="few">%d беседы</item>
+        <item quantity="many">%d бесед</item>
+        <item quantity="other">%d беседы</item>
+    </plurals>
+    <plurals name="unread_n">
+        <item quantity="one">%d непрочитанное</item>
+        <item quantity="few">%d непрочитанных</item>
+        <item quantity="many">%d непрочитанных</item>
+        <item quantity="other">%d непрочитанного</item>
+    </plurals>
+    <plurals name="groups_n">
+        <item quantity="one">%d группа</item>
+        <item quantity="few">%d группы</item>
+        <item quantity="many">%d групп</item>
+        <item quantity="other">%d группы</item>
+    </plurals>
+    <plurals name="group_members">
+        <item quantity="one">%d участник</item>
+        <item quantity="few">%d участника</item>
+        <item quantity="many">%d участников</item>
+        <item quantity="other">%d участника</item>
+    </plurals>
+    <!-- Several chosen in a new message: the same to each, or one group MMS. -->
+    <string name="send_each">Каждому отдельно</string>
+    <string name="send_group">Групповое MMS</string>
+    <string name="send_each_note">Каждый получает своё сообщение и отвечает только вам.</string>
+    <string name="send_group_note">Одно MMS всем: каждый видит, кто в группе, и ответы всех.</string>
+    <string name="send_group_most">Групповое MMS — от 2 до %1$d получателей.</string>
+    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <string name="me_change">⇄ Сменить карточку контакта</string>
+    <string name="me_create">✚ Создать мою карточку контакта</string>
+    <string name="me_tie_mine">Связать с моим сертификатом: %1$s</string>
+    <string name="me_tie_other">Связать с другим сертификатом…</string>
+    <string name="me_label">Я:</string>
+    <string name="me_default">☎ Выбрать номер по умолчанию</string>
+    <string name="me_link">Связать с «%1$s» (%2$s)</string>
+    <string name="me_choose_for">Я, по номеру %1$s:</string>
+    <string name="me_no_number">В этой карточке контакта нет номера телефона: здесь она не может быть вашей. Добавьте в неё номер этого телефона, затем свяжите её в разделе «Я».</string>
+    <string name="me_tag">(я)</string>
+    <string name="me_unknown">номер неизвестен</string>
+    <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
+    <string name="choose_name">Имя:</string>
+    <string name="name_contact">Оставить имя из контакта:</string>
+    <string name="name_certificate">Взять имя из сертификата:</string>
+    <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
+    <string name="group_needs_me">Групповое MMS приходит и вам, на ваш номер: сначала свяжите свою карточку контакта в разделе «Я» на странице «MMS-группы».</string>
+    <string name="altered_title">Групповое сообщение изменено</string>
+    <string name="altered">Отправленное вами групповое сообщение вернулось другим: вероятно, его изменили в пути, для всех получателей.</string>
+    <string name="channel_altered">Изменённые сообщения</string>
+    <!-- A message sent to each of several at once, in the conversation of each. -->
+    <string name="sent_to_each">⇉ отправлено %1$d адресатам</string>
+    <string name="write_to_each">✎ Новое сообщение этим %1$d адресатам</string>
+    <!-- A new message: after the recent conversations, every contact one can write to. -->
+    <string name="all_contacts">Все контакты (%1$d)</string>
+    <string name="conf_group_most">Предел группового MMS</string>
+    <string name="conf_group_most_note">Число получателей ограничено в зависимости от оператора. С десятью получателями MMS обычно проходит везде; некоторые операторы принимают гораздо больше.</string>
+    <string name="group_over">В этой группе %1$d участников, включая вас, больше предела %2$d, заданного в настройках: оператор может отклонить сообщение или доставить его каждому по отдельности.</string>
+    <string name="group_over_send">Всё равно отправить</string>
+    <string name="conf_mms_on">Включить MMS</string>
+    <string name="conf_mms_on_note">Включено: текст длиннее одного SMS уходит одним MMS, и можно отправлять вложения, голосовые сообщения и групповые MMS. Выключено: длинный текст уходит несколькими SMS, и ничего из этого. Полученные MMS по-прежнему показываются.</string>
+    <string name="mms_off">MMS выключены в настройках: ни вложений, ни голосовых сообщений, ни групповых MMS.</string>
+    <string name="many_sms">Это сообщение уйдёт %1$d SMS: некоторые телефоны плохо их склеивают, а оператор может брать плату за каждое.</string>
 </resources>

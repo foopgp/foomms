@@ -1,0 +1,6 @@
+• Tre pagine: Conversazioni, Non letti e Gruppi MMS, caricate scorrendo.
+• Gruppi MMS: i membri viaggiano con il messaggio, anche quando la rete lo divide; cifratura a scelta; «Io» in cima alla pagina.
+• Invio multiplo: ogni copia nella conversazione del suo destinatario; cifrata solo per lui, firmata una sola volta.
+• Un solo interruttore «Attivare gli MMS».
+• Volti in pixel, ricerca in una conversazione, tutti i contatti dalla A alla Z.
+• Richiede foodjis 1.5.0.

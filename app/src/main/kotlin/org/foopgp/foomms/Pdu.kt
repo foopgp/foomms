@@ -67,6 +67,8 @@ object Pdu {
                 write(TEXT_PLAIN) ; write(CHARSET) ; write(UTF_8)
             } else {
                 text(part.type)
+                // Any other text -- a contact card -- says its alphabet too: names are not all ASCII.
+                if (part.type.startsWith("text/")) { write(CHARSET) ; write(UTF_8) }
             }
             write(NAME) ; text(part.name)
         }.toByteArray()

@@ -76,7 +76,8 @@ object PduRead {
                 when (header) {
                     MESSAGE_TYPE -> kind = value.bytes[0].toInt() and 0xFF
                     FROM -> from = from(value)
-                    TO -> encoded(value)?.let { to += address(it) }
+                    // Those in copy are as much the group's as those it is addressed to.
+                    TO, CC -> encoded(value)?.let { to += address(it) }
                     SUBJECT -> subject = encoded(value)
                     DATE -> date = integer(value)
                     CONTENT_LOCATION -> location = text(value.bytes)
@@ -240,6 +241,7 @@ object PduRead {
     private const val MESSAGE_TYPE = 0x8C
     private const val SUBJECT = 0x96
     private const val TO = 0x97
+    private const val CC = 0x82
     private const val TRANSACTION_ID = 0x98
     private const val ADDRESS_PRESENT = 0x80
     private const val PARAMETER_CHARSET = 0x01

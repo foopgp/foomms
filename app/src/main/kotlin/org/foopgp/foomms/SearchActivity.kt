@@ -28,6 +28,9 @@ class SearchActivity : Activity() {
 
     private val number by lazy { intent.getStringExtra(EXTRA_NUMBER) }
     private var hits: List<Store.Hit> = emptyList()
+
+    /** Of the results, those that stand for a message sent to each of several: whom it went to. */
+    private var alongside: Map<Store.Hit, List<String>> = emptyMap()
     private val names = HashMap<String, String>()
     private var turn = 0
 
@@ -37,7 +40,6 @@ class SearchActivity : Activity() {
     private var people: List<Whom> = emptyList()
     private var inContacts = false
     private lateinit var asked: EditText
-    private lateinit var where: android.widget.Button
 
     private val foodjis by lazy { Foodjis.of(this) }
 
@@ -49,7 +51,8 @@ class SearchActivity : Activity() {
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
         super.onCreate(state)
-        inContacts = number == null && Conf.searchContacts(this)
+        // Where it was asked to look: the search button asks it ([Searching]).
+        inContacts = number == null && intent.getStringExtra(EXTRA_IN) == IN_CONTACTS
         asked = EditText(this).apply {
             inputType = InputType.TYPE_CLASS_TEXT
             setSingleLine()
@@ -67,12 +70,10 @@ class SearchActivity : Activity() {
             setOnItemClickListener { _, _, at, _ ->
                 if (inContacts) return@setOnItemClickListener people.getOrNull(at)?.let { write(it.number) } ?: Unit
                 val hit = hits[at]
-                hit.number?.let {
-                    startActivity(
-                        Intent(context, ThreadActivity::class.java)
-                            .putExtra(ThreadActivity.EXTRA_NUMBER, it).putExtra(ThreadActivity.EXTRA_AT, hit.at),
-                    )
-                }
+                // Sent to each of several: whom to, and pressed, the conversation with that one.
+                val each = alongside[hit]
+                if (each != null) return@setOnItemClickListener chooseAmong(each, hit.at)
+                hit.number?.let { open(it, hit.at) }
             }
         }
         val pad = Look.dp(this, 12)
@@ -85,9 +86,6 @@ class SearchActivity : Activity() {
                         orientation = LinearLayout.HORIZONTAL
                         gravity = android.view.Gravity.CENTER_VERTICAL
                         addView(asked, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-                        // Where to look, beside what to look for: only from the list of conversations.
-                        where = Look.small(context, "") { choose() }
-                        if (number == null) addView(where)
                     },
                 )
                 addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
@@ -98,26 +96,26 @@ class SearchActivity : Activity() {
         asked.requestFocus()
     }
 
-    /** The contacts or the conversations, asked in their own words; the choice is kept for the next time. */
-    private fun choose() {
-        val labels = arrayOf(getString(R.string.search_contacts), getString(R.string.search_all))
-        android.app.AlertDialog.Builder(this)
-            .setItems(labels) { _, which ->
-                inContacts = which == 0
-                Conf.searchContacts(this, inContacts)
-                dressFor()
-            }
-            .show()
-    }
-
     private fun dressFor() {
         Look.barTitle(this, getString(if (number != null) R.string.search_here else if (inContacts) R.string.search_contacts else R.string.search_all))
         asked.setHint(if (inContacts) R.string.whom_hint else R.string.search_hint)
-        where.text = getString(if (inContacts) R.string.contacts else R.string.talks) + " ▾"
         hits = emptyList()
         people = emptyList()
         found.notifyDataSetChanged()
         look(asked.text.toString())
+    }
+
+    private fun open(number: String, at: Long) =
+        startActivity(Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, number).putExtra(ThreadActivity.EXTRA_AT, at))
+
+    /** Those a message went to, by name: the one pressed, its conversation at that message. */
+    private fun chooseAmong(numbers: List<String>, at: Long) {
+        val named = numbers.map { one -> synchronized(names) { names[one] }?.takeIf { it != one }?.let { "$it — $one" } ?: one }
+        android.app.AlertDialog.Builder(this)
+            .setTitle(getString(R.string.sent_to_each, numbers.size))
+            .setItems(named.toTypedArray()) { _, which -> open(numbers[which], at) }
+            .setNegativeButton(R.string.close, null)
+            .show()
     }
 
     private fun write(to: String) =
@@ -150,7 +148,16 @@ class SearchActivity : Activity() {
         val mine = ++turn
         thread {
             val within = number?.let { runCatching { Store.thread(this, it) }.getOrNull() ?: -1L }
-            val results = runCatching { Store.search(this, wanted, within) }.getOrDefault(emptyList())
+            val all = runCatching { Store.search(this, wanted, within) }.getOrDefault(emptyList())
+            // The copies of one message sent to each of several, one result: the same words, sent at one moment -- or,
+            // as another application filed a sending to each, in one conversation within moments.
+            val each = HashMap<Store.Hit, List<String>>()
+            val results = ArrayList<Store.Hit>()
+            for (hit in all) {
+                val first = if (hit.incoming) null else results.firstOrNull { !it.incoming && it.words == hit.words && (it.at == hit.at || (it.thread == hit.thread && kotlin.math.abs(it.at - hit.at) <= ALONGSIDE)) }
+                if (first == null) { results += hit ; continue }
+                each[first] = (each[first] ?: listOfNotNull(first.number)) + listOfNotNull(hit.number)
+            }
             val contacts = checkSelfPermission(android.Manifest.permission.READ_CONTACTS) == android.content.pm.PackageManager.PERMISSION_GRANTED
             if (contacts) {
                 for (who in results.mapNotNull { it.number }.distinct()) {
@@ -163,6 +170,7 @@ class SearchActivity : Activity() {
                 // An answer to what was typed three letters ago is no answer to what is typed now.
                 if (isFinishing || isDestroyed || mine != turn || inContacts) return@runOnUiThread
                 hits = results
+                alongside = each
                 found.notifyDataSetChanged()
             }
         }
@@ -202,7 +210,8 @@ class SearchActivity : Activity() {
         private fun message(hit: Store.Hit): View {
             val context = this@SearchActivity
             val who = hit.number?.let { synchronized(names) { names[it] } ?: it } ?: getString(R.string.unknown_number)
-            val about = getString(if (hit.incoming) R.string.hit_from else R.string.hit_to, who) + "  ·  " +
+            val many = alongside[hit]
+            val about = (if (many != null) getString(R.string.sent_to_each, many.size) else getString(if (hit.incoming) R.string.hit_from else R.string.hit_to, who)) + "  ·  " +
                 DateUtils.getRelativeTimeSpanString(hit.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL)
             return LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
@@ -221,6 +230,14 @@ class SearchActivity : Activity() {
     companion object {
         /** The conversation to look in; none, and every conversation is looked in. */
         const val EXTRA_NUMBER = "number"
+
+        /** Where to look: in the contacts, or in every conversation. */
+        const val EXTRA_IN = "in"
+        const val IN_CONTACTS = "contacts"
+        const val IN_TALKS = "talks"
+
+        /** How far apart the copies of one message sent to each may have been written. */
+        private const val ALONGSIDE = 2 * 60 * 1000L
 
         /** How many contacts the list shows at most. */
         private const val MOST_CONTACTS = 200

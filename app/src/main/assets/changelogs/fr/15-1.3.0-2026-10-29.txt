@@ -1,0 +1,6 @@
+• Trois pages : Conversations, Non-lus et Groupes MMS, chargées au fil du défilement.
+• Groupes MMS : les membres voyagent avec le message, même quand le réseau les sépare ; chiffrement au choix ; « Moi » en tête de page.
+• Envoi multiple : chaque copie dans la conversation de son destinataire ; chiffrée pour lui seul, signée une seule fois.
+• Un seul interrupteur « Activer les MMS ».
+• Visages en pixels, recherche dans une conversation, tous les contacts de A à Z.
+• Demande foodjis 1.5.0.

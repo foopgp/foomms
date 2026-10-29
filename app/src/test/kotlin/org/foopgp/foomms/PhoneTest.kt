@@ -38,4 +38,29 @@ class PhoneTest {
         )
         assertEquals(listOf("+33600000000", "+33700000000"), Phone.carried(userIds))
     }
+
+    @Test fun `a message to several is the group's, this phone among them`() {
+        val me = "+33600000000"
+        // To this phone alone: the sender's conversation.
+        assertEquals(listOf("+33611111111"), Phone.received("+33611111111", listOf("0600000000")))
+        // To a group: the sender and every number it went to, once, however each is written.
+        assertEquals(
+            listOf("+33611111111", "06 00 00 00 00", "+33622222222"),
+            Phone.received("+33611111111", listOf("06 00 00 00 00", "+33622222222", "06.11.11.11.11")),
+        )
+        // Sent to one: that one's conversation; to several: the same numbers as a group's message received.
+        assertEquals(listOf("+33611111111"), Phone.sent(listOf("+33611111111"), me))
+        assertEquals(listOf("+33611111111", "+33622222222", me), Phone.sent(listOf("+33611111111", "+33622222222"), me))
+    }
+
+    @Test fun `a group is the same whether it names this phone or not, in any order and writing`() {
+        val me = "+33600000000"
+        val mine = listOf(me, "0699999999")
+        val key = Phone.group(listOf("+33611111111", "+33622222222"), mine)
+        assertEquals(key, Phone.group(listOf("06 22 22 22 22", "+33611111111"), mine))
+        assertEquals(key, Phone.group(listOf("+33611111111", "0600000000", "+33622222222"), mine))
+        assertEquals(key, Phone.group(listOf("+33622222222", "+33611111111", "+33600000000"), mine))
+        // A number this phone had before is this phone's too.
+        assertEquals(key, Phone.group(listOf("+33622222222", "+33611111111", "+33699999999"), mine))
+    }
 }

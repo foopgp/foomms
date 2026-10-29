@@ -40,8 +40,8 @@ class Card(val lines: List<Line>) {
 
     /** What would be written, as a person reads it: a line each, the key and the face only named. */
     /** Its lines as said to a person; the notes left out when [withNotes] is false, they being asked about apart. */
-    fun told(withNotes: Boolean = true): List<String> = buildList {
-        name?.let { add(it) }
+    fun told(withNotes: Boolean = true, withName: Boolean = true): List<String> = buildList {
+        if (withName) name?.let { add(it) }
         addAll(emails) ; addAll(phones) ; addAll(addresses.map { it.replace('\n', ' ') }) ; addAll(websites)
         if (withNotes) addAll(notes)
     }

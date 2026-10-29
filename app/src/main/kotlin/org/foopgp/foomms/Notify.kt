@@ -22,9 +22,10 @@ object Notify {
      * more is to be said of it: a signed message is verified after being
      * announced, and the receiver keeps the process alive until then.
      */
-    fun arrived(context: Context, number: String, body: String, form: Form = Form.of(body), done: () -> Unit = {}) {
-        // Not announced: a sender the person asked not to hear of.
+    fun arrived(context: Context, number: String, body: String, form: Form = Form.of(body), group: Long? = null, done: () -> Unit = {}) {
+        // Not announced: a sender the person asked not to hear of, or a group.
         if (Marks.muted(context, number)) return done()
+        if (group != null && Marks.muted(context, "group:" + Phone.group(Store.members(context, group), Me.all(context)))) return done()
         val manager = context.getSystemService(NotificationManager::class.java) ?: return done()
         manager.createNotificationChannel(
             NotificationChannel(CHANNEL, context.getString(R.string.channel_messages), NotificationManager.IMPORTANCE_HIGH),
@@ -45,8 +46,9 @@ object Notify {
         val dark = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
         fun show(text: String, colour: Int) {
             val open = PendingIntent.getActivity(
-                context, number.hashCode(),
+                context, group?.hashCode() ?: number.hashCode(),
                 Intent(context, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, number)
+                    .apply { group?.let { putExtra(ThreadActivity.EXTRA_THREAD, it) } }
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
@@ -63,7 +65,7 @@ object Notify {
                 .setColor(colour)
                 .apply { face?.let { setLargeIcon(it) } }
                 .build()
-            runCatching { manager.notify(number.hashCode(), shown) }
+            runCatching { manager.notify(group?.hashCode() ?: number.hashCode(), shown) }
         }
         show(words, Look.colour(form, dark))
         if (armor == null || Pgp.isLocked(armor)) return done()
