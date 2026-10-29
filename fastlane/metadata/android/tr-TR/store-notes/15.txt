@@ -1,0 +1,6 @@
+• Üç sayfa: Konuşmalar, Okunmamış ve MMS grupları, kaydırdıkça yüklenir.
+• MMS grupları: üyeler, ağ iletiyi bölse bile iletiyle birlikte gider; şifreleme isteğe bağlı; sayfanın başında "Ben".
+• Herkese ayrı: her kopya alıcısının konuşmasında; yalnızca onun için şifreli, tek bir kez imzalı.
+• Tek bir "MMS'i etkinleştir" anahtarı.
+• Piksel yüzler, bir konuşmada arama, A'dan Z'ye tüm kişiler.
+• foodjis 1.5.0 gerekir.

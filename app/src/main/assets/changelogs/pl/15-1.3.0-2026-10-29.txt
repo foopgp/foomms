@@ -1,0 +1,6 @@
+• Trzy strony: Rozmowy, Nieprzeczytane i Grupy MMS, wczytywane podczas przewijania.
+• Grupy MMS: członkowie podróżują z wiadomością, nawet gdy sieć ją rozdziela; szyfrowanie do wyboru; „Ja” na górze strony.
+• Wysyłka do każdego: każda kopia w rozmowie swojego odbiorcy; zaszyfrowana tylko dla niego, podpisana tylko raz.
+• Jeden przełącznik „Włącz MMS”.
+• Twarze z pikseli, wyszukiwanie w rozmowie, wszystkie kontakty od A do Z.
+• Wymaga foodjis 1.5.0.
