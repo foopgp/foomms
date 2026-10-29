@@ -52,7 +52,7 @@ class ThreadActivity : AskingActivity() {
     private val mode: Mode get() = Mode.of(signs.isChecked && signs.isEnabled, locks.isChecked && locks.isEnabled)
 
     /** Who a key a message names belongs to, as far as foodjis knows. */
-    private class For(val name: String, val face: Bitmap?)
+    private class For(val name: String, val face: Bitmap?, val validity: String? = null, val fingerprint: String? = null)
 
     private val meant: MutableMap<Long, For?> = java.util.Collections.synchronizedMap(HashMap())
 
@@ -640,7 +640,7 @@ class ThreadActivity : AskingActivity() {
             val named = (found.mapNotNull { armorOf(it) }.filter { Pgp.isLocked(it) }.flatMap { Pgp.recipients(it) } +
                 pieces.flatMap { sealedFor[it.id].orEmpty() }).distinct()
             val faces = named.filter { !meant.containsKey(it) }.map { id ->
-                thread { meant[id] = foodjis.signer(id)?.let { whose -> For(whose.name, foodjis.face(whose.fingerprint)) } ; drip() }
+                thread { meant[id] = foodjis.signer(id)?.let { whose -> For(whose.name, foodjis.face(whose.fingerprint), whose.validity, whose.fingerprint) } ; drip() }
             }
             (faces + pictures + lengths).forEach { it.join() }
             // What the locked parts said known: those signed only are verified now.
@@ -1614,12 +1614,13 @@ class ThreadActivity : AskingActivity() {
             setPadding(pad, pad / 2, pad, 0)
         }
         fun text(words: CharSequence) = column.addView(Look.words(this, words, size = 15f).apply { setTextIsSelectable(true) })
-        fun person(face: Bitmap?, words: CharSequence) = column.addView(
+        // Each framed in its certificate's colour, as everywhere a person is named.
+        fun person(face: Bitmap?, words: CharSequence, standing: String? = null, seed: String? = null) = column.addView(
             LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 setPadding(0, Look.dp(context, 3), 0, Look.dp(context, 3))
-                addView(Look.face(context, 32, null, face))
+                addView(Look.face(context, 32, null, face, standing, framable = true, seed = seed))
                 addView(Look.words(context, words, size = 15f).apply { setTextIsSelectable(true) ; setPadding(Look.dp(context, 10), 0, 0, 0) })
             },
         )
@@ -1630,10 +1631,10 @@ class ThreadActivity : AskingActivity() {
         if (lockedWords || lockedParts.isNotEmpty()) {
             text(getString(R.string.detail_locked))
             val keys = (armor?.takeIf { lockedWords }?.let { Pgp.recipients(it) }.orEmpty() + lockedParts.flatMap { sealedFor[it.id].orEmpty() }).distinct()
-            for (id in keys) person(meant[id]?.face, (meant[id]?.name ?: getString(R.string.detail_unknown_key)) + "\n0x%016X".format(id))
+            for (id in keys) person(meant[id]?.face, (meant[id]?.name ?: getString(R.string.detail_unknown_key)) + "\n0x%016X".format(id), meant[id]?.validity, meant[id]?.fingerprint)
         }
         sealOf(line)?.let { seal ->
-            seal.signed?.let { Signer.words(this, it) }?.let { if (signer != null) person(signerFace, it) else text(it) }
+            seal.signed?.let { Signer.words(this, it) }?.let { if (signer != null) person(signerFace, it, signer.validity, signer.fingerprint) else text(it) }
             val more = buildString {
                 seal.signer?.let { append(getString(R.string.detail_signer_key, "%016X".format(it))).append('\n') }
                 signer?.let { append(getString(R.string.detail_signer_fpr, it.fingerprint.chunked(4).joinToString(" "))).append('\n') }
