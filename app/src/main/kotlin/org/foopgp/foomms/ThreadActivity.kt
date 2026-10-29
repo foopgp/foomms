@@ -257,7 +257,7 @@ class ThreadActivity : AskingActivity() {
                         letIn = if (foodjis.shut) ({ letIn() }) else null,
                     )
                 }
-                addView(Look.icon(context, R.drawable.search, getString(R.string.search_here)) { seeking(seeker.visibility != View.VISIBLE) })
+                addView(Look.icon(context, R.drawable.search, getString(R.string.search_here)) { Searching.ask(this@ThreadActivity) { seeking(true) } })
             }
             customView.layoutParams = android.app.ActionBar.LayoutParams(android.app.ActionBar.LayoutParams.MATCH_PARENT, android.app.ActionBar.LayoutParams.WRAP_CONTENT)
         }

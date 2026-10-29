@@ -163,7 +163,7 @@ class MainActivity : AskingActivity() {
                     },
                     LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f),
                 )
-                addView(Look.icon(context, R.drawable.search, getString(R.string.search_all)) { Menus.search(this@MainActivity) })
+                addView(Look.icon(context, R.drawable.search, getString(R.string.search_all)) { Searching.ask(this@MainActivity) { filtering(true) } })
             }
             // The whole width of the bar.
             customView.layoutParams = android.app.ActionBar.LayoutParams(android.app.ActionBar.LayoutParams.MATCH_PARENT, android.app.ActionBar.LayoutParams.WRAP_CONTENT)
@@ -200,6 +200,28 @@ class MainActivity : AskingActivity() {
             setOnClickListener { me?.let { known -> MeMenu.show(this@MainActivity, known) { meChanged() } } }
         }
         column.addView(meBox)
+        // Searching on the page: the lines it shows, kept to those whose name or last words hold what is typed.
+        onPage = android.widget.EditText(this).apply {
+            setHint(R.string.search_hint)
+            setSingleLine()
+            addTextChangedListener(
+                object : android.text.TextWatcher {
+                    override fun afterTextChanged(text: android.text.Editable?) = redraw()
+                    override fun beforeTextChanged(text: CharSequence?, start: Int, count: Int, after: Int) = Unit
+                    override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) = Unit
+                },
+            )
+        }
+        searchingHere = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            val side = Look.dp(context, 12)
+            setPadding(side, 0, side / 2, 0)
+            visibility = View.GONE
+            addView(onPage, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            addView(Look.small(context, "✕") { filtering(false) })
+        }
+        column.addView(searchingHere)
         column.addView(closing)
         column.addView(asking)
         detail = Look.words(this, "", size = 14f, muted = true).apply {
@@ -283,6 +305,18 @@ class MainActivity : AskingActivity() {
         synchronized(lines) { lines.clear() }
         readMe()
         fill()
+    }
+
+    private lateinit var onPage: android.widget.EditText
+    private lateinit var searchingHere: LinearLayout
+
+    /** The page's own search, shown and its field given the keys, or gone with what it kept out. */
+    private fun filtering(on: Boolean) {
+        searchingHere.visibility = if (on) View.VISIBLE else View.GONE
+        val keys = getSystemService(android.view.inputmethod.InputMethodManager::class.java)
+        if (on) { onPage.requestFocus() ; keys?.showSoftInput(onPage, 0) }
+        else { onPage.setText("") ; keys?.hideSoftInputFromWindow(onPage.windowToken, 0) }
+        redraw()
     }
 
     /** Oneself read again, for the groups' page: what one's contact, number or certificate are now. */
@@ -657,13 +691,14 @@ class MainActivity : AskingActivity() {
      * conversations read for themselves --, with the counts spelled out above.
      */
     private fun redraw() {
+        val wanted = if (::onPage.isInitialized && searchingHere.visibility == View.VISIBLE) onPage.text.toString().trim() else ""
         rows = merged(
             when (page) {
                 Page.TALKS -> every.filter { it.group == null }
                 Page.UNREAD -> pageRows ?: every.filter { it.talk.unread }
                 Page.GROUPS -> (pageRows ?: every).filter { it.group != null }
             },
-        )
+        ).filter { wanted.isEmpty() || it.name.contains(wanted, ignoreCase = true) || it.last.contains(wanted, ignoreCase = true) }
         talks.notifyDataSetChanged()
         heading.text = named(page).takeIf { page != Page.UNREAD } ?: getString(R.string.page_unread)
         others.removeAllViews()

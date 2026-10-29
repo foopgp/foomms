@@ -81,6 +81,7 @@
     <string name="conf_language_change">⚑ Uygulamanın dilini değiştir</string>
     <string name="search_all">🔍 Konuşmalarda ara</string>
     <string name="search_here">🔍 Bu mesajlarda ara</string>
+    <string name="search_page">🔍 Sayfada ara</string>
     <string name="search_hint">Aranacak sözcükler</string>
     <string name="hit_from">%1$s kişisinden</string>
     <string name="hit_to">%1$s kişisine</string>

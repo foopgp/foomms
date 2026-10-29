@@ -52,7 +52,8 @@ class SearchActivity : Activity() {
     override fun onCreate(state: Bundle?) {
         Look.dress(this)
         super.onCreate(state)
-        inContacts = number == null && Conf.searchContacts(this)
+        // Where it was asked to look, else where it looked last.
+        inContacts = number == null && (intent.getStringExtra(EXTRA_IN)?.let { it == IN_CONTACTS } ?: Conf.searchContacts(this))
         asked = EditText(this).apply {
             inputType = InputType.TYPE_CLASS_TEXT
             setSingleLine()
@@ -246,6 +247,11 @@ class SearchActivity : Activity() {
     companion object {
         /** The conversation to look in; none, and every conversation is looked in. */
         const val EXTRA_NUMBER = "number"
+
+        /** Where to look: in the contacts, or in every conversation. */
+        const val EXTRA_IN = "in"
+        const val IN_CONTACTS = "contacts"
+        const val IN_TALKS = "talks"
 
         /** How far apart the copies of one message sent to each may have been written. */
         private const val ALONGSIDE = 2 * 60 * 1000L

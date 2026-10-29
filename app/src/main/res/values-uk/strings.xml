@@ -81,6 +81,7 @@
     <string name="conf_language_change">⚑ Змінити мову застосунку</string>
     <string name="search_all">🔍 Пошук у листуваннях</string>
     <string name="search_here">🔍 Пошук у цих повідомленнях</string>
+    <string name="search_page">🔍 Шукати на сторінці</string>
     <string name="search_hint">Слова для пошуку</string>
     <string name="hit_from">від %1$s</string>
     <string name="hit_to">для %1$s</string>

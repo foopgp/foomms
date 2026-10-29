@@ -41,15 +41,29 @@ object Store {
         )?.use { rows -> var found = false ; while (!found && rows.moveToNext()) found = Members.isPart(rows.getString(1)) || Members.isPart(rows.getString(2)) ; found } == true
     }.getOrDefault(false)
 
-    /** Who an MMS's header names besides this phone -- its sender and those it went to --, each once; read once a message. */
+    /**
+     * Who an MMS's header names besides this phone -- its sender and those
+     * it went to --, each once; read once a message. Received with this
+     * phone alone in its "To", whatever number it had then: its sender only.
+     */
     fun others(context: Context, message: Long): List<String> = synchronized(headers) { headers[message] } ?: run {
-        val found = ArrayList<String>()
+        var from: String? = null
+        val to = ArrayList<String>()
         context.contentResolver.query(Uri.parse("content://mms/$message/addr"), arrayOf("address", "type"), null, null, null)?.use { rows ->
             while (rows.moveToNext()) {
-                if (rows.getInt(1) != FROM && rows.getInt(1) !in TO_OR_CC) continue
                 val one = rows.getString(0)?.takeIf { Phone.plain(it) != null } ?: continue
-                if (!Me.mine(context, one) && found.none { Phone.same(it, one) || it == one }) found += one
+                if (rows.getInt(1) == FROM) from = one else if (rows.getInt(1) in TO_OR_CC) to += one
             }
+        }
+        val sender = from
+        val found = ArrayList<String>()
+        fun add(one: String) { if (found.none { Phone.same(it, one) || it == one }) found += one }
+        if (sender != null && !Me.mine(context, sender)) {
+            // Received: the sender, and those it went to but this phone -- by any number it received at.
+            add(sender)
+            if (to.size > 1) for (one in to) if (!Me.mine(context, one) && Me.numbers(context).none { Phone.same(it, one) }) add(one)
+        } else {
+            for (one in to) if (!Me.mine(context, one)) add(one)
         }
         found.also { synchronized(headers) { headers[message] = it } }
     }
