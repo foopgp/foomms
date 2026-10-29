@@ -272,6 +272,15 @@
     <string name="draft_found">Bozza ritrovata</string>
     <string name="draft_each_resume">⇉ Bozza di un invio multiplo a %1$d persone — riprenderla</string>
     <string name="draft_replace">Sostituire</string>
+    <plurals name="drafts_n">
+        <item quantity="one">%d bozza</item>
+        <item quantity="other">%d bozze</item>
+    </plurals>
+    <string name="clear_drafts">Cancellare tutte le bozze</string>
+    <plurals name="clear_drafts_ask">
+        <item quantity="one">Cancellare %d bozza? Il suo testo andrà perso.</item>
+        <item quantity="other">Cancellare le %d bozze? Il loro testo andrà perso.</item>
+    </plurals>
     <plurals name="each_over_drafts">
         <item quantity="one">%1$d di queste persone ha già una bozza sua: l\'invio multiplo la sostituirà.</item>
         <item quantity="other">%1$d di queste persone hanno già una bozza loro: l\'invio multiplo le sostituirà.</item>

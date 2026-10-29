@@ -282,6 +282,19 @@
     <string name="draft_found">Чернетку знайдено</string>
     <string name="draft_each_resume">⇉ Чернетка розсилки %1$d людям — продовжити</string>
     <string name="draft_replace">Замінити</string>
+    <plurals name="drafts_n">
+        <item quantity="one">%d чернетка</item>
+        <item quantity="few">%d чернетки</item>
+        <item quantity="many">%d чернеток</item>
+        <item quantity="other">%d чернетки</item>
+    </plurals>
+    <string name="clear_drafts">Видалити всі чернетки</string>
+    <plurals name="clear_drafts_ask">
+        <item quantity="one">Видалити %d чернетку? Її текст буде втрачено.</item>
+        <item quantity="few">Видалити %d чернетки? Їхній текст буде втрачено.</item>
+        <item quantity="many">Видалити %d чернеток? Їхній текст буде втрачено.</item>
+        <item quantity="other">Видалити %d чернетки? Їхній текст буде втрачено.</item>
+    </plurals>
     <plurals name="each_over_drafts">
         <item quantity="one">%1$d з цих людей уже має свою чернетку: розсилка її замінить.</item>
         <item quantity="few">%1$d з цих людей уже мають свої чернетки: розсилка їх замінить.</item>

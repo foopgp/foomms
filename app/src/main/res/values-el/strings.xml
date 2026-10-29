@@ -272,6 +272,15 @@
     <string name="draft_found">Βρέθηκε πρόχειρο</string>
     <string name="draft_each_resume">⇉ Πρόχειρο αποστολής σε %1$d άτομα — συνέχεια</string>
     <string name="draft_replace">Αντικατάσταση</string>
+    <plurals name="drafts_n">
+        <item quantity="one">%d πρόχειρο</item>
+        <item quantity="other">%d πρόχειρα</item>
+    </plurals>
+    <string name="clear_drafts">Διαγραφή όλων των πρόχειρων</string>
+    <plurals name="clear_drafts_ask">
+        <item quantity="one">Διαγραφή %d πρόχειρου; Το κείμενό του θα χαθεί.</item>
+        <item quantity="other">Διαγραφή των %d πρόχειρων; Το κείμενό τους θα χαθεί.</item>
+    </plurals>
     <plurals name="each_over_drafts">
         <item quantity="one">%1$d από αυτά τα άτομα έχει ήδη δικό του πρόχειρο: η αποστολή σε καθέναν θα το αντικαταστήσει.</item>
         <item quantity="other">%1$d από αυτά τα άτομα έχουν ήδη δικό τους πρόχειρο: η αποστολή σε καθέναν θα τα αντικαταστήσει.</item>

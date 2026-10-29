@@ -272,6 +272,15 @@
     <string name="draft_found">Rascunho recuperado</string>
     <string name="draft_each_resume">⇉ Rascunho de um envio múltiplo a %1$d pessoas — retomá-lo</string>
     <string name="draft_replace">Substituir</string>
+    <plurals name="drafts_n">
+        <item quantity="one">%d rascunho</item>
+        <item quantity="other">%d rascunhos</item>
+    </plurals>
+    <string name="clear_drafts">Apagar todos os rascunhos</string>
+    <plurals name="clear_drafts_ask">
+        <item quantity="one">Apagar %d rascunho? O seu texto será perdido.</item>
+        <item quantity="other">Apagar os %d rascunhos? O seu texto será perdido.</item>
+    </plurals>
     <plurals name="each_over_drafts">
         <item quantity="one">%1$d destas pessoas já tem um rascunho seu: o envio múltiplo vai substituí-lo.</item>
         <item quantity="other">%1$d destas pessoas já têm um rascunho seu: o envio múltiplo vai substituí-los.</item>

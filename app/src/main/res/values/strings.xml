@@ -275,6 +275,15 @@
     <string name="draft_found">Draft found</string>
     <string name="draft_each_resume">⇉ Draft to send to each of %1$d people — resume it</string>
     <string name="draft_replace">Replace</string>
+    <plurals name="drafts_n">
+        <item quantity="one">%d draft</item>
+        <item quantity="other">%d drafts</item>
+    </plurals>
+    <string name="clear_drafts">Delete all drafts</string>
+    <plurals name="clear_drafts_ask">
+        <item quantity="one">Delete %d draft? Its words will be lost.</item>
+        <item quantity="other">Delete the %d drafts? Their words will be lost.</item>
+    </plurals>
     <plurals name="each_over_drafts">
         <item quantity="one">%1$d of these people already has a draft of their own: the sending to each will replace it.</item>
         <item quantity="other">%1$d of these people already have a draft of their own: the sending to each will replace them.</item>

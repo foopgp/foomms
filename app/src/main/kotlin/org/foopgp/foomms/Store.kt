@@ -259,18 +259,22 @@ object Store {
     class Counts(
         val pgp: Int, val all: Int, val unreadPgp: Int, val unread: Int, val sms: Int = 0, val mms: Int = 0, val talks: Int = 0, val unreadTalks: Int = 0,
         val pgpSms: Int = 0, val pgpMms: Int = 0, val bytes: Long = 0,
-        /** The groups, each once however many conversations Android keeps for it; and those conversations, which [talks] counts too. */
+        /** The groups, each once however many conversations Android keeps for it; and those conversations. */
         val groups: Int = 0, val groupTalks: Int = 0,
+        /** The people one has a conversation with, each once -- [talks] is they and the groups --; and the drafts. */
+        val persons: Int = 0, val drafts: Int = 0,
     ) {
+        fun withTalks(talks: Int) = Counts(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks, persons, drafts)
+
         /** As kept between two runs, and read back. */
-        fun kept(): String = listOf(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks).joinToString(",")
+        fun kept(): String = listOf(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks, persons, drafts).joinToString(",")
 
         companion object {
             fun of(kept: String?): Counts? {
                 val n = kept?.split(',')?.mapNotNull { it.toLongOrNull() } ?: return null
                 if (n.size < 8) return null
                 fun at(i: Int) = n.getOrElse(i) { 0L }.toInt()
-                return Counts(at(0), at(1), at(2), at(3), at(4), at(5), at(6), at(7), at(8), at(9), n.getOrElse(10) { 0L }, at(11), at(12))
+                return Counts(at(0), at(1), at(2), at(3), at(4), at(5), at(6), at(7), at(8), at(9), n.getOrElse(10) { 0L }, at(11), at(12), at(13), at(14))
             }
         }
     }
@@ -599,16 +603,41 @@ object Store {
                 while (rows.moveToNext()) bytes += rows.getLong(0)
             }
         }
-        // The groups by their members but this phone: the same group may be two conversations.
+        // Conversations counted as the pages show them: a person once, a group once -- not the phone's conversations,
+        // which keep a group twice, a sending to each apart, and some empty.
         val mine = Me.all(context)
         val groups = ArrayList<String>()
+        val persons = HashSet<String>()
+        // The numbers behind the conversations' recipients, read in one asking.
+        val addresses = HashMap<Long, String>()
         runCatching {
-            context.contentResolver.query(THREADS, arrayOf("recipient_ids", "_id"), "trim(recipient_ids) LIKE '% %'", null, null)?.use { rows ->
+            context.contentResolver.query(Uri.parse("content://mms-sms/canonical-addresses"), arrayOf("_id", "address"), null, null, null)?.use { rows ->
+                while (rows.moveToNext()) rows.getString(1)?.let { addresses[rows.getLong(0)] = it }
+            }
+        }
+        // Those that hold something: a message, or a draft of foomms's.
+        val held = HashSet<Long>()
+        var drafts = 0
+        for ((table, real) in listOf(SMS to SMS_NOT_DRAFT, MMS to MMS_NOT_DRAFT)) runCatching {
+            context.contentResolver.query(table, arrayOf("thread_id"), real, null, null)?.use { rows -> while (rows.moveToNext()) held += rows.getLong(0) }
+            context.contentResolver.query(table, arrayOf("thread_id"), "NOT ($real)", null, null)?.use { rows ->
+                drafts += rows.count
+                while (rows.moveToNext()) rows.getLong(0).takeIf { Drafts.inThread(context, it) != null }?.let { held += it }
+            }
+        }
+        runCatching {
+            context.contentResolver.query(THREADS, arrayOf("recipient_ids", "_id"), null, null, null)?.use { rows ->
                 while (rows.moveToNext()) {
-                    // A sending to each, filed as one conversation: not a group.
-                    if (toEach(context, rows.getLong(1))) continue
-                    val members = rows.getString(0)?.trim()?.split(' ')?.mapNotNull { it.toLongOrNull()?.let { id -> address(context, id) } }.orEmpty()
-                    groups += Phone.group(members, mine)
+                    val thread = rows.getLong(1)
+                    if (thread !in held) continue
+                    val members = rows.getString(0)?.trim()?.split(' ')?.mapNotNull { it.toLongOrNull()?.let { id -> addresses[id] ?: address(context, id) } }.orEmpty()
+                    val others = members.filterNot { member -> mine.any { Phone.same(member, it) } }
+                    when {
+                        members.size <= 1 -> members.firstOrNull()?.let { persons += Phone.key(it) }
+                        // A sending to each, filed as one conversation: shown in the conversation of each.
+                        toEach(context, thread) -> others.forEach { persons += Phone.key(it) }
+                        else -> groups += Phone.group(members, mine)
+                    }
                 }
             }
         }
@@ -620,11 +649,11 @@ object Store {
             unreadPgp = count(SMS, "$armored AND read = 0") + sealed.count { it in unreadMms },
             unread = count(SMS, "read = 0") + unreadMms.size,
             sms = sms, mms = mms,
-            talks = count(THREADS, null),
             unreadTalks = unreadThreads(context).size,
             // Several members besides this phone: a group; one, a conversation between two all the same.
             groups = (groups.filter { ',' in it } + heard).distinct().size, groupTalks = groups.count { ',' in it },
-        )
+            persons = (persons + groups.filterNot { ',' in it }).size, drafts = drafts,
+        ).let { it.withTalks(it.persons + it.groups) }
     }
 
     /**

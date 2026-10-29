@@ -282,6 +282,19 @@
     <string name="draft_found">Odnaleziono wersję roboczą</string>
     <string name="draft_each_resume">⇉ Wersja robocza wysyłki do %1$d osób — wznów ją</string>
     <string name="draft_replace">Zastąp</string>
+    <plurals name="drafts_n">
+        <item quantity="one">%d wersja robocza</item>
+        <item quantity="few">%d wersje robocze</item>
+        <item quantity="many">%d wersji roboczych</item>
+        <item quantity="other">%d wersji roboczej</item>
+    </plurals>
+    <string name="clear_drafts">Usuń wszystkie wersje robocze</string>
+    <plurals name="clear_drafts_ask">
+        <item quantity="one">Usunąć %d wersję roboczą? Jej tekst przepadnie.</item>
+        <item quantity="few">Usunąć %d wersje robocze? Ich tekst przepadnie.</item>
+        <item quantity="many">Usunąć %d wersji roboczych? Ich tekst przepadnie.</item>
+        <item quantity="other">Usunąć %d wersji roboczej? Jej tekst przepadnie.</item>
+    </plurals>
     <plurals name="each_over_drafts">
         <item quantity="one">%1$d z tych osób ma już własną wersję roboczą: wysyłka do każdego ją zastąpi.</item>
         <item quantity="few">%1$d z tych osób mają już własne wersje robocze: wysyłka do każdego je zastąpi.</item>

@@ -282,6 +282,19 @@
     <string name="draft_found">Черновик найден</string>
     <string name="draft_each_resume">⇉ Черновик рассылки %1$d людям — продолжить</string>
     <string name="draft_replace">Заменить</string>
+    <plurals name="drafts_n">
+        <item quantity="one">%d черновик</item>
+        <item quantity="few">%d черновика</item>
+        <item quantity="many">%d черновиков</item>
+        <item quantity="other">%d черновика</item>
+    </plurals>
+    <string name="clear_drafts">Удалить все черновики</string>
+    <plurals name="clear_drafts_ask">
+        <item quantity="one">Удалить %d черновик? Его текст пропадёт.</item>
+        <item quantity="few">Удалить %d черновика? Их текст пропадёт.</item>
+        <item quantity="many">Удалить %d черновиков? Их текст пропадёт.</item>
+        <item quantity="other">Удалить %d черновика? Их текст пропадёт.</item>
+    </plurals>
     <plurals name="each_over_drafts">
         <item quantity="one">У %1$d из этих людей уже есть свой черновик: рассылка его заменит.</item>
         <item quantity="few">У %1$d из этих людей уже есть свои черновики: рассылка их заменит.</item>

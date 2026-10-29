@@ -272,6 +272,15 @@
     <string name="draft_found">Borrador recuperado</string>
     <string name="draft_each_resume">⇉ Borrador de un envío múltiple a %1$d personas — retomarlo</string>
     <string name="draft_replace">Reemplazar</string>
+    <plurals name="drafts_n">
+        <item quantity="one">%d borrador</item>
+        <item quantity="other">%d borradores</item>
+    </plurals>
+    <string name="clear_drafts">Borrar todos los borradores</string>
+    <plurals name="clear_drafts_ask">
+        <item quantity="one">¿Borrar %d borrador? Su texto se perderá.</item>
+        <item quantity="other">¿Borrar los %d borradores? Su texto se perderá.</item>
+    </plurals>
     <plurals name="each_over_drafts">
         <item quantity="one">%1$d de estas personas ya tiene un borrador propio: el envío múltiple lo reemplazará.</item>
         <item quantity="other">%1$d de estas personas ya tienen un borrador propio: el envío múltiple los reemplazará.</item>

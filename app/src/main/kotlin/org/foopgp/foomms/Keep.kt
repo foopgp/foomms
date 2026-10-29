@@ -241,6 +241,15 @@ object Keep {
         }
     }
 
+    /** Every draft's mark gone, whichever application wrote it. */
+    fun unmarkAllDrafts(context: Context) {
+        if (!ours(context)) return
+        runCatching {
+            context.contentResolver.delete(Telephony.Sms.CONTENT_URI, "${Telephony.Sms.TYPE} = ${Telephony.Sms.MESSAGE_TYPE_DRAFT}", null)
+            context.contentResolver.delete(Telephony.Mms.CONTENT_URI, "${Telephony.Mms.MESSAGE_BOX} = ${Telephony.Mms.MESSAGE_BOX_DRAFTS}", null)
+        }
+    }
+
     /** Whether [thread] holds a draft's mark. */
     fun hasDraft(context: Context, thread: Long): Boolean = Store.draftAt(context, thread) != null
 

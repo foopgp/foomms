@@ -147,6 +147,13 @@ object Drafts {
         }
     }
 
+    /** Every draft forgotten: the marks in the store, any application's, and their words here. */
+    fun forgetAll(context: Context) {
+        Keep.unmarkAllDrafts(context)
+        kept(context).edit().clear().apply()
+        legacy(context).edit().clear().apply()
+    }
+
     /** Each number however it is written; a sender that is a name, by that name. */
     private fun key(numbers: List<String>): String =
         numbers.map { Phone.plain(it) ?: it.trim().lowercase() }.distinct().sorted().joinToString(",")

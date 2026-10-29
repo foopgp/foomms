@@ -124,6 +124,10 @@ class MainActivity : AskingActivity() {
     /** Under the counts in detail: everything read at once. */
     private lateinit var tools: LinearLayout
     private lateinit var markAll: android.widget.Button
+    private lateinit var draftsLine: LinearLayout
+    private lateinit var draftsSaid: android.widget.TextView
+    private lateinit var clearDrafts: android.widget.Button
+    private lateinit var unreadSaid: android.widget.TextView
     private var rows: List<Row> = emptyList()
 
     override fun onCreate(state: Bundle?) {
@@ -214,6 +218,25 @@ class MainActivity : AskingActivity() {
             setOnClickListener { go(Page.TALKS) }
         }
         column.addView(detail)
+        // The drafts, and a way to be rid of them all, on a line before the unread.
+        draftsSaid = Look.words(this, "", size = 14f, muted = true)
+        clearDrafts = Look.small(this, getString(R.string.clear_drafts)) { clearDrafts() }
+        draftsLine = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            val side = Look.dp(context, 16)
+            setPadding(side, 0, side, side / 2)
+            visibility = View.GONE
+            addView(draftsSaid, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            addView(clearDrafts)
+        }
+        column.addView(draftsLine)
+        unreadSaid = Look.words(this, "", size = 14f, muted = true).apply {
+            val side = Look.dp(context, 16)
+            setPadding(side, 0, side, side / 2)
+            visibility = View.GONE
+        }
+        column.addView(unreadSaid)
         markAll = Look.small(this, getString(R.string.mark_all_read)) { markAll() }
         tools = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -683,19 +706,22 @@ class MainActivity : AskingActivity() {
         val known = counts
         if (known != null) {
             counted.text = when (page) {
-                Page.TALKS -> resources.getQuantityString(R.plurals.talks_n, known.talks - known.groupTalks, known.talks - known.groupTalks)
+                Page.TALKS -> resources.getQuantityString(R.plurals.talks_n, known.persons, known.persons)
                 Page.UNREAD -> resources.getQuantityString(R.plurals.unread_n, known.unread, known.unread)
                 Page.GROUPS -> resources.getQuantityString(R.plurals.groups_n, known.groups, known.groups)
             }
             val weight = java.text.NumberFormat.getIntegerInstance().format(known.bytes)
-            detail.text = android.text.SpannableStringBuilder(
-                getString(R.string.count_detail, known.all, known.sms, known.mms, known.pgp, known.pgpSms, known.pgpMms, known.talks, weight),
-            ).append("\n\n").append(
+            detail.text = getString(R.string.count_detail, known.all, known.sms, known.mms, known.pgp, known.pgpSms, known.pgpMms, known.talks, weight)
+            draftsSaid.text = resources.getQuantityString(R.plurals.drafts_n, known.drafts, known.drafts)
+            unreadSaid.text = android.text.SpannableStringBuilder().append(
                 resources.getQuantityString(R.plurals.unread_n, known.unread, known.unread),
                 android.text.style.StyleSpan(Typeface.BOLD), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
             ).append(resources.getQuantityString(R.plurals.count_detail_unread_rest, known.unreadTalks, known.unreadPgp, known.unreadTalks))
+            usable(clearDrafts, known.drafts > 0)
         }
         detail.visibility = if (onlyUnread && known != null) View.VISIBLE else View.GONE
+        draftsLine.visibility = detail.visibility
+        unreadSaid.visibility = detail.visibility
         tools.visibility = detail.visibility
         // Nothing to do, greyed rather than gone: the line does not jump.
         usable(markAll, (known?.unread ?: 0) > 0)
@@ -704,6 +730,21 @@ class MainActivity : AskingActivity() {
     private fun usable(button: android.widget.Button, on: Boolean) {
         button.isEnabled = on
         button.alpha = if (on) 1f else 0.38f
+    }
+
+    /** Every draft forgotten, its mark and its words, once the person has said so. */
+    private fun clearDrafts() {
+        val many = counts?.drafts ?: 0
+        AlertDialog.Builder(this)
+            .setMessage(resources.getQuantityString(R.plurals.clear_drafts_ask, many, many))
+            .setPositiveButton(R.string.clear_drafts) { _, _ ->
+                thread {
+                    Drafts.forgetAll(this)
+                    runOnUiThread { if (!isFinishing && !isDestroyed) fill() }
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     /** Every message read, locked or not, once the person has said so. */

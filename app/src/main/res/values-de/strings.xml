@@ -272,6 +272,15 @@
     <string name="draft_found">Entwurf wiedergefunden</string>
     <string name="draft_each_resume">⇉ Entwurf eines Einzelversands an %1$d Personen — fortsetzen</string>
     <string name="draft_replace">Ersetzen</string>
+    <plurals name="drafts_n">
+        <item quantity="one">%d Entwurf</item>
+        <item quantity="other">%d Entwürfe</item>
+    </plurals>
+    <string name="clear_drafts">Alle Entwürfe löschen</string>
+    <plurals name="clear_drafts_ask">
+        <item quantity="one">%d Entwurf löschen? Sein Text geht verloren.</item>
+        <item quantity="other">Die %d Entwürfe löschen? Ihr Text geht verloren.</item>
+    </plurals>
     <plurals name="each_over_drafts">
         <item quantity="one">%1$d dieser Personen hat schon einen eigenen Entwurf: Der Einzelversand ersetzt ihn.</item>
         <item quantity="other">%1$d dieser Personen haben schon einen eigenen Entwurf: Der Einzelversand ersetzt sie.</item>

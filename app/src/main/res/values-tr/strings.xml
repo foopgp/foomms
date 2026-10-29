@@ -272,6 +272,15 @@
     <string name="draft_found">Taslak bulundu</string>
     <string name="draft_each_resume">⇉ %1$d kişiye ayrı gönderim taslağı — sürdür</string>
     <string name="draft_replace">Değiştir</string>
+    <plurals name="drafts_n">
+        <item quantity="one">%d taslak</item>
+        <item quantity="other">%d taslak</item>
+    </plurals>
+    <string name="clear_drafts">Tüm taslakları sil</string>
+    <plurals name="clear_drafts_ask">
+        <item quantity="one">%d taslak silinsin mi? Metni kaybolacak.</item>
+        <item quantity="other">%d taslak silinsin mi? Metinleri kaybolacak.</item>
+    </plurals>
     <plurals name="each_over_drafts">
         <item quantity="one">Bu kişilerden %1$d tanesinin kendi taslağı var: ayrı gönderim onun yerini alacak.</item>
         <item quantity="other">Bu kişilerden %1$d tanesinin kendi taslağı var: ayrı gönderim onların yerini alacak.</item>

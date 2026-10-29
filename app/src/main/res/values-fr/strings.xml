@@ -272,6 +272,15 @@
     <string name="draft_found">Brouillon retrouvé</string>
     <string name="draft_each_resume">⇉ Brouillon d\'un envoi multiple à %1$d personnes — le reprendre</string>
     <string name="draft_replace">Remplacer</string>
+    <plurals name="drafts_n">
+        <item quantity="one">%d brouillon</item>
+        <item quantity="other">%d brouillons</item>
+    </plurals>
+    <string name="clear_drafts">Effacer tous les brouillons</string>
+    <plurals name="clear_drafts_ask">
+        <item quantity="one">Effacer %d brouillon ? Son texte sera perdu.</item>
+        <item quantity="other">Effacer les %d brouillons ? Leur texte sera perdu.</item>
+    </plurals>
     <plurals name="each_over_drafts">
         <item quantity="one">%1$d de ces personnes a déjà un brouillon à elle : l\'envoi multiple le remplacera.</item>
         <item quantity="other">%1$d de ces personnes ont déjà un brouillon à elles : l\'envoi multiple les remplacera.</item>
