@@ -428,8 +428,8 @@ class ThreadActivity : AskingActivity() {
     }
     private val hitCount by lazy { Look.words(this, "", size = 13f, muted = true).apply { setPadding(Look.dp(context, 6), 0, Look.dp(context, 6), 0) } }
 
-    /** What is looked for, while the search is shown. */
-    private val looked: String get() = if (seeker.visibility == View.VISIBLE) sought.text.toString().trim() else ""
+    /** What is looked for, while the search is shown: as typed, spaces and punctuation included -- "je " is not "je". */
+    private val looked: String get() = if (seeker.visibility == View.VISIBLE) sought.text.toString().takeIf { it.isNotBlank() }.orEmpty() else ""
 
     /**
      * Each place it is found, oldest first: a message and where in its words,
@@ -442,6 +442,8 @@ class ThreadActivity : AskingActivity() {
 
     private fun seeking(on: Boolean) {
         seeker.visibility = if (on) View.VISIBLE else View.GONE
+        // Kept at the bottom, the list went back there each time the marks were drawn again, undoing the step to a match.
+        list.transcriptMode = if (on) ListView.TRANSCRIPT_MODE_DISABLED else ListView.TRANSCRIPT_MODE_NORMAL
         val keys = getSystemService(android.view.inputmethod.InputMethodManager::class.java)
         if (on) { sought.requestFocus() ; keys?.showSoftInput(sought, 0) } else { keys?.hideSoftInputFromWindow(sought.windowToken, 0) ; field.requestFocus() }
         hits = null ; hit = -1
@@ -480,7 +482,7 @@ class ThreadActivity : AskingActivity() {
         }
         hitCount.text = "${hit + 1}/${all.size}"
         bubbles.notifyDataSetChanged()
-        list.setSelection(all[hit].line)
+        list.setSelectionFromTop(all[hit].line, list.height / 3)
     }
 
     /** [text], the words of message [index], with what is looked for marked wherever it is: the place shown fully, the others faintly. */
