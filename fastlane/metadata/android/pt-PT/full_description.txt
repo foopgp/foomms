@@ -3,13 +3,14 @@ O foomms é uma aplicação de mensagens SMS e MMS que cifra e assina as suas me
 O que pode fazer:
 
 • Escrever para um número: a mensagem é cifrada para o certificado do seu titular e assinada pela sua chave. Ler o que lhe enviam, e saber quem o assinou.
+• Escrever para um grupo: cada um vê quem escreveu e responde a todos, e a lista de membros viaja com cada mensagem. Ou enviar a mesma mensagem a cada um separadamente, cifrada só para ele.
 • Reconhecer uma mensagem num relance, pelas cores do foodjis: verde cifrada e certificada, azul assinada e certificada, amarelo cifrada, vermelho em claro e não certificada, cinzento fechada.
 • Associar um número ao certificado do seu titular, na sua lista de contactos.
 • Anexar uma fotografia, uma imagem, um contacto, a sua localização ou um ficheiro; gravar uma mensagem de voz mantendo premido o campo vazio.
 • Pesquisar nas conversas; fazer a sua cópia de segurança e restaurá-las no formato do «SMS Backup & Restore».
 • Torná-la a aplicação de mensagens do telemóvel.
 
-As mensagens cifradas viajam em armadura ASCII, legíveis por qualquer outra aplicação PGP. Abrem-se com uma única apresentação da chave, e voltam a fechar-se ao fim do tempo escolhido.
+As mensagens cifradas seguem o padrão PGP: o seu interlocutor pode usar outra aplicação PGP, nada o prende ao foomms. Aproximar a sua chave uma vez abre várias mensagens de uma só vez, que se voltam a fechar ao fim do tempo que escolheu.
 
 A aplicação não pede nenhuma conta, não passa por nenhum servidor nosso e não mostra publicidade: é a rede do telemóvel que transporta as mensagens.
 

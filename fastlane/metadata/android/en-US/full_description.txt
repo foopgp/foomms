@@ -3,13 +3,14 @@ foomms is an SMS and MMS messenger that encrypts and signs your messages with PG
 What you can do:
 
 • Write to a number: the message is encrypted for its holder's certificate and signed by your key. Read what you are sent, and know who signed it.
+• Write to a group: everyone sees who wrote and replies to all, and the list of members travels with each message. Or send the same message to each separately, encrypted for them alone.
 • Tell a message at a glance, by foodjis's colours: green encrypted and certified, blue signed and certified, yellow encrypted, red in clear and not certified, grey closed.
 • Tie a number to its holder's certificate, in your address book.
 • Attach a photo, a picture, a contact, where you are or a file; record a voice message by holding the empty field.
 • Search the conversations; back them up and restore them in the "SMS Backup & Restore" format.
 • Make it the phone's messaging application.
 
-Encrypted messages travel armoured, readable by any other PGP application. They open with a single presentation of the key, and close again after the time you choose.
+Encrypted messages follow the PGP standard: the person you write to can use another PGP application, nothing locks you into foomms. Holding your key to the phone once opens several messages at a time, which close again after the time you choose.
 
 The application asks for no account, goes through no server of ours and shows no advertising: the phone network carries the messages.
 

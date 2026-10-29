@@ -3,13 +3,14 @@ foomms est une messagerie SMS et MMS qui chiffre et signe vos messages en PGP. I
 Ce que vous pouvez faire :
 
 • Écrire à un numéro : le message est chiffré pour le certificat de son porteur et signé par votre clé. Lire ce qu'on vous envoie, et savoir qui l'a signé.
+• Écrire à un groupe : chacun voit qui a écrit et répond à tous, et la liste des membres voyage avec chaque message. Ou envoyer le même message à chacun séparément, chiffré pour lui seul.
 • Reconnaître un message d'un coup d'œil, aux couleurs de foodjis : vert chiffré et certifié, bleu signé et certifié, jaune chiffré, rouge en clair et non certifié, gris fermé.
 • Relier un numéro au certificat de son porteur, dans votre carnet d'adresses.
 • Joindre une photo, une image, un contact, votre position ou un fichier ; enregistrer un message vocal en maintenant le champ vide.
 • Chercher dans les conversations ; sauvegarder et restaurer au format de « SMS Backup & Restore ».
 • En faire l'application de messagerie du téléphone.
 
-Les messages chiffrés voyagent sous armure, lisibles par toute autre application PGP. Ils s'ouvrent par une seule présentation de la clé, et se referment au bout du temps choisi.
+Les messages chiffrés suivent le standard PGP : votre correspondant peut utiliser une autre application PGP, rien ne vous enferme dans foomms. Approcher votre clé une fois ouvre d'un coup plusieurs messages, qui se referment au bout du temps que vous avez choisi.
 
 L'application ne demande aucun compte, ne passe par aucun serveur à nous et n'affiche aucune publicité : c'est le réseau du téléphone qui transporte les messages.
 

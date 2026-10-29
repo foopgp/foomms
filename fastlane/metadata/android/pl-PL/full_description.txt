@@ -3,13 +3,14 @@ foomms to komunikator SMS i MMS, który szyfruje i podpisuje Twoje wiadomości p
 Co możesz zrobić:
 
 • Napisać na numer: wiadomość jest szyfrowana dla certyfikatu jego właściciela i podpisywana Twoim kluczem. Czytać to, co Ci przysłano, i wiedzieć, kto to podpisał.
+• Napisać do grupy: każdy widzi, kto napisał, i odpowiada wszystkim, a lista członków podróżuje z każdą wiadomością. Albo wysłać tę samą wiadomość każdemu osobno, zaszyfrowaną tylko dla niego.
 • Rozpoznać wiadomość na pierwszy rzut oka, po kolorach foodjis: zielony zaszyfrowane i poświadczone, niebieski podpisane i poświadczone, żółty zaszyfrowane, czerwony jawne i niepoświadczone, szary zamknięte.
 • Powiązać numer z certyfikatem jego właściciela w książce adresowej.
 • Dołączyć zdjęcie, obraz, kontakt, swoje położenie lub plik; nagrać wiadomość głosową, przytrzymując puste pole.
 • Wyszukiwać w rozmowach; robić ich kopię zapasową i przywracać je w formacie „SMS Backup & Restore”.
 • Uczynić z niego aplikację do wiadomości w telefonie.
 
-Zaszyfrowane wiadomości podróżują w opakowaniu ASCII, czytelne dla każdej innej aplikacji PGP. Otwierają się jednym przyłożeniem klucza i zamykają się po wybranym czasie.
+Zaszyfrowane wiadomości są zgodne ze standardem PGP: Twój rozmówca może używać innej aplikacji PGP, nic nie wiąże Cię z foomms. Jedno przyłożenie klucza otwiera naraz kilka wiadomości, które zamykają się ponownie po wybranym czasie.
 
 Aplikacja nie wymaga konta, nie korzysta z żadnego naszego serwera i nie wyświetla reklam: wiadomości przenosi sieć telefoniczna.
 

@@ -3,13 +3,14 @@ foomms, mesajlarınızı PGP ile şifreleyen ve imzalayan bir SMS ve MMS uygulam
 Neler yapabilirsiniz:
 
 • Bir numaraya yazmak: mesaj, numara sahibinin sertifikası için şifrelenir ve anahtarınızla imzalanır. Size gönderileni okumak ve onu kimin imzaladığını bilmek.
+• Bir gruba yazmak: herkes kimin yazdığını görür ve herkese yanıt verir; üye listesi her mesajla birlikte gider. Ya da aynı mesajı herkese ayrı ayrı, yalnızca onun için şifreli göndermek.
 • Bir mesajı foodjis renklerinden bir bakışta tanımak: yeşil şifreli ve sertifikalı, mavi imzalı ve sertifikalı, sarı şifreli, kırmızı açık metin ve sertifikasız, gri kapalı.
 • Adres defterinizde bir numarayı sahibinin sertifikasına bağlamak.
 • Fotoğraf, resim, kişi, konumunuz ya da dosya eklemek; boş alanı basılı tutarak sesli mesaj kaydetmek.
 • Konuşmalarda arama yapmak; bunları «SMS Backup & Restore» biçiminde yedeklemek ve geri yüklemek.
 • Onu telefonun mesajlaşma uygulaması yapmak.
 
-Şifreli mesajlar ASCII zırhı içinde yol alır ve başka her PGP uygulamasıyla okunabilir. Anahtarın tek bir gösterimiyle açılır ve seçtiğiniz süre sonunda yeniden kapanırlar.
+Şifreli mesajlar PGP standardına uyar: yazıştığınız kişi başka bir PGP uygulaması kullanabilir, hiçbir şey sizi foomms'a bağlamaz. Anahtarınızı bir kez yaklaştırmak birkaç mesajı birden açar; bunlar seçtiğiniz süre sonunda yeniden kapanır.
 
 Uygulama hiçbir hesap istemez, hiçbir sunucumuzdan geçmez ve reklam göstermez: mesajları telefon şebekesi taşır.
 
