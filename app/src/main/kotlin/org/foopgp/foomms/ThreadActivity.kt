@@ -325,6 +325,7 @@ class ThreadActivity : AskingActivity() {
                 }
                 writing = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
+                    addView(eachBanner)
                     addView(chipRow)
                     addView(options)
                     addView(bar)
@@ -336,7 +337,9 @@ class ThreadActivity : AskingActivity() {
         // Words handed over with the page -- shared from another application, or a link's "sms_body" -- are already written;
         // otherwise what was being written here and not sent, the page having been closed meanwhile.
         val handed = if (state == null) intent.getStringExtra(Intent.EXTRA_TEXT) ?: intent.getStringExtra("sms_body") else null
-        (handed ?: Drafts.of(this, drafted).takeIf { it.isNotEmpty() })?.let { field.setText(it) ; field.setSelection(it.length) }
+        draftRead = Drafts.of(this, drafted)
+        (handed ?: draftRead.takeIf { it.isNotEmpty() })?.let { field.setText(it) ; field.setSelection(it.length) }
+        given.firstOrNull()?.let(::offerEach)
         // And what was shared with them: a picture made small enough for an MMS, any other file if it fits.
         @Suppress("DEPRECATION")
         if (state == null) intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)?.let { shared ->
@@ -514,9 +517,54 @@ class ThreadActivity : AskingActivity() {
         ticking.run()
     }
 
+    /** The draft as it was read when the page opened: kept again only once it has changed. */
+    private var draftRead = ""
+
+    /** How what is written here is to leave: to the group, or to the one person. */
+    private val draftHow get() = if (group) Drafts.How.GROUP else Drafts.How.ONE
+
+    /** What is written and not sent, kept -- in the background: the phone's store is written --, when it changed. */
+    private fun keepDraft() {
+        val words = field.text.toString()
+        if (words == draftRead) return
+        draftRead = words
+        val at = given.firstOrNull() ?: thread
+        val numbers = drafted
+        val how = draftHow
+        val context = applicationContext
+        kotlin.concurrent.thread { Drafts.keep(context, numbers, words, how, at) }
+    }
+
+    /** Sent: the draft is no more. */
+    private fun forgetDraft() {
+        draftRead = ""
+        val at = given.firstOrNull() ?: thread
+        val numbers = drafted
+        val how = draftHow
+        val context = applicationContext
+        kotlin.concurrent.thread { Drafts.keep(context, numbers, "", how, at) }
+        eachBanner.visibility = View.GONE
+    }
+
+    /** Above the field, when the draft here is a sending to each's: the way back to it, to all of them. */
+    private val eachBanner by lazy {
+        Look.small(this, "") {}.apply { visibility = View.GONE }
+    }
+
+    private fun offerEach(thread: Long) {
+        if (group) return
+        val those = Drafts.eachOf(this, thread) ?: return
+        eachBanner.text = getString(R.string.draft_each_resume, those.size)
+        eachBanner.setOnClickListener {
+            startActivity(Intent(this, ManyActivity::class.java).putExtra(ManyActivity.EXTRA_NUMBERS, those.toTypedArray()))
+            finish()
+        }
+        eachBanner.visibility = View.VISIBLE
+    }
+
     override fun onPause() {
         shown = false
-        Drafts.keep(this, drafted, field.text.toString(), if (group) Drafts.How.GROUP else Drafts.How.ONE)
+        keepDraft()
         Listening.onChange = null
         playingPiece = null
         if (voice.recording) voice.drop()
@@ -576,6 +624,7 @@ class ThreadActivity : AskingActivity() {
                 lines = found
                 hits = null
                 this.thread = thread
+                if (given.isEmpty()) thread?.let(::offerEach)
                 bubbles.notifyDataSetChanged()
                 verifySigned()
                 if (wanted > 0) {
@@ -1039,7 +1088,7 @@ class ThreadActivity : AskingActivity() {
                 .onFailure { return@withMembers say(getString(R.string.failed, it.message)) }
             if (verdict != null && words != null) Opened.keep(this, words, written, null, verdict, thread = here())
             field.setText("")
-            Drafts.keep(this, drafted, "")
+            forgetDraft()
             carry(null)
             Toast.makeText(this, getString(R.string.handed_mms, with.name), Toast.LENGTH_SHORT).show()
             list.postDelayed({ if (shown) load() }, 1500)
@@ -1196,7 +1245,7 @@ class ThreadActivity : AskingActivity() {
             }.onFailure { return@withMembers say(getString(R.string.failed, it.message)) }
             if (verdict != null) Opened.keep(this, text, written, null, verdict, thread = here())
             field.setText("")
-            Drafts.keep(this, drafted, "")
+            forgetDraft()
             // The phone writes what was sent a moment after taking it.
             list.postDelayed({ if (shown) load() }, 1500)
         }
@@ -2161,7 +2210,8 @@ class ThreadActivity : AskingActivity() {
          */
         fun forGroup(context: android.content.Context, numbers: List<String>): Intent {
             val me = Me.number(context)
-            val threads = Store.groupThreads(context, numbers, Me.all(context)).ifEmpty {
+            // Where its draft was marked, at once; else looked for among every conversation of several -- not on the main thread.
+            val threads = listOfNotNull(Drafts.groupThread(context, numbers)).ifEmpty { Store.groupThreads(context, numbers, Me.all(context)) }.ifEmpty {
                 listOfNotNull(runCatching { android.provider.Telephony.Threads.getOrCreateThreadId(context, (numbers + listOfNotNull(me)).toSet()) }.getOrNull())
             }
             return Intent(context, ThreadActivity::class.java).putExtra(EXTRA_NUMBER, numbers.first())

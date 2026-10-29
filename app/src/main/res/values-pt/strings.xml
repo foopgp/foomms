@@ -270,6 +270,12 @@
     <string name="write_to_each">✎ Nova mensagem para estas %1$d pessoas</string>
     <string name="draft_said">✎ Rascunho: %1$s</string>
     <string name="draft_found">Rascunho recuperado</string>
+    <string name="draft_each_resume">⇉ Rascunho de um envio múltiplo a %1$d pessoas — retomá-lo</string>
+    <string name="draft_replace">Substituir</string>
+    <plurals name="each_over_drafts">
+        <item quantity="one">%1$d destas pessoas já tem um rascunho seu: o envio múltiplo vai substituí-lo.</item>
+        <item quantity="other">%1$d destas pessoas já têm um rascunho seu: o envio múltiplo vai substituí-los.</item>
+    </plurals>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Todos os contactos (%1$d)</string>
     <string name="conf_group_most">Limite de grupo MMS</string>

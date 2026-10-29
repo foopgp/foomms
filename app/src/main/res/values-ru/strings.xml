@@ -280,6 +280,14 @@
     <string name="write_to_each">✎ Новое сообщение этим %1$d адресатам</string>
     <string name="draft_said">✎ Черновик: %1$s</string>
     <string name="draft_found">Черновик найден</string>
+    <string name="draft_each_resume">⇉ Черновик рассылки %1$d людям — продолжить</string>
+    <string name="draft_replace">Заменить</string>
+    <plurals name="each_over_drafts">
+        <item quantity="one">У %1$d из этих людей уже есть свой черновик: рассылка его заменит.</item>
+        <item quantity="few">У %1$d из этих людей уже есть свои черновики: рассылка их заменит.</item>
+        <item quantity="many">У %1$d из этих людей уже есть свои черновики: рассылка их заменит.</item>
+        <item quantity="other">У %1$d из этих людей уже есть свои черновики: рассылка их заменит.</item>
+    </plurals>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Все контакты (%1$d)</string>
     <string name="conf_group_most">Предел группового MMS</string>

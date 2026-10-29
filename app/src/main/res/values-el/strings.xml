@@ -270,6 +270,12 @@
     <string name="write_to_each">✎ Νέο μήνυμα σε αυτά τα %1$d άτομα</string>
     <string name="draft_said">✎ Πρόχειρο: %1$s</string>
     <string name="draft_found">Βρέθηκε πρόχειρο</string>
+    <string name="draft_each_resume">⇉ Πρόχειρο αποστολής σε %1$d άτομα — συνέχεια</string>
+    <string name="draft_replace">Αντικατάσταση</string>
+    <plurals name="each_over_drafts">
+        <item quantity="one">%1$d από αυτά τα άτομα έχει ήδη δικό του πρόχειρο: η αποστολή σε καθέναν θα το αντικαταστήσει.</item>
+        <item quantity="other">%1$d από αυτά τα άτομα έχουν ήδη δικό τους πρόχειρο: η αποστολή σε καθέναν θα τα αντικαταστήσει.</item>
+    </plurals>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Όλες οι επαφές (%1$d)</string>
     <string name="conf_group_most">Όριο ομαδικού MMS</string>

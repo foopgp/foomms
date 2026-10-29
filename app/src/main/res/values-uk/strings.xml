@@ -280,6 +280,14 @@
     <string name="write_to_each">✎ Нове повідомлення цим %1$d адресатам</string>
     <string name="draft_said">✎ Чернетка: %1$s</string>
     <string name="draft_found">Чернетку знайдено</string>
+    <string name="draft_each_resume">⇉ Чернетка розсилки %1$d людям — продовжити</string>
+    <string name="draft_replace">Замінити</string>
+    <plurals name="each_over_drafts">
+        <item quantity="one">%1$d з цих людей уже має свою чернетку: розсилка її замінить.</item>
+        <item quantity="few">%1$d з цих людей уже мають свої чернетки: розсилка їх замінить.</item>
+        <item quantity="many">%1$d з цих людей уже мають свої чернетки: розсилка їх замінить.</item>
+        <item quantity="other">%1$d з цих людей уже мають свої чернетки: розсилка їх замінить.</item>
+    </plurals>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Усі контакти (%1$d)</string>
     <string name="conf_group_most">Межа групового MMS</string>

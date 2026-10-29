@@ -270,6 +270,12 @@
     <string name="write_to_each">✎ Nuovo messaggio a queste %1$d persone</string>
     <string name="draft_said">✎ Bozza: %1$s</string>
     <string name="draft_found">Bozza ritrovata</string>
+    <string name="draft_each_resume">⇉ Bozza di un invio multiplo a %1$d persone — riprenderla</string>
+    <string name="draft_replace">Sostituire</string>
+    <plurals name="each_over_drafts">
+        <item quantity="one">%1$d di queste persone ha già una bozza sua: l\'invio multiplo la sostituirà.</item>
+        <item quantity="other">%1$d di queste persone hanno già una bozza loro: l\'invio multiplo le sostituirà.</item>
+    </plurals>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Tutti i contatti (%1$d)</string>
     <string name="conf_group_most">Limite di gruppo MMS</string>

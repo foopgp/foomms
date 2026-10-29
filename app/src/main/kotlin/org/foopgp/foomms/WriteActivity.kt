@@ -271,18 +271,26 @@ class WriteActivity : Activity() {
         val text = intent.getStringExtra(Intent.EXTRA_TEXT)
         @Suppress("DEPRECATION")
         val carried = intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)
-        val next = if (chosen.size == 1) {
-            Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, chosen.keys.first())
-        } else if (asGroup) {
-            ThreadActivity.forGroup(this, chosen.keys.toList())
-        } else {
-            Intent(this, ManyActivity::class.java).putExtra(ManyActivity.EXTRA_NUMBERS, chosen.keys.toTypedArray())
+        fun go(next: Intent) {
+            next.putExtra(Intent.EXTRA_TEXT, text)
+            // What was shared goes on with the page, and the right to read it with it.
+            carried?.let { next.putExtra(Intent.EXTRA_STREAM, it) ; next.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) ; next.clipData = android.content.ClipData.newRawUri(null, it) }
+            startActivity(next)
+            finish()
         }
-        next.putExtra(Intent.EXTRA_TEXT, text)
-        // What was shared goes on with the page, and the right to read it with it.
-        carried?.let { next.putExtra(Intent.EXTRA_STREAM, it) ; next.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) ; next.clipData = android.content.ClipData.newRawUri(null, it) }
-        startActivity(next)
-        finish()
+        when {
+            chosen.size == 1 -> go(Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, chosen.keys.first()))
+            // The group's conversation may have to be looked for among them all: not on the main thread.
+            asGroup -> {
+                val numbers = chosen.keys.toList()
+                go.isEnabled = false
+                thread {
+                    val next = ThreadActivity.forGroup(this, numbers)
+                    runOnUiThread { if (!isFinishing && !isDestroyed) go(next) }
+                }
+            }
+            else -> go(Intent(this, ManyActivity::class.java).putExtra(ManyActivity.EXTRA_NUMBERS, chosen.keys.toTypedArray()))
+        }
     }
 
     private val rows = object : BaseAdapter() {

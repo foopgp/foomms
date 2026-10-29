@@ -270,6 +270,12 @@
     <string name="write_to_each">✎ Neue Nachricht an diese %1$d Personen</string>
     <string name="draft_said">✎ Entwurf: %1$s</string>
     <string name="draft_found">Entwurf wiedergefunden</string>
+    <string name="draft_each_resume">⇉ Entwurf eines Einzelversands an %1$d Personen — fortsetzen</string>
+    <string name="draft_replace">Ersetzen</string>
+    <plurals name="each_over_drafts">
+        <item quantity="one">%1$d dieser Personen hat schon einen eigenen Entwurf: Der Einzelversand ersetzt ihn.</item>
+        <item quantity="other">%1$d dieser Personen haben schon einen eigenen Entwurf: Der Einzelversand ersetzt sie.</item>
+    </plurals>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Alle Kontakte (%1$d)</string>
     <string name="conf_group_most">Grenze für Gruppen-MMS</string>

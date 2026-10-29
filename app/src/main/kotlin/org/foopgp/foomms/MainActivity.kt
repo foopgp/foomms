@@ -43,10 +43,10 @@ class MainActivity : AskingActivity() {
         val speaker: Look.Mini? = null,
         /** A group's MMS filed elsewhere -- in their sender's conversation, by another application --, by number. */
         val messages: List<Long> = emptyList(),
-        /** What is being written to them and not sent: shown in place of the last message, at the moment it was last touched. */
-        val draft: Drafts.Draft? = null,
+        /** What is being written to them and not sent: shown in place of the last message. */
+        val draft: String? = null,
     ) {
-        fun standing(now: String?) = Row(talk, person, face, name, verdict, last, now, group, threads, unread, with, crowd, speaker, messages)
+        fun standing(now: String?) = Row(talk, person, face, name, verdict, last, now, group, threads, unread, with, crowd, speaker, messages, draft)
 
         /** The line of one of those a sending to each went to: theirs, the sending shown in their conversation, not a conversation of its own. */
         fun apart() = Row(talk, person, face, name, verdict, last, standing, group, emptyList(), unread, with, crowd, speaker)
@@ -57,17 +57,8 @@ class MainActivity : AskingActivity() {
         /** Its face of pixels, with no picture: the certificate's, the number's, or the group's. */
         val seed: String? get() = group ?: Look.seed(person?.fingerprint, with)
 
-        /** What lines are one by: a group's members, or whom a conversation between two is with; a sending to each's draft, apart. */
-        val joint: String? get() = if (draft?.how == Drafts.How.EACH) "each:" + group else group ?: with?.let { "=" + Phone.key(it) }
-
-        /** A draft with no conversation of its own yet: opened by how it is to leave, not by a conversation. */
-        val alone: Boolean get() = talk.thread == ALONE
-
-        /** This line with [kept], written to it and not sent: the line goes where that moment puts it. */
-        fun drafted(kept: Drafts.Draft, named: String = name) = Row(
-            Store.Talk(talk.thread, talk.number, kept.at, talk.last, talk.incoming, talk.unread, talk.form, talk.members, talk.each, talk.from),
-            person, face, named, verdict, last, standing, group, threads, unread, with, crowd, speaker, messages, kept,
-        )
+        /** What lines are one by: a group's members, or whom a conversation between two is with. */
+        val joint: String? get() = group ?: with?.let { "=" + Phone.key(it) }
     }
 
     /**
@@ -90,6 +81,7 @@ class MainActivity : AskingActivity() {
                 else Row(
                     latest.talk, latest.person, latest.face, latest.name, latest.verdict, latest.last, latest.standing, latest.group,
                     all.flatMap { it.threads }.distinct(), all.any { it.unread }, latest.with, latest.crowd, latest.speaker, all.flatMap { it.messages }.distinct(),
+                    all.firstNotNullOfOrNull { it.draft },
                 )
             }
         }
@@ -105,8 +97,6 @@ class MainActivity : AskingActivity() {
     /** Every conversation read so far, and the page shown. */
     private var every: List<Row> = emptyList()
 
-    /** What is being written and not sent, a line each, as its conversation's line would be. */
-    private var drafts: List<Row> = emptyList()
     private var page = Page.TALKS
     private val onlyUnread get() = page == Page.UNREAD
 
@@ -197,11 +187,7 @@ class MainActivity : AskingActivity() {
                     }
                 },
             )
-            setOnItemClickListener { _, _, at, _ ->
-                val row = rows[at]
-                if (row.alone) row.draft?.let(::resume)
-                else open(row.talk, threads = row.threads, with = row.with ?: row.talk.number, messages = row.messages)
-            }
+            setOnItemClickListener { _, _, at, _ -> open(rows[at].talk, threads = rows[at].threads, with = rows[at].with ?: rows[at].talk.number, messages = rows[at].messages) }
         }
         others = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -623,7 +609,9 @@ class MainActivity : AskingActivity() {
                         them?.fingerprint?.let { foodjis.card(it)?.validity }, Look.seed(them?.fingerprint, speaker),
                     )
                 }
-                return Row(talk, person, face, name, verdict, last, standing, group?.let { Phone.group(talk.members, mine) }, with = with, crowd = crowd, speaker = said)
+                // What is being written to them, held by foomms: in place of the last message.
+                val draft = Drafts.inThread(this, talk.thread)
+                return Row(talk, person, face, name, verdict, last, standing, group?.let { Phone.group(talk.members, mine) }, with = with, crowd = crowd, speaker = said, draft = draft)
                     // A closed PGP message may be opened at any moment: its line is worked out each time.
                     .also { if (armor == null && kept) synchronized(lines) { lines[talk.thread] = it } }
             }
@@ -634,16 +622,8 @@ class MainActivity : AskingActivity() {
                 else talk.members.filterNot { Me.mine(this, it) }.map { one ->
                     row(Store.Talk(talk.thread, one, talk.at, talk.last, talk.incoming, talk.unread, talk.form), kept = false).apart()
                 }
-            // Each draft as the line its conversation would have; a sending to each's, named as one.
-            val written = runCatching { Drafts.all(this) }.getOrDefault(emptyList()).mapNotNull { kept ->
-                runCatching {
-                    val made = row(Store.Talk(ALONE, kept.numbers.first(), kept.at, kept.words, false, false, members = kept.numbers), kept = false)
-                    made.drafted(kept, if (kept.how == Drafts.How.EACH) "${getString(R.string.send_each)} · ${kept.numbers.size}" else made.name)
-                }.getOrNull()
-            }
             fun show(found: List<Row>, whole: Boolean = false) = runOnUiThread {
                 if (isFinishing || isDestroyed || turn != turns) return@runOnUiThread
-                drafts = written
                 if (apart) pageRows = found else { every = found ; everyWhole = whole }
                 redraw()
                 verifySigned(found)
@@ -683,22 +663,13 @@ class MainActivity : AskingActivity() {
      * conversations read for themselves --, with the counts spelled out above.
      */
     private fun redraw() {
-        val found = merged(
+        rows = merged(
             when (page) {
                 Page.TALKS -> every.filter { it.group == null }
                 Page.UNREAD -> pageRows ?: every.filter { it.talk.unread }
                 Page.GROUPS -> (pageRows ?: every).filter { it.group != null }
             },
         )
-        // The drafts: on their conversation's line, or a line of their own; a sending to each's among the conversations.
-        val pending = when (page) {
-            Page.TALKS -> drafts.filter { it.group == null || it.draft?.how == Drafts.How.EACH }
-            Page.UNREAD -> emptyList()
-            Page.GROUPS -> drafts.filter { it.group != null && it.draft?.how != Drafts.How.EACH }
-        }
-        val byJoint = pending.associateBy { it.joint }
-        rows = (found.map { one -> byJoint[one.joint]?.draft?.let { one.drafted(it) } ?: one } + pending.filter { kept -> found.none { it.joint == kept.joint } })
-            .sortedByDescending { it.talk.at }
         talks.notifyDataSetChanged()
         heading.text = named(page).takeIf { page != Page.UNREAD } ?: getString(R.string.page_unread)
         others.removeAllViews()
@@ -792,8 +763,8 @@ class MainActivity : AskingActivity() {
 
     /** Pressed long, a conversation says what can be done about it and about who it is with. */
     private fun about(row: Row) {
-        // A group's own menu comes with its name; a draft alone has no conversation to say anything about.
-        if (row.talk.group || row.alone) return
+        // A group's own menu comes with its name.
+        if (row.talk.group) return
         val sender = row.talk.number ?: return
         TalkMenu.show(
             this, row.name, sender, row.person, row.talk.thread,
@@ -806,15 +777,6 @@ class MainActivity : AskingActivity() {
             save = { Saving.save(this, row.talk.thread, row.name) },
         )
     }
-
-    /** A draft with no conversation yet: the page it was written on, to one, to the group, or to each. */
-    private fun resume(kept: Drafts.Draft) = startActivity(
-        when (kept.how) {
-            Drafts.How.ONE -> Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, kept.numbers.first())
-            Drafts.How.GROUP -> ThreadActivity.forGroup(this, kept.numbers)
-            Drafts.How.EACH -> Intent(this, ManyActivity::class.java).putExtra(ManyActivity.EXTRA_NUMBERS, kept.numbers.toTypedArray())
-        },
-    )
 
     private fun open(talk: Store.Talk, ask: String? = null, threads: List<Long> = listOf(talk.thread), with: String? = talk.number, messages: List<Long> = emptyList()) = startActivity(
         Intent(this, ThreadActivity::class.java)
@@ -851,14 +813,13 @@ class MainActivity : AskingActivity() {
                 },
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
             )
-            // A draft kept before drafts were dated has no moment to tell: it sits at the end, undated.
-            names.addView(Look.words(context, if (row.talk.at > 0) ago(row.talk.at) else "", size = 13f, muted = true))
+            names.addView(Look.words(context, ago(row.talk.at), size = 13f, muted = true))
             val text = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 setPadding(pad, 0, 0, 0)
                 addView(names)
                 addView(
-                    Look.words(context, (row.draft?.let { getString(R.string.draft_said, it.words) } ?: row.last).replace('\n', ' '), size = 14f, muted = !row.unread).apply {
+                    Look.words(context, (row.draft?.let { getString(R.string.draft_said, it) } ?: row.last).replace('\n', ' '), size = 14f, muted = !row.unread).apply {
                         maxLines = 1 ; ellipsize = TextUtils.TruncateAt.END
                     },
                 )
@@ -895,9 +856,6 @@ class MainActivity : AskingActivity() {
 
     private companion object {
         const val PAGE = "page"
-
-        /** The conversation of a draft that has none yet. */
-        const val ALONE = -2L
 
         /** Kept for as long as the application runs: who a number is, the line of each conversation, the last counts. */
         val people = HashMap<String, Book.Person?>()

@@ -273,6 +273,12 @@
     <string name="write_to_each">✎ New message to these %1$d people</string>
     <string name="draft_said">✎ Draft: %1$s</string>
     <string name="draft_found">Draft found</string>
+    <string name="draft_each_resume">⇉ Draft to send to each of %1$d people — resume it</string>
+    <string name="draft_replace">Replace</string>
+    <plurals name="each_over_drafts">
+        <item quantity="one">%1$d of these people already has a draft of their own: the sending to each will replace it.</item>
+        <item quantity="other">%1$d of these people already have a draft of their own: the sending to each will replace them.</item>
+    </plurals>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">All contacts (%1$d)</string>
     <string name="conf_group_most">MMS group limit</string>

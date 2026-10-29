@@ -280,6 +280,14 @@
     <string name="write_to_each">✎ Nowa wiadomość do tych %1$d osób</string>
     <string name="draft_said">✎ Wersja robocza: %1$s</string>
     <string name="draft_found">Odnaleziono wersję roboczą</string>
+    <string name="draft_each_resume">⇉ Wersja robocza wysyłki do %1$d osób — wznów ją</string>
+    <string name="draft_replace">Zastąp</string>
+    <plurals name="each_over_drafts">
+        <item quantity="one">%1$d z tych osób ma już własną wersję roboczą: wysyłka do każdego ją zastąpi.</item>
+        <item quantity="few">%1$d z tych osób mają już własne wersje robocze: wysyłka do każdego je zastąpi.</item>
+        <item quantity="many">%1$d z tych osób ma już własne wersje robocze: wysyłka do każdego je zastąpi.</item>
+        <item quantity="other">%1$d z tych osób ma już własne wersje robocze: wysyłka do każdego je zastąpi.</item>
+    </plurals>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Wszystkie kontakty (%1$d)</string>
     <string name="conf_group_most">Limit grupowego MMS</string>

@@ -32,7 +32,8 @@ object Store {
     fun toEach(context: Context, thread: Long): Boolean = !groupOf(context, thread)
 
     fun groupOf(context: Context, thread: Long): Boolean = runCatching {
-        val ids = context.contentResolver.query(MMS, arrayOf("_id"), "thread_id = ? AND $MMS_NOT_DRAFT", arrayOf(thread.toString()), "date DESC")?.use { rows ->
+        // A draft counts here: an MMS draft to two people or more besides this phone is a group's, not yet sent.
+        val ids = context.contentResolver.query(MMS, arrayOf("_id"), "thread_id = ?", arrayOf(thread.toString()), "date DESC")?.use { rows ->
             buildList { while (rows.moveToNext() && size < LOOKED_AT) add(rows.getLong(0)) }
         }.orEmpty()
         if (ids.isEmpty()) return@runCatching false
@@ -307,14 +308,17 @@ object Store {
                 val number = members.firstOrNull()
                 // An empty conversation -- made for a message never sent, or left by one moved to its group's -- is none
                 // to show: told by its messages, the count Android keeps being not updated when a message moves.
-                val last = last(context, thread) ?: continue
-                val words = last.body
+                // A draft of foomms's: the conversation is listed at its moment, even with nothing else in it.
+                val drafted = if (Drafts.inThread(context, thread) != null) draftAt(context, thread) else null
+                val last = last(context, thread)
+                if (last == null && drafted == null) continue
+                val words = last?.body.orEmpty()
                 talks += Talk(
-                    thread, number ?: number(context, thread), last.at,
-                    words, last.incoming, rows.getInt(4) == 0, formOf(context, words, last.pieces),
+                    thread, number ?: number(context, thread), maxOf(last?.at ?: 0L, drafted ?: 0L),
+                    words, last?.incoming == true, rows.getInt(4) == 0, formOf(context, words, last?.pieces.orEmpty()),
                     members.ifEmpty { listOfNotNull(number ?: number(context, thread)) },
                     members.size > 1 && toEach(context, thread),
-                    if (last.incoming && members.size > 1) addressOf(context, last) else null,
+                    if (last != null && last.incoming && members.size > 1) addressOf(context, last) else null,
                 )
             }
         }
@@ -342,6 +346,15 @@ object Store {
 
     /** Enough of a PGP part to tell locked from signed: an armor's headers and its first line, or a packet's head. */
     private const val HEAD = 512
+
+    /** When the draft [thread] holds was last touched, if it holds one: an SMS's moment, or an MMS's. */
+    fun draftAt(context: Context, thread: Long): Long? = runCatching {
+        val sms = context.contentResolver.query(SMS, arrayOf("date"), "thread_id = ? AND NOT ($SMS_NOT_DRAFT)", arrayOf(thread.toString()), "date DESC LIMIT 1")
+            ?.use { rows -> if (rows.moveToFirst()) rows.getLong(0) else null }
+        val mms = context.contentResolver.query(MMS, arrayOf("date"), "thread_id = ? AND NOT ($MMS_NOT_DRAFT)", arrayOf(thread.toString()), "date DESC LIMIT 1")
+            ?.use { rows -> if (rows.moveToFirst()) rows.getLong(0) * 1000 else null }
+        listOfNotNull(sms, mms).maxOrNull()
+    }.getOrNull()
 
     /** The address the phone's list of conversations names by a number of its own. */
     private fun address(context: Context, id: Long): String? = runCatching {
