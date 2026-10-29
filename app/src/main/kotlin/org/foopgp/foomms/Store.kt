@@ -274,9 +274,9 @@ object Store {
      */
     private fun last(context: Context, thread: Long): Line? {
         val sms = context.contentResolver.query(
-            SMS, arrayOf("date", "body", "type"), "thread_id = ?", arrayOf(thread.toString()), "date DESC LIMIT 1",
+            SMS, arrayOf("date", "body", "type", "_id", "address"), "thread_id = ?", arrayOf(thread.toString()), "date DESC LIMIT 1",
         )?.use { rows ->
-            if (rows.moveToFirst()) Line(rows.getLong(0), rows.getInt(2) == SMS_INBOX, rows.getString(1).orEmpty()) else null
+            if (rows.moveToFirst()) Line(rows.getLong(0), rows.getInt(2) == SMS_INBOX, rows.getString(1).orEmpty(), id = rows.getLong(3), address = rows.getString(4)) else null
         }
         // An MMS's date is in seconds, an SMS's in milliseconds.
         val mms = runCatching {
@@ -285,7 +285,7 @@ object Store {
             )?.use { rows ->
                 if (!rows.moveToFirst()) return@use null
                 val (words, pieces) = parts(context, rows.getLong(0))
-                Line(rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, words.ifEmpty { pieces.joinToString(" ") { "📎 " + (it.name ?: it.type) } }, pieces, mms = true)
+                Line(rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, words.ifEmpty { pieces.joinToString(" ") { "📎 " + (it.name ?: it.type) } }, pieces, id = rows.getLong(0), mms = true)
             }
         }.getOrNull()
         return listOfNotNull(sms, mms).maxByOrNull { it.at }

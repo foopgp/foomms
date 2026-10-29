@@ -143,6 +143,9 @@ class ThreadActivity : AskingActivity() {
     /** The member a message came from, as the network wrote their number. */
     private fun memberOf(address: String?): Member? = address?.let { from -> members.firstOrNull { Phone.same(it.number, from) || it.number == from } }
 
+    /** Who sent each MMS received in a group: read after the page is shown, an asking each ([Store.addressOf]). */
+    private val senders = java.util.concurrent.ConcurrentHashMap<Long, String>()
+
     private val voice by lazy { Voice(this) }
 
     /** The field held down while empty: record, if the microphone may be used, until it is let go. */
@@ -553,6 +556,12 @@ class ThreadActivity : AskingActivity() {
                     Keep.read(this, one, found.filter { line -> line.thread == one && (lockedAndClosed(line) || line.key in keptUnread) })
                 }
                 Notify.seen(this, number)
+            }
+            // A group's: who sent each MMS, for its face beside it.
+            if (group) thread {
+                for (line in found.filter { it.incoming && it.mms && it.address == null && !senders.containsKey(it.id) }) {
+                    Store.addressOf(this, line)?.let { senders[line.id] = it ; drip() }
+                }
             }
             val pieces = found.flatMap { it.pieces }
             // The pictures, the lengths, and whom each locked part is for -- at the head of its bytes, and whether it
@@ -1944,11 +1953,11 @@ class ThreadActivity : AskingActivity() {
                 addView(mark, stripe)
                 // In a group, who wrote it: their face beside what they wrote, framed by what their certificate is worth.
                 if (group && line.incoming) {
-                    val who = memberOf(line.address)
+                    val who = memberOf(line.address ?: senders[line.id])
                     addView(
-                        Look.face(context, 32, null, who?.face, who?.card?.validity, framable = true, seed = who?.seed ?: line.address?.let(Phone::key)).apply {
+                        Look.face(context, 32, null, who?.face, who?.card?.validity, framable = true, seed = who?.seed ?: (line.address ?: senders[line.id])?.let(Phone::key)).apply {
                             // Pressed, who it is.
-                            setOnClickListener { Toast.makeText(context, who?.let { if (it.name != it.number) "${it.name} — ${it.number}" else it.number } ?: line.address.orEmpty(), Toast.LENGTH_SHORT).show() }
+                            setOnClickListener { Toast.makeText(context, who?.let { if (it.name != it.number) "${it.name} — ${it.number}" else it.number } ?: (line.address ?: senders[line.id]).orEmpty(), Toast.LENGTH_SHORT).show() }
                         },
                         LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                             gravity = Gravity.TOP ; marginEnd = pad / 2
