@@ -165,11 +165,12 @@ class SearchActivity : Activity() {
         thread {
             val within = number?.let { runCatching { Store.thread(this, it) }.getOrNull() ?: -1L }
             val all = runCatching { Store.search(this, wanted, within) }.getOrDefault(emptyList())
-            // The copies of one message sent to each of several, one result: the same words, sent within moments.
+            // The copies of one message sent to each of several, one result: the same words, sent at one moment -- or,
+            // as another application filed a sending to each, in one conversation within moments.
             val each = HashMap<Store.Hit, List<String>>()
             val results = ArrayList<Store.Hit>()
             for (hit in all) {
-                val first = if (hit.incoming) null else results.firstOrNull { !it.incoming && it.words == hit.words && kotlin.math.abs(it.at - hit.at) <= ALONGSIDE }
+                val first = if (hit.incoming) null else results.firstOrNull { !it.incoming && it.words == hit.words && (it.at == hit.at || (it.thread == hit.thread && kotlin.math.abs(it.at - hit.at) <= ALONGSIDE)) }
                 if (first == null) { results += hit ; continue }
                 each[first] = (each[first] ?: listOfNotNull(first.number)) + listOfNotNull(hit.number)
             }

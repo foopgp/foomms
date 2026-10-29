@@ -44,10 +44,9 @@ object Keep {
     /**
      * [at]: when it was sent -- for a sending to each, the moment it was
      * asked, the same for every copy, while each copy's own leaving is its
-     * date sent --; [into]: the conversation of all those it went to, as
-     * messaging applications file a sending to each.
+     * date sent.
      */
-    fun smsSent(context: Context, to: String, body: String, at: Long = System.currentTimeMillis(), into: Long? = null): Uri? =
+    fun smsSent(context: Context, to: String, body: String, at: Long = System.currentTimeMillis()): Uri? =
         context.contentResolver.insert(
             Telephony.Sms.Sent.CONTENT_URI,
             ContentValues().apply {
@@ -55,7 +54,6 @@ object Keep {
                 put(Telephony.Sms.BODY, body)
                 put(Telephony.Sms.DATE, at)
                 put(Telephony.Sms.DATE_SENT, System.currentTimeMillis())
-                into?.let { put(Telephony.Sms.THREAD_ID, it) }
                 put(Telephony.Sms.READ, 1)
                 put(Telephony.Sms.SEEN, 1)
             },
@@ -114,19 +112,19 @@ object Keep {
         }
     }
 
-    fun mmsSent(context: Context, to: List<String>, pdu: ByteArray, at: Long = System.currentTimeMillis(), into: Long? = null): Uri? =
-        mms(context, Telephony.Mms.Sent.CONTENT_URI, Phone.sent(to, Me.number(context)).toSet(), null, to, PduRead.read(pdu), pdu.size, incoming = false, -1, at, into)
+    fun mmsSent(context: Context, to: List<String>, pdu: ByteArray, at: Long = System.currentTimeMillis()): Uri? =
+        mms(context, Telephony.Mms.Sent.CONTENT_URI, Phone.sent(to, Me.number(context)).toSet(), null, to, PduRead.read(pdu), pdu.size, incoming = false, -1, at)
 
     private fun mms(
         context: Context, box: Uri, others: Set<String>, from: String?, to: List<String>,
-        message: PduRead.Message, size: Int, incoming: Boolean, subscription: Int, at: Long = System.currentTimeMillis(), into: Long? = null,
+        message: PduRead.Message, size: Int, incoming: Boolean, subscription: Int, at: Long = System.currentTimeMillis(),
     ): Uri? {
         val resolver = context.contentResolver
         val now = at / 1000
         val written = resolver.insert(
             box,
             ContentValues().apply {
-                put(Telephony.Mms.THREAD_ID, into ?: Telephony.Threads.getOrCreateThreadId(context, others))
+                put(Telephony.Mms.THREAD_ID, Telephony.Threads.getOrCreateThreadId(context, others))
                 put(Telephony.Mms.DATE, now)
                 put(Telephony.Mms.DATE_SENT, if (incoming) message.date ?: now else System.currentTimeMillis() / 1000)
                 put(Telephony.Mms.READ, if (incoming) 0 else 1)

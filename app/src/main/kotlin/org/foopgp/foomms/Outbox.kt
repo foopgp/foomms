@@ -46,7 +46,7 @@ object Outbox {
         return if (theirs > STANDARD && Conf.operatorSize(context)) theirs else minOf(theirs, STANDARD)
     }
 
-    fun send(context: Context, to: List<String>, pdu: ByteArray, transaction: String, at: Long = System.currentTimeMillis(), into: Long? = null) {
+    fun send(context: Context, to: List<String>, pdu: ByteArray, transaction: String, at: Long = System.currentTimeMillis()) {
         // The last word on weight, whatever made the message: heavier than set, it does not leave.
         val most = heaviest(context)
         check(pdu.size <= most) { context.getString(R.string.too_heavy_sent, (pdu.size + 1023) / 1024, most / 1024) }
@@ -64,14 +64,14 @@ object Outbox {
         // To a group, this phone among them: what left kept, to hold what comes back against it.
         runCatching { Echo.sent(context, to, pdu) }
         // The phone keeps what its messaging application tells it to, and nothing of what another sends.
-        if (Keep.ours(context)) runCatching { Keep.mmsSent(context, to, pdu, at, into) }
+        if (Keep.ours(context)) runCatching { Keep.mmsSent(context, to, pdu, at) }
     }
 
     /** How many SMS a text would take. */
     fun pieces(context: Context, words: String): Int = manager(context).divideMessage(words).size
 
     /** A text as SMS, in as many pieces as it takes; says how many. */
-    fun text(context: Context, to: String, words: String, at: Long = System.currentTimeMillis(), into: Long? = null): Int {
+    fun text(context: Context, to: String, words: String, at: Long = System.currentTimeMillis()): Int {
         val manager = manager(context)
         val pieces = manager.divideMessage(words)
         val transaction = "S" + java.lang.Long.toHexString(System.currentTimeMillis())
@@ -79,7 +79,7 @@ object Outbox {
             .putString(transaction, "${System.currentTimeMillis()}\t$to\t${words.length}\t$GOING").apply()
         // Told once, by the last piece: the others answer nobody.
         // The phone writes what another application sends; its messaging application writes its own.
-        val written = if (Keep.ours(context)) runCatching { Keep.smsSent(context, to, words, at, into) }.getOrNull() else null
+        val written = if (Keep.ours(context)) runCatching { Keep.smsSent(context, to, words, at) }.getOrNull() else null
         val told = PendingIntent.getBroadcast(
             context, transaction.hashCode(),
             Intent(context, Told::class.java).putExtra(EXTRA_TRANSACTION, transaction).putExtra(EXTRA_WRITTEN, written?.toString()),

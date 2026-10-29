@@ -48,16 +48,19 @@ object Store {
     private val TO_OR_CC = setOf(0x97, 0x82)
 
     /**
-     * Whom an SMS sent at [at] went to, when it was sent to each of several:
-     * the copies of the same words sent within [ALONGSIDE] of it -- this
-     * application writes them all at one moment, others one after the other
-     * --, each number once, the first written first.
+     * The numbers SMS sent with [body] went to, written at [at] exactly --
+     * how this application dates every copy of a sending to each --; or,
+     * [within] a conversation of several numbers as another application
+     * filed its sending to each, its copies one after the other, within
+     * [ALONGSIDE] of it. Each number once, the first written first.
      */
-    fun sentWith(context: Context, at: Long, body: String): List<String> = runCatching {
+    private fun sentWith(context: Context, at: Long, body: String, within: Long? = null): List<String> = runCatching {
         val found = ArrayList<String>()
+        val (where, args) =
+            if (within == null) "date = ?" to arrayOf(body, at.toString())
+            else "thread_id = ? AND date BETWEEN ? AND ?" to arrayOf(body, within.toString(), (at - ALONGSIDE).toString(), (at + ALONGSIDE).toString())
         context.contentResolver.query(
-            SMS, arrayOf("address"), "type = ${android.provider.Telephony.Sms.MESSAGE_TYPE_SENT} AND body = ? AND date BETWEEN ? AND ?",
-            arrayOf(body, (at - ALONGSIDE).toString(), (at + ALONGSIDE).toString()), "date ASC",
+            SMS, arrayOf("address"), "type = ${android.provider.Telephony.Sms.MESSAGE_TYPE_SENT} AND body = ? AND $where", args, "date ASC",
         )?.use { rows -> while (rows.moveToNext()) rows.getString(0)?.let { one -> if (found.none { Phone.same(it, one) || it == one }) found += one } }
         found
     }.getOrDefault(emptyList())
@@ -114,13 +117,14 @@ object Store {
 
     /**
      * Whom a message sent went to, when it was sent to each of several:
-     * the copies of the same message. An SMS: the same words sent within
-     * [ALONGSIDE] of it -- this application writes them all at one moment,
-     * others one after the other. An MMS: those of its conversation sent in
-     * the same second. Each number once, the first written first.
+     * the copies of the same message, dated the same moment, wherever they
+     * are filed -- an MMS's moment being a second. An SMS from a
+     * conversation of several numbers, another application's sending to
+     * each: the same words sent within moments of it there. Each number
+     * once, the first written first.
      */
     fun sentWith(context: Context, line: Line): List<String> =
-        if (!line.mms) sentWith(context, line.at, line.body)
+        if (!line.mms) sentWith(context, line.at, line.body, line.thread.takeIf { it >= 0 && members(context, it).size > 1 })
         else if (line.incoming) runCatching {
             // Received: those it went to besides this phone, as its "To" says.
             val found = ArrayList<String>()
@@ -135,18 +139,15 @@ object Store {
         }.getOrDefault(emptyList())
         else runCatching {
             val found = ArrayList<String>()
-            context.contentResolver.query(
-                MMS, arrayOf("_id"), "thread_id = ? AND msg_box = $MMS_SENT AND date = ?", arrayOf(line.thread.toString(), (line.at / 1000).toString()), "_id ASC",
-            )?.use { rows ->
+            context.contentResolver.query(MMS, arrayOf("_id"), "msg_box = $MMS_SENT AND date = ?", arrayOf((line.at / 1000).toString()), "_id ASC")?.use { rows ->
                 while (rows.moveToNext()) {
-                    val to = number(context, rows.getLong(0), false) ?: continue
-                    if (found.none { Phone.same(it, to) || it == to }) found += to
+                    for (to in recipients(context, rows.getLong(0))) if (found.none { Phone.same(it, to) || it == to }) found += to
                 }
             }
             found
         }.getOrDefault(emptyList())
 
-    /** How far apart the copies of one sending to each may have been written. */
+    /** How far apart another application wrote the copies of one sending to each. */
     private const val ALONGSIDE = 2 * 60 * 1000L
 
     /** What an MMS carries beside its words: a picture, a sound, a file. */
