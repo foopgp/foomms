@@ -39,6 +39,7 @@
     <string name="standing_revoked">révoqué</string>
     <string name="standing_broken">cassé</string>
     <string name="locked_for">⚿ Message chiffré pour</string>
+    <string name="piece_for">pour</string>
     <string name="share">⤴ Partager</string>
     <string name="save">↧ Enregistrer</string>
     <string name="saved">Enregistré.</string>

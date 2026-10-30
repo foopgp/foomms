@@ -39,6 +39,7 @@
     <string name="standing_revoked">отозван</string>
     <string name="standing_broken">повреждён</string>
     <string name="locked_for">⚿ Зашифрованное сообщение для</string>
+    <string name="piece_for">для</string>
     <string name="share">⤴ Поделиться</string>
     <string name="save">↧ Сохранить</string>
     <string name="saved">Сохранено.</string>

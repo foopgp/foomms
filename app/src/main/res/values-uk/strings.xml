@@ -39,6 +39,7 @@
     <string name="standing_revoked">відкликаний</string>
     <string name="standing_broken">пошкоджений</string>
     <string name="locked_for">⚿ Зашифроване повідомлення для</string>
+    <string name="piece_for">для</string>
     <string name="share">⤴ Поділитися</string>
     <string name="save">↧ Зберегти</string>
     <string name="saved">Збережено.</string>

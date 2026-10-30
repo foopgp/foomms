@@ -39,6 +39,7 @@
     <string name="standing_revoked">iptal edilmiş</string>
     <string name="standing_broken">bozuk</string>
     <string name="locked_for">⚿ Şifreli mesaj, alıcı:</string>
+    <string name="piece_for">alıcı:</string>
     <string name="share">⤴ Paylaş</string>
     <string name="save">↧ Kaydet</string>
     <string name="saved">Kaydedildi.</string>

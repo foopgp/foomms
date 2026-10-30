@@ -39,6 +39,7 @@
     <string name="standing_revoked">widerrufen</string>
     <string name="standing_broken">defekt</string>
     <string name="locked_for">⚿ Verschlüsselte Nachricht für</string>
+    <string name="piece_for">für</string>
     <string name="share">⤴ Teilen</string>
     <string name="save">↧ Speichern</string>
     <string name="saved">Gespeichert.</string>

@@ -39,6 +39,7 @@
     <string name="standing_revoked">revogado</string>
     <string name="standing_broken">defeituoso</string>
     <string name="locked_for">⚿ Mensagem cifrada para</string>
+    <string name="piece_for">para</string>
     <string name="share">⤴ Partilhar</string>
     <string name="save">↧ Guardar</string>
     <string name="saved">Guardado.</string>

@@ -39,6 +39,7 @@
     <string name="standing_revoked">ανακληθέν</string>
     <string name="standing_broken">κατεστραμμένο</string>
     <string name="locked_for">⚿ Κρυπτογραφημένο μήνυμα για</string>
+    <string name="piece_for">για</string>
     <string name="share">⤴ Κοινοποίηση</string>
     <string name="save">↧ Αποθήκευση</string>
     <string name="saved">Αποθηκεύτηκε.</string>

@@ -1900,7 +1900,10 @@ class ThreadActivity : AskingActivity() {
                 addView(Look.words(context, (if (!isLockedPiece(piece)) "✍ " else if (unread) "$LOCKED " else "$OPENED_ONCE ") + name, size = 15f, muted = true))
                 // Whom it is for, unless the message's words already said it: one face each, not twice.
                 val wordsFor = lines.getOrNull(at)?.let { armorOf(it) }?.takeIf { Pgp.isLocked(it) }?.let { Pgp.recipients(it) }.orEmpty()
-                for (id in sealedFor[piece.id].orEmpty().filter { it !in wordsFor }) {
+                val whom = sealedFor[piece.id].orEmpty().filter { it !in wordsFor }
+                // "for" before them, as a locked message's words say it.
+                if (whom.isNotEmpty()) addView(Look.words(context, " " + getString(R.string.piece_for), size = 15f, muted = true))
+                for (id in whom) {
                     addView(View(context), LinearLayout.LayoutParams(Look.dp(context, 4), 1))
                     addView(Look.face(context, 22, null, meant[id]?.face))
                 }

@@ -39,6 +39,7 @@
     <string name="standing_revoked">unieważniony</string>
     <string name="standing_broken">uszkodzony</string>
     <string name="locked_for">⚿ Wiadomość zaszyfrowana dla</string>
+    <string name="piece_for">dla</string>
     <string name="share">⤴ Udostępnij</string>
     <string name="save">↧ Zapisz</string>
     <string name="saved">Zapisano.</string>
