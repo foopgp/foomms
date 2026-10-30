@@ -1895,7 +1895,9 @@ class ThreadActivity : AskingActivity() {
             isSealed(piece) -> LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
-                addView(Look.words(context, (if (isLockedPiece(piece)) "⚿ " else "✍ ") + name, size = 15f, muted = true))
+                // As the words of a locked message: the key in its square while unread, the key alone once read.
+                val unread = lines.getOrNull(at)?.unread ?: true
+                addView(Look.words(context, (if (!isLockedPiece(piece)) "✍ " else if (unread) "$LOCKED " else "$OPENED_ONCE ") + name, size = 15f, muted = true))
                 // Whom it is for, unless the message's words already said it: one face each, not twice.
                 val wordsFor = lines.getOrNull(at)?.let { armorOf(it) }?.takeIf { Pgp.isLocked(it) }?.let { Pgp.recipients(it) }.orEmpty()
                 for (id in sealedFor[piece.id].orEmpty().filter { it !in wordsFor }) {
@@ -1992,13 +1994,13 @@ class ThreadActivity : AskingActivity() {
             val words = when {
                 armor == null -> line.body
                 read != null -> read.words
-                locked -> getString(R.string.locked_for)
+                // Its first sign the key in its square while unread, the key alone once read: at a glance, which are still to open.
+                locked -> getString(R.string.locked_for).let { if (line.unread) it else it.replaceFirst(LOCKED, OPENED_ONCE) }
                 else -> getString(R.string.signed_press)
             }
             val under = android.text.SpannableStringBuilder().apply {
                 append(DateUtils.getRelativeTimeSpanString(line.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL))
-                // Encrypted: the key in its square while unread, the key alone once read -- at a glance, which are still to open.
-                if (verdict.encrypted) append(if (line.unread) "  ⚿" else "  ⚷")
+                if (verdict.encrypted) append("  ⚿")
                 // Who signed: the words, or else what the first of its PGP parts said once opened -- a voice message has no words.
                 (read?.signed ?: line.pieces.filter(::isSealed).firstNotNullOfOrNull { Opened.piece(it.id)?.signed })?.let { Signer.words(context, it) }
                     ?.let { append("  ✍ ").append(it) }
@@ -2218,6 +2220,10 @@ class ThreadActivity : AskingActivity() {
     }
 
     companion object {
+        /** A locked message not read yet, and one read already -- closed again, or never opened here. */
+        private const val LOCKED = "⚿"
+        private const val OPENED_ONCE = "⚷"
+
         /**
          * The page of the group of [numbers]: the conversations it already has, with this phone among the
          * numbers or without; else a new one. From a new message, and from a draft's line.

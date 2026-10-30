@@ -88,8 +88,10 @@ class WriteActivity : Activity() {
         // Whom it is for so far, one small button each: pressed, that one is taken off.
         picked = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
         go = Look.button(this, getString(R.string.whom_write)) { write(group = false) }
-        toEach = Look.button(this, getString(R.string.send_each)) { write(group = false) }
-        toGroup = Look.button(this, getString(R.string.send_group)) { write(group = true) }
+        // The pencil of "Write", which these two take the place of.
+        val pencil = getString(R.string.whom_write).substringBefore(' ')
+        toEach = Look.button(this, "$pencil ${getString(R.string.send_each)}") { write(group = false) }
+        toGroup = Look.button(this, "$pencil ${getString(R.string.send_group)}") { write(group = true) }
         howSaid = Look.words(this, "", size = 13f, muted = true).apply { setPadding(Look.dp(context, 4), Look.dp(context, 4), Look.dp(context, 4), Look.dp(context, 4)) }
         list = ListView(this).apply {
             divider = null
