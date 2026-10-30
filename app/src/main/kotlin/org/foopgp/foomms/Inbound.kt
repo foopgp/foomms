@@ -83,6 +83,7 @@ object Inbound {
                 val ours = message.to.size > 1 || message.parts.any { Members.isPart(it.name ?: it.location) }
                 if (ours && Me.mine(context, from)) return runCatching { Echo.back(context, message.to, message) }.let { }
                 Keep.mmsReceived(context, message, pdu.size, intent.getIntExtra(EXTRA_SUBSCRIPTION, -1))
+                // With no words, what it carries: a group's 👥 first.
                 val words = message.parts.filter { it.isText }.joinToString("\n") { it.text() }
                     .ifEmpty { Members.glyphs(message.parts.filter { it.type != "application/smil" }.map { it.name ?: it.location }) }
                 // Its form, of its parts: a PGP message carried whole, or in its words.

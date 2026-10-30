@@ -33,11 +33,14 @@ object Notify {
         val armor = Pgp.armorIn(body)
         // A PGP message arrived is likely opened soon: foodjis woken for it.
         if (form != Form.PLAIN) Foodjis.of(context).wake()
-        val words = when {
+        val said = when {
             armor == null -> body
             Pgp.isLocked(armor) -> context.getString(R.string.locked_message)
             else -> context.getString(R.string.signed_message)
         }
+        // A group's message says so first, whatever it holds -- once, a message of parts alone having said it already.
+        val among = Members.glyph(Members.PART)
+        val words = if (group != null && !said.startsWith(among)) "$among $said" else said
         val person = runCatching { Book.who(context, number) }.getOrNull()
         val who = person?.name ?: number
         // The contact's picture, when the address book has one: read with the name, from the same card.
