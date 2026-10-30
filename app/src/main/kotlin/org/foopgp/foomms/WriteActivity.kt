@@ -250,7 +250,8 @@ class WriteActivity : Activity() {
             val (left, top, right, bottom) = listOf(button.paddingLeft, button.paddingTop, button.paddingRight, button.paddingBottom)
             button.background = Look.buttonFace(this, if (on) Look.ORANGE else Look.FACE)
             button.setPadding(left, top, right, bottom)
-            button.setTypeface(null, if (on) Typeface.BOLD else Typeface.NORMAL)
+            // Bold either way, as "Write", which they take the place of.
+            button.setTypeface(null, Typeface.BOLD)
         }
         // Each way and what it means, its name first; a group that cannot be, why.
         fun way(name: Int, said: String) = android.text.SpannableStringBuilder()
