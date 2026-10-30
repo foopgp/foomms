@@ -1316,7 +1316,8 @@ class ThreadActivity : AskingActivity() {
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 val first = mine.firstOrNull() ?: return@runOnUiThread
-                val why: (CharSequence) -> Unit = { words -> if (first is Unlocking.Job.Words) closed(first.armor, words) else say(words) }
+                // What went wrong, said: sharing or saving the message is the long press's to offer.
+                val why: (CharSequence) -> Unit = { words -> say(words) }
                 Unlocking.open(
                     provider, first, rest,
                     ask = { input, then -> ask(Intent(Provider.DECRYPT_VERIFY), input, why, notForUs = { read(chosen) }, done = then) },
@@ -1362,33 +1363,6 @@ class ThreadActivity : AskingActivity() {
     /** A picture opened from its lock, made small to sit in its bubble, or to the [side] asked. */
     private fun thumbnail(bytes: ByteArray, side: Int = Look.dp(this, 200)): Bitmap? = Media.thumbnail(bytes, side)
 
-    /**
-     * A message that did not open -- locked for somebody else, most often --
-     * is still a message: it can be handed on to whoever it is for, or kept.
-     */
-    private fun closed(armor: String, why: CharSequence) {
-        AlertDialog.Builder(this)
-            .setMessage(why)
-            .setPositiveButton(R.string.share) { _, _ ->
-                startActivity(
-                    Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, armor), null),
-                )
-            }
-            .setNeutralButton(R.string.save) { _, _ ->
-                saving = armor
-                @Suppress("DEPRECATION")
-                startActivityForResult(
-                    Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
-                        .setType("application/pgp-encrypted").putExtra(Intent.EXTRA_TITLE, "message.asc"),
-                    SAVE,
-                )
-            }
-            .setNegativeButton(R.string.close, null)
-            .show()
-    }
-
-    private var saving: String? = null
-
     override fun onActivityResult(request: Int, outcome: Int, data: Intent?) {
         super.onActivityResult(request, outcome, data)
         if (Saving.done(this, request, outcome, data, ::say)) return
@@ -1426,12 +1400,6 @@ class ThreadActivity : AskingActivity() {
             }
             return
         }
-        if (request != SAVE) return
-        val armor = saving.also { saving = null } ?: return
-        val where = data?.data?.takeIf { outcome == RESULT_OK } ?: return
-        runCatching { contentResolver.openOutputStream(where)?.use { it.write((armor + "\n").toByteArray()) } }
-            .onSuccess { Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show() }
-            .onFailure { say(getString(R.string.failed, it.message)) }
     }
 
     /** The words of a message as they can be read now: opened, or as they travelled. */
@@ -2260,7 +2228,6 @@ class ThreadActivity : AskingActivity() {
         /** The date of the message to show first. */
         const val EXTRA_AT = "at"
         private const val TIE = 1
-        private const val SAVE = 4
         private const val PICTURE = 5
         private const val SHOT = 7
         private const val CONTACT = 8
