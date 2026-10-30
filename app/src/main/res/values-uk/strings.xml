@@ -11,7 +11,6 @@
     <string name="refused">⚠ Не надіслано: відхилено оператором</string>
     <string name="no_provider">foodjis не встановлено або він не відповідає.</string>
     <string name="failed">%1$s</string>
-    <string name="given_up">Скасовано.</string>
     <string name="signed_certified">Підписано %1$s, засвідчено.</string>
     <string name="signed_other">Підписано %1$s, <b>не засвідчено</b>.</string>
     <string name="unsigned">Без підпису.</string>

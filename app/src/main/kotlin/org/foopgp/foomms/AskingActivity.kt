@@ -28,6 +28,7 @@ abstract class AskingActivity : Activity() {
         val failed: (CharSequence) -> Unit,
         val shown: (Intent?) -> Boolean,
         val notForUs: () -> Unit,
+        val gaveUp: () -> Unit,
         val done: (Provider.Answer.Done) -> Unit,
     )
 
@@ -56,10 +57,12 @@ abstract class AskingActivity : Activity() {
         failed: (CharSequence) -> Unit,
         screened: (Intent?) -> Boolean = { false },
         notForUs: () -> Unit = {},
+        // The person left foodjis's screen: nothing to tell them, what they did being theirs.
+        gaveUp: () -> Unit = {},
         done: (Provider.Answer.Done) -> Unit,
     ) {
         shown = 0
-        errand = Errand(request, input, failed, screened, notForUs, done)
+        errand = Errand(request, input, failed, screened, notForUs, gaveUp, done)
         again(null)
     }
 
@@ -99,7 +102,7 @@ abstract class AskingActivity : Activity() {
             if (errand?.shown?.invoke(data) == true) { errand = null ; return }
             return again(data?.extras)
         }
-        errand?.failed?.invoke(getString(R.string.given_up))
+        errand?.gaveUp?.invoke()
         errand = null
     }
 

@@ -11,7 +11,6 @@
     <string name="refused">⚠ Non envoyé : refusé par l\'opérateur</string>
     <string name="no_provider">foodjis n\'est pas installé, ou ne répond pas.</string>
     <string name="failed">%1$s</string>
-    <string name="given_up">Abandonné.</string>
     <string name="signed_certified">Signé par %1$s, certifié.</string>
     <string name="signed_other">Signé par %1$s, <b>non certifié</b>.</string>
     <string name="unsigned">Non signé.</string>

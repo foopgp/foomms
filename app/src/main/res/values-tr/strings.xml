@@ -11,7 +11,6 @@
     <string name="refused">⚠ Gönderilmedi: operatör reddetti</string>
     <string name="no_provider">foodjis yüklü değil ya da yanıt vermiyor.</string>
     <string name="failed">%1$s</string>
-    <string name="given_up">Vazgeçildi.</string>
     <string name="signed_certified">%1$s tarafından imzalandı, sertifikalı.</string>
     <string name="signed_other">%1$s tarafından imzalandı, <b>sertifikasız</b>.</string>
     <string name="unsigned">İmzasız.</string>

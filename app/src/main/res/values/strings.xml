@@ -13,7 +13,6 @@
     <string name="refused">⚠ Not sent: refused by the network</string>
     <string name="no_provider">foodjis is not installed, or does not answer.</string>
     <string name="failed">%1$s</string>
-    <string name="given_up">Given up.</string>
     <string name="signed_certified">Signed by %1$s, certified.</string>
     <string name="signed_other">Signed by %1$s, <b>not certified</b>.</string>
     <string name="unsigned">Not signed.</string>

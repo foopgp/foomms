@@ -1702,6 +1702,7 @@ class ThreadActivity : AskingActivity() {
             failed = { looking.dismiss() ; say(getString(R.string.cert_not_found)) },
             // A screen of foodjis instead -- this application not let in: what it showed was the answer.
             screened = { looking.dismiss() ; true },
+            gaveUp = { looking.dismiss() },
         ) {
             looking.dismiss()
             // What was judged without it is judged again: signed only, at once; encrypted, when opened again.
