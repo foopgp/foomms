@@ -10,6 +10,7 @@
     <string name="words_hint">Your message</string>
     <string name="sent">Message sent.</string>
     <string name="not_sent">Message not sent (%1$d).</string>
+    <string name="refused">⚠ Not sent: refused by the network</string>
     <string name="no_provider">foodjis is not installed, or does not answer.</string>
     <string name="failed">foodjis says: %1$s</string>
     <string name="given_up">Given up.</string>

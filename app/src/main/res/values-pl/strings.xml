@@ -8,6 +8,7 @@
     <string name="words_hint">Twoja wiadomość</string>
     <string name="sent">Wiadomość wysłana.</string>
     <string name="not_sent">Wiadomość niewysłana (%1$d).</string>
+    <string name="refused">⚠ Nie wysłano: odrzucone przez operatora</string>
     <string name="no_provider">foodjis nie jest zainstalowany lub nie odpowiada.</string>
     <string name="failed">foodjis mówi: %1$s</string>
     <string name="given_up">Przerwano.</string>

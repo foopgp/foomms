@@ -8,6 +8,7 @@
     <string name="words_hint">Il tuo messaggio</string>
     <string name="sent">Messaggio inviato.</string>
     <string name="not_sent">Messaggio non inviato (%1$d).</string>
+    <string name="refused">⚠ Non inviato: rifiutato dall\'operatore</string>
     <string name="no_provider">foodjis non è installato o non risponde.</string>
     <string name="failed">foodjis dice: %1$s</string>
     <string name="given_up">Annullato.</string>

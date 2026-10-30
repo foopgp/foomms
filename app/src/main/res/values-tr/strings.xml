@@ -8,6 +8,7 @@
     <string name="words_hint">Mesajınız</string>
     <string name="sent">Mesaj gönderildi.</string>
     <string name="not_sent">Mesaj gönderilmedi (%1$d).</string>
+    <string name="refused">⚠ Gönderilmedi: operatör reddetti</string>
     <string name="no_provider">foodjis yüklü değil ya da yanıt vermiyor.</string>
     <string name="failed">foodjis diyor ki: %1$s</string>
     <string name="given_up">Vazgeçildi.</string>

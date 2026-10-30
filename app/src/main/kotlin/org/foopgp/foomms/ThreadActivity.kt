@@ -1995,6 +1995,13 @@ class ThreadActivity : AskingActivity() {
                 // Who signed: the words, or else what the first of its PGP parts said once opened -- a voice message has no words.
                 (read?.signed ?: line.pieces.filter(::isSealed).firstNotNullOfOrNull { Opened.piece(it.id)?.signed })?.let { Signer.words(context, it) }
                     ?.let { append("  ✍ ").append(it) }
+                // Refused by the network: certainly not sent -- the one thing known for sure of a sending.
+                if (line.failed) {
+                    append("\n").append(
+                        getString(R.string.refused), android.text.style.ForegroundColorSpan(Look.standingColour("revoked")),
+                        android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+                    )
+                }
             }
             val pad = Look.dp(context, 10)
             val text = Look.words(context, if (closed) words else marked(words, at), size = 16f, muted = closed)

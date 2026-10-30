@@ -250,6 +250,8 @@ object Store {
         val sentAt: Long = 0, val address: String? = null,
         /** Not read yet; and the conversation it belongs to. */
         val unread: Boolean = false, val thread: Long = -1,
+        /** Refused by the network when it was to leave: certainly not sent. Taken, it may still not arrive. */
+        val failed: Boolean = false,
     ) {
         val attachments: Int get() = pieces.size
         val uri: Uri get() = Uri.parse(if (mms) "content://mms/$id" else "content://sms/$id")
@@ -435,6 +437,7 @@ object Store {
                     rows.getLong(0), rows.getInt(2) == SMS_INBOX, rows.getString(1).orEmpty(),
                     id = rows.getLong(3), sentAt = rows.getLong(4), address = rows.getString(5),
                     unread = rows.getInt(6) == 0, thread = thread,
+                    failed = rows.getInt(2) == android.provider.Telephony.Sms.MESSAGE_TYPE_FAILED,
                 )
             }
         }
@@ -452,17 +455,20 @@ object Store {
      * each is not asked here, being only shown in its details ([addressOf]).
      */
     private fun mmsLines(context: Context, where: String, args: Array<String>?): List<Line> {
-        class Head(val id: Long, val at: Long, val incoming: Boolean, val sentAt: Long, val unread: Boolean, val thread: Long)
+        class Head(val id: Long, val at: Long, val incoming: Boolean, val sentAt: Long, val unread: Boolean, val thread: Long, val failed: Boolean)
         val heads = ArrayList<Head>()
         context.contentResolver.query(MMS, arrayOf("_id", "date", "msg_box", "date_sent", "read", "thread_id"), "($where) AND $MMS_NOT_DRAFT", args, null)?.use { rows ->
             while (rows.moveToNext()) {
-                heads += Head(rows.getLong(0), rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, rows.getLong(3) * 1000, rows.getInt(4) == 0, rows.getLong(5))
+                heads += Head(
+                    rows.getLong(0), rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, rows.getLong(3) * 1000, rows.getInt(4) == 0, rows.getLong(5),
+                    rows.getInt(2) == android.provider.Telephony.Mms.MESSAGE_BOX_FAILED,
+                )
             }
         }
         val parts = parts(context, heads.map { it.id })
         return heads.map { head ->
             val (words, pieces) = parts[head.id] ?: ("" to emptyList())
-            Line(head.at, head.incoming, words, pieces, id = head.id, mms = true, sentAt = head.sentAt, unread = head.unread, thread = head.thread)
+            Line(head.at, head.incoming, words, pieces, id = head.id, mms = true, sentAt = head.sentAt, unread = head.unread, thread = head.thread, failed = head.failed)
         }
     }
 

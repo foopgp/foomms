@@ -8,6 +8,7 @@
     <string name="words_hint">Το μήνυμά σας</string>
     <string name="sent">Το μήνυμα στάλθηκε.</string>
     <string name="not_sent">Το μήνυμα δεν στάλθηκε (%1$d).</string>
+    <string name="refused">⚠ Δεν στάλθηκε: απορρίφθηκε από τον πάροχο</string>
     <string name="no_provider">Το foodjis δεν είναι εγκατεστημένο ή δεν απαντά.</string>
     <string name="failed">Το foodjis λέει: %1$s</string>
     <string name="given_up">Ακυρώθηκε.</string>

@@ -66,6 +66,13 @@ object Keep {
         )
     }
 
+    /** An MMS the network refused: kept among those that failed, not those sent. */
+    fun mmsFailed(context: Context, written: Uri) {
+        context.contentResolver.update(
+            written, ContentValues().apply { put(Telephony.Mms.MESSAGE_BOX, Telephony.Mms.MESSAGE_BOX_FAILED) }, null, null,
+        )
+    }
+
     fun mmsReceived(context: Context, message: PduRead.Message, size: Int, subscription: Int): Uri? {
         val from = message.from ?: return null
         Me.learn(context, message.to)

@@ -8,6 +8,7 @@
     <string name="words_hint">Ваше повідомлення</string>
     <string name="sent">Повідомлення надіслано.</string>
     <string name="not_sent">Повідомлення не надіслано (%1$d).</string>
+    <string name="refused">⚠ Не надіслано: відхилено оператором</string>
     <string name="no_provider">foodjis не встановлено або він не відповідає.</string>
     <string name="failed">foodjis повідомляє: %1$s</string>
     <string name="given_up">Скасовано.</string>

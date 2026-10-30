@@ -53,18 +53,22 @@ object Outbox {
         File(context.cacheDir, DIR).mkdirs()
         file(context, transaction).writeBytes(pdu)
         journal(context).edit().putString(transaction, "${System.currentTimeMillis()}\t${to.joinToString(", ")}\t${pdu.size}\t$GOING").apply()
+        // The phone keeps what its messaging application tells it to, and nothing of what another sends: written
+        // before it leaves, so that a refusal can be marked on it.
+        val written = if (Keep.ours(context)) runCatching { Keep.mmsSent(context, to, pdu, at) }.getOrNull() else null
         val told = PendingIntent.getBroadcast(
             context, transaction.hashCode(),
-            Intent(context, Told::class.java).putExtra(EXTRA_TRANSACTION, transaction),
+            Intent(context, Told::class.java).putExtra(EXTRA_TRANSACTION, transaction).putExtra(EXTRA_WRITTEN, written?.toString()),
             // The service adds what the network answered: the intent must let it.
             PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0),
         )
         val from = Uri.parse("content://${context.packageName}.pdu/$transaction")
-        manager(context).sendMultimediaMessage(context, from, null, null, told)
+        runCatching { manager(context).sendMultimediaMessage(context, from, null, null, told) }.onFailure { failure ->
+            written?.let { runCatching { Keep.mmsFailed(context, it) } }
+            throw failure
+        }
         // To a group, this phone among them: what left kept, to hold what comes back against it.
         runCatching { Echo.sent(context, to, pdu) }
-        // The phone keeps what its messaging application tells it to, and nothing of what another sends.
-        if (Keep.ours(context)) runCatching { Keep.mmsSent(context, to, pdu, at) }
     }
 
     /** How many SMS a text would take. */
@@ -151,7 +155,11 @@ object Outbox {
             val transaction = intent.getStringExtra(EXTRA_TRANSACTION) ?: return
             file(context, transaction).delete()
             val outcome = if (resultCode == android.app.Activity.RESULT_OK) GONE else "$REFUSED $resultCode"
-            if (outcome != GONE) intent.getStringExtra(EXTRA_WRITTEN)?.let { runCatching { Keep.smsFailed(context, Uri.parse(it)) } }
+            // Refused: certainly not sent, and marked so where it is kept. Taken, it is not known to have arrived.
+            if (outcome != GONE) intent.getStringExtra(EXTRA_WRITTEN)?.let { kept ->
+                val where = Uri.parse(kept)
+                runCatching { if (where.authority == "mms") Keep.mmsFailed(context, where) else Keep.smsFailed(context, where) }
+            }
             val kept = journal(context)
             kept.getString(transaction, null)?.let { line ->
                 kept.edit().putString(transaction, line.substringBeforeLast('\t') + "\t" + outcome).apply()
