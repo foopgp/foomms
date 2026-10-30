@@ -251,7 +251,7 @@
     <string name="send_each">Send to each</string>
     <string name="send_group">Group MMS</string>
     <string name="send_each_note">Each gets their own message, and answers you alone.</string>
-    <string name="send_group_note">One MMS for all: each sees who is in the group, and everybody\'s answers.</string>
+    <string name="send_group_note">One MMS for all, where everyone sees who is in the group and everyone\'s replies.</string>
     <string name="send_group_most">A group MMS goes to 2 to %1$d people.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Change contact card</string>

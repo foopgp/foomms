@@ -248,7 +248,7 @@
     <string name="send_each">Αποστολή σε καθέναν</string>
     <string name="send_group">Ομαδικό MMS</string>
     <string name="send_each_note">Ο καθένας λαμβάνει δικό του μήνυμα και απαντά μόνο σε εσάς.</string>
-    <string name="send_group_note">Ένα MMS για όλους: ο καθένας βλέπει ποιοι είναι στην ομάδα, και τις απαντήσεις όλων.</string>
+    <string name="send_group_note">Ένα MMS για όλους, όπου ο καθένας βλέπει ποιος ανήκει στην ομάδα και τις απαντήσεις όλων.</string>
     <string name="send_group_most">Ένα ομαδικό MMS πηγαίνει σε 2 έως %1$d παραλήπτες.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Αλλαγή καρτέλας επαφής</string>

@@ -248,7 +248,7 @@
     <string name="send_each">Herkese ayrı</string>
     <string name="send_group">Grup MMS\'i</string>
     <string name="send_each_note">Herkes kendi mesajını alır ve yalnızca size yanıt verir.</string>
-    <string name="send_group_note">Herkese tek MMS: herkes grupta kimlerin olduğunu ve herkesin yanıtlarını görür.</string>
+    <string name="send_group_note">Herkes için tek bir MMS; herkes grupta kimin olduğunu ve herkesin yanıtlarını görür.</string>
     <string name="send_group_most">Grup MMS\'i 2 ile %1$d alıcı arasına gider.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Kişi kartını değiştir</string>

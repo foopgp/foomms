@@ -248,7 +248,7 @@
     <string name="send_each">Envio múltiplo</string>
     <string name="send_group">MMS de grupo</string>
     <string name="send_each_note">Cada um recebe a sua própria mensagem e responde só a si.</string>
-    <string name="send_group_note">Um só MMS para todos: cada um vê quem faz parte do grupo, e as respostas de todos.</string>
+    <string name="send_group_note">Um só MMS para todos, em que cada um vê quem faz parte do grupo e as respostas de todos.</string>
     <string name="send_group_most">Um MMS de grupo vai de 2 a %1$d destinatários.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Mudar de ficha de contacto</string>

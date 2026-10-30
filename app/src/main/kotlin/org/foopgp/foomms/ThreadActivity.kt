@@ -1997,7 +1997,8 @@ class ThreadActivity : AskingActivity() {
             }
             val under = android.text.SpannableStringBuilder().apply {
                 append(DateUtils.getRelativeTimeSpanString(line.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL))
-                if (verdict.encrypted) append("  ⚿")
+                // Encrypted: the key in its square while unread, the key alone once read -- at a glance, which are still to open.
+                if (verdict.encrypted) append(if (line.unread) "  ⚿" else "  ⚷")
                 // Who signed: the words, or else what the first of its PGP parts said once opened -- a voice message has no words.
                 (read?.signed ?: line.pieces.filter(::isSealed).firstNotNullOfOrNull { Opened.piece(it.id)?.signed })?.let { Signer.words(context, it) }
                     ?.let { append("  ✍ ").append(it) }

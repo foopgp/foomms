@@ -258,7 +258,7 @@
     <string name="send_each">Каждому отдельно</string>
     <string name="send_group">Групповое MMS</string>
     <string name="send_each_note">Каждый получает своё сообщение и отвечает только вам.</string>
-    <string name="send_group_note">Одно MMS всем: каждый видит, кто в группе, и ответы всех.</string>
+    <string name="send_group_note">Один MMS для всех, в котором каждый видит, кто в группе, и ответы всех.</string>
     <string name="send_group_most">Групповое MMS — от 2 до %1$d получателей.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Сменить карточку контакта</string>

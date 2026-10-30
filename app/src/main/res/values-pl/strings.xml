@@ -258,7 +258,7 @@
     <string name="send_each">Wysyłka do każdego</string>
     <string name="send_group">MMS grupowy</string>
     <string name="send_each_note">Każdy dostaje własną wiadomość i odpowiada tylko Tobie.</string>
-    <string name="send_group_note">Jeden MMS dla wszystkich: każdy widzi, kto należy do grupy, i odpowiedzi wszystkich.</string>
+    <string name="send_group_note">Jeden MMS dla wszystkich, w którym każdy widzi, kto należy do grupy, i odpowiedzi wszystkich.</string>
     <string name="send_group_most">MMS grupowy trafia do 2–%1$d odbiorców.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Zmień kartę kontaktu</string>
