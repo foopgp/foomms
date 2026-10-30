@@ -1,0 +1,6 @@
+• Borradores en la lista («✎ Borrador»): un grupo o un envío múltiple interrumpido se retoma con un toque; «Borrar todos los borradores».
+• Con menos de 8 SMS, el texto sale como SMS, que llega con más seguridad: «Permitir el envío de MMS».
+• Un mensaje rechazado por el operador lo dice bajo su burbuja.
+• Un mensaje de voz mudo, micrófono ocupado por una llamada, no se envía.
+• Grupos: 👥 en las notificaciones, menú reordenado.
+• Marco del certificado en el título, los detalles y la búsqueda.

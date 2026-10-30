@@ -1,0 +1,6 @@
+• Brouillons dans la liste (« ✎ Brouillon ») : un groupe ou un envoi multiple interrompu se reprend d'un appui ; « Effacer tous les brouillons ».
+• Moins de 8 SMS, le texte part en SMS, plus sûr d'arriver : « Autoriser l'envoi de MMS ».
+• Un message refusé par l'opérateur le dit sous sa bulle.
+• Un vocal muet, micro pris par un appel, n'est pas envoyé.
+• Groupes : 👥 dans les notifications, menu réorganisé.
+• Cadre du certificat dans le titre, les détails et la recherche.

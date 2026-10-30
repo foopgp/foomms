@@ -1,0 +1,6 @@
+• Taslaklar listede ("✎ Taslak"): yarıda kalan bir grup veya ayrı gönderim tek dokunuşla sürer; "Tüm taslakları sil".
+• 8 SMS'ten kısa bir metin, daha güvenle ulaşan SMS olarak gider: "MMS gönderimine izin ver".
+• Operatörün reddettiği bir mesaj bunu baloncuğunun altında söyler.
+• Mikrofon bir aramadayken sessiz kalan sesli mesaj gönderilmez.
+• Gruplar: bildirimlerde 👥, yeniden düzenlenmiş menü.
+• Başlıkta, ayrıntılarda ve aramada sertifika çerçevesi.

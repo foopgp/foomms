@@ -1,0 +1,6 @@
+• Entwürfe in der Liste („✎ Entwurf“): eine unterbrochene Gruppe oder ein Einzelversand geht mit einem Tippen weiter; „Alle Entwürfe löschen“.
+• Unter 8 SMS geht ein Text als SMS, die sicherer ankommt: „Senden von MMS erlauben“.
+• Eine vom Netz abgelehnte Nachricht sagt es unter ihrer Blase.
+• Eine stumme Sprachnachricht, Mikrofon durch ein Gespräch belegt, wird nicht gesendet.
+• Gruppen: 👥 in Benachrichtigungen, Menü neu geordnet.
+• Zertifikatsrahmen im Titel, in den Details und in der Suche.

@@ -1,0 +1,6 @@
+• Wersje robocze na liście („✎ Wersja robocza”): przerwaną grupę lub wysyłkę do każdego wznawia się jednym dotknięciem; „Usuń wszystkie wersje robocze”.
+• Poniżej 8 SMS-ów tekst wychodzi jako SMS, pewniejszy: „Zezwalaj na wysyłanie MMS”.
+• Wiadomość odrzucona przez operatora mówi o tym pod dymkiem.
+• Niema wiadomość głosowa, gdy mikrofon zajmuje połączenie, nie zostaje wysłana.
+• Grupy: 👥 w powiadomieniach, nowy układ menu.
+• Ramka certyfikatu w tytule, szczegółach i wyszukiwaniu.

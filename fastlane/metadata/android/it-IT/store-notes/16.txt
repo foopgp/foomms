@@ -1,0 +1,6 @@
+• Bozze nell'elenco («✎ Bozza»): un gruppo o un invio multiplo interrotto si riprende con un tocco; «Cancellare tutte le bozze».
+• Sotto gli 8 SMS il testo parte come SMS, più sicuro di arrivare: «Consentire l'invio di MMS».
+• Un messaggio rifiutato dall'operatore lo dice sotto la sua bolla.
+• Un vocale muto, microfono occupato da una chiamata, non viene inviato.
+• Gruppi: 👥 nelle notifiche, menu riordinato.
+• Cornice del certificato nel titolo, nei dettagli e nella ricerca.
