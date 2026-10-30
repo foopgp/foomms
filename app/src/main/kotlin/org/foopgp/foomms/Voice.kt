@@ -25,6 +25,7 @@ class Voice(private val context: Context) {
      */
     private var looks = 0
     private var mutes = 0
+    private var running = 0
 
     /** Nothing at all was heard, from the first look to the last. */
     var silent = false
@@ -58,7 +59,7 @@ class Voice(private val context: Context) {
             made.start()
             recorder = made
             started = System.currentTimeMillis()
-            looks = 0 ; mutes = 0 ; silent = false ; partlySilent = false
+            looks = 0 ; mutes = 0 ; running = 0 ; silent = false ; partlySilent = false
             // The first asking says nothing: what came since the one before, and there was none.
             made.maxAmplitude
         }.isSuccess
@@ -91,13 +92,16 @@ class Voice(private val context: Context) {
     fun listen(): Boolean {
         val made = recorder ?: return false
         val nothing = runCatching { made.maxAmplitude }.getOrDefault(0) == 0
+        // Asked as it starts, the microphone has not heard anything yet: that look says nothing.
+        if (System.currentTimeMillis() - started < LISTENING) return false
         val silenced = Build.VERSION.SDK_INT >= 29 && runCatching {
             context.getSystemService(AudioManager::class.java)?.activeRecordingConfigurations?.any { it.isClientSilenced } == true
         }.getOrDefault(false)
         val mute = nothing || silenced
         looks++
-        if (mute) mutes++
-        return mute
+        if (mute) { mutes++ ; running++ } else running = 0
+        // Said once it lasts half a second: a look at nothing now and then is chance.
+        return running >= 2
     }
 
     /** Let go of the microphone, keeping nothing. */
@@ -110,6 +114,9 @@ class Voice(private val context: Context) {
     companion object {
         /** Under this, a press was a slip and nothing was said. */
         private const val SHORTEST = 600L
+
+        /** How long the microphone takes to hear anything once recording starts. */
+        private const val LISTENING = 200L
 
         /** A call going on -- by telephone or by an application --, which holds the microphone. */
         fun inCall(context: Context): Boolean = context.getSystemService(AudioManager::class.java)?.mode.let {
