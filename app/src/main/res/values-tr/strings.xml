@@ -162,6 +162,10 @@
     <string name="contact_show">👤 Kişiyi göster</string>
     <string name="contact_add">👤 Kişilere ekle</string>
     <string name="voice_recording">● Kaydediliyor %1$s — durdurmak için bırakın</string>
+    <string name="voice_recording_mute">● Kayıt %1$s — 🔇 mikrofon hiçbir şey duymuyor</string>
+    <string name="voice_in_call">Mikrofon devam eden bir arama tarafından kullanılıyor.</string>
+    <string name="voice_silent">Hiçbir şey kaydedilmedi: mikrofon büyük olasılıkla başka yerde kullanılıyor.</string>
+    <string name="voice_partly_silent">Dikkat: mikrofon kaydın bir bölümünde hiçbir şey duymadı.</string>
     <string name="carrying_long">%1$s\n%2$s — %3$d kB</string>
     <string name="drop_attachment">Eki kaldır</string>
     <string name="language_tag">tr</string>

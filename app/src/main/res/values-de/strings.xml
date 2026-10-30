@@ -162,6 +162,10 @@
     <string name="contact_show">👤 Kontakt anzeigen</string>
     <string name="contact_add">👤 Zu den Kontakten hinzufügen</string>
     <string name="voice_recording">● Aufnahme %1$s – zum Beenden loslassen</string>
+    <string name="voice_recording_mute">● Aufnahme %1$s — 🔇 das Mikrofon hört nichts</string>
+    <string name="voice_in_call">Das Mikrofon ist durch ein laufendes Gespräch belegt.</string>
+    <string name="voice_silent">Nichts wurde aufgenommen: Das Mikrofon wird wohl anderswo benutzt.</string>
+    <string name="voice_partly_silent">Achtung: Das Mikrofon hat während eines Teils der Aufnahme nichts gehört.</string>
     <string name="carrying_long">%1$s\n%2$s – %3$d kB</string>
     <string name="drop_attachment">Anhang entfernen</string>
     <string name="language_tag">de</string>

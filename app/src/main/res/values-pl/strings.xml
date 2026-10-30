@@ -164,6 +164,10 @@
     <string name="contact_show">👤 Pokaż kontakt</string>
     <string name="contact_add">👤 Dodaj do kontaktów</string>
     <string name="voice_recording">● Nagrywanie %1$s — puść, aby zakończyć</string>
+    <string name="voice_recording_mute">● Nagrywanie %1$s — 🔇 mikrofon nic nie słyszy</string>
+    <string name="voice_in_call">Mikrofon jest zajęty przez trwające połączenie.</string>
+    <string name="voice_silent">Nic nie nagrano: mikrofon jest pewnie używany gdzie indziej.</string>
+    <string name="voice_partly_silent">Uwaga: mikrofon nic nie słyszał przez część nagrania.</string>
     <string name="carrying_long">%1$s\n%2$s — %3$d kB</string>
     <string name="drop_attachment">Usuń załącznik</string>
     <string name="language_tag">pl</string>

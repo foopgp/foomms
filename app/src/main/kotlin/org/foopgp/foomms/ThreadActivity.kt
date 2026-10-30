@@ -164,6 +164,8 @@ class ThreadActivity : AskingActivity() {
             requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), VOICE)
             return true
         }
+        // A call holds the microphone: what would be recorded is silence.
+        if (Voice.inCall(this)) { say(getString(R.string.voice_in_call)) ; return true }
         if (!voice.start(Outbox.heaviest(this) - Outbox.MARGIN)) {
             say(getString(R.string.voice_failed))
             return true
@@ -171,11 +173,12 @@ class ThreadActivity : AskingActivity() {
         field.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
         chipRow.visibility = View.VISIBLE
         carriedRow.attached(false)
-        // The time it has been recording, said each second for as long as it records.
+        // The time it has been recording, said each second for as long as it records; and whether the microphone hears.
         val tick = object : Runnable {
             override fun run() {
                 if (!voice.recording) return
-                chip.text = getString(R.string.voice_recording, Media.clock(voice.millis))
+                val mute = voice.listen()
+                chip.text = getString(if (mute) R.string.voice_recording_mute else R.string.voice_recording, Media.clock(voice.millis))
                 chip.postDelayed(this, 250)
             }
         }
@@ -187,8 +190,11 @@ class ThreadActivity : AskingActivity() {
     private fun spoken() {
         val said = voice.stop()
         field.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
+        // Silence from start to end: the microphone was elsewhere; nothing to send.
+        if (said != null && voice.silent) { carry(null) ; return say(getString(R.string.voice_silent)) }
         carry(said)
         if (said == null) Toast.makeText(this, R.string.voice_too_short, Toast.LENGTH_SHORT).show()
+        else if (voice.partlySilent) say(getString(R.string.voice_partly_silent))
     }
 
     /** What the next message carries beside its words: a picture, a sound. */

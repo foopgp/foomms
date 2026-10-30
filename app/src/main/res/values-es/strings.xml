@@ -162,6 +162,10 @@
     <string name="contact_show">👤 Mostrar el contacto</string>
     <string name="contact_add">👤 Añadir a los contactos</string>
     <string name="voice_recording">● Grabando %1$s — suelte para detener</string>
+    <string name="voice_recording_mute">● Grabando %1$s — 🔇 el micrófono no capta nada</string>
+    <string name="voice_in_call">El micrófono está ocupado por una llamada en curso.</string>
+    <string name="voice_silent">No se ha grabado nada: el micrófono probablemente se está usando en otra parte.</string>
+    <string name="voice_partly_silent">Atención: el micrófono no captó nada durante parte de la grabación.</string>
     <string name="carrying_long">%1$s\n%2$s — %3$d kB</string>
     <string name="drop_attachment">Quitar el adjunto</string>
     <string name="language_tag">es</string>

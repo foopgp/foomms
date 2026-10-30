@@ -162,6 +162,10 @@
     <string name="contact_show">👤 Εμφάνιση της επαφής</string>
     <string name="contact_add">👤 Προσθήκη στις επαφές</string>
     <string name="voice_recording">● Ηχογράφηση %1$s — αφήστε για διακοπή</string>
+    <string name="voice_recording_mute">● Εγγραφή %1$s — 🔇 το μικρόφωνο δεν ακούει τίποτα</string>
+    <string name="voice_in_call">Το μικρόφωνο χρησιμοποιείται από μια κλήση σε εξέλιξη.</string>
+    <string name="voice_silent">Δεν ηχογραφήθηκε τίποτα: το μικρόφωνο μάλλον χρησιμοποιείται αλλού.</string>
+    <string name="voice_partly_silent">Προσοχή: το μικρόφωνο δεν άκουσε τίποτα για ένα μέρος της εγγραφής.</string>
     <string name="carrying_long">%1$s\n%2$s — %3$d kB</string>
     <string name="drop_attachment">Αφαίρεση συνημμένου</string>
     <string name="language_tag">el</string>

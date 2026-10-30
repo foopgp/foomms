@@ -164,6 +164,10 @@
     <string name="contact_show">👤 Показати контакт</string>
     <string name="contact_add">👤 Додати до контактів</string>
     <string name="voice_recording">● Запис %1$s — відпустіть, щоб зупинити</string>
+    <string name="voice_recording_mute">● Запис %1$s — 🔇 мікрофон нічого не чує</string>
+    <string name="voice_in_call">Мікрофон зайнятий поточним дзвінком.</string>
+    <string name="voice_silent">Нічого не записано: мікрофон, мабуть, використовується деінде.</string>
+    <string name="voice_partly_silent">Увага: частину запису мікрофон нічого не чув.</string>
     <string name="carrying_long">%1$s\n%2$s — %3$d КБ</string>
     <string name="drop_attachment">Прибрати вкладення</string>
     <string name="language_tag">uk</string>
