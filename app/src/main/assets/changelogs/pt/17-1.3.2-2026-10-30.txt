@@ -1,0 +1,4 @@
+• Nova mensagem para várias pessoas: dois botões, «✎ Envio múltiplo» e «✎ MMS de grupo», explicados logo acima.
+• Mensagem cifrada fechada: ⚿ não lida, ⚷ lida.
+• Ficheiro cifrado: «para» antes dos rostos dos destinatários.
+• O que o foodjis diz aparece atrás do seu ícone; sair de um ecrã do foodjis já não abre nenhuma janela; um erro já não propõe «Partilhar» nem «Guardar».

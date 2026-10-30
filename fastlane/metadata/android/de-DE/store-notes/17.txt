@@ -1,0 +1,6 @@
+• Entwürfe in der Liste; eine unterbrochene Gruppe oder ein Einzelversand geht mit einem Tippen weiter.
+• Unter 8 SMS geht ein Text als SMS, die sicherer ankommt.
+• Vom Netz abgelehnte Nachricht markiert; stumme Sprachnachricht wird nicht gesendet.
+• Neue Nachricht: Schaltflächen „Einzeln senden“ und „Gruppen-MMS“.
+• Verschlüsselte Nachrichten: ⚿ ungelesen, ⚷ gelesen; 👥 für Gruppen.
+• Zertifikatsrahmen und klarere Fehlerfenster.

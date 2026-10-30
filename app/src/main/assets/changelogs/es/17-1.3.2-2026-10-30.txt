@@ -1,0 +1,4 @@
+• Mensaje nuevo a varios: dos botones, «✎ Envío múltiple» y «✎ MMS de grupo», explicados justo encima.
+• Mensaje cifrado cerrado: ⚿ sin leer, ⚷ leído.
+• Archivo cifrado: «para» delante de las caras de sus destinatarios.
+• Lo que dice foodjis aparece tras su icono; salir de una pantalla de foodjis ya no abre ninguna ventana; un error ya no ofrece «Compartir» ni «Guardar».

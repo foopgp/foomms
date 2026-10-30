@@ -1,0 +1,6 @@
+• Taslaklar listede; yarıda kalan bir grup veya ayrı gönderim tek dokunuşla sürer.
+• 8 SMS'ten kısa bir metin, daha güvenle ulaşan SMS olarak gider.
+• Operatörün reddettiği mesaj işaretlenir; sessiz sesli mesaj gönderilmez.
+• Yeni mesaj: "Herkese ayrı" ve "Grup MMS'i" düğmeleri.
+• Şifreli mesajlar: ⚿ okunmadı, ⚷ okundu; gruplar için 👥.
+• Sertifika çerçeveleri ve daha açık hata pencereleri.

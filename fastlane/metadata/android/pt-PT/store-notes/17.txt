@@ -1,0 +1,6 @@
+• Rascunhos na lista; um grupo ou um envio múltiplo interrompido retoma-se com um toque.
+• Com menos de 8 SMS, o texto parte como SMS, que chega com mais segurança.
+• Mensagem recusada pelo operador assinalada; mensagem de voz muda não é enviada.
+• Nova mensagem: botões «Envio múltiplo» e «MMS de grupo».
+• Mensagens cifradas: ⚿ não lida, ⚷ lida; 👥 para os grupos.
+• Molduras de certificado e janelas de erro mais claras.

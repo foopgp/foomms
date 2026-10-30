@@ -1,0 +1,4 @@
+• Nouveau message à plusieurs : deux boutons, « ✎ Envoi multiple » et « ✎ Groupe MMS », expliqués juste au-dessus.
+• Message chiffré fermé : ⚿ s'il n'est pas lu, ⚷ s'il l'est.
+• Fichier chiffré : « pour » avant les visages de ses destinataires.
+• Ce que dit foodjis s'affiche derrière son icône ; quitter un écran de foodjis n'ouvre plus de fenêtre ; une erreur ne propose plus « Partager » ni « Enregistrer ».

@@ -1,0 +1,6 @@
+• Borradores en la lista; un grupo o un envío múltiple interrumpido se retoma con un toque.
+• Con menos de 8 SMS, el texto sale como SMS, que llega con más seguridad.
+• Mensaje rechazado por el operador señalado; un mensaje de voz mudo no se envía.
+• Mensaje nuevo: botones «Envío múltiple» y «MMS de grupo».
+• Mensajes cifrados: ⚿ sin leer, ⚷ leído; 👥 para los grupos.
+• Marcos de certificado y ventanas de error más claras.

@@ -1,0 +1,6 @@
+• Drafts in the list; an interrupted group or sending to each resumes with one press.
+• Under 8 SMS, a text leaves as SMS, more sure to arrive.
+• A message the network refused is marked; a silent voice message is not sent.
+• New message: "Send to each" and "Group MMS" buttons.
+• Encrypted messages: ⚿ unread, ⚷ read; 👥 for groups.
+• Certificate frames and clearer error windows.
