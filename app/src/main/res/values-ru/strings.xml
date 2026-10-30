@@ -254,6 +254,7 @@
         <item quantity="other">%d участника</item>
     </plurals>
     <!-- Several chosen in a new message: the same to each, or one group MMS. -->
+    <string name="colon">": "</string>
     <string name="send_each">Каждому отдельно</string>
     <string name="send_group">Групповое MMS</string>
     <string name="send_each_note">Каждый получает своё сообщение и отвечает только вам.</string>

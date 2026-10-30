@@ -244,6 +244,7 @@
         <item quantity="other">%d membros</item>
     </plurals>
     <!-- Several chosen in a new message: the same to each, or one group MMS. -->
+    <string name="colon">": "</string>
     <string name="send_each">Envio múltiplo</string>
     <string name="send_group">MMS de grupo</string>
     <string name="send_each_note">Cada um recebe a sua própria mensagem e responde só a si.</string>

@@ -244,6 +244,7 @@
         <item quantity="other">%d μέλη</item>
     </plurals>
     <!-- Several chosen in a new message: the same to each, or one group MMS. -->
+    <string name="colon">": "</string>
     <string name="send_each">Αποστολή σε καθέναν</string>
     <string name="send_group">Ομαδικό MMS</string>
     <string name="send_each_note">Ο καθένας λαμβάνει δικό του μήνυμα και απαντά μόνο σε εσάς.</string>
