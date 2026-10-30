@@ -293,7 +293,7 @@
     <string name="group_over">Bu grubun siz dahil %1$d üyesi var; yapılandırmada belirlenen %2$d sınırının üzerinde: operatör mesajı reddedebilir ya da her birine ayrı ayrı iletebilir.</string>
     <string name="group_over_send">Yine de gönder</string>
     <string name="conf_mms_on">MMS gönderimine izin ver</string>
-    <string name="conf_mms_on_note">İzin verildiğinde 8 SMS ve üzeri bir metin tek bir MMS olarak gider; ekler, sesli mesajlar ve grup MMS\'leri gönderilebilir; daha kısa bir metin, daha güvenle ulaşan SMS olarak gider. İzin verilmediğinde her şey SMS olarak gider ve bunların hiçbiri olmaz. Alınan MMS\'ler yine de görünür.</string>
+    <string name="conf_mms_on_note">Grup mesajları, 8 SMS\'ten uzun metinler, sesli mesajlar, fotoğraflar veya kısa videolar göndermeyi sağlar. Bir operatörden diğerine MMS, SMS kadar güvenle ulaşmaz ve bazı tarifeler ücret alır.</string>
     <string name="mms_off">Yapılandırmada MMS gönderimine izin verilmiyor: ne ek, ne sesli mesaj, ne grup MMS\'i.</string>
     <string name="many_sms">Bu mesaj %1$d SMS olarak gider: bazı telefonlar onları kötü birleştirir ve operatörünüz her birini ayrı ücretlendirebilir.</string>
 </resources>

@@ -296,7 +296,7 @@
     <string name="group_over">This group has %1$d members, oneself included, beyond the limit of %2$d set in the configuration: the network may refuse the message, or deliver it to each alone.</string>
     <string name="group_over_send">Send all the same</string>
     <string name="conf_mms_on">Allow sending MMS</string>
-    <string name="conf_mms_on_note">Allowed, a text of 8 SMS or more leaves as one MMS, and attachments, voice messages and group MMS can be sent; a shorter text leaves as SMS, which arrive more surely. Not allowed, everything leaves as SMS, and none of these. MMS received show all the same.</string>
+    <string name="conf_mms_on_note">Lets you send group messages, texts longer than 8 SMS, voice messages, photos or short videos. From one operator to another, an MMS arrives less surely than an SMS, and some plans charge for it.</string>
     <string name="mms_off">Sending MMS is not allowed in the configuration: no attachment, voice message or group MMS.</string>
     <string name="many_sms">This message leaves in %1$d SMS: some phones put them back together badly, and your network may charge each one.</string>
 </resources>

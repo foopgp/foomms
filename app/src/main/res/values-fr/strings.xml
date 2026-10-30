@@ -293,7 +293,7 @@
     <string name="group_over">Ce groupe compte %1$d membres, vous compris, au-delà de la limite de %2$d fixée dans la configuration : l\'opérateur pourrait refuser le message, ou le remettre à chacun séparément.</string>
     <string name="group_over_send">Envoyer quand même</string>
     <string name="conf_mms_on">Autoriser l\'envoi de MMS</string>
-    <string name="conf_mms_on_note">Autorisé, un texte de 8 SMS ou plus part en un MMS, et pièces jointes, messages vocaux et groupes MMS sont possibles ; plus court, il part en SMS, plus sûrs d\'arriver. Non autorisé, tout part en SMS, et rien de tout cela. Les MMS reçus s\'affichent toujours.</string>
+    <string name="conf_mms_on_note">Permet d\'envoyer des messages de groupe, du texte dépassant 8 SMS, des messages vocaux, des photos ou de petites vidéos. D\'un opérateur à l\'autre, un MMS arrive moins sûrement qu\'un SMS, et certains forfaits le facturent.</string>
     <string name="mms_off">L\'envoi de MMS n\'est pas autorisé dans la configuration : ni pièce jointe, ni message vocal, ni groupe MMS.</string>
     <string name="many_sms">Ce message part en %1$d SMS : certains téléphones les recollent mal, et votre opérateur peut les facturer un par un.</string>
 </resources>

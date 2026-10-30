@@ -84,7 +84,7 @@ object Inbound {
                 if (ours && Me.mine(context, from)) return runCatching { Echo.back(context, message.to, message) }.let { }
                 Keep.mmsReceived(context, message, pdu.size, intent.getIntExtra(EXTRA_SUBSCRIPTION, -1))
                 val words = message.parts.filter { it.isText }.joinToString("\n") { it.text() }
-                    .ifEmpty { "📎".repeat(minOf(3, message.parts.count { it.type != "application/smil" })) }
+                    .ifEmpty { message.parts.filter { it.type != "application/smil" }.take(3).joinToString("") { Members.glyph(it.name ?: it.location) } }
                 // Its form, of its parts: a PGP message carried whole, or in its words.
                 val sealed = message.parts.filter { !it.isText && (it.type == Pgp.TYPE || it.name.orEmpty().lowercase().let { n -> n.endsWith(".pgp") || n.endsWith(".gpg") || n.endsWith(".asc") }) }
                 val form = Form.of(Form.of(words) == Form.LOCKED || sealed.any { Pgp.isLocked(it.bytes) }, Form.of(words) != Form.PLAIN || sealed.isNotEmpty())

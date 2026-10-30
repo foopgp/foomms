@@ -21,6 +21,9 @@ object Members {
 
     fun isPart(name: String?): Boolean = name == PART
 
+    /** What a part is shown as where its name is not: the members part as a group, any other as a paper clip. */
+    fun glyph(name: String?): String = if (isPart(name)) "👥" else "📎"
+
     /** One vCard 4.0 after another (RFC 6350), lines ending in CRLF. */
     fun write(members: List<Member>): ByteArray = buildString {
         for (one in members) {
