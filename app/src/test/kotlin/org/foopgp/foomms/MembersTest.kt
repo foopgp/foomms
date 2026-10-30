@@ -21,4 +21,10 @@ class MembersTest {
         assertEquals("0622222222", read[1].number)
         assertEquals(null, read[1].fingerprint)
     }
+
+    @Test fun `a message's parts without words show the group first, then a clip each`() {
+        assertEquals("👥 📎", Members.glyphs(listOf("photo.jpg", Members.PART)))
+        assertEquals("📎 📎", Members.glyphs(listOf("a.jpg", "b.jpg")))
+        assertEquals("👥 📎 📎 📎", Members.glyphs(listOf(Members.PART, "1", "2", "3", "4")))
+    }
 }

@@ -387,7 +387,7 @@ object Store {
             )?.use { rows ->
                 if (!rows.moveToFirst()) return@use null
                 val (words, pieces) = parts(context, rows.getLong(0))
-                Line(rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, words.ifEmpty { pieces.joinToString(" ") { if (Members.isPart(it.name)) Members.glyph(it.name) else "📎 " + (it.name ?: it.type) } }, pieces, id = rows.getLong(0), mms = true)
+                Line(rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, words.ifEmpty { pieces.sortedBy { !Members.isPart(it.name) }.joinToString(" ") { if (Members.isPart(it.name)) Members.glyph(it.name) else "📎 " + (it.name ?: it.type) } }, pieces, id = rows.getLong(0), mms = true)
             }
         }.getOrNull()
         return listOfNotNull(sms, mms).maxByOrNull { it.at }
@@ -420,7 +420,7 @@ object Store {
                 if ((latest[thread]?.at ?: 0) >= at) continue
                 val incoming = rows.getInt(3) == MMS_INBOX
                 val (words, pieces) = parts(context, rows.getLong(0))
-                offer(Talk(thread, number(context, rows.getLong(0), incoming), at, words.ifEmpty { pieces.take(3).joinToString("") { Members.glyph(it.name) } }, incoming, rows.getInt(4) == 0))
+                offer(Talk(thread, number(context, rows.getLong(0), incoming), at, words.ifEmpty { Members.glyphs(pieces.map { it.name }) }, incoming, rows.getInt(4) == 0))
             }
         }
         return latest.values.sortedByDescending { it.at }
