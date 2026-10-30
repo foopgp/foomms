@@ -1033,7 +1033,7 @@ class ThreadActivity : AskingActivity() {
         if (mode == Mode.PLAIN) return leave(written, written, null)
         ask(request(mode, armored = true), written.toByteArray(), ::say) { answer ->
             val armor = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
-                ?: return@ask say(getString(R.string.failed, "what came back is not a PGP message"))
+                ?: return@ask say(Foodjis.says(this, "what came back is not a PGP message"))
             leave(armor, written, worth(mode))
         }
     }
@@ -1110,7 +1110,7 @@ class ThreadActivity : AskingActivity() {
             if (isFinishing || isDestroyed) return@ask
             ask(request(mode, armored = true), written.toByteArray(), ::say) { answer ->
                 val armor = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
-                    ?: return@ask say(getString(R.string.failed, "what came back is not a PGP message"))
+                    ?: return@ask say(Foodjis.says(this, "what came back is not a PGP message"))
                 if (first is Provider.Answer.Done) return@ask post(armor, piece(first), worth(mode))
                 ask(request(mode, armored = false, name = with.name), with.bytes, ::say) { post(armor, piece(it), worth(mode)) }
             }
@@ -1316,7 +1316,7 @@ class ThreadActivity : AskingActivity() {
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 val first = mine.firstOrNull() ?: return@runOnUiThread
-                val why: (String) -> Unit = { words -> if (first is Unlocking.Job.Words) closed(first.armor, words) else say(words) }
+                val why: (CharSequence) -> Unit = { words -> if (first is Unlocking.Job.Words) closed(first.armor, words) else say(words) }
                 Unlocking.open(
                     provider, first, rest,
                     ask = { input, then -> ask(Intent(Provider.DECRYPT_VERIFY), input, why, notForUs = { read(chosen) }, done = then) },
@@ -1366,7 +1366,7 @@ class ThreadActivity : AskingActivity() {
      * A message that did not open -- locked for somebody else, most often --
      * is still a message: it can be handed on to whoever it is for, or kept.
      */
-    private fun closed(armor: String, why: String) {
+    private fun closed(armor: String, why: CharSequence) {
         AlertDialog.Builder(this)
             .setMessage(why)
             .setPositiveButton(R.string.share) { _, _ ->
@@ -2218,7 +2218,7 @@ class ThreadActivity : AskingActivity() {
         if (request == 2 && results.isNotEmpty() && results.all { it == PackageManager.PERMISSION_GRANTED }) then?.invoke()
     }
 
-    private fun say(words: String) {
+    private fun say(words: CharSequence) {
         AlertDialog.Builder(this).setMessage(words).setPositiveButton(R.string.close, null).show()
     }
 

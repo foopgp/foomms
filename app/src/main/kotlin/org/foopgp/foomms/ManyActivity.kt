@@ -240,7 +240,7 @@ class ManyActivity : AskingActivity() {
         all(jobs) { done ->
             var at = 0
             val made = each.map { one ->
-                val words = if (written.isNotBlank()) armor(done[at++]) ?: return@all say(getString(R.string.failed, "what came back is not a PGP message")) else null
+                val words = if (written.isNotBlank()) armor(done[at++]) ?: return@all say(Foodjis.says(this, "what came back is not a PGP message")) else null
                 val sealed = if (with != null) piece(done[at++]) else null
                 one to (words to sealed)
             }
@@ -258,7 +258,7 @@ class ManyActivity : AskingActivity() {
         val inputs = listOfNotNull(written.toByteArray().takeIf { written.isNotBlank() }, with?.bytes)
         val signing = inputs.map { Intent(Provider.DETACHED_SIGN).putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, false) to it }
         all(signing) { signed ->
-            val signatures = signed.map { it.says.getByteArrayExtra(Provider.RESULT_DETACHED_SIGNATURE) ?: return@all say(getString(R.string.failed, "no signature came back")) }
+            val signatures = signed.map { it.says.getByteArrayExtra(Provider.RESULT_DETACHED_SIGNATURE) ?: return@all say(Foodjis.says(this, "no signature came back")) }
             val jobs = ArrayList<Pair<Intent, ByteArray>>()
             for (one in whom) {
                 val keys = (listOfNotNull(one.cert?.fingerprint?.let(Fingerprint::keyId)) + listOfNotNull(mine.takeIf { Conf.toMyself(this) })).distinct().toLongArray()
@@ -271,7 +271,7 @@ class ManyActivity : AskingActivity() {
             all(jobs) { done ->
                 var at = 0
                 val copies = whom.map { one ->
-                    val words = if (written.isNotBlank()) Pgp.armorIn(String(done[at++].bytes, Charsets.US_ASCII)) ?: return@all say(getString(R.string.failed, "what came back is not a PGP message")) else null
+                    val words = if (written.isNotBlank()) Pgp.armorIn(String(done[at++].bytes, Charsets.US_ASCII)) ?: return@all say(Foodjis.says(this, "what came back is not a PGP message")) else null
                     val sealed = if (with != null) done[at++].let { Pdu.Part(Pgp.TYPE, Pgp.outerName(it.bytes), it.bytes) } else null
                     ToEach.Copy(one.number, one.name, words, sealed)
                 }
@@ -318,7 +318,7 @@ class ManyActivity : AskingActivity() {
                     if (isFinishing || isDestroyed) return@ask
                     if (answer is Provider.Answer.Done) done[at] = answer
                     if (--left == 0) {
-                        if (done.all { it != null }) then(done.map { it!! }) else say(getString(R.string.failed, "foodjis did not answer for every copy"))
+                        if (done.all { it != null }) then(done.map { it!! }) else say(Foodjis.says(this, "it did not answer for every copy"))
                     }
                 }
             }
@@ -367,7 +367,7 @@ class ManyActivity : AskingActivity() {
         }
     }
 
-    private fun say(words: String) {
+    private fun say(words: CharSequence) {
         AlertDialog.Builder(this).setMessage(words).setPositiveButton(R.string.close, null).show()
     }
 

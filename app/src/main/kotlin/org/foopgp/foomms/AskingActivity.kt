@@ -25,7 +25,7 @@ abstract class AskingActivity : Activity() {
     private class Errand(
         val request: Intent,
         val input: ByteArray?,
-        val failed: (String) -> Unit,
+        val failed: (CharSequence) -> Unit,
         val shown: (Intent?) -> Boolean,
         val notForUs: () -> Unit,
         val done: (Provider.Answer.Done) -> Unit,
@@ -53,7 +53,7 @@ abstract class AskingActivity : Activity() {
     fun ask(
         request: Intent,
         input: ByteArray?,
-        failed: (String) -> Unit,
+        failed: (CharSequence) -> Unit,
         screened: (Intent?) -> Boolean = { false },
         notForUs: () -> Unit = {},
         done: (Provider.Answer.Done) -> Unit,
@@ -76,16 +76,16 @@ abstract class AskingActivity : Activity() {
                 is Provider.Answer.Failed -> {
                     this.errand = null
                     if (answer.code == Provider.ERROR_NOT_FOR_US) errand.notForUs()
-                    errand.failed(getString(R.string.failed, answer.says))
+                    errand.failed(Foodjis.says(this, answer.says))
                 }
                 is Provider.Answer.Ask ->
                     if (++shown > MOST) {
                         this.errand = null
-                        errand.failed(getString(R.string.failed, "too many questions"))
+                        errand.failed(Foodjis.says(this, "too many questions"))
                     } else {
                         screening(true)
                         runCatching { startIntentSenderForResult(answer.screen.intentSender, SCREEN, null, 0, 0, 0) }
-                            .onFailure { screening(false) ; this.errand = null ; errand.failed(getString(R.string.failed, it.message)) }
+                            .onFailure { screening(false) ; this.errand = null ; errand.failed(Foodjis.says(this, it.message)) }
                     }
             }
         }

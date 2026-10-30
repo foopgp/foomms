@@ -250,7 +250,7 @@ object MeMenu {
         }
     }
 
-    private fun say(activity: AskingActivity, words: String) {
+    private fun say(activity: AskingActivity, words: CharSequence) {
         AlertDialog.Builder(activity).setMessage(words).setPositiveButton(R.string.close, null).show()
     }
 

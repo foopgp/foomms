@@ -89,6 +89,21 @@ class Foodjis(private val context: Context) {
         @Volatile private var one: Foodjis? = null
 
         /** One for the application: what foodjis said is asked again when a page comes back ([fresh]). */
+        /**
+         * What foodjis said, behind its icon -- in place of words saying who
+         * speaks --; its name when the icon cannot be had.
+         */
+        fun says(context: Context, words: String?): CharSequence {
+            val icon = runCatching { context.packageManager.getApplicationIcon(Provider.foodjis(context)) }.getOrNull()
+                ?: return "foodjis : ${words.orEmpty()}"
+            val side = Look.dp(context, 22)
+            icon.setBounds(0, 0, side, side)
+            return android.text.SpannableStringBuilder("\u00A0").apply {
+                setSpan(android.text.style.ImageSpan(icon, android.text.style.DynamicDrawableSpan.ALIGN_BOTTOM), 0, 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                append("  ").append(words.orEmpty())
+            }
+        }
+
         fun of(context: Context): Foodjis = one ?: synchronized(this) {
             one ?: Foodjis(context.applicationContext).also { one = it }
         }

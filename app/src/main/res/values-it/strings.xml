@@ -10,7 +10,7 @@
     <string name="not_sent">Messaggio non inviato (%1$d).</string>
     <string name="refused">⚠ Non inviato: rifiutato dall\'operatore</string>
     <string name="no_provider">foodjis non è installato o non risponde.</string>
-    <string name="failed">foodjis dice: %1$s</string>
+    <string name="failed">%1$s</string>
     <string name="given_up">Annullato.</string>
     <string name="signed_certified">Firmato da %1$s, certificato.</string>
     <string name="signed_other">Firmato da %1$s, <b>non certificato</b>.</string>
