@@ -91,7 +91,7 @@
     <string name="group_name">🏷 Dar nome ao grupo</string>
     <string name="group_rename">🏷 Mudar o nome do grupo</string>
     <string name="group_name_hint">Nome do grupo</string>
-    <string name="group_name_own">Este nome não sai do seu telefone: cada membro dá ao grupo o nome que quiser.</string>
+    <string name="group_name_own">Este nome não sai do seu telefone: cada membro pode dar ao grupo o nome que entender.</string>
     <string name="mute">🔕 Desativar as notificações</string>
     <string name="unmute">🔔 Ativar as notificações</string>
     <string name="forget_talk">✖ Apagar a conversa</string>
@@ -126,7 +126,7 @@
     <string name="mark_all_read_ask">Marcar as %1$d mensagens não lidas como lidas?</string>
     <string name="mark_read">○ Marcar como lida</string>
     <string name="mark_unread">● Marcar como não lida</string>
-    <string name="count_detail">%1$d mensagens: %2$d SMS + %3$d MMS\ndas quais %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d conversas — %8$s bytes</string>
+    <string name="count_detail">%1$d mensagens: %2$d SMS + %3$d MMS\ndas quais %4$d PGP: %5$d SMS + %6$d MMS\n%9$d recebidas, %10$d enviadas\n\n%7$d conversas: %11$d individuais + %12$d de grupo\n%8$s bytes</string>
     <plurals name="count_detail_unread_rest">
         <item quantity="one">, das quais %1$d PGP, em %2$d conversa</item>
         <item quantity="other">, das quais %1$d PGP, em %2$d conversas</item>
@@ -231,6 +231,11 @@
     <string name="page_unread">Não lidas</string>
     <string name="page_unread_n">Não lidas (%1$d)</string>
     <string name="page_groups">Grupos MMS</string>
+    <string name="page_profile">O meu perfil</string>
+    <string name="me_wizard_title">Qual é a sua ficha de contacto?</string>
+    <string name="me_wizard_text">Indique ao foomms qual ficha de contacto é a sua: representa-o nos grupos, com o seu número e o seu certificado. Pode mudá-la em «O meu perfil».</string>
+    <string name="me_wizard_choose">Escolher a minha ficha</string>
+    <string name="me_wizard_later">Mais tarde</string>
     <plurals name="talks_n">
         <item quantity="one">%d conversa</item>
         <item quantity="other">%d conversas</item>

@@ -265,18 +265,20 @@ object Store {
         val groups: Int = 0, val groupTalks: Int = 0,
         /** The people one has a conversation with, each once -- [talks] is they and the groups --; and the drafts. */
         val persons: Int = 0, val drafts: Int = 0,
+        /** The messages that came in, and those that went out or were to. */
+        val received: Int = 0, val sent: Int = 0,
     ) {
-        fun withTalks(talks: Int) = Counts(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks, persons, drafts)
+        fun withTalks(talks: Int) = Counts(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks, persons, drafts, received, sent)
 
         /** As kept between two runs, and read back. */
-        fun kept(): String = listOf(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks, persons, drafts).joinToString(",")
+        fun kept(): String = listOf(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks, persons, drafts, received, sent).joinToString(",")
 
         companion object {
             fun of(kept: String?): Counts? {
                 val n = kept?.split(',')?.mapNotNull { it.toLongOrNull() } ?: return null
                 if (n.size < 8) return null
                 fun at(i: Int) = n.getOrElse(i) { 0L }.toInt()
-                return Counts(at(0), at(1), at(2), at(3), at(4), at(5), at(6), at(7), at(8), at(9), n.getOrElse(10) { 0L }, at(11), at(12), at(13), at(14))
+                return Counts(at(0), at(1), at(2), at(3), at(4), at(5), at(6), at(7), at(8), at(9), n.getOrElse(10) { 0L }, at(11), at(12), at(13), at(14), at(15), at(16))
             }
         }
     }
@@ -596,6 +598,9 @@ object Store {
         }
         val sms = count(SMS, null)
         val mms = count(MMS, null)
+        // Come in: in the inbox; the rest went out, or was to -- sent, waiting, failed.
+        val received = count(SMS, "type = ${android.provider.Telephony.Sms.MESSAGE_TYPE_INBOX}") +
+            count(MMS, "msg_box = ${android.provider.Telephony.Mms.MESSAGE_BOX_INBOX}")
         val pgpSms = count(SMS, armored)
         // What it all weighs: the words of the SMS as they are kept, and the size each MMS was given.
         var bytes = 0L
@@ -655,6 +660,7 @@ object Store {
             unreadPgp = count(SMS, "$armored AND read = 0") + sealed.count { it in unreadMms },
             unread = count(SMS, "read = 0") + unreadMms.size,
             sms = sms, mms = mms,
+            received = received, sent = sms + mms - received,
             unreadTalks = unreadThreads(context).size,
             // Several members besides this phone: a group; one, a conversation between two all the same.
             groups = (groups.filter { ',' in it } + heard).distinct().size, groupTalks = groups.count { ',' in it },

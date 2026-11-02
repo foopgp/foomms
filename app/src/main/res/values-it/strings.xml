@@ -91,7 +91,7 @@
     <string name="group_name">🏷 Dai un nome al gruppo</string>
     <string name="group_rename">🏷 Rinomina il gruppo</string>
     <string name="group_name_hint">Nome del gruppo</string>
-    <string name="group_name_own">Questo nome non lascia il tuo telefono: ogni membro chiama il gruppo a modo suo.</string>
+    <string name="group_name_own">Questo nome non lascia il tuo telefono: ogni membro può chiamare il gruppo come meglio crede.</string>
     <string name="mute">🔕 Disattiva le notifiche</string>
     <string name="unmute">🔔 Attiva le notifiche</string>
     <string name="forget_talk">✖ Elimina la conversazione</string>
@@ -126,7 +126,7 @@
     <string name="mark_all_read_ask">Segnare i %1$d messaggi non letti come letti?</string>
     <string name="mark_read">○ Segna come letto</string>
     <string name="mark_unread">● Segna come non letto</string>
-    <string name="count_detail">%1$d messaggi: %2$d SMS + %3$d MMS\ndi cui %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d conversazioni — %8$s byte</string>
+    <string name="count_detail">%1$d messaggi: %2$d SMS + %3$d MMS\ndi cui %4$d PGP: %5$d SMS + %6$d MMS\n%9$d ricevuti, %10$d inviati\n\n%7$d conversazioni: %11$d individuali + %12$d di gruppo\n%8$s byte</string>
     <plurals name="count_detail_unread_rest">
         <item quantity="one">, di cui %1$d PGP, in %2$d conversazione</item>
         <item quantity="other">, di cui %1$d PGP, in %2$d conversazioni</item>
@@ -231,6 +231,11 @@
     <string name="page_unread">Non letti</string>
     <string name="page_unread_n">Non letti (%1$d)</string>
     <string name="page_groups">Gruppi MMS</string>
+    <string name="page_profile">Il mio profilo</string>
+    <string name="me_wizard_title">Qual è la tua scheda contatto?</string>
+    <string name="me_wizard_text">Indica a foomms quale scheda contatto è la tua: ti rappresenta nei gruppi, con il tuo numero e il tuo certificato. Potrai cambiarla in «Il mio profilo».</string>
+    <string name="me_wizard_choose">Scegli la mia scheda</string>
+    <string name="me_wizard_later">Più tardi</string>
     <plurals name="talks_n">
         <item quantity="one">%d conversazione</item>
         <item quantity="other">%d conversazioni</item>

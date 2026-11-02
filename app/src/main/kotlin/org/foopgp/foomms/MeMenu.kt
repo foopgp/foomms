@@ -8,8 +8,8 @@ import android.widget.Toast
 import kotlin.concurrent.thread
 
 /**
- * Oneself, as the groups' page shows it: one's own contact and this phone's
- * number, and the menu of its dots -- the menu of a conversation, made for
+ * Oneself, as the profile's page shows it: one's own contact and this phone's
+ * number, and what can be done about it -- the menu of a conversation, made for
  * oneself. With no contact yet: the contacts that carry one of the numbers
  * this phone has received MMS at, or one made to carry it.
  */
@@ -47,53 +47,71 @@ object MeMenu {
 
     /** The menu of the dots; [changed] is told when something said of oneself changed, to be read again. */
     fun show(activity: AskingActivity, state: State, changed: () -> Unit) {
-        val choices = ArrayList<Pair<String, () -> Unit>>()
-        fun add(words: String, then: () -> Unit) { choices += words to then }
         val own = state.own
-        if (own == null) {
-            // No contact of one's own yet: one that carries this phone's number, or a new one to carry it.
-            return choose(activity, state, changed)
-        } else {
-            // Where "call" stands in a conversation's: which of its numbers is this phone's, and checking it.
-            if (own.numbers.size > 1) add(activity.getString(R.string.me_default)) { chooseNumber(activity, own, changed) }
-            add(activity.getString(R.string.contact_show)) {
-                runCatching {
-                    ContactsContract.QuickContact.showQuickContact(
-                        activity, activity.window.decorView, ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, own.contact),
-                        ContactsContract.QuickContact.MODE_LARGE, null,
-                    )
-                }
-            }
-            val tied = own.fingerprint
-            if (tied != null) {
-                add(activity.getString(R.string.cert_show)) {
-                    runCatching {
-                        activity.startActivity(Intent("org.foopgp.foodjis.action.SHOW_CERTIFICATE").setPackage(Provider.foodjis(activity)).putExtra("fingerprint", tied))
-                    }.onFailure { say(activity, activity.getString(R.string.no_provider)) }
-                }
-                add(activity.getString(R.string.cert_refresh)) { tieOwn(activity, own, tied, changed) }
-                add(activity.getString(R.string.cert_forget)) {
-                    thread {
-                        runCatching { Book.untie(activity, own.contact) }
-                        activity.runOnUiThread { if (!activity.isFinishing && !activity.isDestroyed) changed() }
-                    }
-                }
-            } else {
-                add(activity.getString(R.string.tie)) { tieWhich(activity, own, state.mine, changed) }
-            }
-            add(activity.getString(R.string.me_change)) { choose(activity, state, changed) }
-        }
+        // No contact of one's own yet: one that carries this phone's number, or a new one to carry it.
+        if (own == null) return choose(activity, state, changed)
+        val choices = actions(activity, state, changed)
         AlertDialog.Builder(activity)
-            .setTitle(own?.name?.let { "$it ${activity.getString(R.string.me_tag)}" } ?: activity.getString(R.string.me_tag))
+            .setTitle("${own.name} ${activity.getString(R.string.me_tag)}")
             .setItems(choices.map { it.first }.toTypedArray()) { _, which -> choices[which].second() }
             .show()
+    }
+
+    /**
+     * What can be done about oneself, as words and what each does: the
+     * menu of the dots, laid out on the profile's page as it is. With no
+     * contact of one's own yet: the contacts to tie, and making one.
+     */
+    fun actions(activity: AskingActivity, state: State, changed: () -> Unit): List<Pair<String, () -> Unit>> {
+        val choices = ArrayList<Pair<String, () -> Unit>>()
+        fun add(words: String, then: () -> Unit) { choices += words to then }
+        val own = state.own ?: return choices(activity, state, changed)
+        // Where "call" stands in a conversation's: which of its numbers is this phone's, and checking it.
+        if (own.numbers.size > 1) add(activity.getString(R.string.me_default)) { chooseNumber(activity, own, changed) }
+        add(activity.getString(R.string.contact_show)) {
+            runCatching {
+                ContactsContract.QuickContact.showQuickContact(
+                    activity, activity.window.decorView, ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, own.contact),
+                    ContactsContract.QuickContact.MODE_LARGE, null,
+                )
+            }
+        }
+        val tied = own.fingerprint
+        if (tied != null) {
+            add(activity.getString(R.string.cert_show)) {
+                runCatching {
+                    activity.startActivity(Intent("org.foopgp.foodjis.action.SHOW_CERTIFICATE").setPackage(Provider.foodjis(activity)).putExtra("fingerprint", tied))
+                }.onFailure { say(activity, activity.getString(R.string.no_provider)) }
+            }
+            add(activity.getString(R.string.cert_refresh)) { tieOwn(activity, own, tied, changed) }
+            add(activity.getString(R.string.cert_forget)) {
+                thread {
+                    runCatching { Book.untie(activity, own.contact) }
+                    activity.runOnUiThread { if (!activity.isFinishing && !activity.isDestroyed) changed() }
+                }
+            }
+        } else {
+            add(activity.getString(R.string.tie)) { tieWhich(activity, own, state.mine, changed) }
+        }
+        add(activity.getString(R.string.me_change)) { choose(activity, state, changed) }
+        return choices
     }
 
     /**
      * The contacts that carry one of this phone's numbers, to tie as one's
      * own; and making one to carry it, filled from one's certificate.
      */
-    private fun choose(activity: AskingActivity, state: State, changed: () -> Unit) {
+    fun choose(activity: AskingActivity, state: State, changed: () -> Unit) {
+        val numbers = Me.numbers(activity)
+        val choices = choices(activity, state, changed)
+        AlertDialog.Builder(activity)
+            .setTitle(numbers.firstOrNull()?.let { activity.getString(R.string.me_choose_for, it) } ?: activity.getString(R.string.me_tag))
+            .setItems(choices.map { it.first }.toTypedArray()) { _, which -> choices[which].second() }
+            .show()
+    }
+
+    /** The contacts to tie as one's own, and making one: what [choose] offers. */
+    private fun choices(activity: AskingActivity, state: State, changed: () -> Unit): List<Pair<String, () -> Unit>> {
         val choices = ArrayList<Pair<String, () -> Unit>>()
         val numbers = Me.numbers(activity)
         for (one in state.candidates) {
@@ -107,10 +125,7 @@ object MeMenu {
             }
         }
         choices += activity.getString(R.string.me_create) to { create(activity, state.mine) }
-        AlertDialog.Builder(activity)
-            .setTitle(numbers.firstOrNull()?.let { activity.getString(R.string.me_choose_for, it) } ?: activity.getString(R.string.me_tag))
-            .setItems(choices.map { it.first }.toTypedArray()) { _, which -> choices[which].second() }
-            .show()
+        return choices
     }
 
     /** Which of one's numbers is this phone's: those it has received MMS at, marked. */

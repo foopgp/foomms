@@ -91,7 +91,7 @@
     <string name="group_name">🏷 Ονομασία ομάδας</string>
     <string name="group_rename">🏷 Μετονομασία ομάδας</string>
     <string name="group_name_hint">Όνομα της ομάδας</string>
-    <string name="group_name_own">Αυτό το όνομα δεν φεύγει από το τηλέφωνό σας: κάθε μέλος ονομάζει την ομάδα όπως θέλει.</string>
+    <string name="group_name_own">Αυτό το όνομα δεν φεύγει από το τηλέφωνό σας: κάθε μέλος μπορεί να ονομάσει την ομάδα όπως κρίνει.</string>
     <string name="mute">🔕 Απενεργοποίηση ειδοποιήσεων</string>
     <string name="unmute">🔔 Ενεργοποίηση ειδοποιήσεων</string>
     <string name="forget_talk">✖ Διαγραφή της συνομιλίας</string>
@@ -126,7 +126,7 @@
     <string name="mark_all_read_ask">Σήμανση των %1$d μη αναγνωσμένων μηνυμάτων ως αναγνωσμένων;</string>
     <string name="mark_read">○ Σήμανση ως αναγνωσμένο</string>
     <string name="mark_unread">● Σήμανση ως μη αναγνωσμένο</string>
-    <string name="count_detail">%1$d μηνύματα: %2$d SMS + %3$d MMS\nαπό τα οποία %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d συνομιλίες — %8$s byte</string>
+    <string name="count_detail">%1$d μηνύματα: %2$d SMS + %3$d MMS\nαπό τα οποία %4$d PGP: %5$d SMS + %6$d MMS\n%9$d ληφθέντα, %10$d απεσταλμένα\n\n%7$d συνομιλίες: %11$d ατομικές + %12$d ομαδικές\n%8$s byte</string>
     <plurals name="count_detail_unread_rest">
         <item quantity="one">, από τα οποία %1$d PGP, σε %2$d συνομιλία</item>
         <item quantity="other">, από τα οποία %1$d PGP, σε %2$d συνομιλίες</item>
@@ -231,6 +231,11 @@
     <string name="page_unread">Μη αναγνωσμένα</string>
     <string name="page_unread_n">Μη αναγνωσμένα (%1$d)</string>
     <string name="page_groups">Ομάδες MMS</string>
+    <string name="page_profile">Το προφίλ μου</string>
+    <string name="me_wizard_title">Ποια κάρτα επαφής είναι η δική σας;</string>
+    <string name="me_wizard_text">Πείτε στο foomms ποια κάρτα επαφής είναι η δική σας: σας εκπροσωπεί στις ομάδες, με τον αριθμό και το πιστοποιητικό σας. Μπορείτε να την αλλάξετε στο «Το προφίλ μου».</string>
+    <string name="me_wizard_choose">Επιλογή της κάρτας μου</string>
+    <string name="me_wizard_later">Αργότερα</string>
     <plurals name="talks_n">
         <item quantity="one">%d συνομιλία</item>
         <item quantity="other">%d συνομιλίες</item>

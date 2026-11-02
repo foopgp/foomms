@@ -91,7 +91,7 @@
     <string name="group_name">🏷 Назвати групу</string>
     <string name="group_rename">🏷 Перейменувати групу</string>
     <string name="group_name_hint">Назва групи</string>
-    <string name="group_name_own">Ця назва не залишає вашого телефона: кожен учасник називає групу по-своєму.</string>
+    <string name="group_name_own">Ця назва не залишає вашого телефона: кожен учасник може назвати групу так, як вважає за потрібне.</string>
     <string name="mute">🔕 Вимкнути сповіщення</string>
     <string name="unmute">🔔 Увімкнути сповіщення</string>
     <string name="forget_talk">✖ Видалити листування</string>
@@ -126,7 +126,7 @@
     <string name="mark_all_read_ask">Позначити непрочитані повідомлення (%1$d) як прочитані?</string>
     <string name="mark_read">○ Позначити як прочитане</string>
     <string name="mark_unread">● Позначити як непрочитане</string>
-    <string name="count_detail">%1$d повідомлень: %2$d SMS + %3$d MMS\nз них %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d листувань — %8$s байтів</string>
+    <string name="count_detail">%1$d повідомлень: %2$d SMS + %3$d MMS\nз них %4$d PGP: %5$d SMS + %6$d MMS\n%9$d отриманих, %10$d надісланих\n\n%7$d листувань: %11$d особистих + %12$d групових\n%8$s байтів</string>
     <plurals name="count_detail_unread_rest">
         <item quantity="one">, з них %1$d PGP, у %2$d листуванні</item>
         <item quantity="few">, з них %1$d PGP, у %2$d листуваннях</item>
@@ -233,6 +233,11 @@
     <string name="page_unread">Непрочитані</string>
     <string name="page_unread_n">Непрочитані (%1$d)</string>
     <string name="page_groups">MMS-групи</string>
+    <string name="page_profile">Мій профіль</string>
+    <string name="me_wizard_title">Яка картка контакту ваша?</string>
+    <string name="me_wizard_text">Вкажіть foomms, яка картка контакту ваша: вона представляє вас у групах, з вашим номером і сертифікатом. Ви зможете змінити її в «Мій профіль».</string>
+    <string name="me_wizard_choose">Вибрати мою картку</string>
+    <string name="me_wizard_later">Пізніше</string>
     <plurals name="talks_n">
         <item quantity="one">%d розмова</item>
         <item quantity="few">%d розмови</item>

@@ -94,7 +94,7 @@
     <string name="group_name">🏷 Name the group</string>
     <string name="group_rename">🏷 Rename the group</string>
     <string name="group_name_hint">The group\'s name</string>
-    <string name="group_name_own">This name never leaves your phone: each member names the group in their own way.</string>
+    <string name="group_name_own">This name never leaves your phone: each member may name the group as they see fit.</string>
     <string name="mute">🔕 Turn notifications off</string>
     <string name="unmute">🔔 Turn notifications on</string>
     <string name="forget_talk">✖ Delete the conversation</string>
@@ -129,7 +129,7 @@
     <string name="mark_all_read_ask">Mark the %1$d unread messages as read?</string>
     <string name="mark_read">○ Mark as read</string>
     <string name="mark_unread">● Mark as unread</string>
-    <string name="count_detail">%1$d messages: %2$d SMS + %3$d MMS\n%4$d of them PGP: %5$d SMS + %6$d MMS\n\n%7$d conversations — %8$s bytes</string>
+    <string name="count_detail">%1$d messages: %2$d SMS + %3$d MMS\n%4$d of them PGP: %5$d SMS + %6$d MMS\n%9$d received, %10$d sent\n\n%7$d conversations: %11$d one-to-one + %12$d group\n%8$s bytes</string>
     <plurals name="count_detail_unread_rest">
         <item quantity="one">, %1$d of them PGP, in %2$d conversation</item>
         <item quantity="other">, %1$d of them PGP, in %2$d conversations</item>
@@ -234,6 +234,11 @@
     <string name="page_unread">Unread</string>
     <string name="page_unread_n">Unread (%1$d)</string>
     <string name="page_groups">MMS groups</string>
+    <string name="page_profile">My profile</string>
+    <string name="me_wizard_title">Which contact card is yours?</string>
+    <string name="me_wizard_text">Tell foomms which contact card is yours: it stands for you in groups, with your number and your certificate. You can change it in “My profile”.</string>
+    <string name="me_wizard_choose">Choose my card</string>
+    <string name="me_wizard_later">Later</string>
     <plurals name="talks_n">
         <item quantity="one">%d conversation</item>
         <item quantity="other">%d conversations</item>

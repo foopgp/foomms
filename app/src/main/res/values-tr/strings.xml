@@ -91,7 +91,7 @@
     <string name="group_name">🏷 Gruba ad ver</string>
     <string name="group_rename">🏷 Grubu yeniden adlandır</string>
     <string name="group_name_hint">Grubun adı</string>
-    <string name="group_name_own">Bu ad telefonunuzdan çıkmaz: her üye grubu kendi bildiği gibi adlandırır.</string>
+    <string name="group_name_own">Bu ad telefonunuzdan çıkmaz: her üye grubu uygun gördüğü gibi adlandırabilir.</string>
     <string name="mute">🔕 Bildirimleri kapat</string>
     <string name="unmute">🔔 Bildirimleri aç</string>
     <string name="forget_talk">✖ Konuşmayı sil</string>
@@ -126,7 +126,7 @@
     <string name="mark_all_read_ask">%1$d okunmamış mesaj okundu olarak işaretlensin mi?</string>
     <string name="mark_read">○ Okundu olarak işaretle</string>
     <string name="mark_unread">● Okunmadı olarak işaretle</string>
-    <string name="count_detail">%1$d mesaj: %2$d SMS + %3$d MMS\nbunların %4$d tanesi PGP: %5$d SMS + %6$d MMS\n\n%7$d konuşma — %8$s bayt</string>
+    <string name="count_detail">%1$d mesaj: %2$d SMS + %3$d MMS\nbunların %4$d tanesi PGP: %5$d SMS + %6$d MMS\n%9$d alınan, %10$d gönderilen\n\n%7$d konuşma: %11$d bireysel + %12$d grup\n%8$s bayt</string>
     <plurals name="count_detail_unread_rest">
         <item quantity="one">, bunların %1$d tanesi PGP, %2$d konuşmada</item>
         <item quantity="other">, bunların %1$d tanesi PGP, %2$d konuşmada</item>
@@ -231,6 +231,11 @@
     <string name="page_unread">Okunmamış</string>
     <string name="page_unread_n">Okunmamış (%1$d)</string>
     <string name="page_groups">MMS grupları</string>
+    <string name="page_profile">Profilim</string>
+    <string name="me_wizard_title">Hangi kişi kartı sizin?</string>
+    <string name="me_wizard_text">foomms\'a hangi kişi kartının sizin olduğunu söyleyin: gruplarda numaranız ve sertifikanızla sizi temsil eder. «Profilim» bölümünden değiştirebilirsiniz.</string>
+    <string name="me_wizard_choose">Kartımı seç</string>
+    <string name="me_wizard_later">Daha sonra</string>
     <plurals name="talks_n">
         <item quantity="one">%d konuşma</item>
         <item quantity="other">%d konuşma</item>

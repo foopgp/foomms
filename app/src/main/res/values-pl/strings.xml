@@ -91,7 +91,7 @@
     <string name="group_name">🏷 Nazwij grupę</string>
     <string name="group_rename">🏷 Zmień nazwę grupy</string>
     <string name="group_name_hint">Nazwa grupy</string>
-    <string name="group_name_own">Ta nazwa nie opuszcza twojego telefonu: każdy członek nazywa grupę po swojemu.</string>
+    <string name="group_name_own">Ta nazwa nie opuszcza twojego telefonu: każdy członek może nazwać grupę tak, jak uzna za stosowne.</string>
     <string name="mute">🔕 Wyłącz powiadomienia</string>
     <string name="unmute">🔔 Włącz powiadomienia</string>
     <string name="forget_talk">✖ Usuń rozmowę</string>
@@ -126,7 +126,7 @@
     <string name="mark_all_read_ask">Oznaczyć nieprzeczytane wiadomości (%1$d) jako przeczytane?</string>
     <string name="mark_read">○ Oznacz jako przeczytane</string>
     <string name="mark_unread">● Oznacz jako nieprzeczytane</string>
-    <string name="count_detail">%1$d wiadomości: %2$d SMS + %3$d MMS\nw tym %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d rozmów — %8$s bajtów</string>
+    <string name="count_detail">%1$d wiadomości: %2$d SMS + %3$d MMS\nw tym %4$d PGP: %5$d SMS + %6$d MMS\n%9$d odebranych, %10$d wysłanych\n\n%7$d rozmów: %11$d indywidualnych + %12$d grupowych\n%8$s bajtów</string>
     <plurals name="count_detail_unread_rest">
         <item quantity="one">, w tym %1$d PGP, w %2$d rozmowie</item>
         <item quantity="few">, w tym %1$d PGP, w %2$d rozmowach</item>
@@ -233,6 +233,11 @@
     <string name="page_unread">Nieprzeczytane</string>
     <string name="page_unread_n">Nieprzeczytane (%1$d)</string>
     <string name="page_groups">Grupy MMS</string>
+    <string name="page_profile">Mój profil</string>
+    <string name="me_wizard_title">Która wizytówka jest twoja?</string>
+    <string name="me_wizard_text">Wskaż foomms, która wizytówka kontaktu jest twoja: reprezentuje cię w grupach, z twoim numerem i certyfikatem. Możesz ją zmienić w „Mój profil”.</string>
+    <string name="me_wizard_choose">Wybierz moją wizytówkę</string>
+    <string name="me_wizard_later">Później</string>
     <plurals name="talks_n">
         <item quantity="one">%d rozmowa</item>
         <item quantity="few">%d rozmowy</item>

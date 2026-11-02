@@ -91,7 +91,7 @@
     <string name="group_name">🏷 Gruppe benennen</string>
     <string name="group_rename">🏷 Gruppe umbenennen</string>
     <string name="group_name_hint">Name der Gruppe</string>
-    <string name="group_name_own">Dieser Name verlässt Ihr Telefon nicht: Jedes Mitglied benennt die Gruppe auf seine Weise.</string>
+    <string name="group_name_own">Dieser Name verlässt Ihr Telefon nicht: Jedes Mitglied kann die Gruppe so nennen, wie es möchte.</string>
     <string name="mute">🔕 Benachrichtigungen ausschalten</string>
     <string name="unmute">🔔 Benachrichtigungen einschalten</string>
     <string name="forget_talk">✖ Unterhaltung löschen</string>
@@ -126,7 +126,7 @@
     <string name="mark_all_read_ask">Die %1$d ungelesenen Nachrichten als gelesen markieren?</string>
     <string name="mark_read">○ Als gelesen markieren</string>
     <string name="mark_unread">● Als ungelesen markieren</string>
-    <string name="count_detail">%1$d Nachrichten: %2$d SMS + %3$d MMS\ndavon %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d Unterhaltungen – %8$s Bytes</string>
+    <string name="count_detail">%1$d Nachrichten: %2$d SMS + %3$d MMS\ndavon %4$d PGP: %5$d SMS + %6$d MMS\n%9$d empfangen, %10$d gesendet\n\n%7$d Unterhaltungen: %11$d Einzel- + %12$d Gruppenunterhaltungen\n%8$s Bytes</string>
     <plurals name="count_detail_unread_rest">
         <item quantity="one">, davon %1$d PGP, in %2$d Unterhaltung</item>
         <item quantity="other">, davon %1$d PGP, in %2$d Unterhaltungen</item>
@@ -231,6 +231,11 @@
     <string name="page_unread">Ungelesen</string>
     <string name="page_unread_n">Ungelesen (%1$d)</string>
     <string name="page_groups">MMS-Gruppen</string>
+    <string name="page_profile">Mein Profil</string>
+    <string name="me_wizard_title">Welche Kontaktkarte ist Ihre?</string>
+    <string name="me_wizard_text">Sagen Sie foomms, welche Kontaktkarte Ihre ist: Sie steht in Gruppen für Sie, mit Ihrer Nummer und Ihrem Zertifikat. Sie können sie unter „Mein Profil“ ändern.</string>
+    <string name="me_wizard_choose">Meine Karte wählen</string>
+    <string name="me_wizard_later">Später</string>
     <plurals name="talks_n">
         <item quantity="one">%d Unterhaltung</item>
         <item quantity="other">%d Unterhaltungen</item>
