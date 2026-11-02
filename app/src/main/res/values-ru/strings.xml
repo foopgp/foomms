@@ -126,12 +126,12 @@
     <string name="mark_all_read_ask">Отметить непрочитанные сообщения (%1$d) как прочитанные?</string>
     <string name="mark_read">○ Отметить как прочитанное</string>
     <string name="mark_unread">● Отметить как непрочитанное</string>
-    <string name="count_detail">%1$d сообщений: %2$d SMS + %3$d MMS\nиз них %4$d PGP: %5$d SMS + %6$d MMS\n%9$d получено, %10$d отправлено\n\n%7$d переписок: %11$d личных + %12$d групповых\n%8$s байт</string>
+    <string name="count_detail">%1$d сообщений: %2$d SMS + %3$d MMS\nиз них %4$d PGP: %5$d SMS + %6$d MMS\n%9$d получено: %13$d SMS + %14$d MMS\n%10$d отправлено: %15$d SMS + %16$d MMS\n\n%7$d переписок: %11$d личных + %12$d групповых\n%8$s байт</string>
     <plurals name="count_detail_unread_rest">
-        <item quantity="one">, из них %1$d PGP, в %2$d переписке</item>
-        <item quantity="few">, из них %1$d PGP, в %2$d переписках</item>
-        <item quantity="many">, из них %1$d PGP, в %2$d переписках</item>
-        <item quantity="other">, из них %1$d PGP, в %2$d переписках</item>
+        <item quantity="one">, из них %1$d PGP, в %2$d переписке.</item>
+        <item quantity="few">, из них %1$d PGP, в %2$d переписках.</item>
+        <item quantity="many">, из них %1$d PGP, в %2$d переписках.</item>
+        <item quantity="other">, из них %1$d PGP, в %2$d переписках.</item>
     </plurals>
     <string name="switch_sign">Подписать</string>
     <string name="switch_lock">Зашифровать</string>
@@ -245,10 +245,10 @@
         <item quantity="other">%d беседы</item>
     </plurals>
     <plurals name="unread_n">
-        <item quantity="one">%d непрочитанное</item>
-        <item quantity="few">%d непрочитанных</item>
-        <item quantity="many">%d непрочитанных</item>
-        <item quantity="other">%d непрочитанного</item>
+        <item quantity="one">%d непрочитанное сообщение</item>
+        <item quantity="few">%d непрочитанных сообщения</item>
+        <item quantity="many">%d непрочитанных сообщений</item>
+        <item quantity="other">%d непрочитанного сообщения</item>
     </plurals>
     <plurals name="groups_n">
         <item quantity="one">%d группа</item>

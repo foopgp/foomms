@@ -126,12 +126,12 @@
     <string name="mark_all_read_ask">Позначити непрочитані повідомлення (%1$d) як прочитані?</string>
     <string name="mark_read">○ Позначити як прочитане</string>
     <string name="mark_unread">● Позначити як непрочитане</string>
-    <string name="count_detail">%1$d повідомлень: %2$d SMS + %3$d MMS\nз них %4$d PGP: %5$d SMS + %6$d MMS\n%9$d отриманих, %10$d надісланих\n\n%7$d листувань: %11$d особистих + %12$d групових\n%8$s байтів</string>
+    <string name="count_detail">%1$d повідомлень: %2$d SMS + %3$d MMS\nз них %4$d PGP: %5$d SMS + %6$d MMS\n%9$d отриманих: %13$d SMS + %14$d MMS\n%10$d надісланих: %15$d SMS + %16$d MMS\n\n%7$d листувань: %11$d особистих + %12$d групових\n%8$s байтів</string>
     <plurals name="count_detail_unread_rest">
-        <item quantity="one">, з них %1$d PGP, у %2$d листуванні</item>
-        <item quantity="few">, з них %1$d PGP, у %2$d листуваннях</item>
-        <item quantity="many">, з них %1$d PGP, у %2$d листуваннях</item>
-        <item quantity="other">, з них %1$d PGP, у %2$d листуваннях</item>
+        <item quantity="one">, з них %1$d PGP, у %2$d листуванні.</item>
+        <item quantity="few">, з них %1$d PGP, у %2$d листуваннях.</item>
+        <item quantity="many">, з них %1$d PGP, у %2$d листуваннях.</item>
+        <item quantity="other">, з них %1$d PGP, у %2$d листуваннях.</item>
     </plurals>
     <string name="switch_sign">Підписати</string>
     <string name="switch_lock">Зашифрувати</string>
@@ -245,10 +245,10 @@
         <item quantity="other">%d розмови</item>
     </plurals>
     <plurals name="unread_n">
-        <item quantity="one">%d непрочитане</item>
-        <item quantity="few">%d непрочитані</item>
-        <item quantity="many">%d непрочитаних</item>
-        <item quantity="other">%d непрочитаного</item>
+        <item quantity="one">%d непрочитане повідомлення</item>
+        <item quantity="few">%d непрочитані повідомлення</item>
+        <item quantity="many">%d непрочитаних повідомлень</item>
+        <item quantity="other">%d непрочитаного повідомлення</item>
     </plurals>
     <plurals name="groups_n">
         <item quantity="one">%d група</item>

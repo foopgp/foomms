@@ -126,10 +126,10 @@
     <string name="mark_all_read_ask">Marcar as %1$d mensagens não lidas como lidas?</string>
     <string name="mark_read">○ Marcar como lida</string>
     <string name="mark_unread">● Marcar como não lida</string>
-    <string name="count_detail">%1$d mensagens: %2$d SMS + %3$d MMS\ndas quais %4$d PGP: %5$d SMS + %6$d MMS\n%9$d recebidas, %10$d enviadas\n\n%7$d conversas: %11$d individuais + %12$d de grupo\n%8$s bytes</string>
+    <string name="count_detail">%1$d mensagens: %2$d SMS + %3$d MMS\ndas quais %4$d PGP: %5$d SMS + %6$d MMS\n%9$d recebidas: %13$d SMS + %14$d MMS\n%10$d enviadas: %15$d SMS + %16$d MMS\n\n%7$d conversas: %11$d individuais + %12$d de grupo\n%8$s bytes</string>
     <plurals name="count_detail_unread_rest">
-        <item quantity="one">, das quais %1$d PGP, em %2$d conversa</item>
-        <item quantity="other">, das quais %1$d PGP, em %2$d conversas</item>
+        <item quantity="one">, das quais %1$d PGP, em %2$d conversa.</item>
+        <item quantity="other">, das quais %1$d PGP, em %2$d conversas.</item>
     </plurals>
     <string name="switch_sign">Assinar</string>
     <string name="switch_lock">Cifrar</string>
@@ -241,8 +241,8 @@
         <item quantity="other">%d conversas</item>
     </plurals>
     <plurals name="unread_n">
-        <item quantity="one">%d não lida</item>
-        <item quantity="other">%d não lidas</item>
+        <item quantity="one">%d mensagem não lida</item>
+        <item quantity="other">%d mensagens não lidas</item>
     </plurals>
     <plurals name="groups_n">
         <item quantity="one">%d grupo</item>

@@ -126,10 +126,10 @@
     <string name="mark_all_read_ask">%1$d okunmamış mesaj okundu olarak işaretlensin mi?</string>
     <string name="mark_read">○ Okundu olarak işaretle</string>
     <string name="mark_unread">● Okunmadı olarak işaretle</string>
-    <string name="count_detail">%1$d mesaj: %2$d SMS + %3$d MMS\nbunların %4$d tanesi PGP: %5$d SMS + %6$d MMS\n%9$d alınan, %10$d gönderilen\n\n%7$d konuşma: %11$d bireysel + %12$d grup\n%8$s bayt</string>
+    <string name="count_detail">%1$d mesaj: %2$d SMS + %3$d MMS\nbunların %4$d tanesi PGP: %5$d SMS + %6$d MMS\n%9$d alınan: %13$d SMS + %14$d MMS\n%10$d gönderilen: %15$d SMS + %16$d MMS\n\n%7$d konuşma: %11$d bireysel + %12$d grup\n%8$s bayt</string>
     <plurals name="count_detail_unread_rest">
-        <item quantity="one">, bunların %1$d tanesi PGP, %2$d konuşmada</item>
-        <item quantity="other">, bunların %1$d tanesi PGP, %2$d konuşmada</item>
+        <item quantity="one">, bunların %1$d tanesi PGP, %2$d konuşmada.</item>
+        <item quantity="other">, bunların %1$d tanesi PGP, %2$d konuşmada.</item>
     </plurals>
     <string name="switch_sign">İmzala</string>
     <string name="switch_lock">Şifrele</string>
@@ -241,8 +241,8 @@
         <item quantity="other">%d konuşma</item>
     </plurals>
     <plurals name="unread_n">
-        <item quantity="one">%d okunmamış</item>
-        <item quantity="other">%d okunmamış</item>
+        <item quantity="one">%d okunmamış mesaj</item>
+        <item quantity="other">%d okunmamış mesaj</item>
     </plurals>
     <plurals name="groups_n">
         <item quantity="one">%d grup</item>

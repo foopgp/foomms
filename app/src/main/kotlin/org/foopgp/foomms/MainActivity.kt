@@ -115,6 +115,11 @@ class MainActivity : AskingActivity() {
     /** On the profile's page: oneself, a member of every group -- face and number --, and under it what can be done about it. */
     private lateinit var meBox: LinearLayout
     private lateinit var meActions: LinearLayout
+    private lateinit var meRule: View
+
+    /** In the bar, the page's mark: the application's, or a glyph. */
+    private lateinit var mark: android.widget.ImageView
+    private lateinit var markGlyph: android.widget.TextView
 
     /** The groups only the headers of received MMS tell, filed in their senders' conversations: among all the conversations. */
     private var heardRows: List<Row> = emptyList()
@@ -166,7 +171,11 @@ class MainActivity : AskingActivity() {
                 val side = Look.dp(context, 36)
                 // At the far left, the way to the configuration; at the far right, to the search.
                 addView(Look.icon(context, R.drawable.settings, getString(R.string.configure)) { Menus.configure(this@MainActivity) })
-                addView(android.widget.ImageView(context).apply { setImageResource(R.drawable.launcher) }, LinearLayout.LayoutParams(side, side).apply { marginStart = Look.dp(context, 4) })
+                // The page's mark: the application's on the conversations, the unread's and the profile's on theirs.
+                mark = android.widget.ImageView(context).apply { setImageResource(R.drawable.launcher) }
+                addView(mark, LinearLayout.LayoutParams(side, side).apply { marginStart = Look.dp(context, 4) })
+                markGlyph = Look.words(context, "", size = 24f).apply { gravity = Gravity.CENTER ; visibility = View.GONE }
+                addView(markGlyph, LinearLayout.LayoutParams(side, side).apply { marginStart = Look.dp(context, 4) })
                 addView(
                     LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
@@ -211,10 +220,8 @@ class MainActivity : AskingActivity() {
             setPadding(side, side / 2, side / 2, 0)
             visibility = View.GONE
         }
-        column.addView(meBox)
         // What the menu of oneself held, laid out: the page has the room, and nothing needs pressing to be found.
         meActions = Look.column(this).apply { visibility = View.GONE }
-        column.addView(meActions)
         column.addView(closing)
         column.addView(asking)
         detail = Look.words(this, "", size = 14f, muted = true).apply {
@@ -238,6 +245,11 @@ class MainActivity : AskingActivity() {
             addView(clearDrafts)
         }
         column.addView(draftsLine)
+        // On the profile's page, after the counts and the drafts: a rule, then oneself.
+        meRule = View(this).apply { setBackgroundColor(Look.MUTED) ; visibility = View.GONE }
+        column.addView(meRule, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1).apply { val side = Look.dp(this@MainActivity, 16) ; setMargins(side, 0, side, Look.dp(this@MainActivity, 4)) })
+        column.addView(meBox)
+        column.addView(meActions)
         unreadSaid = Look.words(this, "", size = 14f, muted = true).apply {
             val side = Look.dp(context, 16)
             setPadding(side, 0, side, side / 2)
@@ -383,7 +395,7 @@ class MainActivity : AskingActivity() {
                     setPadding(pad * 2, pad, pad * 2, pad)
                     addView(
                         if (one == Page.TALKS) android.widget.ImageView(context).apply { setImageResource(R.drawable.launcher) }
-                        else Look.words(context, if (one == Page.UNREAD) "📬" else "👤", size = 20f).apply { gravity = Gravity.CENTER },
+                        else Look.words(context, glyph(one), size = 20f).apply { gravity = Gravity.CENTER },
                         LinearLayout.LayoutParams(side, side),
                     )
                     addView(
@@ -422,6 +434,9 @@ class MainActivity : AskingActivity() {
             }
         }
     }
+
+    /** The mark of a page but the conversations', whose mark is the application's. */
+    private fun glyph(of: Page): String = if (of == Page.UNREAD) "📬" else "👤"
 
     /** A page's name, the unread's with how many there are. */
     private fun named(it: Page): String = when (it) {
@@ -779,6 +794,10 @@ class MainActivity : AskingActivity() {
         }
         meBox.visibility = if (page == Page.PROFILE) View.VISIBLE else View.GONE
         meActions.visibility = meBox.visibility
+        meRule.visibility = meBox.visibility
+        mark.visibility = if (page == Page.TALKS) View.VISIBLE else View.GONE
+        markGlyph.visibility = if (page == Page.TALKS) View.GONE else View.VISIBLE
+        markGlyph.text = glyph(page)
         val known = counts
         if (known != null) {
             counted.text = when (page) {
@@ -790,6 +809,7 @@ class MainActivity : AskingActivity() {
             detail.text = getString(
                 R.string.count_detail, known.all, known.sms, known.mms, known.pgp, known.pgpSms, known.pgpMms, known.talks, weight,
                 known.received, known.sent, known.persons, known.groups,
+                known.receivedSms, known.receivedMms, known.sentSms, known.sentMms,
             )
             draftsSaid.text = resources.getQuantityString(R.plurals.drafts_n, known.drafts, known.drafts)
             unreadSaid.text = android.text.SpannableStringBuilder().append(
@@ -798,9 +818,8 @@ class MainActivity : AskingActivity() {
             ).append(resources.getQuantityString(R.plurals.count_detail_unread_rest, known.unreadTalks, known.unreadPgp, known.unreadTalks))
             usable(clearDrafts, known.drafts > 0)
         }
-        // The counts on the unread's page, which they keep from ever being empty, and on the profile's; the drafts
-        // with the profile, the unread with their page.
-        detail.visibility = if (page != Page.TALKS && known != null) View.VISIBLE else View.GONE
+        // The counts and the drafts on the profile's page; on the unread's, how many are unread.
+        detail.visibility = if (page == Page.PROFILE && known != null) View.VISIBLE else View.GONE
         draftsLine.visibility = if (page == Page.PROFILE && known != null) View.VISIBLE else View.GONE
         unreadSaid.visibility = if (onlyUnread && known != null) View.VISIBLE else View.GONE
         tools.visibility = unreadSaid.visibility
