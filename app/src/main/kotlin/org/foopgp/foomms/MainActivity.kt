@@ -950,9 +950,22 @@ class MainActivity : AskingActivity() {
 
     /** Pressed long, a conversation says what can be done about it and about who it is with. */
     private fun about(row: Row) {
-        // A group's menu needs its members, which its conversation reads: opened, and the menu over it.
+        // A group's menu, over the list: its members read first, away from the screen.
         if (row.talk.group || row.group != null) {
-            return open(row.talk, ask = ThreadActivity.ASK_MENU, threads = row.threads, with = row.with ?: row.talk.number, messages = row.messages)
+            val set = row.group ?: Phone.group(row.talk.members, Me.all(this))
+            thread {
+                val members = runCatching { GroupMenu.read(this, row.talk.members) }.getOrDefault(emptyList())
+                runOnUiThread {
+                    if (isFinishing || isDestroyed) return@runOnUiThread
+                    GroupMenu.show(
+                        this, members, set, row.threads, GroupNames.of(this, set) ?: members.joinToString(", ") { it.name },
+                        changed = { fill() }, gone = { fill() },
+                        // Tying is done from the member's conversation, where foodjis shows its list over.
+                        tie = { number -> startActivity(Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, number).putExtra(ThreadActivity.EXTRA_ASK, ThreadActivity.ASK_TIE)) },
+                    )
+                }
+            }
+            return
         }
         // Whom it is with, as the line opens it: Android files some conversations between two under no number.
         val sender = row.with ?: row.talk.number ?: return

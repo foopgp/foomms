@@ -593,11 +593,7 @@ class ThreadActivity : AskingActivity() {
         thread {
             // Who the number is, beside the messages: its head drawn as soon as known. A group's, each member.
             if (group) thread {
-                val found = everyone.filterNot { Me.mine(this, it) }.map { one ->
-                    val who = if (contacts) Book.who(this, one) else null
-                    val whose = who?.fingerprint?.let { foodjis.card(it) }
-                    Member(one, who, whose, who?.let { Book.face(this, it) } ?: who?.fingerprint?.let { foodjis.face(it) })
-                }
+                val found = GroupMenu.read(this, everyone)
                 // And oneself, a member too: one's face, and whether one's own contact is tied to a certificate that can be locked for.
                 val own = Me.card(this)?.let { Book.own(this, it) }
                 val mineCert = own?.fingerprint?.let { foodjis.card(it) }
@@ -812,143 +808,16 @@ class ThreadActivity : AskingActivity() {
         val usable = found.count { it.card?.usable == true } + (if (mineUsable) 1 else 0)
         under.text = android.text.SpannableStringBuilder(resources.getQuantityString(R.plurals.group_members, all, all))
             .append("  ·  🔑 $usable/$all")
-        // Pressed long in the list of conversations: the group's menu, now that its members are known.
-        if (intent.getStringExtra(EXTRA_ASK) == ASK_MENU) { intent.removeExtra(EXTRA_ASK) ; groupMenu() }
         if (first) { locks.isChecked = lockable() ; signs.isChecked = lockable() }
         paint()
         bubbles.notifyDataSetChanged()
     }
 
-    /**
-     * A group's menu: what can be done about its conversation, then its members, each with their face, name,
-     * number and what their certificate is worth; pressed, the conversation with them alone.
-     */
-    private fun groupMenu() {
-        // What can be done and the title held at the top; only the members scroll.
-        // No margin above the first action: the room its own line keeps above it is the room it keeps above the rule.
-        val head = Look.column(this).apply { setPadding(paddingLeft, 0, paddingRight, 0) }
-        val column = Look.column(this).apply { setPadding(paddingLeft, 0, paddingRight, paddingBottom) }
-        var shown: AlertDialog? = null
-        // First what can be done about the conversation, as about one between two: its notifications, saving it, deleting it.
-        val key = groupKey()
-        val muted = Marks.muted(this, key)
-        val pad = Look.dp(this, 10)
-        fun action(words: Int, then: () -> Unit) = head.addView(
-            Look.words(this, getString(words), size = 16f).apply {
-                setPadding(0, pad, 0, pad)
-                setOnClickListener { shown?.dismiss() ; then() }
-            },
-        )
-        val called = GroupNames.of(this, groupSet())
-        action(if (called == null) R.string.group_name else R.string.group_rename) { nameGroup(called) }
-        action(if (muted) R.string.unmute else R.string.mute) { Marks.mute(this, key, !muted) }
-        thread?.let { one -> action(R.string.backup_one) { Saving.save(this, one, title?.toString()) } }
-        action(R.string.forget_talk) { forgetGroup() }
-        // Then the members, below a line and their count.
-        head.addView(View(this).apply { setBackgroundColor(Look.MUTED) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1))
-        head.addView(
-            Look.words(this, resources.getQuantityString(R.plurals.group_members, members.size + 1, members.size + 1), size = 20f).apply {
-                setPadding(0, pad * 3 / 2, 0, pad / 2)
-            },
-        )
-        // Oneself first: the MMS goes to the others, and comes back to every one of them from all.
-        val own = Me.card(this)?.let { Book.own(this, it) }
-        val ownStanding = own?.fingerprint?.let { foodjis.card(it) }?.validity
-        val mine = Me.number(this)
-        column.addView(
-            LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                setPadding(0, Look.dp(context, 6), 0, Look.dp(context, 6))
-                addView(Look.face(context, 40, own?.photo, null, ownStanding, framable = true, seed = Look.seed(own?.fingerprint, mine)))
-                addView(
-                    LinearLayout(context).apply {
-                        orientation = LinearLayout.VERTICAL
-                        setPadding(Look.dp(context, 12), 0, 0, 0)
-                        addView(Look.words(context, listOfNotNull(own?.name, getString(R.string.me_tag)).joinToString(" "), size = 17f))
-                        addView(Look.words(context, mine ?: getString(R.string.me_unknown), size = 13f, muted = true))
-                    },
-                )
-            },
-        )
-        for (one in members) {
-            val standing: CharSequence? = one.card?.let { android.text.SpannableStringBuilder("🔑 ").append(Look.standing(this, it.validity)) }
-            column.addView(
-                LinearLayout(this).apply {
-                    orientation = LinearLayout.HORIZONTAL
-                    gravity = Gravity.CENTER_VERTICAL
-                    setPadding(0, Look.dp(context, 6), 0, Look.dp(context, 6))
-                    addView(Look.face(context, 40, null, one.face, one.card?.validity, framable = true, seed = one.seed))
-                    addView(
-                        LinearLayout(context).apply {
-                            orientation = LinearLayout.VERTICAL
-                            setPadding(Look.dp(context, 12), 0, 0, 0)
-                            addView(Look.words(context, one.name, size = 17f))
-                            if (standing != null) {
-                                addView(Look.words(context, if (one.name != one.number) android.text.SpannableStringBuilder("${one.number} — ").append(standing) else standing, size = 13f, muted = true))
-                            } else {
-                                if (one.name != one.number) addView(Look.words(context, one.number, size = 13f, muted = true))
-                                // No contact, or one with no certificate: tied here, the contact made if there is none --
-                                // from the certificate the group's members part names, when one was read.
-                                addView(
-                                    Look.small(context, getString(if (one.person == null) R.string.contact_add else R.string.tie)) {
-                                        shown?.dismiss()
-                                        tieMember(one.number)
-                                    }.apply { isFocusable = false },
-                                )
-                            }
-                        },
-                        LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
-                    )
-                    setOnClickListener {
-                        shown?.dismiss()
-                        startActivity(Intent(context, ThreadActivity::class.java).putExtra(EXTRA_NUMBER, one.number))
-                    }
-                },
-            )
-        }
-        shown = AlertDialog.Builder(this)
-            .apply { called?.let { setTitle(it) } }
-            .setView(
-                LinearLayout(this).apply {
-                    orientation = LinearLayout.VERTICAL
-                    addView(head)
-                    addView(android.widget.ScrollView(context).apply { addView(column) })
-                },
-            )
-            .setPositiveButton(R.string.close, null)
-            .show()
-    }
-
-    /** The group named, or named anew from [now]; left empty, unnamed, its members' faces back in the bar. */
-    private fun nameGroup(now: String?) {
-        val field = android.widget.EditText(this).apply {
-            setText(now.orEmpty())
-            setSelection(text.length)
-            setHint(R.string.group_name_hint)
-            setSingleLine()
-            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-        }
-        val pad = Look.dp(this, 20)
-        AlertDialog.Builder(this)
-            .setTitle(if (now == null) R.string.group_name else R.string.group_rename)
-            .setView(
-                LinearLayout(this).apply {
-                    orientation = LinearLayout.VERTICAL
-                    setPadding(pad, Look.dp(context, 8), pad, 0)
-                    addView(field)
-                    // Said quietly, under the field: the name is the person's own, not the group's.
-                    addView(Look.words(context, getString(R.string.group_name_own), size = 13f, muted = true).apply { setPadding(0, Look.dp(context, 4), 0, 0) })
-                },
-            )
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                GroupNames.name(this, groupSet(), field.text.toString())
-                load(first = false)
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-            .also { field.requestFocus() ; it.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE) }
-    }
+    /** A group's menu, over its conversation ([GroupMenu]). */
+    private fun groupMenu() = GroupMenu.show(
+        this, members, groupSet(), given.ifEmpty { listOfNotNull(thread) }, title?.toString(),
+        changed = { load(first = false) }, gone = { finish() }, tie = { tieMember(it) },
+    )
 
     /**
      * A member of the group tied to a certificate, their contact made if
@@ -995,24 +864,6 @@ class ThreadActivity : AskingActivity() {
 
     /** The group as the set of its numbers but this phone's: what its name and its silence are kept by. */
     private fun groupSet(): String = Phone.group(everyone, Me.all(this))
-
-    /** Every message of the group's conversations, once the person has said so. */
-    private fun forgetGroup() {
-        AlertDialog.Builder(this)
-            .setMessage(getString(R.string.forget_talk_ask, title))
-            .setPositiveButton(R.string.forget_yes) { _, _ ->
-                thread {
-                    val went = given.ifEmpty { listOfNotNull(thread) }.map { Keep.forgetAll(this, it) }.all { it }
-                    runOnUiThread {
-                        if (isFinishing || isDestroyed) return@runOnUiThread
-                        if (went) finish()
-                        else say(getString(if (Keep.ours(this)) R.string.forget_failed else R.string.forget_not_ours))
-                    }
-                }
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
 
     /** Whether what is written can be encrypted: for the certificate of the number, or of every member of the group. */
     private fun lockable(): Boolean = if (group) members.isNotEmpty() && members.all { it.card?.usable == true } else card?.usable == true
@@ -2265,7 +2116,6 @@ class ThreadActivity : AskingActivity() {
         const val EXTRA_ASK = "ask"
         const val ASK_TIE = "tie"
         const val ASK_REFRESH = "refresh"
-        const val ASK_MENU = "menu"
 
         /** The date of the message to show first. */
         const val EXTRA_AT = "at"
