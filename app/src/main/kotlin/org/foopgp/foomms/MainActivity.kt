@@ -858,6 +858,16 @@ class MainActivity : AskingActivity() {
             val text = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 setPadding(pad, 0, 0, 0)
+                // On the groups' page, a group the person named: its name first, a line of its own above who spoke.
+                val called = row.group?.takeIf { page == Page.GROUPS }?.let { GroupNames.of(context, it) }
+                if (called != null) {
+                    addView(
+                        Look.words(context, called, size = 17f).apply {
+                            setTypeface(typeface, Typeface.BOLD)
+                            maxLines = 1 ; ellipsize = TextUtils.TruncateAt.END
+                        },
+                    )
+                }
                 addView(names)
                 addView(
                     Look.words(context, (row.draft?.let { getString(R.string.draft_said, it) } ?: row.last).replace('\n', ' '), size = 14f, muted = !row.unread).apply {

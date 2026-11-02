@@ -88,6 +88,9 @@
     <string name="no_answer">Δεν είναι δυνατή η απάντηση σε αυτόν τον αποστολέα</string>
     <string name="no_certificate">Χωρίς πιστοποιητικό</string>
     <string name="tie">🔑 Σύνδεση με πιστοποιητικό</string>
+    <string name="group_name">🏷 Ονομασία ομάδας</string>
+    <string name="group_rename">🏷 Μετονομασία ομάδας</string>
+    <string name="group_name_hint">Όνομα της ομάδας, ορατό μόνο σε αυτό το τηλέφωνο</string>
     <string name="mute">🔕 Απενεργοποίηση ειδοποιήσεων</string>
     <string name="unmute">🔔 Ενεργοποίηση ειδοποιήσεων</string>
     <string name="forget_talk">✖ Διαγραφή της συνομιλίας</string>

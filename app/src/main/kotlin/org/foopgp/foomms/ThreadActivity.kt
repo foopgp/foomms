@@ -788,14 +788,16 @@ class ThreadActivity : AskingActivity() {
     /** A group's head: its members by name, how many of them have a certificate, and the switches as they can be for all. */
     private fun groupHead(found: List<Member>, first: Boolean, mineUsable: Boolean = false, myself: Look.Mini? = null) {
         members = found
-        val name = found.joinToString(", ") { it.name }
+        // The name the person gave the group, if any: it stands for the group where its members' faces did.
+        val called = GroupNames.of(this, groupSet())
+        val name = called ?: found.joinToString(", ") { it.name }
         thread?.let { Opened.title(it, name, number) }
         title = name
         whoIs.text = name
         // Faces rather than names, which never fit: ten on a line.
         portrait.visibility = View.GONE
-        named.visibility = View.GONE
-        crowd.visibility = View.VISIBLE
+        named.visibility = if (called != null) View.VISIBLE else View.GONE
+        crowd.visibility = if (called != null) View.GONE else View.VISIBLE
         crowd.removeAllViews()
         // Oneself last, as in the list's square; beyond nine, eight faces and how many more.
         val faces = found.map { Look.Mini(it.face, it.card?.validity, it.seed) } + listOfNotNull(myself)
@@ -835,6 +837,8 @@ class ThreadActivity : AskingActivity() {
                 setOnClickListener { shown?.dismiss() ; then() }
             },
         )
+        val called = GroupNames.of(this, groupSet())
+        action(if (called == null) R.string.group_name else R.string.group_rename) { nameGroup(called) }
         action(if (muted) R.string.unmute else R.string.mute) { Marks.mute(this, key, !muted) }
         thread?.let { one -> action(R.string.backup_one) { Saving.save(this, one, title?.toString()) } }
         action(R.string.forget_talk) { forgetGroup() }
@@ -902,6 +906,7 @@ class ThreadActivity : AskingActivity() {
             )
         }
         shown = AlertDialog.Builder(this)
+            .apply { called?.let { setTitle(it) } }
             .setView(
                 LinearLayout(this).apply {
                     orientation = LinearLayout.VERTICAL
@@ -911,6 +916,28 @@ class ThreadActivity : AskingActivity() {
             )
             .setPositiveButton(R.string.close, null)
             .show()
+    }
+
+    /** The group named, or named anew from [now]; left empty, unnamed, its members' faces back in the bar. */
+    private fun nameGroup(now: String?) {
+        val field = android.widget.EditText(this).apply {
+            setText(now.orEmpty())
+            setSelection(text.length)
+            setHint(R.string.group_name_hint)
+            setSingleLine()
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+        }
+        val pad = Look.dp(this, 20)
+        AlertDialog.Builder(this)
+            .setTitle(if (now == null) R.string.group_name else R.string.group_rename)
+            .setView(android.widget.FrameLayout(this).apply { setPadding(pad, Look.dp(context, 8), pad, 0) ; addView(field) })
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                GroupNames.name(this, groupSet(), field.text.toString())
+                load(first = false)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+            .also { field.requestFocus() ; it.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE) }
     }
 
     /**
@@ -954,7 +981,10 @@ class ThreadActivity : AskingActivity() {
     }
 
     /** What a group is muted by: its members but this phone, whichever of its conversations a message comes to. */
-    private fun groupKey(): String = "group:" + Phone.group(everyone, Me.all(this))
+    private fun groupKey(): String = "group:" + groupSet()
+
+    /** The group as the set of its numbers but this phone's: what its name and its silence are kept by. */
+    private fun groupSet(): String = Phone.group(everyone, Me.all(this))
 
     /** Every message of the group's conversations, once the person has said so. */
     private fun forgetGroup() {

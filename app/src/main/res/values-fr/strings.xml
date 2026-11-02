@@ -88,6 +88,9 @@
     <string name="no_answer">On ne peut pas répondre à cet expéditeur</string>
     <string name="no_certificate">Aucun certificat</string>
     <string name="tie">🔑 Relier à un certificat</string>
+    <string name="group_name">🏷 Nommer le groupe</string>
+    <string name="group_rename">🏷 Renommer le groupe</string>
+    <string name="group_name_hint">Nom du groupe, vu sur ce téléphone seulement</string>
     <string name="mute">🔕 Désactiver les notifications</string>
     <string name="unmute">🔔 Activer les notifications</string>
     <string name="forget_talk">✖ Supprimer la conversation</string>

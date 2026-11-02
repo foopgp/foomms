@@ -88,6 +88,9 @@
     <string name="no_answer">Этому отправителю нельзя ответить</string>
     <string name="no_certificate">Нет сертификата</string>
     <string name="tie">🔑 Связать с сертификатом</string>
+    <string name="group_name">🏷 Назвать группу</string>
+    <string name="group_rename">🏷 Переименовать группу</string>
+    <string name="group_name_hint">Название группы, видно только на этом телефоне</string>
     <string name="mute">🔕 Отключить уведомления</string>
     <string name="unmute">🔔 Включить уведомления</string>
     <string name="forget_talk">✖ Удалить переписку</string>

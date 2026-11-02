@@ -88,6 +88,9 @@
     <string name="no_answer">Bu gönderene yanıt verilemez</string>
     <string name="no_certificate">Sertifika yok</string>
     <string name="tie">🔑 Bir sertifikaya bağla</string>
+    <string name="group_name">🏷 Gruba ad ver</string>
+    <string name="group_rename">🏷 Grubu yeniden adlandır</string>
+    <string name="group_name_hint">Grubun adı, yalnızca bu telefonda görünür</string>
     <string name="mute">🔕 Bildirimleri kapat</string>
     <string name="unmute">🔔 Bildirimleri aç</string>
     <string name="forget_talk">✖ Konuşmayı sil</string>

@@ -91,6 +91,9 @@
     <string name="no_answer">This sender cannot be answered</string>
     <string name="no_certificate">No certificate</string>
     <string name="tie">🔑 Tie to a certificate</string>
+    <string name="group_name">🏷 Name the group</string>
+    <string name="group_rename">🏷 Rename the group</string>
+    <string name="group_name_hint">The group\'s name, seen on this phone only</string>
     <string name="mute">🔕 Turn notifications off</string>
     <string name="unmute">🔔 Turn notifications on</string>
     <string name="forget_talk">✖ Delete the conversation</string>

@@ -38,9 +38,16 @@ object Notify {
             Pgp.isLocked(armor) -> context.getString(R.string.locked_message)
             else -> context.getString(R.string.signed_message)
         }
-        // A group's message says so first, whatever it holds -- once, a message of parts alone having said it already.
+        // A group's message says so first, whatever it holds -- once, a message of parts alone having said it already --,
+        // and which group, when the person named it.
         val among = Members.glyph(Members.PART)
-        val words = if (group != null && !said.startsWith(among)) "$among $said" else said
+        val called = group?.let { GroupNames.of(context, Phone.group(Store.members(context, it), Me.all(context))) }
+        val head = if (called != null) "$among $called —" else among
+        val words = when {
+            group == null -> said
+            said.startsWith(among) -> head + said.removePrefix(among)
+            else -> "$head $said"
+        }
         val person = runCatching { Book.who(context, number) }.getOrNull()
         val who = person?.name ?: number
         // The contact's picture, when the address book has one: read with the name, from the same card.
