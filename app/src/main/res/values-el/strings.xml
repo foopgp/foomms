@@ -303,7 +303,7 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Όλες οι επαφές (%1$d)</string>
     <string name="conf_group_most">Όριο ομαδικού MMS</string>
-    <string name="conf_group_most_note">Ο αριθμός των παραληπτών περιορίζεται ανάλογα με τον πάροχο. Με δέκα παραλήπτες, ένα MMS περνά συνήθως παντού· κάποιοι πάροχοι δέχονται πολύ περισσότερους.</string>
+    <string name="conf_group_most_note">Ο αριθμός παραληπτών εξαρτάται από τον πάροχο. Με είκοσι μέλη, μαζί με εσάς, ένα MMS μένει εντός του προτύπου· λίγοι πάροχοι δέχονται μόνο δέκα.</string>
     <string name="group_over">Αυτή η ομάδα έχει %1$d μέλη, μαζί με εσάς, πάνω από το όριο των %2$d που ορίστηκε στη διαμόρφωση: ο πάροχος μπορεί να απορρίψει το μήνυμα ή να το παραδώσει στον καθένα χωριστά.</string>
     <string name="group_over_send">Αποστολή παρ\' όλα αυτά</string>
     <string name="conf_mms_on">Να επιτρέπεται η αποστολή MMS</string>

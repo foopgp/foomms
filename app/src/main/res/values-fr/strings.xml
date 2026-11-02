@@ -303,7 +303,7 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Tous les contacts (%1$d)</string>
     <string name="conf_group_most">Limite de groupe MMS</string>
-    <string name="conf_group_most_note">Le nombre de destinataires est limité suivant les opérateurs. Avec dix destinataires, un MMS passe généralement partout ; certains opérateurs en acceptent bien plus.</string>
+    <string name="conf_group_most_note">Le nombre de destinataires dépend de l\'opérateur. Avec vingt membres, vous compris, un MMS reste dans la norme ; quelques rares opérateurs n\'en acceptent que dix.</string>
     <string name="group_over">Ce groupe compte %1$d membres, vous compris, au-delà de la limite de %2$d fixée dans la configuration : l\'opérateur pourrait refuser le message, ou le remettre à chacun séparément.</string>
     <string name="group_over_send">Envoyer quand même</string>
     <string name="conf_mms_on">Autoriser l\'envoi de MMS</string>

@@ -319,7 +319,7 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Усі контакти (%1$d)</string>
     <string name="conf_group_most">Межа групового MMS</string>
-    <string name="conf_group_most_note">Кількість одержувачів обмежена залежно від оператора. З десятьма одержувачами MMS зазвичай проходить скрізь; деякі оператори приймають значно більше.</string>
+    <string name="conf_group_most_note">Кількість одержувачів залежить від оператора. З двадцятьма учасниками, включно з вами, MMS лишається в межах стандарту; деякі оператори приймають лише десять.</string>
     <string name="group_over">У цій групі %1$d учасників, включно з вами, понад межу %2$d, задану в налаштуваннях: оператор може відхилити повідомлення або доставити його кожному окремо.</string>
     <string name="group_over_send">Однаково надіслати</string>
     <string name="conf_mms_on">Дозволити надсилання MMS</string>

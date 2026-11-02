@@ -179,7 +179,7 @@ class ConfActivity : AskingActivity() {
             // How many a group MMS may go to, oneself included.
             subheading(R.string.conf_group_most)
             note(R.string.conf_group_most_note)
-            slider(Conf.groupMost(this), Conf.GROUP_MOST_EVER, Conf.GROUP_MOST) { Conf.groupMost(this, it) }
+            slider(Conf.groupMost(this), Conf.GROUP_MOST_EVER, Conf.GROUP_LEAST) { Conf.groupMost(this, it) }
         }
 
     }

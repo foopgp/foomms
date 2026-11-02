@@ -306,7 +306,7 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">All contacts (%1$d)</string>
     <string name="conf_group_most">MMS group limit</string>
-    <string name="conf_group_most_note">How many recipients there may be depends on the network. With ten recipients, an MMS generally goes through everywhere; some networks take far more.</string>
+    <string name="conf_group_most_note">How many a group MMS may go to depends on the network. With twenty members, you included, it stays within the MMS standard; a few networks take only ten.</string>
     <string name="group_over">This group has %1$d members, oneself included, beyond the limit of %2$d set in the configuration: the network may refuse the message, or deliver it to each alone.</string>
     <string name="group_over_send">Send all the same</string>
     <string name="conf_mms_on">Allow sending MMS</string>
