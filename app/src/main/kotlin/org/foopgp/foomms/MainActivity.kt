@@ -232,8 +232,6 @@ class MainActivity : AskingActivity() {
             val pad = Look.dp(context, 16)
             setPadding(pad, pad / 2, pad, pad / 2)
             visibility = View.GONE
-            // Pressed, the counts give the conversations back.
-            setOnClickListener { go(Page.TALKS) }
         }
         column.addView(detail)
         // On the profile's page, under the counts: what it all weighs and saving it all, then restoring a saving --
@@ -464,6 +462,15 @@ class MainActivity : AskingActivity() {
                     .setNegativeButton(R.string.me_wizard_later, null)
                     .show()
             }
+        }
+    }
+
+    /** A page's name after its mark, the application's own drawn in the text for the conversations, [side] high. */
+    private fun marked(of: Page, side: Int): CharSequence {
+        if (of != Page.TALKS) return "${glyph(of)} ${named(of)}"
+        val mark = getDrawable(R.drawable.launcher)?.apply { setBounds(0, 0, side, side) } ?: return named(of)
+        return android.text.SpannableStringBuilder("  ${named(of)}").apply {
+            setSpan(android.text.style.ImageSpan(mark, android.text.style.DynamicDrawableSpan.ALIGN_BOTTOM), 0, 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 
@@ -820,8 +827,12 @@ class MainActivity : AskingActivity() {
         others.removeAllViews()
         for (other in Page.entries.filter { it != page }) {
             others.addView(
-                // The conversations, the main page, said a little more strongly than the two others.
-                Look.small(this, named(other)) { go(other) }.apply { textSize = 15f ; if (other == Page.TALKS) setTypeface(typeface, Typeface.BOLD) },
+                // Each after its mark, as in the menu of the pages; the conversations, the main page, said a little
+                // more strongly than the two others.
+                Look.small(this, marked(other, Look.dp(this, 20))) { go(other) }.apply {
+                    textSize = 15f
+                    if (other == Page.TALKS) setTypeface(typeface, Typeface.BOLD)
+                },
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
             )
         }
