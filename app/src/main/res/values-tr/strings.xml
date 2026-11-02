@@ -303,7 +303,7 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Tüm kişiler (%1$d)</string>
     <string name="conf_group_most">Grup MMS\'i sınırı</string>
-    <string name="conf_group_most_note">Alıcı sayısı operatöre bağlıdır. Siz dahil yirmi üyeyle MMS standardın içinde kalır; az sayıda operatör yalnızca on kabul eder.</string>
+    <string name="conf_group_most_note">MMS\'ler genellikle 20 alıcıyla sınırlıdır. Bazı operatörler çok daha fazlasını kabul eder, birkaçı yalnızca on. Almanya\'daki gibi başkaları ise MMS\'i internet mesajlaşma uygulamaları lehine kaldırıyor: küresel tekno-gözetim için bulunmaz bir nimet.</string>
     <string name="group_over">Bu grubun siz dahil %1$d üyesi var; yapılandırmada belirlenen %2$d sınırının üzerinde: operatör mesajı reddedebilir ya da her birine ayrı ayrı iletebilir.</string>
     <string name="group_over_send">Yine de gönder</string>
     <string name="conf_mms_on">MMS gönderimine izin ver</string>

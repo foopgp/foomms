@@ -319,7 +319,7 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Wszystkie kontakty (%1$d)</string>
     <string name="conf_group_most">Limit grupowego MMS</string>
-    <string name="conf_group_most_note">Liczba odbiorców zależy od operatora. Przy dwudziestu członkach, wliczając ciebie, MMS mieści się w standardzie; nieliczni operatorzy przyjmują tylko dziesięciu.</string>
+    <string name="conf_group_most_note">MMS-y są zwykle ograniczone do 20 odbiorców. Niektórzy operatorzy przyjmują znacznie więcej, nieliczni tylko dziesięciu. Inni, jak w Niemczech, likwidują MMS-y na rzecz komunikatorów internetowych – gratka dla globalnej technoinwigilacji.</string>
     <string name="group_over">Ta grupa liczy %1$d członków, wliczając Ciebie, ponad limit %2$d ustawiony w konfiguracji: operator może odrzucić wiadomość albo dostarczyć ją każdemu osobno.</string>
     <string name="group_over_send">Wyślij mimo to</string>
     <string name="conf_mms_on">Zezwalaj na wysyłanie MMS</string>

@@ -303,7 +303,7 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Alle Kontakte (%1$d)</string>
     <string name="conf_group_most">Grenze für Gruppen-MMS</string>
-    <string name="conf_group_most_note">Wie viele Empfänger eine MMS haben darf, hängt vom Netzbetreiber ab. Mit zwanzig Mitgliedern, Sie eingeschlossen, bleibt sie im MMS-Standard; wenige Netze nehmen nur zehn an.</string>
+    <string name="conf_group_most_note">MMS sind meist auf 20 Empfänger begrenzt. Manche Netzbetreiber nehmen weit mehr an, einige wenige nur zehn. Andere wiederum, wie in Deutschland, schaffen die MMS zugunsten von Internet-Messengern ab – ein Glücksfall für die globale Techno-Überwachung.</string>
     <string name="group_over">Diese Gruppe hat %1$d Mitglieder, Sie eingeschlossen, über der in der Konfiguration festgelegten Grenze von %2$d: Das Netz könnte die Nachricht ablehnen oder sie jedem einzeln zustellen.</string>
     <string name="group_over_send">Trotzdem senden</string>
     <string name="conf_mms_on">Senden von MMS erlauben</string>

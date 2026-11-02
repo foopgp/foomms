@@ -319,7 +319,7 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Все контакты (%1$d)</string>
     <string name="conf_group_most">Предел группового MMS</string>
-    <string name="conf_group_most_note">Число получателей зависит от оператора. С двадцатью участниками, включая вас, MMS остаётся в рамках стандарта; немногие операторы принимают только десять.</string>
+    <string name="conf_group_most_note">MMS обычно ограничены 20 получателями. Некоторые операторы принимают гораздо больше, немногие — только десять. Другие же, как в Германии, отменяют MMS в пользу интернет-мессенджеров — настоящий подарок для глобальной техно-слежки.</string>
     <string name="group_over">В этой группе %1$d участников, включая вас, больше предела %2$d, заданного в настройках: оператор может отклонить сообщение или доставить его каждому по отдельности.</string>
     <string name="group_over_send">Всё равно отправить</string>
     <string name="conf_mms_on">Разрешить отправку MMS</string>
