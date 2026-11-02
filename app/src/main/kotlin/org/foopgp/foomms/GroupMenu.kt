@@ -122,6 +122,12 @@ object GroupMenu {
                         shown?.dismiss()
                         startActivity(Intent(context, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, one.number))
                     }
+                    // Pressed long: the menu of the conversation with them alone, as the list shows it.
+                    setOnLongClickListener {
+                        shown?.dismiss()
+                        memberMenu(activity, one, changed)
+                        true
+                    }
                 },
             )
         }
@@ -166,6 +172,26 @@ object GroupMenu {
             .setNegativeButton(android.R.string.cancel, null)
             .show()
             .also { field.requestFocus() ; it.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE) }
+    }
+
+    /** The menu of the conversation with [one] alone, its conversation looked for away from the screen. */
+    private fun memberMenu(activity: Activity, one: ThreadActivity.Member, changed: () -> Unit) {
+        thread {
+            val alone = runCatching { Store.thread(activity, one.number) }.getOrNull()
+            activity.runOnUiThread {
+                if (activity.isFinishing || activity.isDestroyed) return@runOnUiThread
+                fun opened(ask: String) = activity.startActivity(
+                    Intent(activity, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, one.number).putExtra(ThreadActivity.EXTRA_ASK, ask),
+                )
+                TalkMenu.show(
+                    activity, one.name, one.number, one.person, alone,
+                    // Tying and reading a certificate again are done from the conversation, where foodjis shows its list over.
+                    tie = { opened(ThreadActivity.ASK_TIE) }, refresh = { opened(ThreadActivity.ASK_REFRESH) },
+                    changed = changed, gone = changed,
+                    save = { alone?.let { Saving.save(activity, it, one.name) } },
+                )
+            }
+        }
     }
 
     /** Every message of the group's conversations, once the person has said so; [gone] once they are. */
