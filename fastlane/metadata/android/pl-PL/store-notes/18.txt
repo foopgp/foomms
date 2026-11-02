@@ -1,0 +1,6 @@
+• Trzy strony: Rozmowy, Nieprzeczytane, Mój profil.
+• Grupy nazwane na Twoim telefonie.
+• Mój profil: liczniki, wersje robocze, kopia zapasowa, Twoja wizytówka.
+• Przy uruchomieniu wybór Twojej wizytówki.
+• Grupy MMS do 20 członków.
+• Automatyczne ponowne połączenie po aktualizacji foodjis.

@@ -57,10 +57,17 @@ object Conf {
 
     fun mms(context: Context, on: Boolean) = kept(context).edit().putBoolean("mms", on).apply()
 
-    /** Whether a text that takes [pieces] SMS leaves as an MMS. */
+    /**
+     * Whether a text that takes [pieces] SMS leaves as an MMS: only a long
+     * one, and only when MMS may be sent. SMS arrive where MMS sometimes do
+     * not -- from one network to another --, and a few of them are no burden.
+     */
     fun asMms(context: Context, pieces: Int): Boolean = asMms(mms(context), pieces)
 
-    fun asMms(mms: Boolean, pieces: Int): Boolean = mms && pieces > 1
+    fun asMms(mms: Boolean, pieces: Int): Boolean = mms && pieces > SMS_MOST
+
+    /** The most SMS a text leaves in when it could be an MMS. */
+    const val SMS_MOST = 7
 
     /** Beyond this many SMS, the person is asked first: some phones put many back together badly, and each may be charged. */
     const val MANY_SMS = 10
@@ -71,15 +78,18 @@ object Conf {
     fun operatorSize(context: Context, on: Boolean) = kept(context).edit().putBoolean("operator_size", on).apply()
 
     /**
-     * How many a group MMS may go to, this phone included: ten pass with
-     * every network; French networks take far more.
+     * How many a group MMS may go to, this phone included. Twenty by
+     * default: the MMS standard has every network take twenty addresses
+     * (OMA-TS-MMS-CONF-V1_3 §10.2.5), and twenty members, oneself among
+     * them, are nineteen. A few networks take only ten -- Android's own
+     * configuration says so of TELUS --: the least it may be set to.
      */
-    fun groupMost(context: Context): Int = kept(context).getInt("group_most", GROUP_MOST).coerceIn(GROUP_MOST, GROUP_MOST_EVER)
+    fun groupMost(context: Context): Int = kept(context).getInt("group_most", GROUP_MOST).coerceIn(GROUP_LEAST, GROUP_MOST_EVER)
 
-    fun groupMost(context: Context, most: Int) = kept(context).edit().putInt("group_most", most.coerceIn(GROUP_MOST, GROUP_MOST_EVER)).apply()
+    fun groupMost(context: Context, most: Int) = kept(context).edit().putInt("group_most", most.coerceIn(GROUP_LEAST, GROUP_MOST_EVER)).apply()
 
-    /** The default, and the least it may be set to. */
-    const val GROUP_MOST = 10
+    const val GROUP_MOST = 20
+    const val GROUP_LEAST = 10
     const val GROUP_MOST_EVER = 255
 
 

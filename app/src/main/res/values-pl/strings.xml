@@ -8,9 +8,9 @@
     <string name="words_hint">Twoja wiadomość</string>
     <string name="sent">Wiadomość wysłana.</string>
     <string name="not_sent">Wiadomość niewysłana (%1$d).</string>
+    <string name="refused">⚠ Nie wysłano: odrzucone przez operatora</string>
     <string name="no_provider">foodjis nie jest zainstalowany lub nie odpowiada.</string>
-    <string name="failed">foodjis mówi: %1$s</string>
-    <string name="given_up">Przerwano.</string>
+    <string name="failed">%1$s</string>
     <string name="signed_certified">Podpisane przez %1$s, poświadczone.</string>
     <string name="signed_other">Podpisane przez %1$s, <b>niepoświadczone</b>.</string>
     <string name="unsigned">Bez podpisu.</string>
@@ -38,6 +38,7 @@
     <string name="standing_revoked">unieważniony</string>
     <string name="standing_broken">uszkodzony</string>
     <string name="locked_for">⚿ Wiadomość zaszyfrowana dla</string>
+    <string name="piece_for">dla</string>
     <string name="share">⤴ Udostępnij</string>
     <string name="save">↧ Zapisz</string>
     <string name="saved">Zapisano.</string>
@@ -87,6 +88,10 @@
     <string name="no_answer">Nie można odpowiedzieć temu nadawcy</string>
     <string name="no_certificate">Brak certyfikatu</string>
     <string name="tie">🔑 Powiąż z certyfikatem</string>
+    <string name="group_name">🏷 Nazwij grupę</string>
+    <string name="group_rename">🏷 Zmień nazwę grupy</string>
+    <string name="group_name_hint">Nazwa grupy</string>
+    <string name="group_name_own">Ta nazwa nie opuszcza twojego telefonu: każdy członek może nazwać grupę tak, jak uzna za stosowne.</string>
     <string name="mute">🔕 Wyłącz powiadomienia</string>
     <string name="unmute">🔔 Włącz powiadomienia</string>
     <string name="forget_talk">✖ Usuń rozmowę</string>
@@ -121,12 +126,13 @@
     <string name="mark_all_read_ask">Oznaczyć nieprzeczytane wiadomości (%1$d) jako przeczytane?</string>
     <string name="mark_read">○ Oznacz jako przeczytane</string>
     <string name="mark_unread">● Oznacz jako nieprzeczytane</string>
-    <string name="count_detail">%1$d wiadomości: %2$d SMS + %3$d MMS\nw tym %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d rozmów — %8$s bajtów</string>
+    <string name="count_detail">%1$d wiadomości: %2$d SMS + %3$d MMS\nw tym %4$d PGP: %5$d SMS + %6$d MMS\n%9$d odebranych: %13$d SMS + %14$d MMS\n%10$d wysłanych: %15$d SMS + %16$d MMS\n\n%7$d rozmów: %11$d indywidualnych + %12$d grupowych</string>
+    <string name="count_bytes">%1$s bajtów</string>
     <plurals name="count_detail_unread_rest">
-        <item quantity="one">, w tym %1$d PGP, w %2$d rozmowie</item>
-        <item quantity="few">, w tym %1$d PGP, w %2$d rozmowach</item>
-        <item quantity="many">, w tym %1$d PGP, w %2$d rozmowach</item>
-        <item quantity="other">, w tym %1$d PGP, w %2$d rozmowach</item>
+        <item quantity="one">, w tym %1$d PGP, w %2$d rozmowie.</item>
+        <item quantity="few">, w tym %1$d PGP, w %2$d rozmowach.</item>
+        <item quantity="many">, w tym %1$d PGP, w %2$d rozmowach.</item>
+        <item quantity="other">, w tym %1$d PGP, w %2$d rozmowach.</item>
     </plurals>
     <string name="switch_sign">Podpisz</string>
     <string name="switch_lock">Zaszyfruj</string>
@@ -163,6 +169,10 @@
     <string name="contact_show">👤 Pokaż kontakt</string>
     <string name="contact_add">👤 Dodaj do kontaktów</string>
     <string name="voice_recording">● Nagrywanie %1$s — puść, aby zakończyć</string>
+    <string name="voice_recording_mute">● Nagrywanie %1$s — 🔇 mikrofon nic nie słyszy</string>
+    <string name="voice_in_call">Mikrofon jest zajęty przez trwające połączenie.</string>
+    <string name="voice_silent">Nic nie nagrano: mikrofon jest pewnie używany gdzie indziej.</string>
+    <string name="voice_partly_silent">Uwaga: mikrofon nic nie słyszał przez część nagrania.</string>
     <string name="carrying_long">%1$s\n%2$s — %3$d kB</string>
     <string name="drop_attachment">Usuń załącznik</string>
     <string name="language_tag">pl</string>
@@ -224,6 +234,11 @@
     <string name="page_unread">Nieprzeczytane</string>
     <string name="page_unread_n">Nieprzeczytane (%1$d)</string>
     <string name="page_groups">Grupy MMS</string>
+    <string name="page_profile">Mój profil</string>
+    <string name="me_wizard_title">Która wizytówka jest twoja?</string>
+    <string name="me_wizard_text">Wskaż foomms, która wizytówka kontaktu jest twoja: reprezentuje cię w grupach, z twoim numerem i certyfikatem. Możesz ją zmienić w „Mój profil”.</string>
+    <string name="me_wizard_choose">Wybierz moją wizytówkę</string>
+    <string name="me_wizard_later">Później</string>
     <plurals name="talks_n">
         <item quantity="one">%d rozmowa</item>
         <item quantity="few">%d rozmowy</item>
@@ -231,10 +246,10 @@
         <item quantity="other">%d rozmowy</item>
     </plurals>
     <plurals name="unread_n">
-        <item quantity="one">%d nieprzeczytana</item>
-        <item quantity="few">%d nieprzeczytane</item>
-        <item quantity="many">%d nieprzeczytanych</item>
-        <item quantity="other">%d nieprzeczytanej</item>
+        <item quantity="one">%d nieprzeczytana wiadomość</item>
+        <item quantity="few">%d nieprzeczytane wiadomości</item>
+        <item quantity="many">%d nieprzeczytanych wiadomości</item>
+        <item quantity="other">%d nieprzeczytanej wiadomości</item>
     </plurals>
     <plurals name="groups_n">
         <item quantity="one">%d grupa</item>
@@ -249,10 +264,11 @@
         <item quantity="other">%d uczestnika</item>
     </plurals>
     <!-- Several chosen in a new message: the same to each, or one group MMS. -->
+    <string name="colon">": "</string>
     <string name="send_each">Wysyłka do każdego</string>
     <string name="send_group">MMS grupowy</string>
     <string name="send_each_note">Każdy dostaje własną wiadomość i odpowiada tylko Tobie.</string>
-    <string name="send_group_note">Jeden MMS dla wszystkich: każdy widzi, kto należy do grupy, i odpowiedzi wszystkich.</string>
+    <string name="send_group_note">Jeden MMS dla wszystkich, w którym każdy widzi, kto należy do grupy, i odpowiedzi wszystkich.</string>
     <string name="send_group_most">MMS grupowy trafia do 2–%1$d odbiorców.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Zmień kartę kontaktu</string>
@@ -278,14 +294,37 @@
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ wysłano do %1$d osób</string>
     <string name="write_to_each">✎ Nowa wiadomość do tych %1$d osób</string>
+    <string name="draft_said">✎ Wersja robocza: %1$s</string>
+    <string name="draft_found">Odnaleziono wersję roboczą</string>
+    <string name="draft_each_resume">⇉ Wersja robocza wysyłki do %1$d osób — wznów ją</string>
+    <string name="draft_replace">Zastąp</string>
+    <plurals name="drafts_n">
+        <item quantity="one">%d wersja robocza</item>
+        <item quantity="few">%d wersje robocze</item>
+        <item quantity="many">%d wersji roboczych</item>
+        <item quantity="other">%d wersji roboczej</item>
+    </plurals>
+    <string name="clear_drafts">Usuń wszystkie wersje robocze</string>
+    <plurals name="clear_drafts_ask">
+        <item quantity="one">Usunąć %d wersję roboczą? Jej tekst przepadnie.</item>
+        <item quantity="few">Usunąć %d wersje robocze? Ich tekst przepadnie.</item>
+        <item quantity="many">Usunąć %d wersji roboczych? Ich tekst przepadnie.</item>
+        <item quantity="other">Usunąć %d wersji roboczej? Jej tekst przepadnie.</item>
+    </plurals>
+    <plurals name="each_over_drafts">
+        <item quantity="one">%1$d z tych osób ma już własną wersję roboczą: wysyłka do każdego ją zastąpi.</item>
+        <item quantity="few">%1$d z tych osób mają już własne wersje robocze: wysyłka do każdego je zastąpi.</item>
+        <item quantity="many">%1$d z tych osób ma już własne wersje robocze: wysyłka do każdego je zastąpi.</item>
+        <item quantity="other">%1$d z tych osób ma już własne wersje robocze: wysyłka do każdego je zastąpi.</item>
+    </plurals>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Wszystkie kontakty (%1$d)</string>
     <string name="conf_group_most">Limit grupowego MMS</string>
-    <string name="conf_group_most_note">Liczba odbiorców jest ograniczona w zależności od operatora. Z dziesięcioma odbiorcami MMS zwykle przechodzi wszędzie; niektórzy operatorzy przyjmują znacznie więcej.</string>
+    <string name="conf_group_most_note">MMS-y są zwykle ograniczone do 20 odbiorców. Niektórzy operatorzy przyjmują znacznie więcej, nieliczni tylko dziesięciu.</string>
     <string name="group_over">Ta grupa liczy %1$d członków, wliczając Ciebie, ponad limit %2$d ustawiony w konfiguracji: operator może odrzucić wiadomość albo dostarczyć ją każdemu osobno.</string>
     <string name="group_over_send">Wyślij mimo to</string>
-    <string name="conf_mms_on">Włącz MMS</string>
-    <string name="conf_mms_on_note">Włączone: tekst dłuższy niż jeden SMS idzie jako jeden MMS, a załączniki, wiadomości głosowe i grupowe MMS są możliwe. Wyłączone: długi tekst idzie w kilku SMS-ach, i nic z tego. Odebrane MMS nadal się wyświetlają.</string>
-    <string name="mms_off">MMS są wyłączone w konfiguracji: bez załączników, wiadomości głosowych i grupowych MMS.</string>
+    <string name="conf_mms_on">Zezwalaj na wysyłanie MMS</string>
+    <string name="conf_mms_on_note">Pozwala wysyłać wiadomości grupowe, teksty dłuższe niż 8 SMS-ów, wiadomości głosowe, zdjęcia lub krótkie filmy. Między operatorami MMS dociera mniej pewnie niż SMS, a niektóre taryfy go dodatkowo naliczają. Inni operatorzy w ogóle nie obsługują MMS-ów, co sprzyja komunikatorom internetowym, a więc globalnej inwigilacji.</string>
+    <string name="mms_off">Wysyłanie MMS nie jest dozwolone w konfiguracji: ani załącznika, ani wiadomości głosowej, ani grupowego MMS.</string>
     <string name="many_sms">Ta wiadomość pójdzie w %1$d SMS-ach: niektóre telefony źle je składają, a operator może naliczyć każdy osobno.</string>
 </resources>

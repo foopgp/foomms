@@ -1,0 +1,6 @@
+• Trzy strony: Rozmowy, gdzie rozmowy we dwoje i grupy następują po sobie razem; Nieprzeczytane; oraz Mój profil.
+• Nazwij grupę: jej nazwa zastępuje twarze na pasku i pojawia się na liście oraz w powiadomieniach. Nie opuszcza Twojego telefonu.
+• Mój profil: wiadomości odebrane i wysłane, rozmowy indywidualne i grupowe, wersje robocze, kopia zapasowa oraz Twoja wizytówka „Ja” ze wszystkim, co można z nią zrobić.
+• Przy uruchomieniu foomms pyta, która wizytówka kontaktu jest Twoja, dopóki tego nie wskażesz.
+• Grupy MMS domyślnie do 20 członków.
+• Po aktualizacji foodjis foomms sam łączy się ponownie, bez okna błędu.

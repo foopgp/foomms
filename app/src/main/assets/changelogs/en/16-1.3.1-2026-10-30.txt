@@ -1,0 +1,6 @@
+• Drafts in the list ("✎ Draft"): an interrupted group or sending to each resumes with one press; "Delete all drafts".
+• Under 8 SMS, a text leaves as SMS, more sure to arrive: "Allow sending MMS".
+• A message the network refused says so under its bubble.
+• A silent voice message, the microphone taken by a call, is not sent.
+• Groups: 👥 in notifications, menu rearranged.
+• Certificate frame in the title, the details and the search.

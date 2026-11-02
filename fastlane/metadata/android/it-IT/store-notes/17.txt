@@ -1,0 +1,6 @@
+• Bozze nell'elenco; un gruppo o un invio multiplo interrotto si riprende con un tocco.
+• Sotto gli 8 SMS il testo parte come SMS, più sicuro di arrivare.
+• Messaggio rifiutato dall'operatore segnalato; un vocale muto non viene inviato.
+• Nuovo messaggio: pulsanti «Invio multiplo» e «MMS di gruppo».
+• Messaggi cifrati: ⚿ non letto, ⚷ letto; 👥 per i gruppi.
+• Cornici di certificato e finestre di errore più chiare.

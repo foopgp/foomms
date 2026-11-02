@@ -1,0 +1,6 @@
+• Trois pages : Conversations, Non-lus, Mon profil.
+• Groupes nommés sur votre téléphone.
+• Mon profil : décomptes, brouillons, sauvegarde, votre fiche.
+• Au lancement, choix de votre fiche contact.
+• Groupes MMS jusqu'à 20 membres.
+• Reconnexion automatique après une mise à jour de foodjis.

@@ -36,8 +36,9 @@ object Backup {
         val xml = Xml.newSerializer()
         xml.setOutput(out, "UTF-8")
         xml.startDocument("UTF-8", true)
-        val sms = resolver.query(Uri.parse("content://sms"), null, within(false), null, "date ASC")
-        val mms = resolver.query(Uri.parse("content://mms"), null, within(true), null, "date ASC")
+        // Drafts are not kept: foomms's are a mark in the conversation, their words held by foomms alone.
+        val sms = resolver.query(Uri.parse("content://sms"), null, within(false)?.let { "($it) AND ${Store.SMS_NOT_DRAFT}" } ?: Store.SMS_NOT_DRAFT, null, "date ASC")
+        val mms = resolver.query(Uri.parse("content://mms"), null, within(true)?.let { "($it) AND ${Store.MMS_NOT_DRAFT}" } ?: Store.MMS_NOT_DRAFT, null, "date ASC")
         var smsCount = 0
         var mmsCount = 0
         xml.startTag(null, "smses")

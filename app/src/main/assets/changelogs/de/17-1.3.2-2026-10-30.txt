@@ -1,0 +1,4 @@
+• Neue Nachricht an mehrere: zwei Schaltflächen, „✎ Einzeln senden“ und „✎ Gruppen-MMS“, direkt darüber erklärt.
+• Geschlossene verschlüsselte Nachricht: ⚿ ungelesen, ⚷ gelesen.
+• Verschlüsselte Datei: „für“ vor den Gesichtern ihrer Empfänger.
+• Was foodjis sagt, steht hinter seinem Symbol; das Verlassen eines foodjis-Bildschirms öffnet kein Fenster mehr; ein Fehler bietet weder „Teilen“ noch „Speichern“ an.

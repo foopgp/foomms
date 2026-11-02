@@ -1,0 +1,6 @@
+• Üç sayfa: ikili yazışmaların ve grupların birlikte sıralandığı Konuşmalar; Okunmamışlar; ve Profilim.
+• Bir gruba ad vermek: adı çubuktaki yüzlerin yerini alır, listede ve bildirimlerde görünür. Telefonunuzdan çıkmaz.
+• Profilim: alınan ve gönderilen mesajlar, bireysel ve grup konuşmaları, taslaklar, yedekleme ve yapılabilecek her şeyle birlikte «Ben» kartınız.
+• Açılışta foomms, siz söyleyene kadar hangi kişi kartının sizin olduğunu sorar.
+• Varsayılan olarak 20 üyeye kadar MMS grupları.
+• foodjis güncellendikten sonra foomms kendiliğinden, hata penceresi olmadan yeniden bağlanır.

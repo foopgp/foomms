@@ -3,15 +3,22 @@ foomms è una messaggistica SMS e MMS che cifra e firma i vostri messaggi con PG
 Cosa potete fare:
 
 • Scrivere a un numero: il messaggio è cifrato per il certificato del suo titolare e firmato dalla vostra chiave. Leggere ciò che vi viene inviato, e sapere chi l'ha firmato.
+• Scrivere a un gruppo fino a venti persone: ognuno vede chi ha scritto e risponde a tutti, e l'elenco dei membri viaggia con ogni messaggio. Oppure inviare lo stesso messaggio a ciascuno separatamente, cifrato solo per lui.
 • Riconoscere un messaggio a colpo d'occhio, dai colori di foodjis: verde cifrato e certificato, blu firmato e certificato, giallo cifrato, rosso in chiaro e non certificato, grigio chiuso.
 • Collegare un numero al certificato del suo titolare, nella vostra rubrica.
 • Allegare una foto, un'immagine, un contatto, la vostra posizione o un file; registrare un messaggio vocale tenendo premuto il campo vuoto.
 • Cercare nelle conversazioni; farne il backup e ripristinarle nel formato di «SMS Backup & Restore».
 • Farne l'app di messaggistica del telefono.
 
-I messaggi cifrati viaggiano in armatura ASCII, leggibili da qualsiasi altra applicazione PGP. Si aprono con una sola presentazione della chiave, e si richiudono dopo il tempo scelto.
+Ciò che foomms fa meglio delle messaggistiche offerte da aziende:
+• una cifratura end-to-end sotto la vostra sola chiave, che nessun altro possiede;
+• l'interoperabilità: il vostro interlocutore può usare un'altra applicazione PGP, nulla vi lega a foomms;
+• nessun server centrale, solo la rete del vostro operatore;
+• nemmeno bisogno di Internet.
 
-L'applicazione non chiede alcun account, non passa da alcun nostro server e non mostra pubblicità: è la rete del telefono a trasportare i messaggi.
+Avvicinare la chiave una volta apre più messaggi insieme, che si richiudono dopo il tempo che avete scelto.
+
+L'applicazione non chiede alcun account, non passa da alcun nostro server e non mostra pubblicità: è la rete del telefono a trasportare i messaggi. Sempre che l'operatore trasporti gli MMS: alcuni non lo fanno più, o non l'hanno mai fatto, come in Germania o in Giappone. Lì restano solo messaggistiche che passano da server su Internet, il che facilita la sorveglianza globale.
 
 Vi servono foodjis, una chiave di sicurezza OpenPGP contactless e un telefono dotato di lettore NFC.
 

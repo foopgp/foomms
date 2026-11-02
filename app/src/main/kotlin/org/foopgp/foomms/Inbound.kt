@@ -83,8 +83,9 @@ object Inbound {
                 val ours = message.to.size > 1 || message.parts.any { Members.isPart(it.name ?: it.location) }
                 if (ours && Me.mine(context, from)) return runCatching { Echo.back(context, message.to, message) }.let { }
                 Keep.mmsReceived(context, message, pdu.size, intent.getIntExtra(EXTRA_SUBSCRIPTION, -1))
+                // With no words, what it carries: a group's 👥 first.
                 val words = message.parts.filter { it.isText }.joinToString("\n") { it.text() }
-                    .ifEmpty { "📎".repeat(minOf(3, message.parts.count { it.type != "application/smil" })) }
+                    .ifEmpty { Members.glyphs(message.parts.filter { it.type != "application/smil" }.map { it.name ?: it.location }) }
                 // Its form, of its parts: a PGP message carried whole, or in its words.
                 val sealed = message.parts.filter { !it.isText && (it.type == Pgp.TYPE || it.name.orEmpty().lowercase().let { n -> n.endsWith(".pgp") || n.endsWith(".gpg") || n.endsWith(".asc") }) }
                 val form = Form.of(Form.of(words) == Form.LOCKED || sealed.any { Pgp.isLocked(it.bytes) }, Form.of(words) != Form.PLAIN || sealed.isNotEmpty())

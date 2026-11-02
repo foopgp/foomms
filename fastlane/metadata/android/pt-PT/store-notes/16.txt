@@ -1,0 +1,6 @@
+• Rascunhos na lista («✎ Rascunho»): um grupo ou um envio múltiplo interrompido retoma-se com um toque; «Apagar todos os rascunhos».
+• Com menos de 8 SMS, o texto parte como SMS, que chega com mais segurança: «Permitir o envio de MMS».
+• Uma mensagem recusada pelo operador di-lo sob a sua bolha.
+• Uma mensagem de voz muda, microfone ocupado por uma chamada, não é enviada.
+• Grupos: 👥 nas notificações, menu reorganizado.
+• Moldura do certificado no título, nos detalhes e na pesquisa.

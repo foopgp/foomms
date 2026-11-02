@@ -1,0 +1,4 @@
+• New message to several: two buttons, "✎ Send to each" and "✎ Group MMS", explained just above.
+• Closed encrypted message: ⚿ while unread, ⚷ once read.
+• Encrypted file: "for" before its recipients' faces.
+• What foodjis says shows behind its icon; leaving a foodjis screen no longer opens a window; an error no longer offers "Share" or "Save".

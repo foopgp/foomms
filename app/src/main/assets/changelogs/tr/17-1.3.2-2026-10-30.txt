@@ -1,0 +1,4 @@
+• Birkaç kişiye yeni mesaj: hemen üstünde açıklanan iki düğme, "✎ Herkese ayrı" ve "✎ Grup MMS'i".
+• Kapalı şifreli mesaj: okunmadıysa ⚿, okunduysa ⚷.
+• Şifreli dosya: alıcıların yüzlerinden önce "alıcı:".
+• foodjis'in söyledikleri simgesinin ardında görünür; bir foodjis ekranından çıkmak artık pencere açmaz; bir hata artık "Paylaş" ya da "Kaydet" önermez.

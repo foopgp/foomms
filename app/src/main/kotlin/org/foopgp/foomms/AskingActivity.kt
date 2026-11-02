@@ -25,9 +25,10 @@ abstract class AskingActivity : Activity() {
     private class Errand(
         val request: Intent,
         val input: ByteArray?,
-        val failed: (String) -> Unit,
+        val failed: (CharSequence) -> Unit,
         val shown: (Intent?) -> Boolean,
         val notForUs: () -> Unit,
+        val gaveUp: () -> Unit,
         val done: (Provider.Answer.Done) -> Unit,
     )
 
@@ -53,13 +54,15 @@ abstract class AskingActivity : Activity() {
     fun ask(
         request: Intent,
         input: ByteArray?,
-        failed: (String) -> Unit,
+        failed: (CharSequence) -> Unit,
         screened: (Intent?) -> Boolean = { false },
         notForUs: () -> Unit = {},
+        // The person left foodjis's screen: nothing to tell them, what they did being theirs.
+        gaveUp: () -> Unit = {},
         done: (Provider.Answer.Done) -> Unit,
     ) {
         shown = 0
-        errand = Errand(request, input, failed, screened, notForUs, done)
+        errand = Errand(request, input, failed, screened, notForUs, gaveUp, done)
         again(null)
     }
 
@@ -76,16 +79,16 @@ abstract class AskingActivity : Activity() {
                 is Provider.Answer.Failed -> {
                     this.errand = null
                     if (answer.code == Provider.ERROR_NOT_FOR_US) errand.notForUs()
-                    errand.failed(getString(R.string.failed, answer.says))
+                    errand.failed(Foodjis.says(this, answer.says))
                 }
                 is Provider.Answer.Ask ->
                     if (++shown > MOST) {
                         this.errand = null
-                        errand.failed(getString(R.string.failed, "too many questions"))
+                        errand.failed(Foodjis.says(this, "too many questions"))
                     } else {
                         screening(true)
                         runCatching { startIntentSenderForResult(answer.screen.intentSender, SCREEN, null, 0, 0, 0) }
-                            .onFailure { screening(false) ; this.errand = null ; errand.failed(getString(R.string.failed, it.message)) }
+                            .onFailure { screening(false) ; this.errand = null ; errand.failed(Foodjis.says(this, it.message)) }
                     }
             }
         }
@@ -99,7 +102,7 @@ abstract class AskingActivity : Activity() {
             if (errand?.shown?.invoke(data) == true) { errand = null ; return }
             return again(data?.extras)
         }
-        errand?.failed?.invoke(getString(R.string.given_up))
+        errand?.gaveUp?.invoke()
         errand = null
     }
 

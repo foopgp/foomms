@@ -8,9 +8,9 @@
     <string name="words_hint">A sua mensagem</string>
     <string name="sent">Mensagem enviada.</string>
     <string name="not_sent">Mensagem não enviada (%1$d).</string>
+    <string name="refused">⚠ Não enviado: recusado pelo operador</string>
     <string name="no_provider">O foodjis não está instalado ou não responde.</string>
-    <string name="failed">O foodjis diz: %1$s</string>
-    <string name="given_up">Cancelado.</string>
+    <string name="failed">%1$s</string>
     <string name="signed_certified">Assinado por %1$s, certificado.</string>
     <string name="signed_other">Assinado por %1$s, <b>não certificado</b>.</string>
     <string name="unsigned">Não assinado.</string>
@@ -38,6 +38,7 @@
     <string name="standing_revoked">revogado</string>
     <string name="standing_broken">defeituoso</string>
     <string name="locked_for">⚿ Mensagem cifrada para</string>
+    <string name="piece_for">para</string>
     <string name="share">⤴ Partilhar</string>
     <string name="save">↧ Guardar</string>
     <string name="saved">Guardado.</string>
@@ -87,6 +88,10 @@
     <string name="no_answer">Não é possível responder a este remetente</string>
     <string name="no_certificate">Sem certificado</string>
     <string name="tie">🔑 Associar a um certificado</string>
+    <string name="group_name">🏷 Dar nome ao grupo</string>
+    <string name="group_rename">🏷 Mudar o nome do grupo</string>
+    <string name="group_name_hint">Nome do grupo</string>
+    <string name="group_name_own">Este nome não sai do seu telefone: cada membro pode dar ao grupo o nome que entender.</string>
     <string name="mute">🔕 Desativar as notificações</string>
     <string name="unmute">🔔 Ativar as notificações</string>
     <string name="forget_talk">✖ Apagar a conversa</string>
@@ -121,10 +126,11 @@
     <string name="mark_all_read_ask">Marcar as %1$d mensagens não lidas como lidas?</string>
     <string name="mark_read">○ Marcar como lida</string>
     <string name="mark_unread">● Marcar como não lida</string>
-    <string name="count_detail">%1$d mensagens: %2$d SMS + %3$d MMS\ndas quais %4$d PGP: %5$d SMS + %6$d MMS\n\n%7$d conversas — %8$s bytes</string>
+    <string name="count_detail">%1$d mensagens: %2$d SMS + %3$d MMS\ndas quais %4$d PGP: %5$d SMS + %6$d MMS\n%9$d recebidas: %13$d SMS + %14$d MMS\n%10$d enviadas: %15$d SMS + %16$d MMS\n\n%7$d conversas: %11$d individuais + %12$d de grupo</string>
+    <string name="count_bytes">%1$s bytes</string>
     <plurals name="count_detail_unread_rest">
-        <item quantity="one">, das quais %1$d PGP, em %2$d conversa</item>
-        <item quantity="other">, das quais %1$d PGP, em %2$d conversas</item>
+        <item quantity="one">, das quais %1$d PGP, em %2$d conversa.</item>
+        <item quantity="other">, das quais %1$d PGP, em %2$d conversas.</item>
     </plurals>
     <string name="switch_sign">Assinar</string>
     <string name="switch_lock">Cifrar</string>
@@ -161,6 +167,10 @@
     <string name="contact_show">👤 Mostrar o contacto</string>
     <string name="contact_add">👤 Adicionar aos contactos</string>
     <string name="voice_recording">● A gravar %1$s — solte para parar</string>
+    <string name="voice_recording_mute">● A gravar %1$s — 🔇 o microfone não capta nada</string>
+    <string name="voice_in_call">O microfone está ocupado por uma chamada em curso.</string>
+    <string name="voice_silent">Nada foi gravado: o microfone está provavelmente a ser usado noutro lado.</string>
+    <string name="voice_partly_silent">Atenção: o microfone não captou nada durante parte da gravação.</string>
     <string name="carrying_long">%1$s\n%2$s — %3$d kB</string>
     <string name="drop_attachment">Retirar o anexo</string>
     <string name="language_tag">pt</string>
@@ -222,13 +232,18 @@
     <string name="page_unread">Não lidas</string>
     <string name="page_unread_n">Não lidas (%1$d)</string>
     <string name="page_groups">Grupos MMS</string>
+    <string name="page_profile">O meu perfil</string>
+    <string name="me_wizard_title">Qual é a sua ficha de contacto?</string>
+    <string name="me_wizard_text">Indique ao foomms qual ficha de contacto é a sua: representa-o nos grupos, com o seu número e o seu certificado. Pode mudá-la em «O meu perfil».</string>
+    <string name="me_wizard_choose">Escolher a minha ficha</string>
+    <string name="me_wizard_later">Mais tarde</string>
     <plurals name="talks_n">
         <item quantity="one">%d conversa</item>
         <item quantity="other">%d conversas</item>
     </plurals>
     <plurals name="unread_n">
-        <item quantity="one">%d não lida</item>
-        <item quantity="other">%d não lidas</item>
+        <item quantity="one">%d mensagem não lida</item>
+        <item quantity="other">%d mensagens não lidas</item>
     </plurals>
     <plurals name="groups_n">
         <item quantity="one">%d grupo</item>
@@ -239,10 +254,11 @@
         <item quantity="other">%d membros</item>
     </plurals>
     <!-- Several chosen in a new message: the same to each, or one group MMS. -->
+    <string name="colon">": "</string>
     <string name="send_each">Envio múltiplo</string>
     <string name="send_group">MMS de grupo</string>
     <string name="send_each_note">Cada um recebe a sua própria mensagem e responde só a si.</string>
-    <string name="send_group_note">Um só MMS para todos: cada um vê quem faz parte do grupo, e as respostas de todos.</string>
+    <string name="send_group_note">Um só MMS para todos, em que cada um vê quem faz parte do grupo e as respostas de todos.</string>
     <string name="send_group_most">Um MMS de grupo vai de 2 a %1$d destinatários.</string>
     <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Mudar de ficha de contacto</string>
@@ -268,14 +284,31 @@
     <!-- A message sent to each of several at once, in the conversation of each. -->
     <string name="sent_to_each">⇉ enviado a %1$d pessoas</string>
     <string name="write_to_each">✎ Nova mensagem para estas %1$d pessoas</string>
+    <string name="draft_said">✎ Rascunho: %1$s</string>
+    <string name="draft_found">Rascunho recuperado</string>
+    <string name="draft_each_resume">⇉ Rascunho de um envio múltiplo a %1$d pessoas — retomá-lo</string>
+    <string name="draft_replace">Substituir</string>
+    <plurals name="drafts_n">
+        <item quantity="one">%d rascunho</item>
+        <item quantity="other">%d rascunhos</item>
+    </plurals>
+    <string name="clear_drafts">Apagar todos os rascunhos</string>
+    <plurals name="clear_drafts_ask">
+        <item quantity="one">Apagar %d rascunho? O seu texto será perdido.</item>
+        <item quantity="other">Apagar os %d rascunhos? O seu texto será perdido.</item>
+    </plurals>
+    <plurals name="each_over_drafts">
+        <item quantity="one">%1$d destas pessoas já tem um rascunho seu: o envio múltiplo vai substituí-lo.</item>
+        <item quantity="other">%1$d destas pessoas já têm um rascunho seu: o envio múltiplo vai substituí-los.</item>
+    </plurals>
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Todos os contactos (%1$d)</string>
     <string name="conf_group_most">Limite de grupo MMS</string>
-    <string name="conf_group_most_note">O número de destinatários é limitado consoante o operador. Com dez destinatários, um MMS passa geralmente em todo o lado; alguns operadores aceitam muitos mais.</string>
+    <string name="conf_group_most_note">Os MMS costumam estar limitados a 20 destinatários. Alguns operadores aceitam muitos mais, uns poucos apenas dez.</string>
     <string name="group_over">Este grupo tem %1$d membros, incluindo si, acima do limite de %2$d fixado na configuração: o operador pode recusar a mensagem, ou entregá-la a cada um separadamente.</string>
     <string name="group_over_send">Enviar mesmo assim</string>
-    <string name="conf_mms_on">Ativar os MMS</string>
-    <string name="conf_mms_on_note">Ativados, um texto mais longo que um SMS parte como um MMS, e podem enviar-se anexos, mensagens de voz e MMS de grupo. Desativados, um texto longo parte em vários SMS, e nada disso. Os MMS recebidos continuam a aparecer.</string>
-    <string name="mms_off">Os MMS estão desativados na configuração: nem anexo, nem mensagem de voz, nem MMS de grupo.</string>
+    <string name="conf_mms_on">Permitir o envio de MMS</string>
+    <string name="conf_mms_on_note">Permite enviar mensagens de grupo, textos com mais de 8 SMS, mensagens de voz, fotografias ou vídeos curtos. De um operador para outro, um MMS chega com menos segurança do que um SMS, e alguns tarifários cobram-no. Outros operadores não suportam MMS, o que favorece as mensagens pela Internet e, portanto, a vigilância global.</string>
+    <string name="mms_off">O envio de MMS não está permitido na configuração: nem anexo, nem mensagem de voz, nem grupo MMS.</string>
     <string name="many_sms">Esta mensagem parte em %1$d SMS: alguns telefones juntam-nos mal, e o seu operador pode cobrá-los um a um.</string>
 </resources>

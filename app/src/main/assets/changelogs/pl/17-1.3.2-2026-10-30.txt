@@ -1,0 +1,4 @@
+• Nowa wiadomość do kilku osób: dwa przyciski, „✎ Wysyłka do każdego” i „✎ MMS grupowy”, objaśnione tuż nad nimi.
+• Zamknięta zaszyfrowana wiadomość: ⚿ nieprzeczytana, ⚷ przeczytana.
+• Zaszyfrowany plik: „dla” przed twarzami odbiorców.
+• To, co mówi foodjis, widać za jego ikoną; wyjście z ekranu foodjis nie otwiera już okna; błąd nie proponuje już „Udostępnij” ani „Zapisz”.

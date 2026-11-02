@@ -40,8 +40,11 @@ class WriteActivity : Activity() {
     private val full = java.util.concurrent.ConcurrentHashMap<String, Whom>()
     private val reading = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
 
-    /** Several chosen: the same message to each, or one MMS to all of them. */
-    private var asGroup = false
+    /** How the draft to those chosen was to leave, when there is one: its button stands out. */
+    private var drafted: Drafts.How? = null
+
+    /** The people last looked up for a draft: it is found once for them, not again at each drawing. */
+    private var draftOf: String? = null
 
     private val chosen = LinkedHashMap<String, String>()
     private var shown: List<Whom> = emptyList()
@@ -52,8 +55,7 @@ class WriteActivity : Activity() {
     private lateinit var picked: LinearLayout
     private lateinit var go: android.widget.Button
 
-    /** Under those chosen, when there are several: to each, or as a group; and what that means. */
-    private lateinit var how: LinearLayout
+    /** At the foot, when there are several: what each way means, then a button each -- to each, or as a group. */
     private lateinit var toEach: android.widget.Button
     private lateinit var toGroup: android.widget.Button
     private lateinit var howSaid: android.widget.TextView
@@ -85,21 +87,12 @@ class WriteActivity : Activity() {
         }
         // Whom it is for so far, one small button each: pressed, that one is taken off.
         picked = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
-        go = Look.button(this, getString(R.string.whom_write)) { write() }
-        toEach = Look.small(this, getString(R.string.send_each)) { asGroup = false ; drawPicked() }.apply { textSize = 15f }
-        toGroup = Look.small(this, getString(R.string.send_group)) { asGroup = true ; drawPicked() }.apply { textSize = 15f }
-        howSaid = Look.words(this, "", size = 13f, muted = true).apply { setPadding(Look.dp(context, 4), 0, Look.dp(context, 4), Look.dp(context, 4)) }
-        how = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            addView(
-                LinearLayout(context).apply {
-                    orientation = LinearLayout.HORIZONTAL
-                    addView(toEach, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-                    addView(toGroup, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-                },
-            )
-            addView(howSaid)
-        }
+        go = Look.button(this, getString(R.string.whom_write)) { write(group = false) }
+        // The pencil of "Write", which these two take the place of.
+        val pencil = getString(R.string.whom_write).substringBefore(' ')
+        toEach = Look.button(this, "$pencil ${getString(R.string.send_each)}") { write(group = false) }
+        toGroup = Look.button(this, "$pencil ${getString(R.string.send_group)}") { write(group = true) }
+        howSaid = Look.words(this, "", size = 13f, muted = true).apply { setPadding(Look.dp(context, 4), Look.dp(context, 4), Look.dp(context, 4), Look.dp(context, 4)) }
         list = ListView(this).apply {
             divider = null
             adapter = rows
@@ -111,9 +104,16 @@ class WriteActivity : Activity() {
                 setPadding(pad, pad / 2, pad, pad / 2)
                 addView(asked)
                 addView(HorizontalScrollView(context).apply { addView(picked) ; isHorizontalScrollBarEnabled = false })
-                addView(how)
                 addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
-                addView(go, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+                addView(howSaid)
+                addView(
+                    LinearLayout(context).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        addView(go, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                        addView(toEach, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                        addView(toGroup, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                    },
+                )
             },
         )
         Edges.fit(this)
@@ -230,55 +230,76 @@ class WriteActivity : Activity() {
         val most = Conf.groupMost(this) - 1
         val mms = Conf.mms(this)
         val groupable = chosen.size in 2..most && known && mms
-        if (!groupable) asGroup = false
-        how.visibility = if (chosen.size >= 2) View.VISIBLE else View.GONE
+        // A draft to these very people: the way it was to leave stands out, and is said.
+        val these = chosen.keys.mapNotNull { Phone.plain(it) ?: it }.sorted().joinToString(",")
+        if (these != draftOf) {
+            draftOf = these
+            drafted = if (chosen.size >= 2) Drafts.how(this, chosen.keys.toList()) else null
+            if (drafted != null) android.widget.Toast.makeText(this, R.string.draft_found, android.widget.Toast.LENGTH_SHORT).show()
+        }
+        val several = chosen.size >= 2
+        go.visibility = if (several) View.GONE else View.VISIBLE
+        toEach.visibility = if (several) View.VISIBLE else View.GONE
+        toGroup.visibility = toEach.visibility
+        howSaid.visibility = toEach.visibility
         toGroup.isEnabled = groupable
         toGroup.alpha = if (groupable) 1f else 0.38f
-        // The one chosen orange, the other as any button: grey would read as not to be pressed.
-        for ((button, on) in listOf(toEach to !asGroup, toGroup to asGroup)) {
+        // The draft's way orange, the other as any button.
+        for ((button, on) in listOf(toEach to (drafted == Drafts.How.EACH), toGroup to (drafted == Drafts.How.GROUP && groupable))) {
             // A new face brings its own padding, thinner: the button's own put back, so that it keeps its size.
             val (left, top, right, bottom) = listOf(button.paddingLeft, button.paddingTop, button.paddingRight, button.paddingBottom)
             button.background = Look.buttonFace(this, if (on) Look.ORANGE else Look.FACE)
             button.setPadding(left, top, right, bottom)
-            button.setTypeface(null, if (on) Typeface.BOLD else Typeface.NORMAL)
+            // Bold either way, as "Write", which they take the place of.
+            button.setTypeface(null, Typeface.BOLD)
         }
-        howSaid.text = when {
-            asGroup -> getString(R.string.send_group_note)
-            groupable -> getString(R.string.send_each_note)
-            !mms -> getString(R.string.mms_off)
-            !known -> getString(R.string.group_needs_me)
-            else -> getString(R.string.send_group_most, most)
-        }
+        // Each way and what it means, its name first; a group that cannot be, why.
+        fun way(name: Int, said: String) = android.text.SpannableStringBuilder()
+            .append(getString(name), android.text.style.StyleSpan(Typeface.BOLD), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            .append(getString(R.string.colon)).append(said)
+        howSaid.text = android.text.SpannableStringBuilder()
+            .append(way(R.string.send_each, getString(R.string.send_each_note))).append("\n")
+            .append(
+                way(
+                    R.string.send_group,
+                    when {
+                        groupable -> getString(R.string.send_group_note)
+                        !mms -> getString(R.string.mms_off)
+                        !known -> getString(R.string.group_needs_me)
+                        else -> getString(R.string.send_group_most, most)
+                    },
+                ),
+            )
         go.isEnabled = chosen.isNotEmpty() || Phone.plain(asked.text.toString()) != null
     }
 
     /** One chosen: their conversation; several: the same to each, separately, what was shared with this page included. */
-    private fun write() {
+    private fun write(group: Boolean) {
         Phone.plain(asked.text.toString())?.let { typed -> if (chosen.keys.none { Phone.same(it, typed) }) chosen[typed] = typed }
         if (chosen.isEmpty()) return
         val text = intent.getStringExtra(Intent.EXTRA_TEXT)
         @Suppress("DEPRECATION")
         val carried = intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)
-        val next = if (chosen.size == 1) {
-            Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, chosen.keys.first())
-        } else if (asGroup) {
-            // The group's conversation: those it already has, with this phone among the numbers or without; else a new one.
-            val numbers = chosen.keys.toList()
-            val me = Me.number(this)
-            val threads = Store.groupThreads(this, numbers, Me.all(this)).ifEmpty {
-                listOfNotNull(runCatching { android.provider.Telephony.Threads.getOrCreateThreadId(this, (numbers + listOfNotNull(me)).toSet()) }.getOrNull())
-            }
-            Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, numbers.first())
-                .putExtra(ThreadActivity.EXTRA_THREAD, threads.firstOrNull() ?: -1L)
-                .putExtra(ThreadActivity.EXTRA_THREADS, threads.toLongArray())
-        } else {
-            Intent(this, ManyActivity::class.java).putExtra(ManyActivity.EXTRA_NUMBERS, chosen.keys.toTypedArray())
+        fun go(next: Intent) {
+            next.putExtra(Intent.EXTRA_TEXT, text)
+            // What was shared goes on with the page, and the right to read it with it.
+            carried?.let { next.putExtra(Intent.EXTRA_STREAM, it) ; next.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) ; next.clipData = android.content.ClipData.newRawUri(null, it) }
+            startActivity(next)
+            finish()
         }
-        next.putExtra(Intent.EXTRA_TEXT, text)
-        // What was shared goes on with the page, and the right to read it with it.
-        carried?.let { next.putExtra(Intent.EXTRA_STREAM, it) ; next.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) ; next.clipData = android.content.ClipData.newRawUri(null, it) }
-        startActivity(next)
-        finish()
+        when {
+            chosen.size == 1 -> go(Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, chosen.keys.first()))
+            // The group's conversation may have to be looked for among them all: not on the main thread.
+            group -> {
+                val numbers = chosen.keys.toList()
+                go.isEnabled = false
+                thread {
+                    val next = ThreadActivity.forGroup(this, numbers)
+                    runOnUiThread { if (!isFinishing && !isDestroyed) go(next) }
+                }
+            }
+            else -> go(Intent(this, ManyActivity::class.java).putExtra(ManyActivity.EXTRA_NUMBERS, chosen.keys.toTypedArray()))
+        }
     }
 
     private val rows = object : BaseAdapter() {

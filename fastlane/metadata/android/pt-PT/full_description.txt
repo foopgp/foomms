@@ -3,15 +3,22 @@ O foomms é uma aplicação de mensagens SMS e MMS que cifra e assina as suas me
 O que pode fazer:
 
 • Escrever para um número: a mensagem é cifrada para o certificado do seu titular e assinada pela sua chave. Ler o que lhe enviam, e saber quem o assinou.
+• Escrever para um grupo de até vinte pessoas: cada um vê quem escreveu e responde a todos, e a lista de membros viaja com cada mensagem. Ou enviar a mesma mensagem a cada um separadamente, cifrada só para ele.
 • Reconhecer uma mensagem num relance, pelas cores do foodjis: verde cifrada e certificada, azul assinada e certificada, amarelo cifrada, vermelho em claro e não certificada, cinzento fechada.
 • Associar um número ao certificado do seu titular, na sua lista de contactos.
 • Anexar uma fotografia, uma imagem, um contacto, a sua localização ou um ficheiro; gravar uma mensagem de voz mantendo premido o campo vazio.
 • Pesquisar nas conversas; fazer a sua cópia de segurança e restaurá-las no formato do «SMS Backup & Restore».
 • Torná-la a aplicação de mensagens do telemóvel.
 
-As mensagens cifradas viajam em armadura ASCII, legíveis por qualquer outra aplicação PGP. Abrem-se com uma única apresentação da chave, e voltam a fechar-se ao fim do tempo escolhido.
+O que o foomms faz melhor do que as mensagens servidas por empresas:
+• uma cifragem de ponta a ponta sob a sua única chave, que mais ninguém detém;
+• a interoperabilidade: o seu interlocutor pode usar outra aplicação PGP, nada o prende ao foomms;
+• nenhum servidor central, apenas a rede do seu operador;
+• nem sequer é preciso Internet.
 
-A aplicação não pede nenhuma conta, não passa por nenhum servidor nosso e não mostra publicidade: é a rede do telemóvel que transporta as mensagens.
+Aproximar a sua chave uma vez abre várias mensagens de uma só vez, que se voltam a fechar ao fim do tempo que escolheu.
+
+A aplicação não pede nenhuma conta, não passa por nenhum servidor nosso e não mostra publicidade: é a rede do telemóvel que transporta as mensagens. Desde que o operador transporte os MMS: alguns já não o fazem, ou nunca o fizeram, como na Alemanha ou no Japão. Aí restam apenas mensagens que passam por servidores na Internet, o que facilita a vigilância global.
 
 Precisa do foodjis, de uma chave de segurança OpenPGP sem contacto e de um telefone com leitor NFC.
 

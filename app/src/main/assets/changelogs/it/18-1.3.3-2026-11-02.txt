@@ -1,0 +1,6 @@
+• Tre pagine: Conversazioni, dove gli scambi a due e i gruppi si susseguono insieme; Non letti; e Il mio profilo.
+• Dare un nome a un gruppo: il suo nome sostituisce i volti nella barra e compare nell'elenco e nelle notifiche. Non lascia il tuo telefono.
+• Il mio profilo: i messaggi ricevuti e inviati, le conversazioni individuali e di gruppo, le bozze, il backup e la tua scheda «Io» con tutto ciò che se ne può fare.
+• All'avvio, foomms chiede quale scheda contatto è la tua, finché non l'hai indicato.
+• Gruppi MMS fino a 20 membri per impostazione predefinita.
+• Dopo un aggiornamento di foodjis, foomms si ricollega da solo, senza finestra di errore.

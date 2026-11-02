@@ -3,15 +3,22 @@ foomms es una mensajería SMS y MMS que cifra y firma sus mensajes con PGP. No h
 Lo que puede hacer:
 
 • Escribir a un número: el mensaje se cifra para el certificado de su titular y se firma con su llave. Leer lo que le envían y saber quién lo ha firmado.
+• Escribir a un grupo de hasta veinte personas: cada uno ve quién ha escrito y responde a todos, y la lista de miembros viaja con cada mensaje. O enviar el mismo mensaje a cada uno por separado, cifrado solo para él.
 • Reconocer un mensaje de un vistazo, por los colores de foodjis: verde cifrado y certificado, azul firmado y certificado, amarillo cifrado, rojo en claro y sin certificar, gris cerrado.
 • Vincular un número al certificado de su titular, en su libreta de direcciones.
 • Adjuntar una foto, una imagen, un contacto, su ubicación o un archivo; grabar un mensaje de voz manteniendo pulsado el campo vacío.
 • Buscar en las conversaciones; hacer una copia de seguridad y restaurarla en el formato de «SMS Backup & Restore».
 • Convertirla en la aplicación de mensajería del teléfono.
 
-Los mensajes cifrados viajan en armadura ASCII, legibles por cualquier otra aplicación PGP. Se abren con una sola presentación de la llave y se vuelven a cerrar al cabo del tiempo elegido.
+Lo que foomms hace mejor que las mensajerías ofrecidas por empresas:
+• un cifrado de extremo a extremo bajo su única llave, que nadie más posee;
+• la interoperabilidad: su interlocutor puede usar otra aplicación PGP, nada le encierra en foomms;
+• ningún servidor central, solo la red de su operador;
+• ni siquiera hace falta Internet.
 
-La aplicación no pide ninguna cuenta, no pasa por ningún servidor nuestro y no muestra publicidad: es la red del teléfono la que transporta los mensajes.
+Acercar su llave una vez abre varios mensajes a la vez, que se vuelven a cerrar tras el tiempo que haya elegido.
+
+La aplicación no pide ninguna cuenta, no pasa por ningún servidor nuestro y no muestra publicidad: es la red del teléfono la que transporta los mensajes. Siempre que el operador transporte los MMS: algunos ya no lo hacen, o nunca lo hicieron, como en Alemania o en Japón. Allí solo quedan mensajerías que pasan por servidores en Internet, lo que facilita la vigilancia global.
 
 Necesita foodjis, una llave de seguridad OpenPGP sin contacto y un teléfono con lector NFC.
 

@@ -66,6 +66,13 @@ object Keep {
         )
     }
 
+    /** An MMS the network refused: kept among those that failed, not those sent. */
+    fun mmsFailed(context: Context, written: Uri) {
+        context.contentResolver.update(
+            written, ContentValues().apply { put(Telephony.Mms.MESSAGE_BOX, Telephony.Mms.MESSAGE_BOX_FAILED) }, null, null,
+        )
+    }
+
     fun mmsReceived(context: Context, message: PduRead.Message, size: Int, subscription: Int): Uri? {
         val from = message.from ?: return null
         Me.learn(context, message.to)
@@ -175,6 +182,84 @@ object Keep {
      * good, and only the phone's messaging application can. Says whether
      * anything went.
      */
+    /**
+     * The mark of a draft in [thread]: an SMS draft with no words to one
+     * person, or an MMS draft to a group's members, its moment now. Its
+     * words are foomms's ([Drafts]); one draft a conversation.
+     */
+    fun markDraft(context: Context, thread: Long, numbers: List<String>, group: Boolean) {
+        if (!ours(context)) return
+        val resolver = context.contentResolver
+        val now = System.currentTimeMillis()
+        runCatching {
+            if (group) {
+                val moved = resolver.update(
+                    Telephony.Mms.CONTENT_URI, ContentValues().apply { put(Telephony.Mms.DATE, now / 1000) },
+                    "thread_id = ? AND ${Telephony.Mms.MESSAGE_BOX} = ${Telephony.Mms.MESSAGE_BOX_DRAFTS}", arrayOf(thread.toString()),
+                )
+                if (moved > 0) return
+                val written = resolver.insert(
+                    Telephony.Mms.Draft.CONTENT_URI,
+                    ContentValues().apply {
+                        put(Telephony.Mms.THREAD_ID, thread)
+                        put(Telephony.Mms.DATE, now / 1000)
+                        put(Telephony.Mms.READ, 1)
+                        put(Telephony.Mms.SEEN, 1)
+                        put(Telephony.Mms.MESSAGE_TYPE, PduRead.SEND)
+                        put(Telephony.Mms.MMS_VERSION, 0x12)
+                        put(Telephony.Mms.CONTENT_TYPE, "application/vnd.wap.multipart.related")
+                        put(Telephony.Mms.MESSAGE_CLASS, "personal")
+                    },
+                ) ?: return
+                val id = written.lastPathSegment ?: return
+                fun address(number: String, kind: Int) = resolver.insert(
+                    Uri.parse("content://mms/$id/addr"),
+                    ContentValues().apply { put(Telephony.Mms.Addr.ADDRESS, number) ; put(Telephony.Mms.Addr.TYPE, kind) ; put(Telephony.Mms.Addr.CHARSET, UTF_8) },
+                )
+                address("insert-address-token", FROM)
+                numbers.forEach { address(it, TO) }
+            } else {
+                val moved = resolver.update(
+                    Telephony.Sms.CONTENT_URI, ContentValues().apply { put(Telephony.Sms.DATE, now) },
+                    "thread_id = ? AND ${Telephony.Sms.TYPE} = ${Telephony.Sms.MESSAGE_TYPE_DRAFT}", arrayOf(thread.toString()),
+                )
+                if (moved > 0) return
+                resolver.insert(
+                    Telephony.Sms.Draft.CONTENT_URI,
+                    ContentValues().apply {
+                        put(Telephony.Sms.THREAD_ID, thread)
+                        put(Telephony.Sms.ADDRESS, numbers.first())
+                        put(Telephony.Sms.BODY, "")
+                        put(Telephony.Sms.DATE, now)
+                        put(Telephony.Sms.READ, 1)
+                        put(Telephony.Sms.SEEN, 1)
+                    },
+                )
+            }
+        }
+    }
+
+    /** The mark of a draft gone from [thread]; a conversation that held nothing else goes with it, as Android does. */
+    fun unmarkDraft(context: Context, thread: Long) {
+        if (!ours(context)) return
+        runCatching {
+            context.contentResolver.delete(Telephony.Sms.CONTENT_URI, "thread_id = ? AND ${Telephony.Sms.TYPE} = ${Telephony.Sms.MESSAGE_TYPE_DRAFT}", arrayOf(thread.toString()))
+            context.contentResolver.delete(Telephony.Mms.CONTENT_URI, "thread_id = ? AND ${Telephony.Mms.MESSAGE_BOX} = ${Telephony.Mms.MESSAGE_BOX_DRAFTS}", arrayOf(thread.toString()))
+        }
+    }
+
+    /** Every draft's mark gone, whichever application wrote it. */
+    fun unmarkAllDrafts(context: Context) {
+        if (!ours(context)) return
+        runCatching {
+            context.contentResolver.delete(Telephony.Sms.CONTENT_URI, "${Telephony.Sms.TYPE} = ${Telephony.Sms.MESSAGE_TYPE_DRAFT}", null)
+            context.contentResolver.delete(Telephony.Mms.CONTENT_URI, "${Telephony.Mms.MESSAGE_BOX} = ${Telephony.Mms.MESSAGE_BOX_DRAFTS}", null)
+        }
+    }
+
+    /** Whether [thread] holds a draft's mark. */
+    fun hasDraft(context: Context, thread: Long): Boolean = Store.draftAt(context, thread) != null
+
     fun forget(context: Context, line: Store.Line): Boolean =
         ours(context) && runCatching { context.contentResolver.delete(line.uri, null, null) > 0 }.getOrDefault(false)
 

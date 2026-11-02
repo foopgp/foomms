@@ -32,6 +32,7 @@ object Store {
     fun toEach(context: Context, thread: Long): Boolean = !groupOf(context, thread)
 
     fun groupOf(context: Context, thread: Long): Boolean = runCatching {
+        // A draft counts here: an MMS draft to two people or more besides this phone is a group's, not yet sent.
         val ids = context.contentResolver.query(MMS, arrayOf("_id"), "thread_id = ?", arrayOf(thread.toString()), "date DESC")?.use { rows ->
             buildList { while (rows.moveToNext() && size < LOOKED_AT) add(rows.getLong(0)) }
         }.orEmpty()
@@ -249,6 +250,8 @@ object Store {
         val sentAt: Long = 0, val address: String? = null,
         /** Not read yet; and the conversation it belongs to. */
         val unread: Boolean = false, val thread: Long = -1,
+        /** Refused by the network when it was to leave: certainly not sent. Taken, it may still not arrive. */
+        val failed: Boolean = false,
     ) {
         val attachments: Int get() = pieces.size
         val uri: Uri get() = Uri.parse(if (mms) "content://mms/$id" else "content://sms/$id")
@@ -258,18 +261,27 @@ object Store {
     class Counts(
         val pgp: Int, val all: Int, val unreadPgp: Int, val unread: Int, val sms: Int = 0, val mms: Int = 0, val talks: Int = 0, val unreadTalks: Int = 0,
         val pgpSms: Int = 0, val pgpMms: Int = 0, val bytes: Long = 0,
-        /** The groups, each once however many conversations Android keeps for it; and those conversations, which [talks] counts too. */
+        /** The groups, each once however many conversations Android keeps for it; and those conversations. */
         val groups: Int = 0, val groupTalks: Int = 0,
+        /** The people one has a conversation with, each once -- [talks] is they and the groups --; and the drafts. */
+        val persons: Int = 0, val drafts: Int = 0,
+        /** The messages that came in, and those that went out or were to; and of those come in, the SMS and the MMS. */
+        val received: Int = 0, val sent: Int = 0, val receivedSms: Int = 0, val receivedMms: Int = 0,
     ) {
+        val sentSms get() = sms - receivedSms
+        val sentMms get() = mms - receivedMms
+
+        fun withTalks(talks: Int) = Counts(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks, persons, drafts, received, sent, receivedSms, receivedMms)
+
         /** As kept between two runs, and read back. */
-        fun kept(): String = listOf(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks).joinToString(",")
+        fun kept(): String = listOf(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks, persons, drafts, received, sent, receivedSms, receivedMms).joinToString(",")
 
         companion object {
             fun of(kept: String?): Counts? {
                 val n = kept?.split(',')?.mapNotNull { it.toLongOrNull() } ?: return null
                 if (n.size < 8) return null
                 fun at(i: Int) = n.getOrElse(i) { 0L }.toInt()
-                return Counts(at(0), at(1), at(2), at(3), at(4), at(5), at(6), at(7), at(8), at(9), n.getOrElse(10) { 0L }, at(11), at(12))
+                return Counts(at(0), at(1), at(2), at(3), at(4), at(5), at(6), at(7), at(8), at(9), n.getOrElse(10) { 0L }, at(11), at(12), at(13), at(14), at(15), at(16), at(17), at(18))
             }
         }
     }
@@ -307,14 +319,17 @@ object Store {
                 val number = members.firstOrNull()
                 // An empty conversation -- made for a message never sent, or left by one moved to its group's -- is none
                 // to show: told by its messages, the count Android keeps being not updated when a message moves.
-                val last = last(context, thread) ?: continue
-                val words = last.body
+                // A draft of foomms's: the conversation is listed at its moment, even with nothing else in it.
+                val drafted = if (Drafts.inThread(context, thread) != null) draftAt(context, thread) else null
+                val last = last(context, thread)
+                if (last == null && drafted == null) continue
+                val words = last?.body.orEmpty()
                 talks += Talk(
-                    thread, number ?: number(context, thread), last.at,
-                    words, last.incoming, rows.getInt(4) == 0, formOf(context, words, last.pieces),
+                    thread, number ?: number(context, thread), maxOf(last?.at ?: 0L, drafted ?: 0L),
+                    words, last?.incoming == true, rows.getInt(4) == 0, formOf(context, words, last?.pieces.orEmpty()),
                     members.ifEmpty { listOfNotNull(number ?: number(context, thread)) },
                     members.size > 1 && toEach(context, thread),
-                    if (last.incoming && members.size > 1) addressOf(context, last) else null,
+                    if (last != null && last.incoming && members.size > 1) addressOf(context, last) else null,
                 )
             }
         }
@@ -343,6 +358,15 @@ object Store {
     /** Enough of a PGP part to tell locked from signed: an armor's headers and its first line, or a packet's head. */
     private const val HEAD = 512
 
+    /** When the draft [thread] holds was last touched, if it holds one: an SMS's moment, or an MMS's. */
+    fun draftAt(context: Context, thread: Long): Long? = runCatching {
+        val sms = context.contentResolver.query(SMS, arrayOf("date"), "thread_id = ? AND NOT ($SMS_NOT_DRAFT)", arrayOf(thread.toString()), "date DESC LIMIT 1")
+            ?.use { rows -> if (rows.moveToFirst()) rows.getLong(0) else null }
+        val mms = context.contentResolver.query(MMS, arrayOf("date"), "thread_id = ? AND NOT ($MMS_NOT_DRAFT)", arrayOf(thread.toString()), "date DESC LIMIT 1")
+            ?.use { rows -> if (rows.moveToFirst()) rows.getLong(0) * 1000 else null }
+        listOfNotNull(sms, mms).maxOrNull()
+    }.getOrNull()
+
     /** The address the phone's list of conversations names by a number of its own. */
     private fun address(context: Context, id: Long): String? = runCatching {
         context.contentResolver.query(Uri.parse("content://mms-sms/canonical-address/$id"), null, null, null, null)?.use { rows ->
@@ -357,18 +381,18 @@ object Store {
      */
     private fun last(context: Context, thread: Long): Line? {
         val sms = context.contentResolver.query(
-            SMS, arrayOf("date", "body", "type", "_id", "address"), "thread_id = ?", arrayOf(thread.toString()), "date DESC LIMIT 1",
+            SMS, arrayOf("date", "body", "type", "_id", "address"), "thread_id = ? AND $SMS_NOT_DRAFT", arrayOf(thread.toString()), "date DESC LIMIT 1",
         )?.use { rows ->
             if (rows.moveToFirst()) Line(rows.getLong(0), rows.getInt(2) == SMS_INBOX, rows.getString(1).orEmpty(), id = rows.getLong(3), address = rows.getString(4)) else null
         }
         // An MMS's date is in seconds, an SMS's in milliseconds.
         val mms = runCatching {
             context.contentResolver.query(
-                MMS, arrayOf("_id", "date", "msg_box"), "thread_id = ?", arrayOf(thread.toString()), "date DESC LIMIT 1",
+                MMS, arrayOf("_id", "date", "msg_box"), "thread_id = ? AND $MMS_NOT_DRAFT", arrayOf(thread.toString()), "date DESC LIMIT 1",
             )?.use { rows ->
                 if (!rows.moveToFirst()) return@use null
                 val (words, pieces) = parts(context, rows.getLong(0))
-                Line(rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, words.ifEmpty { pieces.joinToString(" ") { "📎 " + (it.name ?: it.type) } }, pieces, id = rows.getLong(0), mms = true)
+                Line(rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, words.ifEmpty { pieces.sortedBy { !Members.isPart(it.name) }.joinToString(" ") { if (Members.isPart(it.name)) Members.glyph(it.name) else "📎 " + (it.name ?: it.type) } }, pieces, id = rows.getLong(0), mms = true)
             }
         }.getOrNull()
         return listOfNotNull(sms, mms).maxByOrNull { it.at }
@@ -382,7 +406,7 @@ object Store {
             if (known == null || known.at < talk.at) latest[talk.thread] = talk
         }
         context.contentResolver.query(
-            SMS, arrayOf("thread_id", "address", "date", "body", "type", "read"), null, null, "date DESC",
+            SMS, arrayOf("thread_id", "address", "date", "body", "type", "read"), SMS_NOT_DRAFT, null, "date DESC",
         )?.use { rows ->
             val seen = HashSet<Long>()
             while (rows.moveToNext()) {
@@ -392,7 +416,7 @@ object Store {
                 offer(Talk(thread, rows.getString(1), rows.getLong(2), rows.getString(3).orEmpty(), rows.getInt(4) == SMS_INBOX, rows.getInt(5) == 0))
             }
         }
-        context.contentResolver.query(MMS, arrayOf("_id", "thread_id", "date", "msg_box", "read"), null, null, "date DESC")?.use { rows ->
+        context.contentResolver.query(MMS, arrayOf("_id", "thread_id", "date", "msg_box", "read"), MMS_NOT_DRAFT, null, "date DESC")?.use { rows ->
             val seen = HashSet<Long>()
             while (rows.moveToNext()) {
                 val thread = rows.getLong(1)
@@ -401,7 +425,7 @@ object Store {
                 if ((latest[thread]?.at ?: 0) >= at) continue
                 val incoming = rows.getInt(3) == MMS_INBOX
                 val (words, pieces) = parts(context, rows.getLong(0))
-                offer(Talk(thread, number(context, rows.getLong(0), incoming), at, words.ifEmpty { "📎".repeat(minOf(pieces.size, 3)) }, incoming, rows.getInt(4) == 0))
+                offer(Talk(thread, number(context, rows.getLong(0), incoming), at, words.ifEmpty { Members.glyphs(pieces.map { it.name }) }, incoming, rows.getInt(4) == 0))
             }
         }
         return latest.values.sortedByDescending { it.at }
@@ -411,13 +435,14 @@ object Store {
     fun lines(context: Context, thread: Long): List<Line> {
         val lines = ArrayList<Line>()
         context.contentResolver.query(
-            SMS, arrayOf("date", "body", "type", "_id", "date_sent", "address", "read"), "thread_id = ?", arrayOf(thread.toString()), null,
+            SMS, arrayOf("date", "body", "type", "_id", "date_sent", "address", "read"), "thread_id = ? AND $SMS_NOT_DRAFT", arrayOf(thread.toString()), null,
         )?.use { rows ->
             while (rows.moveToNext()) {
                 lines += Line(
                     rows.getLong(0), rows.getInt(2) == SMS_INBOX, rows.getString(1).orEmpty(),
                     id = rows.getLong(3), sentAt = rows.getLong(4), address = rows.getString(5),
                     unread = rows.getInt(6) == 0, thread = thread,
+                    failed = rows.getInt(2) == android.provider.Telephony.Sms.MESSAGE_TYPE_FAILED,
                 )
             }
         }
@@ -435,17 +460,20 @@ object Store {
      * each is not asked here, being only shown in its details ([addressOf]).
      */
     private fun mmsLines(context: Context, where: String, args: Array<String>?): List<Line> {
-        class Head(val id: Long, val at: Long, val incoming: Boolean, val sentAt: Long, val unread: Boolean, val thread: Long)
+        class Head(val id: Long, val at: Long, val incoming: Boolean, val sentAt: Long, val unread: Boolean, val thread: Long, val failed: Boolean)
         val heads = ArrayList<Head>()
-        context.contentResolver.query(MMS, arrayOf("_id", "date", "msg_box", "date_sent", "read", "thread_id"), where, args, null)?.use { rows ->
+        context.contentResolver.query(MMS, arrayOf("_id", "date", "msg_box", "date_sent", "read", "thread_id"), "($where) AND $MMS_NOT_DRAFT", args, null)?.use { rows ->
             while (rows.moveToNext()) {
-                heads += Head(rows.getLong(0), rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, rows.getLong(3) * 1000, rows.getInt(4) == 0, rows.getLong(5))
+                heads += Head(
+                    rows.getLong(0), rows.getLong(1) * 1000, rows.getInt(2) == MMS_INBOX, rows.getLong(3) * 1000, rows.getInt(4) == 0, rows.getLong(5),
+                    rows.getInt(2) == android.provider.Telephony.Mms.MESSAGE_BOX_FAILED,
+                )
             }
         }
         val parts = parts(context, heads.map { it.id })
         return heads.map { head ->
             val (words, pieces) = parts[head.id] ?: ("" to emptyList())
-            Line(head.at, head.incoming, words, pieces, id = head.id, mms = true, sentAt = head.sentAt, unread = head.unread, thread = head.thread)
+            Line(head.at, head.incoming, words, pieces, id = head.id, mms = true, sentAt = head.sentAt, unread = head.unread, thread = head.thread, failed = head.failed)
         }
     }
 
@@ -478,10 +506,10 @@ object Store {
      */
     fun unreadThreads(context: Context): List<Long> = runCatching {
         val at = HashMap<Long, Long>()
-        context.contentResolver.query(SMS, arrayOf("thread_id", "date"), "read = 0", null, null)?.use { rows ->
+        context.contentResolver.query(SMS, arrayOf("thread_id", "date"), "read = 0 AND $SMS_NOT_DRAFT", null, null)?.use { rows ->
             while (rows.moveToNext()) at.merge(rows.getLong(0), rows.getLong(1), ::maxOf)
         }
-        context.contentResolver.query(MMS, arrayOf("thread_id", "date"), "read = 0", null, null)?.use { rows ->
+        context.contentResolver.query(MMS, arrayOf("thread_id", "date"), "read = 0 AND $MMS_NOT_DRAFT", null, null)?.use { rows ->
             while (rows.moveToNext()) at.merge(rows.getLong(0), rows.getLong(1) * 1000, ::maxOf)
         }
         at.entries.sortedByDescending { it.value }.map { it.key }
@@ -495,7 +523,7 @@ object Store {
      * holds, since asking the phone for it would make one.
      */
     fun thread(context: Context, number: String): Long? {
-        context.contentResolver.query(SMS, arrayOf("thread_id", "address"), null, null, "date DESC")?.use { rows ->
+        context.contentResolver.query(SMS, arrayOf("thread_id", "address"), SMS_NOT_DRAFT, null, "date DESC")?.use { rows ->
             val seen = HashSet<Long>()
             while (rows.moveToNext()) {
                 if (!seen.add(rows.getLong(0))) continue
@@ -509,10 +537,10 @@ object Store {
 
     /** The number of a conversation that has only MMS, or whose SMS did not say. */
     fun number(context: Context, thread: Long): String? {
-        context.contentResolver.query(SMS, arrayOf("address"), "thread_id = ?", arrayOf(thread.toString()), "date DESC")?.use { rows ->
+        context.contentResolver.query(SMS, arrayOf("address"), "thread_id = ? AND $SMS_NOT_DRAFT", arrayOf(thread.toString()), "date DESC")?.use { rows ->
             while (rows.moveToNext()) rows.getString(0)?.let { return it }
         }
-        context.contentResolver.query(MMS, arrayOf("_id", "msg_box"), "thread_id = ?", arrayOf(thread.toString()), "date DESC")?.use { rows ->
+        context.contentResolver.query(MMS, arrayOf("_id", "msg_box"), "thread_id = ? AND $MMS_NOT_DRAFT", arrayOf(thread.toString()), "date DESC")?.use { rows ->
             while (rows.moveToNext()) number(context, rows.getLong(0), rows.getInt(1) == MMS_INBOX)?.let { return it }
         }
         return null
@@ -550,8 +578,11 @@ object Store {
     }
 
     fun counts(context: Context): Counts {
+        // Drafts are not messages: they are counted apart.
         fun count(table: Uri, where: String?): Int = runCatching {
-            context.contentResolver.query(table, arrayOf("_id"), where, null, null)?.use { it.count }
+            val real = when (table) { SMS -> SMS_NOT_DRAFT ; MMS -> MMS_NOT_DRAFT ; else -> null }
+            val asked = listOfNotNull(where?.let { "($it)" }, real).joinToString(" AND ").ifEmpty { null }
+            context.contentResolver.query(table, arrayOf("_id"), asked, null, null)?.use { it.count }
         }.getOrNull() ?: 0
         val armored = "body LIKE '%$BANNER%'"
         // An MMS is PGP by a text part of it, or by a part that is a PGP message itself, as the conversation
@@ -564,35 +595,64 @@ object Store {
         }
         val unreadMms = HashSet<Long>()
         runCatching {
-            context.contentResolver.query(MMS, arrayOf("_id"), "read = 0", null, null)?.use { rows ->
+            context.contentResolver.query(MMS, arrayOf("_id"), "read = 0 AND $MMS_NOT_DRAFT", null, null)?.use { rows ->
                 while (rows.moveToNext()) unreadMms += rows.getLong(0)
             }
         }
         val sms = count(SMS, null)
         val mms = count(MMS, null)
+        // Come in: in the inbox; the rest went out, or was to -- sent, waiting, failed.
+        val receivedSms = count(SMS, "type = ${android.provider.Telephony.Sms.MESSAGE_TYPE_INBOX}")
+        val receivedMms = count(MMS, "msg_box = ${android.provider.Telephony.Mms.MESSAGE_BOX_INBOX}")
+        val received = receivedSms + receivedMms
         val pgpSms = count(SMS, armored)
         // What it all weighs: the words of the SMS as they are kept, and the size each MMS was given.
         var bytes = 0L
         runCatching {
-            context.contentResolver.query(SMS, arrayOf("body"), null, null, null)?.use { rows ->
+            context.contentResolver.query(SMS, arrayOf("body"), SMS_NOT_DRAFT, null, null)?.use { rows ->
                 while (rows.moveToNext()) bytes += rows.getString(0)?.toByteArray()?.size ?: 0
             }
         }
         runCatching {
-            context.contentResolver.query(MMS, arrayOf("m_size"), null, null, null)?.use { rows ->
+            context.contentResolver.query(MMS, arrayOf("m_size"), MMS_NOT_DRAFT, null, null)?.use { rows ->
                 while (rows.moveToNext()) bytes += rows.getLong(0)
             }
         }
-        // The groups by their members but this phone: the same group may be two conversations.
+        // Conversations counted as the pages show them: a person once, a group once -- not the phone's conversations,
+        // which keep a group twice, a sending to each apart, and some empty.
         val mine = Me.all(context)
         val groups = ArrayList<String>()
+        val persons = HashSet<String>()
+        // The numbers behind the conversations' recipients, read in one asking.
+        val addresses = HashMap<Long, String>()
         runCatching {
-            context.contentResolver.query(THREADS, arrayOf("recipient_ids", "_id"), "trim(recipient_ids) LIKE '% %'", null, null)?.use { rows ->
+            context.contentResolver.query(Uri.parse("content://mms-sms/canonical-addresses"), arrayOf("_id", "address"), null, null, null)?.use { rows ->
+                while (rows.moveToNext()) rows.getString(1)?.let { addresses[rows.getLong(0)] = it }
+            }
+        }
+        // Those that hold something: a message, or a draft of foomms's.
+        val held = HashSet<Long>()
+        var drafts = 0
+        for ((table, real) in listOf(SMS to SMS_NOT_DRAFT, MMS to MMS_NOT_DRAFT)) runCatching {
+            context.contentResolver.query(table, arrayOf("thread_id"), real, null, null)?.use { rows -> while (rows.moveToNext()) held += rows.getLong(0) }
+            context.contentResolver.query(table, arrayOf("thread_id"), "NOT ($real)", null, null)?.use { rows ->
+                drafts += rows.count
+                while (rows.moveToNext()) rows.getLong(0).takeIf { Drafts.inThread(context, it) != null }?.let { held += it }
+            }
+        }
+        runCatching {
+            context.contentResolver.query(THREADS, arrayOf("recipient_ids", "_id"), null, null, null)?.use { rows ->
                 while (rows.moveToNext()) {
-                    // A sending to each, filed as one conversation: not a group.
-                    if (toEach(context, rows.getLong(1))) continue
-                    val members = rows.getString(0)?.trim()?.split(' ')?.mapNotNull { it.toLongOrNull()?.let { id -> address(context, id) } }.orEmpty()
-                    groups += Phone.group(members, mine)
+                    val thread = rows.getLong(1)
+                    if (thread !in held) continue
+                    val members = rows.getString(0)?.trim()?.split(' ')?.mapNotNull { it.toLongOrNull()?.let { id -> addresses[id] ?: address(context, id) } }.orEmpty()
+                    val others = members.filterNot { member -> mine.any { Phone.same(member, it) } }
+                    when {
+                        members.size <= 1 -> members.firstOrNull()?.let { persons += Phone.key(it) }
+                        // A sending to each, filed as one conversation: shown in the conversation of each.
+                        toEach(context, thread) -> others.forEach { persons += Phone.key(it) }
+                        else -> groups += Phone.group(members, mine)
+                    }
                 }
             }
         }
@@ -604,11 +664,12 @@ object Store {
             unreadPgp = count(SMS, "$armored AND read = 0") + sealed.count { it in unreadMms },
             unread = count(SMS, "read = 0") + unreadMms.size,
             sms = sms, mms = mms,
-            talks = count(THREADS, null),
+            received = received, sent = sms + mms - received, receivedSms = receivedSms, receivedMms = receivedMms,
             unreadTalks = unreadThreads(context).size,
             // Several members besides this phone: a group; one, a conversation between two all the same.
             groups = (groups.filter { ',' in it } + heard).distinct().size, groupTalks = groups.count { ',' in it },
-        )
+            persons = (persons + groups.filterNot { ',' in it }).size, drafts = drafts,
+        ).let { it.withTalks(it.persons + it.groups) }
     }
 
     /**
@@ -620,7 +681,7 @@ object Store {
         val asked = wanted.trim()
         if (asked.isEmpty()) return emptyList()
         val hits = ArrayList<Hit>()
-        val within = thread?.let { " AND thread_id = $it" }.orEmpty()
+        val within = (thread?.let { " AND thread_id = $it" }.orEmpty()) + " AND $SMS_NOT_DRAFT"
         val like = "%" + asked.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
         val columns = arrayOf("thread_id", "address", "date", "body", "type")
         context.contentResolver.query(
@@ -681,6 +742,10 @@ object Store {
     private const val BANNER = "-----BEGIN PGP MESSAGE-----"
     private const val MMS_INBOX = 1
     private const val MMS_SENT = 2
+
+    /** Not a draft: what is being written is not a message, sent or received, and is read apart. */
+    const val SMS_NOT_DRAFT = "type != ${android.provider.Telephony.Sms.MESSAGE_TYPE_DRAFT}"
+    const val MMS_NOT_DRAFT = "msg_box != ${android.provider.Telephony.Mms.MESSAGE_BOX_DRAFTS}"
     private const val FROM = 137
     private const val TO = 151
 }

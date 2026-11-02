@@ -1,1 +1,1 @@
-SMS e MMS cifradas e assinadas com PGP, pelo foodjis e pela sua chave.
+SMS e grupos de conversa MMS cifrados e assinados com PGP, pelo foodjis.

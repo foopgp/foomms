@@ -1,0 +1,4 @@
+• Nuovo messaggio a più persone: due pulsanti, «✎ Invio multiplo» e «✎ MMS di gruppo», spiegati appena sopra.
+• Messaggio cifrato chiuso: ⚿ non letto, ⚷ letto.
+• File cifrato: «per» davanti ai volti dei destinatari.
+• Ciò che dice foodjis appare dietro la sua icona; uscire da una schermata di foodjis non apre più finestre; un errore non propone più «Condividi» né «Salva».

@@ -45,9 +45,21 @@ class ManyActivity : AskingActivity() {
     private lateinit var chip: android.widget.TextView
     private lateinit var chipRow: LinearLayout
 
+    /** The draft as it was read when the page opened: kept again only once it has changed. */
+    private var draftRead = ""
+
     override fun onPause() {
         // Closed before anything was laid out -- fewer than two numbers --: nothing written to keep.
-        if (::field.isInitialized) Drafts.keep(this, numbers, field.text.toString())
+        if (::field.isInitialized) {
+            val words = field.text.toString()
+            if (words != draftRead) {
+                draftRead = words
+                val context = applicationContext
+                val those = numbers
+                // In the background: a mark is written in the conversation of each.
+                thread { Drafts.keepEach(context, those, words) }
+            }
+        }
         super.onPause()
     }
 
@@ -103,7 +115,17 @@ class ManyActivity : AskingActivity() {
         // Words handed over with the page -- shared from another application, or a link's "sms_body" -- are already written.
         // Words handed over with the page, or else what was being written to these same people and not sent.
         val handed = if (state == null) intent.getStringExtra(Intent.EXTRA_TEXT) ?: intent.getStringExtra("sms_body") else null
-        (handed ?: Drafts.of(this, numbers).takeIf { it.isNotEmpty() })?.let { field.setText(it) ; field.setSelection(it.length) }
+        draftRead = Drafts.of(this, numbers)
+        (handed ?: draftRead.takeIf { it.isNotEmpty() })?.let { field.setText(it) ; field.setSelection(it.length) }
+        // Some of them have a draft of their own, which the same to each will take the place of: said once, first.
+        Drafts.ownOf(this, numbers).takeIf { it.isNotEmpty() && state == null }?.let { own ->
+            AlertDialog.Builder(this)
+                .setMessage(resources.getQuantityString(R.plurals.each_over_drafts, own.size, own.size))
+                .setPositiveButton(R.string.draft_replace, null)
+                .setNegativeButton(android.R.string.cancel) { _, _ -> finish() }
+                .setCancelable(false)
+                .show()
+        }
         // A picture made small enough for an MMS, any other file if it fits, as in a conversation.
         @Suppress("DEPRECATION")
         intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)?.let { shared ->
@@ -218,7 +240,7 @@ class ManyActivity : AskingActivity() {
         all(jobs) { done ->
             var at = 0
             val made = each.map { one ->
-                val words = if (written.isNotBlank()) armor(done[at++]) ?: return@all say(getString(R.string.failed, "what came back is not a PGP message")) else null
+                val words = if (written.isNotBlank()) armor(done[at++]) ?: return@all say(Foodjis.says(this, "what came back is not a PGP message")) else null
                 val sealed = if (with != null) piece(done[at++]) else null
                 one to (words to sealed)
             }
@@ -236,7 +258,7 @@ class ManyActivity : AskingActivity() {
         val inputs = listOfNotNull(written.toByteArray().takeIf { written.isNotBlank() }, with?.bytes)
         val signing = inputs.map { Intent(Provider.DETACHED_SIGN).putExtra(Provider.EXTRA_REQUEST_ASCII_ARMOR, false) to it }
         all(signing) { signed ->
-            val signatures = signed.map { it.says.getByteArrayExtra(Provider.RESULT_DETACHED_SIGNATURE) ?: return@all say(getString(R.string.failed, "no signature came back")) }
+            val signatures = signed.map { it.says.getByteArrayExtra(Provider.RESULT_DETACHED_SIGNATURE) ?: return@all say(Foodjis.says(this, "no signature came back")) }
             val jobs = ArrayList<Pair<Intent, ByteArray>>()
             for (one in whom) {
                 val keys = (listOfNotNull(one.cert?.fingerprint?.let(Fingerprint::keyId)) + listOfNotNull(mine.takeIf { Conf.toMyself(this) })).distinct().toLongArray()
@@ -249,7 +271,7 @@ class ManyActivity : AskingActivity() {
             all(jobs) { done ->
                 var at = 0
                 val copies = whom.map { one ->
-                    val words = if (written.isNotBlank()) Pgp.armorIn(String(done[at++].bytes, Charsets.US_ASCII)) ?: return@all say(getString(R.string.failed, "what came back is not a PGP message")) else null
+                    val words = if (written.isNotBlank()) Pgp.armorIn(String(done[at++].bytes, Charsets.US_ASCII)) ?: return@all say(Foodjis.says(this, "what came back is not a PGP message")) else null
                     val sealed = if (with != null) done[at++].let { Pdu.Part(Pgp.TYPE, Pgp.outerName(it.bytes), it.bytes) } else null
                     ToEach.Copy(one.number, one.name, words, sealed)
                 }
@@ -296,7 +318,7 @@ class ManyActivity : AskingActivity() {
                     if (isFinishing || isDestroyed) return@ask
                     if (answer is Provider.Answer.Done) done[at] = answer
                     if (--left == 0) {
-                        if (done.all { it != null }) then(done.map { it!! }) else say(getString(R.string.failed, "foodjis did not answer for every copy"))
+                        if (done.all { it != null }) then(done.map { it!! }) else say(Foodjis.says(this, "it did not answer for every copy"))
                     }
                 }
             }
@@ -345,7 +367,7 @@ class ManyActivity : AskingActivity() {
         }
     }
 
-    private fun say(words: String) {
+    private fun say(words: CharSequence) {
         AlertDialog.Builder(this).setMessage(words).setPositiveButton(R.string.close, null).show()
     }
 

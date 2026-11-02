@@ -412,9 +412,9 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
         release()
     }
 
-    private fun say(words: String) {
+    private fun say(words: CharSequence) {
         told.text = words
-        android.util.Log.w("foomms-video", words)
+        android.util.Log.w("foomms-video", words.toString())
     }
 
     companion object {

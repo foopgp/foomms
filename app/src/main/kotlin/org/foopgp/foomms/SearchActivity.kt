@@ -35,7 +35,10 @@ class SearchActivity : Activity() {
     private var turn = 0
 
     /** Somebody one can write to, as the page of a new message shows them. */
-    private class Whom(val number: String, val name: String, val face: android.graphics.Bitmap?, val typed: Boolean = false)
+    private class Whom(
+        val number: String, val name: String, val face: android.graphics.Bitmap?, val typed: Boolean = false,
+        val standing: String? = null, val fingerprint: String? = null,
+    )
 
     private var people: List<Whom> = emptyList()
     private var inContacts = false
@@ -132,7 +135,7 @@ class SearchActivity : Activity() {
                     if (found.any { Phone.same(it.number, one.number) }) continue
                     val person = Book.who(this, one.number)
                     val face = person?.let { Book.face(this, it) } ?: person?.fingerprint?.let { foodjis.face(it) }
-                    found += Whom(one.number, one.name, face)
+                    found += Whom(one.number, one.name, face, standing = person?.fingerprint?.let { foodjis.card(it)?.validity }, fingerprint = person?.fingerprint)
                 }
             }
             runOnUiThread {
@@ -192,7 +195,7 @@ class SearchActivity : Activity() {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = android.view.Gravity.CENTER_VERTICAL
                 setPadding(0, pad, 0, pad)
-                addView(Look.face(context, 44, null, one.face))
+                addView(Look.face(context, 44, null, one.face, one.standing, framable = true, seed = Look.seed(one.fingerprint, one.number)))
                 addView(
                     LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
