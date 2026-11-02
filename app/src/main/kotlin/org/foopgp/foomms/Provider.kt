@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.DeadObjectException
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -47,26 +48,55 @@ class Provider(private val context: Context) {
     private fun bound(then: (IOpenPgpService2?) -> Unit) {
         door?.let { return then(it) }
         val to = whom() ?: return then(null)
+        var told = false
         val link = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName, binder: IBinder) {
                 door = IOpenPgpService2.Stub.asInterface(binder)
+                // Connected again after foodjis died and came back: the question was answered, or failed, long ago.
+                if (told) return
+                told = true
                 then(door)
             }
             override fun onServiceDisconnected(name: ComponentName) { door = null }
+
+            // foodjis updated or installed again: this link is dead for good, and Android will not bring it
+            // back. Kept, every question after it failed with DeadObjectException until foomms was started
+            // again; forgotten, the next question binds to the new foodjis.
+            override fun onBindingDied(name: ComponentName) = forget()
         }
         bond = link
         if (!context.bindService(Intent(SERVICE).setComponent(to), link, Context.BIND_AUTO_CREATE)) then(null)
     }
 
+    private fun forget() {
+        bond?.let { runCatching { context.unbindService(it) } }
+        bond = null
+        door = null
+    }
+
     /** Ask, with [input] sent along; [then] is called on the main thread. */
     fun ask(request: Intent, input: ByteArray?, then: (Answer) -> Unit) {
         request.putExtra(EXTRA_API_VERSION, API_VERSION)
+        asked(request, input, then, again = true)
+    }
+
+    /**
+     * [again]: a foodjis found gone in the middle -- updated, or stopped by Android -- is bound once more and
+     * asked the same; gone twice, it is said not to answer, in words, rather than by the name of an exception.
+     */
+    private fun asked(request: Intent, input: ByteArray?, then: (Answer) -> Unit, again: Boolean) {
         bound { door ->
             if (door == null) return@bound then(Answer.Failed(context.getString(R.string.no_provider)))
             thread {
-                val answer = runCatching { exchange(door, request, input) }
-                    .getOrElse { Answer.Failed(it.message ?: it.toString()) }
-                main.post { then(answer) }
+                val tried = runCatching { exchange(door, request, input) }
+                val gone = tried.exceptionOrNull() is DeadObjectException
+                main.post {
+                    when {
+                        gone && again -> { forget() ; asked(request, input, then, again = false) }
+                        gone -> { forget() ; then(Answer.Failed(context.getString(R.string.no_provider))) }
+                        else -> then(tried.getOrElse { Answer.Failed(it.message ?: it.toString()) })
+                    }
+                }
             }
         }
     }
@@ -101,11 +131,7 @@ class Provider(private val context: Context) {
         }
     }
 
-    fun close() {
-        bond?.let { runCatching { context.unbindService(it) } }
-        bond = null
-        door = null
-    }
+    fun close() = forget()
 
     companion object {
         const val ERROR_GENERIC = 0
