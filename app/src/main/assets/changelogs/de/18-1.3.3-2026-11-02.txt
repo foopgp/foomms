@@ -1,0 +1,6 @@
+• Drei Seiten: Unterhaltungen, in denen Einzelgespräche und Gruppen gemeinsam aufeinander folgen; Ungelesen; und Mein Profil.
+• Eine Gruppe benennen: Ihr Name ersetzt die Gesichter in der Leiste und erscheint in der Liste und den Benachrichtigungen. Er verlässt Ihr Telefon nicht.
+• Mein Profil: empfangene und gesendete Nachrichten, Einzel- und Gruppenunterhaltungen, Entwürfe, Sicherung und Ihre „Ich“-Karte mit allem, was man damit tun kann.
+• Beim Start fragt foomms, welche Kontaktkarte Ihre ist, solange Sie es nicht gesagt haben.
+• MMS-Gruppen standardmäßig bis zu 20 Mitglieder.
+• Nach einer Aktualisierung von foodjis verbindet sich foomms von selbst neu, ohne Fehlerfenster.

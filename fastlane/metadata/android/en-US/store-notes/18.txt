@@ -1,0 +1,6 @@
+• Three pages: Conversations, Unread, My profile.
+• Groups named on your phone.
+• My profile: counts, drafts, backup, your card.
+• At start, choosing your contact card.
+• MMS groups of up to 20 members.
+• Automatic reconnection after foodjis is updated.

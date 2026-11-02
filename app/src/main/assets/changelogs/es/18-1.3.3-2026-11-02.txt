@@ -1,0 +1,6 @@
+• Tres páginas: Conversaciones, donde los intercambios de dos y los grupos se suceden juntos; No leídos; y Mi perfil.
+• Nombrar un grupo: su nombre sustituye a las caras en la barra y aparece en la lista y en las notificaciones. No sale de su teléfono.
+• Mi perfil: los mensajes recibidos y enviados, las conversaciones individuales y de grupo, los borradores, la copia de seguridad y su ficha «Yo» con todo lo que se puede hacer con ella.
+• Al iniciar, foomms pregunta cuál es su ficha de contacto, mientras no lo haya indicado.
+• Grupos MMS de hasta 20 miembros por defecto.
+• Tras una actualización de foodjis, foomms se vuelve a conectar solo, sin ventana de error.

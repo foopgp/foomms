@@ -1,0 +1,6 @@
+• Tres páginas: Conversaciones, No leídos, Mi perfil.
+• Grupos nombrados en su teléfono.
+• Mi perfil: recuentos, borradores, copia de seguridad, su ficha.
+• Al iniciar, elección de su ficha de contacto.
+• Grupos MMS de hasta 20 miembros.
+• Reconexión automática tras una actualización de foodjis.

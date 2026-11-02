@@ -1,0 +1,6 @@
+• Three pages: Conversations, where one-to-one exchanges and groups follow one another; Unread; and My profile.
+• Name a group: its name replaces the faces in the bar, and shows in the list and the notifications. It never leaves your phone.
+• My profile: messages received and sent, one-to-one and group conversations, drafts, backup, and your "Me" card with all that can be done about it.
+• At start, foomms asks which contact card is yours, until you have said.
+• MMS groups of up to 20 members by default.
+• After foodjis is updated, foomms reconnects by itself, with no error window.
