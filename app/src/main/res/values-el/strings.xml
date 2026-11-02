@@ -152,7 +152,7 @@
     <string name="place_seeking">Εντοπισμός θέσης…</string>
     <string name="place_none">Το τηλέφωνο δεν γνωρίζει αυτή τη στιγμή πού βρίσκεται.</string>
     <string name="backup_all">Αντίγραφο ασφαλείας</string>
-    <string name="backup_one">💾 Αποθήκευση αυτής της συνομιλίας</string>
+    <string name="backup_one">💾 Αποθήκευση της συνομιλίας</string>
     <string name="backup_about">Όλες οι συνομιλίες αποθηκεύονται σε αρχείο XML. Τα μηνύματα PGP μένουν όπως ταξίδεψαν: κρυπτογραφημένα.</string>
     <string name="backup_save">Αποθήκευση όλων</string>
     <string name="backup_restore">Επαναφορά αντιγράφου</string>

@@ -154,7 +154,7 @@
     <string name="place_seeking">Определение местоположения…</string>
     <string name="place_none">Телефон сейчас не знает, где находится.</string>
     <string name="backup_all">Резервная копия</string>
-    <string name="backup_one">💾 Сохранить эту переписку</string>
+    <string name="backup_one">💾 Сохранить переписку</string>
     <string name="backup_about">Все переписки сохраняются в файл XML. Сообщения PGP остаются такими, какими были в пути: зашифрованными.</string>
     <string name="backup_save">Сохранить всё</string>
     <string name="backup_restore">Восстановить из копии</string>

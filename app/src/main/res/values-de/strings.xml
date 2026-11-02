@@ -152,7 +152,7 @@
     <string name="place_seeking">Standort wird ermittelt…</string>
     <string name="place_none">Das Telefon kennt seinen Standort gerade nicht.</string>
     <string name="backup_all">Sicherung</string>
-    <string name="backup_one">💾 Diese Unterhaltung sichern</string>
+    <string name="backup_one">💾 Die Unterhaltung sichern</string>
     <string name="backup_about">Alle Unterhaltungen werden in einer XML-Datei gesichert. PGP-Nachrichten bleiben, wie sie übertragen wurden: verschlüsselt.</string>
     <string name="backup_save">Alles sichern</string>
     <string name="backup_restore">Eine Sicherung wiederherstellen</string>

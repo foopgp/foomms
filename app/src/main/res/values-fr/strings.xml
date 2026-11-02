@@ -152,7 +152,7 @@
     <string name="place_seeking">Recherche de votre position…</string>
     <string name="place_none">Le téléphone ne sait pas où il est pour l\'instant.</string>
     <string name="backup_all">Sauvegarde</string>
-    <string name="backup_one">💾 Sauvegarder cette conversation</string>
+    <string name="backup_one">💾 Sauvegarder la conversation</string>
     <string name="backup_about">Toutes les conversations sont enregistrées dans un fichier XML. Les messages PGP demeurent tels qu\'ils ont voyagé : chiffrés.</string>
     <string name="backup_save">Tout sauvegarder</string>
     <string name="backup_restore">Restaurer une sauvegarde</string>
