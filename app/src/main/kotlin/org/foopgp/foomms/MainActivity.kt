@@ -950,9 +950,12 @@ class MainActivity : AskingActivity() {
 
     /** Pressed long, a conversation says what can be done about it and about who it is with. */
     private fun about(row: Row) {
-        // A group's own menu comes with its name.
-        if (row.talk.group) return
-        val sender = row.talk.number ?: return
+        // A group's menu needs its members, which its conversation reads: opened, and the menu over it.
+        if (row.talk.group || row.group != null) {
+            return open(row.talk, ask = ThreadActivity.ASK_MENU, threads = row.threads, with = row.with ?: row.talk.number, messages = row.messages)
+        }
+        // Whom it is with, as the line opens it: Android files some conversations between two under no number.
+        val sender = row.with ?: row.talk.number ?: return
         TalkMenu.show(
             this, row.name, sender, row.person, row.talk.thread,
             // Tying is done from the conversation, which is where foodjis shows its list over.

@@ -812,6 +812,8 @@ class ThreadActivity : AskingActivity() {
         val usable = found.count { it.card?.usable == true } + (if (mineUsable) 1 else 0)
         under.text = android.text.SpannableStringBuilder(resources.getQuantityString(R.plurals.group_members, all, all))
             .append("  ·  🔑 $usable/$all")
+        // Pressed long in the list of conversations: the group's menu, now that its members are known.
+        if (intent.getStringExtra(EXTRA_ASK) == ASK_MENU) { intent.removeExtra(EXTRA_ASK) ; groupMenu() }
         if (first) { locks.isChecked = lockable() ; signs.isChecked = lockable() }
         paint()
         bubbles.notifyDataSetChanged()
@@ -2263,6 +2265,7 @@ class ThreadActivity : AskingActivity() {
         const val EXTRA_ASK = "ask"
         const val ASK_TIE = "tie"
         const val ASK_REFRESH = "refresh"
+        const val ASK_MENU = "menu"
 
         /** The date of the message to show first. */
         const val EXTRA_AT = "at"
