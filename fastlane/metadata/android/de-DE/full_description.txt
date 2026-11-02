@@ -3,16 +3,22 @@ foomms ist ein SMS- und MMS-Messenger, der Ihre Nachrichten mit PGP verschlüsse
 Was Sie tun können:
 
 • An eine Nummer schreiben: Die Nachricht wird für das Zertifikat ihres Inhabers verschlüsselt und mit Ihrem Schlüssel signiert. Lesen, was man Ihnen schickt, und wissen, wer es signiert hat.
-• An eine Gruppe schreiben: Alle sehen, wer geschrieben hat, und antworten allen; die Mitgliederliste reist mit jeder Nachricht. Oder dieselbe Nachricht jedem einzeln senden, nur für ihn verschlüsselt.
+• An eine Gruppe von bis zu zwanzig Personen schreiben: Alle sehen, wer geschrieben hat, und antworten allen; die Mitgliederliste reist mit jeder Nachricht. Oder dieselbe Nachricht jedem einzeln senden, nur für ihn verschlüsselt.
 • Eine Nachricht auf einen Blick erkennen, an den Farben von foodjis: grün verschlüsselt und beglaubigt, blau signiert und beglaubigt, gelb verschlüsselt, rot unverschlüsselt und nicht beglaubigt, grau geschlossen.
 • Eine Nummer im Adressbuch mit dem Zertifikat ihres Inhabers verknüpfen.
 • Ein Foto, ein Bild, einen Kontakt, Ihren Standort oder eine Datei anhängen; eine Sprachnachricht aufnehmen, indem Sie das leere Feld gedrückt halten.
 • In den Unterhaltungen suchen; sie im Format von „SMS Backup & Restore“ sichern und wiederherstellen.
 • Sie zur Nachrichten-App des Telefons machen.
 
-Verschlüsselte Nachrichten folgen dem PGP-Standard: Ihr Gegenüber kann eine andere PGP-Anwendung verwenden, nichts bindet Sie an foomms. Einmal den Schlüssel anhalten öffnet mehrere Nachrichten auf einmal, die sich nach der gewählten Zeit wieder schließen.
+Was foomms besser macht als Messenger, die von Unternehmen betrieben werden:
+• Ende-zu-Ende-Verschlüsselung allein unter Ihrem Schlüssel, den sonst niemand besitzt;
+• Interoperabilität: Ihr Gegenüber kann eine andere PGP-Anwendung verwenden, nichts bindet Sie an foomms;
+• kein zentraler Server, nur das Netz Ihres Betreibers;
+• nicht einmal Internet nötig.
 
-Die App verlangt kein Konto, läuft über keinen Server von uns und zeigt keine Werbung: Das Telefonnetz transportiert die Nachrichten.
+Einmal den Schlüssel anhalten öffnet mehrere Nachrichten auf einmal, die sich nach der gewählten Zeit wieder schließen.
+
+Die App verlangt kein Konto, läuft über keinen Server von uns und zeigt keine Werbung: Das Telefonnetz transportiert die Nachrichten. Vorausgesetzt, der Betreiber transportiert MMS: Manche tun es nicht mehr oder haben es nie getan, wie in Deutschland oder Japan. Dort bleiben nur Messenger, die über Server im Internet laufen, was die globale Überwachung erleichtert.
 
 Sie brauchen foodjis, einen kontaktlosen OpenPGP-Sicherheitsschlüssel und ein Telefon mit NFC-Leser.
 

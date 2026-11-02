@@ -3,16 +3,22 @@ foomms est une messagerie SMS et MMS qui chiffre et signe vos messages en PGP. I
 Ce que vous pouvez faire :
 
 • Écrire à un numéro : le message est chiffré pour le certificat de son porteur et signé par votre clé. Lire ce qu'on vous envoie, et savoir qui l'a signé.
-• Écrire à un groupe : chacun voit qui a écrit et répond à tous, et la liste des membres voyage avec chaque message. Ou envoyer le même message à chacun séparément, chiffré pour lui seul.
+• Écrire à un groupe, jusqu'à vingt personnes : chacun voit qui a écrit et répond à tous, et la liste des membres voyage avec chaque message. Ou envoyer le même message à chacun séparément, chiffré pour lui seul.
 • Reconnaître un message d'un coup d'œil, aux couleurs de foodjis : vert chiffré et certifié, bleu signé et certifié, jaune chiffré, rouge en clair et non certifié, gris fermé.
 • Relier un numéro au certificat de son porteur, dans votre carnet d'adresses.
 • Joindre une photo, une image, un contact, votre position ou un fichier ; enregistrer un message vocal en maintenant le champ vide.
 • Chercher dans les conversations ; sauvegarder et restaurer au format de « SMS Backup & Restore ».
 • En faire l'application de messagerie du téléphone.
 
-Les messages chiffrés suivent le standard PGP : votre correspondant peut utiliser une autre application PGP, rien ne vous enferme dans foomms. Approcher votre clé une fois ouvre d'un coup plusieurs messages, qui se referment au bout du temps que vous avez choisi.
+Ce que foomms fait mieux que les messageries servies par des entreprises :
+• un chiffrement de bout en bout sous votre seule clé, que personne d'autre ne détient ;
+• l'interopérabilité : votre correspondant peut utiliser une autre application PGP, rien ne vous enferme dans foomms ;
+• aucun serveur central, rien que le réseau de votre opérateur ;
+• même pas besoin d'Internet.
 
-L'application ne demande aucun compte, ne passe par aucun serveur à nous et n'affiche aucune publicité : c'est le réseau du téléphone qui transporte les messages.
+Approcher votre clé une fois ouvre d'un coup plusieurs messages, qui se referment au bout du temps que vous avez choisi.
+
+L'application ne demande aucun compte, ne passe par aucun serveur à nous et n'affiche aucune publicité : c'est le réseau du téléphone qui transporte les messages. Encore faut-il que l'opérateur transporte les MMS : certains ne le font plus, ou ne l'ont jamais fait, comme en Allemagne ou au Japon. Il n'y reste alors que des messageries qui passent par des serveurs sur Internet, ce qui facilite la surveillance globale.
 
 Il vous faut foodjis, une clé de sécurité OpenPGP sans contact et un téléphone doté d'un lecteur NFC.
 

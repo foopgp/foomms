@@ -3,16 +3,22 @@ foomms to komunikator SMS i MMS, który szyfruje i podpisuje Twoje wiadomości p
 Co możesz zrobić:
 
 • Napisać na numer: wiadomość jest szyfrowana dla certyfikatu jego właściciela i podpisywana Twoim kluczem. Czytać to, co Ci przysłano, i wiedzieć, kto to podpisał.
-• Napisać do grupy: każdy widzi, kto napisał, i odpowiada wszystkim, a lista członków podróżuje z każdą wiadomością. Albo wysłać tę samą wiadomość każdemu osobno, zaszyfrowaną tylko dla niego.
+• Napisać do grupy liczącej do dwudziestu osób: każdy widzi, kto napisał, i odpowiada wszystkim, a lista członków podróżuje z każdą wiadomością. Albo wysłać tę samą wiadomość każdemu osobno, zaszyfrowaną tylko dla niego.
 • Rozpoznać wiadomość na pierwszy rzut oka, po kolorach foodjis: zielony zaszyfrowane i poświadczone, niebieski podpisane i poświadczone, żółty zaszyfrowane, czerwony jawne i niepoświadczone, szary zamknięte.
 • Powiązać numer z certyfikatem jego właściciela w książce adresowej.
 • Dołączyć zdjęcie, obraz, kontakt, swoje położenie lub plik; nagrać wiadomość głosową, przytrzymując puste pole.
 • Wyszukiwać w rozmowach; robić ich kopię zapasową i przywracać je w formacie „SMS Backup & Restore”.
 • Uczynić z niego aplikację do wiadomości w telefonie.
 
-Zaszyfrowane wiadomości są zgodne ze standardem PGP: Twój rozmówca może używać innej aplikacji PGP, nic nie wiąże Cię z foomms. Jedno przyłożenie klucza otwiera naraz kilka wiadomości, które zamykają się ponownie po wybranym czasie.
+W czym foomms jest lepszy od komunikatorów prowadzonych przez firmy:
+• szyfrowanie end-to-end wyłącznie pod Twoim kluczem, którego nikt inny nie posiada;
+• interoperacyjność: Twój rozmówca może używać innej aplikacji PGP, nic nie wiąże Cię z foomms;
+• żadnego centralnego serwera, tylko sieć Twojego operatora;
+• nie potrzeba nawet Internetu.
 
-Aplikacja nie wymaga konta, nie korzysta z żadnego naszego serwera i nie wyświetla reklam: wiadomości przenosi sieć telefoniczna.
+Jedno przyłożenie klucza otwiera naraz kilka wiadomości, które zamykają się ponownie po wybranym czasie.
+
+Aplikacja nie wymaga konta, nie korzysta z żadnego naszego serwera i nie wyświetla reklam: wiadomości przenosi sieć telefoniczna. O ile operator przenosi MMS-y: niektórzy już tego nie robią lub nigdy nie robili, jak w Niemczech czy w Japonii. Zostają tam tylko komunikatory przechodzące przez serwery w Internecie, co ułatwia globalną inwigilację.
 
 Potrzebujesz foodjis, bezstykowego klucza bezpieczeństwa OpenPGP i telefonu z czytnikiem NFC.
 
