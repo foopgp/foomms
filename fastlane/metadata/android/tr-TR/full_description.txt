@@ -14,7 +14,8 @@ foomms'un şirketlerin sunduğu mesajlaşma uygulamalarından daha iyi yaptıkla
 • yalnızca sizin anahtarınızla, başka kimsenin sahip olmadığı uçtan uca şifreleme;
 • birlikte çalışabilirlik: yazıştığınız kişi başka bir PGP uygulaması kullanabilir, hiçbir şey sizi foomms'a bağlamaz;
 • merkezi sunucu yok, yalnızca operatörünüzün şebekesi;
-• İnternet'e bile gerek yok.
+• İnternet'e bile gerek yok;
+• dijital sadelik: bir mesaj nadiren 300 KB'ı aşar, fotoğraf ve videolar görülmeleri için gereken boyuta küçültülür.
 
 Anahtarınızı bir kez yaklaştırmak birkaç mesajı birden açar; bunlar seçtiğiniz süre sonunda yeniden kapanır.
 

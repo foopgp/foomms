@@ -14,7 +14,8 @@ W czym foomms jest lepszy od komunikatorów prowadzonych przez firmy:
 • szyfrowanie end-to-end wyłącznie pod Twoim kluczem, którego nikt inny nie posiada;
 • interoperacyjność: Twój rozmówca może używać innej aplikacji PGP, nic nie wiąże Cię z foomms;
 • żadnego centralnego serwera, tylko sieć Twojego operatora;
-• nie potrzeba nawet Internetu.
+• nie potrzeba nawet Internetu;
+• cyfrowa oszczędność: wiadomość rzadko przekracza 300 KB, zdjęcia i filmy zmniejszone do tego, co potrzebne, by je zobaczyć.
 
 Jedno przyłożenie klucza otwiera naraz kilka wiadomości, które zamykają się ponownie po wybranym czasie.
 

@@ -14,7 +14,8 @@ Ciò che foomms fa meglio delle messaggistiche offerte da aziende:
 • una cifratura end-to-end sotto la vostra sola chiave, che nessun altro possiede;
 • l'interoperabilità: il vostro interlocutore può usare un'altra applicazione PGP, nulla vi lega a foomms;
 • nessun server centrale, solo la rete del vostro operatore;
-• nemmeno bisogno di Internet.
+• nemmeno bisogno di Internet;
+• la sobrietà digitale: un messaggio supera di rado i 300 KB, foto e video ridotti a quanto serve per essere visti.
 
 Avvicinare la chiave una volta apre più messaggi insieme, che si richiudono dopo il tempo che avete scelto.
 

@@ -14,7 +14,8 @@ What foomms does better than messengers run by companies:
 • end-to-end encryption under your key alone, which nobody else holds;
 • interoperability: the person you write to can use another PGP application, nothing locks you into foomms;
 • no central server, nothing but your operator's network;
-• not even any need for the Internet.
+• not even any need for the Internet;
+• digital sobriety: a message rarely exceeds 300 KB, photos and videos cut down to what it takes to be seen.
 
 Holding your key to the phone once opens several messages at a time, which close again after the time you choose.
 
