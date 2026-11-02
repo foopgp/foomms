@@ -90,7 +90,8 @@
     <string name="tie">🔑 Σύνδεση με πιστοποιητικό</string>
     <string name="group_name">🏷 Ονομασία ομάδας</string>
     <string name="group_rename">🏷 Μετονομασία ομάδας</string>
-    <string name="group_name_hint">Όνομα της ομάδας, ορατό μόνο σε αυτό το τηλέφωνο</string>
+    <string name="group_name_hint">Όνομα της ομάδας</string>
+    <string name="group_name_own">Αυτό το όνομα δεν φεύγει από το τηλέφωνό σας: κάθε μέλος ονομάζει την ομάδα όπως θέλει.</string>
     <string name="mute">🔕 Απενεργοποίηση ειδοποιήσεων</string>
     <string name="unmute">🔔 Ενεργοποίηση ειδοποιήσεων</string>
     <string name="forget_talk">✖ Διαγραφή της συνομιλίας</string>

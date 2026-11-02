@@ -90,7 +90,8 @@
     <string name="tie">🔑 Collega a un certificato</string>
     <string name="group_name">🏷 Dai un nome al gruppo</string>
     <string name="group_rename">🏷 Rinomina il gruppo</string>
-    <string name="group_name_hint">Nome del gruppo, visibile solo su questo telefono</string>
+    <string name="group_name_hint">Nome del gruppo</string>
+    <string name="group_name_own">Questo nome non lascia il tuo telefono: ogni membro chiama il gruppo a modo suo.</string>
     <string name="mute">🔕 Disattiva le notifiche</string>
     <string name="unmute">🔔 Attiva le notifiche</string>
     <string name="forget_talk">✖ Elimina la conversazione</string>

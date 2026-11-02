@@ -90,7 +90,8 @@
     <string name="tie">🔑 Связать с сертификатом</string>
     <string name="group_name">🏷 Назвать группу</string>
     <string name="group_rename">🏷 Переименовать группу</string>
-    <string name="group_name_hint">Название группы, видно только на этом телефоне</string>
+    <string name="group_name_hint">Название группы</string>
+    <string name="group_name_own">Это название не покидает ваш телефон: каждый участник называет группу по-своему.</string>
     <string name="mute">🔕 Отключить уведомления</string>
     <string name="unmute">🔔 Включить уведомления</string>
     <string name="forget_talk">✖ Удалить переписку</string>

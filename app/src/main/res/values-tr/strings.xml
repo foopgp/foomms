@@ -90,7 +90,8 @@
     <string name="tie">🔑 Bir sertifikaya bağla</string>
     <string name="group_name">🏷 Gruba ad ver</string>
     <string name="group_rename">🏷 Grubu yeniden adlandır</string>
-    <string name="group_name_hint">Grubun adı, yalnızca bu telefonda görünür</string>
+    <string name="group_name_hint">Grubun adı</string>
+    <string name="group_name_own">Bu ad telefonunuzdan çıkmaz: her üye grubu kendi bildiği gibi adlandırır.</string>
     <string name="mute">🔕 Bildirimleri kapat</string>
     <string name="unmute">🔔 Bildirimleri aç</string>
     <string name="forget_talk">✖ Konuşmayı sil</string>

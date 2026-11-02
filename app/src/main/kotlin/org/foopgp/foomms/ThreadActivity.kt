@@ -930,7 +930,15 @@ class ThreadActivity : AskingActivity() {
         val pad = Look.dp(this, 20)
         AlertDialog.Builder(this)
             .setTitle(if (now == null) R.string.group_name else R.string.group_rename)
-            .setView(android.widget.FrameLayout(this).apply { setPadding(pad, Look.dp(context, 8), pad, 0) ; addView(field) })
+            .setView(
+                LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(pad, Look.dp(context, 8), pad, 0)
+                    addView(field)
+                    // Said quietly, under the field: the name is the person's own, not the group's.
+                    addView(Look.words(context, getString(R.string.group_name_own), size = 13f, muted = true).apply { setPadding(0, Look.dp(context, 4), 0, 0) })
+                },
+            )
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 GroupNames.name(this, groupSet(), field.text.toString())
                 load(first = false)
