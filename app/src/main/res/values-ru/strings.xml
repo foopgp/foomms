@@ -126,7 +126,8 @@
     <string name="mark_all_read_ask">Отметить непрочитанные сообщения (%1$d) как прочитанные?</string>
     <string name="mark_read">○ Отметить как прочитанное</string>
     <string name="mark_unread">● Отметить как непрочитанное</string>
-    <string name="count_detail">%1$d сообщений: %2$d SMS + %3$d MMS\nиз них %4$d PGP: %5$d SMS + %6$d MMS\n%9$d получено: %13$d SMS + %14$d MMS\n%10$d отправлено: %15$d SMS + %16$d MMS\n\n%7$d переписок: %11$d личных + %12$d групповых\n%8$s байт</string>
+    <string name="count_detail">%1$d сообщений: %2$d SMS + %3$d MMS\nиз них %4$d PGP: %5$d SMS + %6$d MMS\n%9$d получено: %13$d SMS + %14$d MMS\n%10$d отправлено: %15$d SMS + %16$d MMS\n\n%7$d переписок: %11$d личных + %12$d групповых</string>
+    <string name="count_bytes">%1$s байт</string>
     <plurals name="count_detail_unread_rest">
         <item quantity="one">, из них %1$d PGP, в %2$d переписке.</item>
         <item quantity="few">, из них %1$d PGP, в %2$d переписках.</item>
@@ -319,11 +320,11 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Все контакты (%1$d)</string>
     <string name="conf_group_most">Предел группового MMS</string>
-    <string name="conf_group_most_note">MMS обычно ограничены 20 получателями. Некоторые операторы принимают гораздо больше, немногие — только десять. Другие же, как в Германии, отменяют MMS в пользу интернет-мессенджеров — настоящий подарок для глобальной техно-слежки.</string>
+    <string name="conf_group_most_note">MMS обычно ограничены 20 получателями. Некоторые операторы принимают гораздо больше, немногие — только десять.</string>
     <string name="group_over">В этой группе %1$d участников, включая вас, больше предела %2$d, заданного в настройках: оператор может отклонить сообщение или доставить его каждому по отдельности.</string>
     <string name="group_over_send">Всё равно отправить</string>
     <string name="conf_mms_on">Разрешить отправку MMS</string>
-    <string name="conf_mms_on_note">Позволяет отправлять групповые сообщения, тексты длиннее 8 SMS, голосовые сообщения, фото или короткие видео. Между операторами MMS доходит менее надёжно, чем SMS, а некоторые тарифы его оплачивают отдельно.</string>
+    <string name="conf_mms_on_note">Позволяет отправлять групповые сообщения, тексты длиннее 8 SMS, голосовые сообщения, фото или короткие видео. Между операторами MMS доходит менее надёжно, чем SMS, а некоторые тарифы его оплачивают отдельно. Другие операторы вовсе не поддерживают MMS, что на руку интернет-мессенджерам, а значит, и глобальной слежке.</string>
     <string name="mms_off">Отправка MMS не разрешена в настройках: ни вложений, ни голосовых сообщений, ни групповых MMS.</string>
     <string name="many_sms">Это сообщение уйдёт %1$d SMS: некоторые телефоны плохо их склеивают, а оператор может брать плату за каждое.</string>
 </resources>

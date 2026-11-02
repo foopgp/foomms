@@ -126,7 +126,8 @@
     <string name="mark_all_read_ask">Oznaczyć nieprzeczytane wiadomości (%1$d) jako przeczytane?</string>
     <string name="mark_read">○ Oznacz jako przeczytane</string>
     <string name="mark_unread">● Oznacz jako nieprzeczytane</string>
-    <string name="count_detail">%1$d wiadomości: %2$d SMS + %3$d MMS\nw tym %4$d PGP: %5$d SMS + %6$d MMS\n%9$d odebranych: %13$d SMS + %14$d MMS\n%10$d wysłanych: %15$d SMS + %16$d MMS\n\n%7$d rozmów: %11$d indywidualnych + %12$d grupowych\n%8$s bajtów</string>
+    <string name="count_detail">%1$d wiadomości: %2$d SMS + %3$d MMS\nw tym %4$d PGP: %5$d SMS + %6$d MMS\n%9$d odebranych: %13$d SMS + %14$d MMS\n%10$d wysłanych: %15$d SMS + %16$d MMS\n\n%7$d rozmów: %11$d indywidualnych + %12$d grupowych</string>
+    <string name="count_bytes">%1$s bajtów</string>
     <plurals name="count_detail_unread_rest">
         <item quantity="one">, w tym %1$d PGP, w %2$d rozmowie.</item>
         <item quantity="few">, w tym %1$d PGP, w %2$d rozmowach.</item>
@@ -319,11 +320,11 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Wszystkie kontakty (%1$d)</string>
     <string name="conf_group_most">Limit grupowego MMS</string>
-    <string name="conf_group_most_note">MMS-y są zwykle ograniczone do 20 odbiorców. Niektórzy operatorzy przyjmują znacznie więcej, nieliczni tylko dziesięciu. Inni, jak w Niemczech, likwidują MMS-y na rzecz komunikatorów internetowych – gratka dla globalnej technoinwigilacji.</string>
+    <string name="conf_group_most_note">MMS-y są zwykle ograniczone do 20 odbiorców. Niektórzy operatorzy przyjmują znacznie więcej, nieliczni tylko dziesięciu.</string>
     <string name="group_over">Ta grupa liczy %1$d członków, wliczając Ciebie, ponad limit %2$d ustawiony w konfiguracji: operator może odrzucić wiadomość albo dostarczyć ją każdemu osobno.</string>
     <string name="group_over_send">Wyślij mimo to</string>
     <string name="conf_mms_on">Zezwalaj na wysyłanie MMS</string>
-    <string name="conf_mms_on_note">Pozwala wysyłać wiadomości grupowe, teksty dłuższe niż 8 SMS-ów, wiadomości głosowe, zdjęcia lub krótkie filmy. Między operatorami MMS dociera mniej pewnie niż SMS, a niektóre taryfy go dodatkowo naliczają.</string>
+    <string name="conf_mms_on_note">Pozwala wysyłać wiadomości grupowe, teksty dłuższe niż 8 SMS-ów, wiadomości głosowe, zdjęcia lub krótkie filmy. Między operatorami MMS dociera mniej pewnie niż SMS, a niektóre taryfy go dodatkowo naliczają. Inni operatorzy w ogóle nie obsługują MMS-ów, co sprzyja komunikatorom internetowym, a więc globalnej inwigilacji.</string>
     <string name="mms_off">Wysyłanie MMS nie jest dozwolone w konfiguracji: ani załącznika, ani wiadomości głosowej, ani grupowego MMS.</string>
     <string name="many_sms">Ta wiadomość pójdzie w %1$d SMS-ach: niektóre telefony źle je składają, a operator może naliczyć każdy osobno.</string>
 </resources>

@@ -135,6 +135,10 @@ class MainActivity : AskingActivity() {
     private lateinit var tools: LinearLayout
     private lateinit var markAll: android.widget.Button
     private lateinit var draftsLine: LinearLayout
+
+    /** On the profile's page: what the messages weigh, saving them all, restoring a saving. */
+    private lateinit var savingLines: LinearLayout
+    private lateinit var bytesSaid: android.widget.TextView
     private lateinit var draftsSaid: android.widget.TextView
     private lateinit var clearDrafts: android.widget.Button
     private lateinit var unreadSaid: android.widget.TextView
@@ -232,6 +236,34 @@ class MainActivity : AskingActivity() {
             setOnClickListener { go(Page.TALKS) }
         }
         column.addView(detail)
+        // On the profile's page, under the counts: what it all weighs and saving it all, then restoring a saving --
+        // what the configuration's page offers, where the counts are.
+        bytesSaid = Look.words(this, "", size = 14f, muted = true)
+        savingLines = Look.column(this).apply {
+            val side = Look.dp(context, 16)
+            setPadding(side, 0, side, Look.dp(context, 14))
+            visibility = View.GONE
+            addView(
+                LinearLayout(context).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    addView(bytesSaid, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                    addView(Look.small(context, getString(R.string.backup_save)) { Saving.save(this@MainActivity) })
+                },
+            )
+            addView(
+                LinearLayout(context).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.END
+                    addView(
+                        Look.small(context, getString(R.string.backup_restore)) {
+                            if (!Saving.restore(this@MainActivity)) android.widget.Toast.makeText(this@MainActivity, R.string.forget_not_ours, android.widget.Toast.LENGTH_LONG).show()
+                        },
+                    )
+                },
+            )
+        }
+        column.addView(savingLines)
         // The drafts, and a way to be rid of them all, on a line before the unread.
         draftsSaid = Look.words(this, "", size = 14f, muted = true)
         clearDrafts = Look.small(this, getString(R.string.clear_drafts)) { clearDrafts() }
@@ -448,7 +480,8 @@ class MainActivity : AskingActivity() {
     override fun onActivityResult(request: Int, outcome: Int, data: android.content.Intent?) {
         super.onActivityResult(request, outcome, data)
         if (MeMenu.result(this, request, outcome, data)) return meChanged()
-        Saving.done(this, request, outcome, data) { android.widget.Toast.makeText(this, it, android.widget.Toast.LENGTH_LONG).show() }
+        // A saving made or restored, said as it goes; once said done, the conversations and the counts are read again.
+        Saving.done(this, request, outcome, data) { android.widget.Toast.makeText(this, it, android.widget.Toast.LENGTH_LONG).show() ; fill() }
         // Asked to be the messaging application, whatever was answered: what is still missing is asked now.
         if (request == ROLE) {
             val still = (NEEDED + listOfNotNull(NOTIFY)).filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
@@ -812,6 +845,7 @@ class MainActivity : AskingActivity() {
                 known.receivedSms, known.receivedMms, known.sentSms, known.sentMms,
             )
             draftsSaid.text = resources.getQuantityString(R.plurals.drafts_n, known.drafts, known.drafts)
+            bytesSaid.text = getString(R.string.count_bytes, weight)
             unreadSaid.text = android.text.SpannableStringBuilder().append(
                 resources.getQuantityString(R.plurals.unread_n, known.unread, known.unread),
                 android.text.style.StyleSpan(Typeface.BOLD), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
@@ -821,6 +855,7 @@ class MainActivity : AskingActivity() {
         // The counts and the drafts on the profile's page; on the unread's, how many are unread.
         detail.visibility = if (page == Page.PROFILE && known != null) View.VISIBLE else View.GONE
         draftsLine.visibility = if (page == Page.PROFILE && known != null) View.VISIBLE else View.GONE
+        savingLines.visibility = draftsLine.visibility
         unreadSaid.visibility = if (onlyUnread && known != null) View.VISIBLE else View.GONE
         tools.visibility = unreadSaid.visibility
         // Nothing to do, greyed rather than gone: the line does not jump.

@@ -126,7 +126,8 @@
     <string name="mark_all_read_ask">Позначити непрочитані повідомлення (%1$d) як прочитані?</string>
     <string name="mark_read">○ Позначити як прочитане</string>
     <string name="mark_unread">● Позначити як непрочитане</string>
-    <string name="count_detail">%1$d повідомлень: %2$d SMS + %3$d MMS\nз них %4$d PGP: %5$d SMS + %6$d MMS\n%9$d отриманих: %13$d SMS + %14$d MMS\n%10$d надісланих: %15$d SMS + %16$d MMS\n\n%7$d листувань: %11$d особистих + %12$d групових\n%8$s байтів</string>
+    <string name="count_detail">%1$d повідомлень: %2$d SMS + %3$d MMS\nз них %4$d PGP: %5$d SMS + %6$d MMS\n%9$d отриманих: %13$d SMS + %14$d MMS\n%10$d надісланих: %15$d SMS + %16$d MMS\n\n%7$d листувань: %11$d особистих + %12$d групових</string>
+    <string name="count_bytes">%1$s байтів</string>
     <plurals name="count_detail_unread_rest">
         <item quantity="one">, з них %1$d PGP, у %2$d листуванні.</item>
         <item quantity="few">, з них %1$d PGP, у %2$d листуваннях.</item>
@@ -319,11 +320,11 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Усі контакти (%1$d)</string>
     <string name="conf_group_most">Межа групового MMS</string>
-    <string name="conf_group_most_note">MMS зазвичай обмежені 20 одержувачами. Деякі оператори приймають набагато більше, нечисленні — лише десять. Інші ж, як у Німеччині, скасовують MMS на користь інтернет-месенджерів — справжній подарунок для глобального техностеження.</string>
+    <string name="conf_group_most_note">MMS зазвичай обмежені 20 одержувачами. Деякі оператори приймають набагато більше, нечисленні — лише десять.</string>
     <string name="group_over">У цій групі %1$d учасників, включно з вами, понад межу %2$d, задану в налаштуваннях: оператор може відхилити повідомлення або доставити його кожному окремо.</string>
     <string name="group_over_send">Однаково надіслати</string>
     <string name="conf_mms_on">Дозволити надсилання MMS</string>
-    <string name="conf_mms_on_note">Дає змогу надсилати групові повідомлення, тексти, довші за 8 SMS, голосові повідомлення, фото чи короткі відео. Між операторами MMS доходить менш надійно, ніж SMS, а деякі тарифи його оплачують окремо.</string>
+    <string name="conf_mms_on_note">Дає змогу надсилати групові повідомлення, тексти, довші за 8 SMS, голосові повідомлення, фото чи короткі відео. Між операторами MMS доходить менш надійно, ніж SMS, а деякі тарифи його оплачують окремо. Інші оператори зовсім не підтримують MMS, що вигідно інтернет-месенджерам, а отже, глобальному стеженню.</string>
     <string name="mms_off">Надсилання MMS не дозволено в налаштуваннях: ні вкладень, ні голосових повідомлень, ні групових MMS.</string>
     <string name="many_sms">Це повідомлення піде %1$d SMS: деякі телефони погано їх складають, а оператор може брати плату за кожне.</string>
 </resources>

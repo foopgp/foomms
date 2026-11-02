@@ -126,7 +126,8 @@
     <string name="mark_all_read_ask">%1$d okunmamış mesaj okundu olarak işaretlensin mi?</string>
     <string name="mark_read">○ Okundu olarak işaretle</string>
     <string name="mark_unread">● Okunmadı olarak işaretle</string>
-    <string name="count_detail">%1$d mesaj: %2$d SMS + %3$d MMS\nbunların %4$d tanesi PGP: %5$d SMS + %6$d MMS\n%9$d alınan: %13$d SMS + %14$d MMS\n%10$d gönderilen: %15$d SMS + %16$d MMS\n\n%7$d konuşma: %11$d bireysel + %12$d grup\n%8$s bayt</string>
+    <string name="count_detail">%1$d mesaj: %2$d SMS + %3$d MMS\nbunların %4$d tanesi PGP: %5$d SMS + %6$d MMS\n%9$d alınan: %13$d SMS + %14$d MMS\n%10$d gönderilen: %15$d SMS + %16$d MMS\n\n%7$d konuşma: %11$d bireysel + %12$d grup</string>
+    <string name="count_bytes">%1$s bayt</string>
     <plurals name="count_detail_unread_rest">
         <item quantity="one">, bunların %1$d tanesi PGP, %2$d konuşmada.</item>
         <item quantity="other">, bunların %1$d tanesi PGP, %2$d konuşmada.</item>
@@ -303,11 +304,11 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Tüm kişiler (%1$d)</string>
     <string name="conf_group_most">Grup MMS\'i sınırı</string>
-    <string name="conf_group_most_note">MMS\'ler genellikle 20 alıcıyla sınırlıdır. Bazı operatörler çok daha fazlasını kabul eder, birkaçı yalnızca on. Almanya\'daki gibi başkaları ise MMS\'i internet mesajlaşma uygulamaları lehine kaldırıyor: küresel tekno-gözetim için bulunmaz bir nimet.</string>
+    <string name="conf_group_most_note">MMS\'ler genellikle 20 alıcıyla sınırlıdır. Bazı operatörler çok daha fazlasını kabul eder, birkaçı yalnızca on.</string>
     <string name="group_over">Bu grubun siz dahil %1$d üyesi var; yapılandırmada belirlenen %2$d sınırının üzerinde: operatör mesajı reddedebilir ya da her birine ayrı ayrı iletebilir.</string>
     <string name="group_over_send">Yine de gönder</string>
     <string name="conf_mms_on">MMS gönderimine izin ver</string>
-    <string name="conf_mms_on_note">Grup mesajları, 8 SMS\'ten uzun metinler, sesli mesajlar, fotoğraflar veya kısa videolar göndermeyi sağlar. Bir operatörden diğerine MMS, SMS kadar güvenle ulaşmaz ve bazı tarifeler ücret alır.</string>
+    <string name="conf_mms_on_note">Grup mesajları, 8 SMS\'ten uzun metinler, sesli mesajlar, fotoğraflar veya kısa videolar göndermeyi sağlar. Bir operatörden diğerine MMS, SMS kadar güvenle ulaşmaz ve bazı tarifeler ücret alır. Bazı operatörler ise MMS\'i hiç desteklemiyor; bu da internet mesajlaşma uygulamalarına, dolayısıyla küresel gözetime yarıyor.</string>
     <string name="mms_off">Yapılandırmada MMS gönderimine izin verilmiyor: ne ek, ne sesli mesaj, ne grup MMS\'i.</string>
     <string name="many_sms">Bu mesaj %1$d SMS olarak gider: bazı telefonlar onları kötü birleştirir ve operatörünüz her birini ayrı ücretlendirebilir.</string>
 </resources>

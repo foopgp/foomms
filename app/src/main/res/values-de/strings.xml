@@ -126,7 +126,8 @@
     <string name="mark_all_read_ask">Die %1$d ungelesenen Nachrichten als gelesen markieren?</string>
     <string name="mark_read">○ Als gelesen markieren</string>
     <string name="mark_unread">● Als ungelesen markieren</string>
-    <string name="count_detail">%1$d Nachrichten: %2$d SMS + %3$d MMS\ndavon %4$d PGP: %5$d SMS + %6$d MMS\n%9$d empfangen: %13$d SMS + %14$d MMS\n%10$d gesendet: %15$d SMS + %16$d MMS\n\n%7$d Unterhaltungen: %11$d Einzel- + %12$d Gruppenunterhaltungen\n%8$s Bytes</string>
+    <string name="count_detail">%1$d Nachrichten: %2$d SMS + %3$d MMS\ndavon %4$d PGP: %5$d SMS + %6$d MMS\n%9$d empfangen: %13$d SMS + %14$d MMS\n%10$d gesendet: %15$d SMS + %16$d MMS\n\n%7$d Unterhaltungen: %11$d Einzel- + %12$d Gruppenunterhaltungen</string>
+    <string name="count_bytes">%1$s Bytes</string>
     <plurals name="count_detail_unread_rest">
         <item quantity="one">, davon %1$d PGP, in %2$d Unterhaltung.</item>
         <item quantity="other">, davon %1$d PGP, in %2$d Unterhaltungen.</item>
@@ -303,11 +304,11 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">Alle Kontakte (%1$d)</string>
     <string name="conf_group_most">Grenze für Gruppen-MMS</string>
-    <string name="conf_group_most_note">MMS sind meist auf 20 Empfänger begrenzt. Manche Netzbetreiber nehmen weit mehr an, einige wenige nur zehn. Andere wiederum, wie in Deutschland, schaffen die MMS zugunsten von Internet-Messengern ab – ein Glücksfall für die globale Techno-Überwachung.</string>
+    <string name="conf_group_most_note">MMS sind meist auf 20 Empfänger begrenzt. Manche Netzbetreiber nehmen weit mehr an, einige wenige nur zehn.</string>
     <string name="group_over">Diese Gruppe hat %1$d Mitglieder, Sie eingeschlossen, über der in der Konfiguration festgelegten Grenze von %2$d: Das Netz könnte die Nachricht ablehnen oder sie jedem einzeln zustellen.</string>
     <string name="group_over_send">Trotzdem senden</string>
     <string name="conf_mms_on">Senden von MMS erlauben</string>
-    <string name="conf_mms_on_note">Ermöglicht Gruppennachrichten, Texte über 8 SMS, Sprachnachrichten, Fotos oder kurze Videos. Von einem Betreiber zum anderen kommt eine MMS weniger sicher an als eine SMS, und manche Tarife berechnen sie.</string>
+    <string name="conf_mms_on_note">Ermöglicht Gruppennachrichten, Texte über 8 SMS, Sprachnachrichten, Fotos oder kurze Videos. Von einem Betreiber zum anderen kommt eine MMS weniger sicher an als eine SMS, und manche Tarife berechnen sie. Andere Netzbetreiber unterstützen gar keine MMS, was Internet-Messengern und damit der globalen Überwachung zugutekommt.</string>
     <string name="mms_off">Das Senden von MMS ist in der Konfiguration nicht erlaubt: weder Anhang noch Sprachnachricht noch Gruppen-MMS.</string>
     <string name="many_sms">Diese Nachricht geht als %1$d SMS: Manche Telefone setzen sie schlecht zusammen, und Ihr Netz kann jede einzeln berechnen.</string>
 </resources>

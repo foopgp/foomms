@@ -129,7 +129,8 @@
     <string name="mark_all_read_ask">Mark the %1$d unread messages as read?</string>
     <string name="mark_read">○ Mark as read</string>
     <string name="mark_unread">● Mark as unread</string>
-    <string name="count_detail">%1$d messages: %2$d SMS + %3$d MMS\n%4$d of them PGP: %5$d SMS + %6$d MMS\n%9$d received: %13$d SMS + %14$d MMS\n%10$d sent: %15$d SMS + %16$d MMS\n\n%7$d conversations: %11$d one-to-one + %12$d group\n%8$s bytes</string>
+    <string name="count_detail">%1$d messages: %2$d SMS + %3$d MMS\n%4$d of them PGP: %5$d SMS + %6$d MMS\n%9$d received: %13$d SMS + %14$d MMS\n%10$d sent: %15$d SMS + %16$d MMS\n\n%7$d conversations: %11$d one-to-one + %12$d group</string>
+    <string name="count_bytes">%1$s bytes</string>
     <plurals name="count_detail_unread_rest">
         <item quantity="one">, %1$d of them PGP, in %2$d conversation.</item>
         <item quantity="other">, %1$d of them PGP, in %2$d conversations.</item>
@@ -306,11 +307,11 @@
     <!-- A new message: after the recent conversations, every contact one can write to. -->
     <string name="all_contacts">All contacts (%1$d)</string>
     <string name="conf_group_most">MMS group limit</string>
-    <string name="conf_group_most_note">MMS are usually limited to 20 recipients. Some networks take far more, a few others only ten. Others still, as in Germany, drop MMS in favour of Internet messengers, a godsend for global techno-surveillance.</string>
+    <string name="conf_group_most_note">MMS are usually limited to 20 recipients. Some networks take far more, a few others only ten.</string>
     <string name="group_over">This group has %1$d members, oneself included, beyond the limit of %2$d set in the configuration: the network may refuse the message, or deliver it to each alone.</string>
     <string name="group_over_send">Send all the same</string>
     <string name="conf_mms_on">Allow sending MMS</string>
-    <string name="conf_mms_on_note">Lets you send group messages, texts longer than 8 SMS, voice messages, photos or short videos. From one operator to another, an MMS arrives less surely than an SMS, and some plans charge for it.</string>
+    <string name="conf_mms_on_note">Lets you send group messages, texts longer than 8 SMS, voice messages, photos or short videos. From one operator to another, an MMS arrives less surely than an SMS, and some plans charge for it. Other networks do not support MMS at all, which favours Internet messengers and so global surveillance.</string>
     <string name="mms_off">Sending MMS is not allowed in the configuration: no attachment, voice message or group MMS.</string>
     <string name="many_sms">This message leaves in %1$d SMS: some phones put them back together badly, and your network may charge each one.</string>
 </resources>
