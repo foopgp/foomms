@@ -64,11 +64,12 @@ class PictureActivity : Activity() {
                 // Back to the conversation, where the video's page has its stop: the one way out besides back.
                 addView(
                     LinearLayout(context).apply {
-                        gravity = Gravity.END
+                        gravity = Gravity.CENTER_HORIZONTAL
                         setPadding(Look.dp(context, 12), Look.dp(context, 12), Look.dp(context, 12), Look.dp(context, 32))
                         background = Look.shade(android.graphics.drawable.GradientDrawable.Orientation.BOTTOM_TOP)
-                        val round = Look.dp(context, 52)
-                        addView(Look.knob(context, "■", getString(R.string.picture_close)) { finish() }, LinearLayout.LayoutParams(round, round))
+                        // Alone at the bottom, a little larger than the video's, where a thumb finds it.
+                        val round = Look.dp(context, 64)
+                        addView(Look.knob(context, "■", getString(R.string.picture_close)) { finish() }.apply { textSize = 26f }, LinearLayout.LayoutParams(round, round))
                     }.also { over += it },
                     FrameLayout.LayoutParams(-1, -2, Gravity.BOTTOM),
                 )
