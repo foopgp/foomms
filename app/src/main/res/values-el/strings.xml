@@ -229,6 +229,8 @@
     <string name="conf_kb">%1$d kB</string>
     <string name="too_heavy_sent">Αυτό το μήνυμα ζυγίζει %1$d kB, περισσότερο από τα %2$d kB που ορίστηκαν για τα MMS: δεν στάλθηκε.</string>
     <string name="watch_turn">Περιστροφή του βίντεο κατά ένα τέταρτο</string>
+    <string name="picture_turn">Περιστροφή της φωτογραφίας κατά ένα τέταρτο</string>
+    <string name="picture_close">Κλείσιμο της φωτογραφίας</string>
     <string name="video_camera">Πίσω ή μπροστινή κάμερα</string>
     <string name="video_light">Φωτισμός</string>
     <string name="video_sound">Μόνο ήχος (%1$s)</string>

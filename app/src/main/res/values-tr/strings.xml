@@ -229,6 +229,8 @@
     <string name="conf_kb">%1$d kB</string>
     <string name="too_heavy_sent">Bu mesaj %1$d kB ağırlığında, MMS için belirlenen %2$d kB\'tan fazla: gönderilmedi.</string>
     <string name="watch_turn">Videoyu çeyrek tur döndür</string>
+    <string name="picture_turn">Fotoğrafı çeyrek tur döndür</string>
+    <string name="picture_close">Fotoğrafı kapat</string>
     <string name="video_camera">Arka ya da ön kamera</string>
     <string name="video_light">Işık</string>
     <string name="video_sound">Yalnızca ses (%1$s)</string>

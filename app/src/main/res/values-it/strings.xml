@@ -229,6 +229,8 @@
     <string name="conf_kb">%1$d kB</string>
     <string name="too_heavy_sent">Questo messaggio pesa %1$d kB, più dei %2$d kB fissati per gli MMS: non è partito.</string>
     <string name="watch_turn">Ruotare il video di un quarto di giro</string>
+    <string name="picture_turn">Ruotare la foto di un quarto di giro</string>
+    <string name="picture_close">Chiudere la foto</string>
     <string name="video_camera">Fotocamera posteriore o anteriore</string>
     <string name="video_light">Luce</string>
     <string name="video_sound">Solo audio (%1$s)</string>

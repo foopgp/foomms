@@ -395,7 +395,6 @@ class ThreadActivity : AskingActivity() {
         // Closed now: the bubbles show it, and the pictures opened from locked parts go with the rest.
         if (closes == null && wasOpen) {
             openedThumbs.clear()
-            bigs.clear()
             // A voice message opened from its lock and still playing beyond the page stops with the rest.
             val locked = lines.flatMap { it.pieces }.filter(::isSealed).map { it.id }.toSet()
             if (Listening.playing in locked) Listening.stop(this)
@@ -1378,43 +1377,12 @@ class ThreadActivity : AskingActivity() {
         if (isSealed(piece) && opened == null) return pressed(at)
         // a video plays on its own page.
         if (frames.containsKey(piece.id)) return watch(piece, at)
+        // A picture looked at on its own page, on the whole screen.
         if ((opened?.type ?: piece.type).startsWith("image/") && (openedThumbs[piece.id] ?: thumbs[piece.id]) != null) {
-            // Pressed again at once after growing, it asks what to do with it rather than goes back.
-            val grew = grownAt[piece.id]
-            if (piece.id in enlarged && grew != null && android.os.SystemClock.uptimeMillis() - grew < AGAIN) return about(at, piece)
-            return enlarge(piece)
+            val (title, said) = seenAs(piece, at)
+            return PictureActivity.look(this, opened?.bytes, if (opened == null) piece.uri else null, title, said)
         }
         handOver(piece, Intent.ACTION_VIEW)
-    }
-
-    /** The pictures shown as wide as the conversation, by their part; they go back to small when the page goes. */
-    private val enlarged = HashSet<Long>()
-
-    /** When each of them grew. */
-    private val grownAt = HashMap<Long, Long>()
-
-    /** Those pictures, made again at the size of the screen. */
-    private val bigs = HashMap<Long, Bitmap?>()
-
-    private fun enlarge(piece: Store.Piece) {
-        if (!enlarged.add(piece.id)) {
-            enlarged.remove(piece.id)
-            return bubbles.notifyDataSetChanged()
-        }
-        grownAt[piece.id] = android.os.SystemClock.uptimeMillis()
-        bubbles.notifyDataSetChanged()
-        if (bigs[piece.id] != null) return
-        // Made at least the screen's width, at most twice.
-        val side = resources.displayMetrics.widthPixels
-        thread {
-            val opened = Opened.piece(piece.id)
-            val big = if (opened != null) thumbnail(opened.bytes, side) else Media.thumbnail(this, piece.uri, side)
-            runOnUiThread {
-                if (isFinishing || isDestroyed) return@runOnUiThread
-                bigs[piece.id] = big
-                bubbles.notifyDataSetChanged()
-            }
-        }
     }
 
     private var savingPiece: Store.Piece? = null
@@ -1688,10 +1656,15 @@ class ThreadActivity : AskingActivity() {
     /** a video watched on its own page, said there by whose conversation it is, its name and when it came. */
     private fun watch(piece: Store.Piece, at: Int) {
         val opened = Opened.piece(piece.id)
-        val line = lines.getOrNull(at)
-        val name = opened?.name ?: piece.name ?: piece.type
-        val then = line?.let { DateUtils.getRelativeTimeSpanString(it.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL) }
-        WatchActivity.watch(this, opened?.bytes, if (opened == null) piece.uri else null, person?.name ?: number, listOfNotNull(name, then).joinToString("  ·  "))
+        val (title, said) = seenAs(piece, at)
+        WatchActivity.watch(this, opened?.bytes, if (opened == null) piece.uri else null, title, said)
+    }
+
+    /** What a page of its own says over a part: whose conversation, then the part's name and when it came. */
+    private fun seenAs(piece: Store.Piece, at: Int): Pair<String, String> {
+        val name = Opened.piece(piece.id)?.name ?: piece.name ?: piece.type
+        val then = lines.getOrNull(at)?.let { DateUtils.getRelativeTimeSpanString(it.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL) }
+        return (person?.name ?: number) to listOfNotNull(name, then).joinToString("  ·  ")
     }
 
     /** a video, by its first picture with ▶ and its length over it; pressed, it plays on its own page. */
@@ -1714,19 +1687,11 @@ class ThreadActivity : AskingActivity() {
         setOnClickListener { watch() }
     }
 
-    /** A picture as wide as the conversation when it was pressed, small otherwise. */
+    /** A picture, small in its bubble; pressed, on the whole screen. */
     private fun picture(piece: Store.Piece, small: Bitmap): View = android.widget.ImageView(this).apply {
-        val wide = piece.id in enlarged
-        setImageBitmap(if (wide) bigs[piece.id] ?: small else small)
+        setImageBitmap(small)
         adjustViewBounds = true
-        if (wide) {
-            // All the list's width but the bubble's own margins: the picture is drawn larger than it was made if need be.
-            val pad = Look.dp(context, 10)
-            layoutParams = LinearLayout.LayoutParams(list.width - list.paddingLeft - list.paddingRight - 4 * pad - Look.dp(context, 4) - 2 * (pad / 3), ViewGroup.LayoutParams.WRAP_CONTENT)
-            maxHeight = resources.displayMetrics.heightPixels * 3 / 4
-        } else {
-            maxWidth = Look.dp(context, 220) ; maxHeight = Look.dp(context, 220)
-        }
+        maxWidth = Look.dp(context, 220) ; maxHeight = Look.dp(context, 220)
         setPadding(0, Look.dp(context, 4), 0, Look.dp(context, 4))
     }
 
@@ -1942,9 +1907,7 @@ class ThreadActivity : AskingActivity() {
                 layoutDirection = if (line.incoming) View.LAYOUT_DIRECTION_LTR else View.LAYOUT_DIRECTION_RTL
                 bubble.layoutDirection = View.LAYOUT_DIRECTION_LOCALE
                 gravity = Gravity.START or Gravity.CENTER_VERTICAL
-                // A picture made wide takes the margin left on the far side.
-                val far = if (line.pieces.any { it.id in enlarged }) pad else pad * 5
-                setPaddingRelative(pad, pad / 3, far, pad / 3)
+                setPaddingRelative(pad, pad / 3, pad * 5, pad / 3)
                 val stripe = LinearLayout.LayoutParams(Look.dp(context, 4), ViewGroup.LayoutParams.MATCH_PARENT).apply {
                     marginStart = pad / 3 ; marginEnd = pad / 3
                 }
@@ -2131,7 +2094,6 @@ class ThreadActivity : AskingActivity() {
 
 
         /** How soon a picture pressed again after growing gives its menu, in milliseconds. */
-        private const val AGAIN = 300L
 
         /** How many of the latest messages have their pictures shown small. */
         private const val SHOWN_PICTURES = 40

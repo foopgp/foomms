@@ -229,6 +229,8 @@
     <string name="conf_kb">%1$d kB</string>
     <string name="too_heavy_sent">Diese Nachricht wiegt %1$d kB, mehr als die für MMS festgelegten %2$d kB: Sie wurde nicht gesendet.</string>
     <string name="watch_turn">Video um eine Vierteldrehung drehen</string>
+    <string name="picture_turn">Bild um eine Vierteldrehung drehen</string>
+    <string name="picture_close">Bild schließen</string>
     <string name="video_camera">Kamera hinten oder vorne</string>
     <string name="video_light">Licht</string>
     <string name="video_sound">Nur Ton (%1$s)</string>

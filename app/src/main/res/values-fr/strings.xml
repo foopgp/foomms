@@ -229,6 +229,8 @@
     <string name="conf_kb">%1$d Ko</string>
     <string name="too_heavy_sent">Ce message pèse %1$d Ko, plus que les %2$d Ko fixés pour les MMS : il n\'est pas parti.</string>
     <string name="watch_turn">Tourner la vidéo d\'un quart de tour</string>
+    <string name="picture_turn">Tourner la photo d\'un quart de tour</string>
+    <string name="picture_close">Fermer la photo</string>
     <string name="video_camera">Caméra arrière ou avant</string>
     <string name="video_light">Éclairage</string>
     <string name="video_sound">Audio seul (%1$s)</string>

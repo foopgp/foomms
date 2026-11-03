@@ -117,6 +117,12 @@
             android:exported="false"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize" />
 
+        <!-- A picture on the whole screen: turned with the phone, not rebuilt, the picture in memory is not lost. -->
+        <activity
+            android:name=".PictureActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize" />
+
         <!-- What the person sets. -->
         <activity
             android:name=".ConfActivity"

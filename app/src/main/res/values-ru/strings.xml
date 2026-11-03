@@ -231,6 +231,8 @@
     <string name="conf_kb">%1$d КБ</string>
     <string name="too_heavy_sent">Это сообщение весит %1$d КБ, больше установленных для MMS %2$d КБ: оно не отправлено.</string>
     <string name="watch_turn">Повернуть видео на четверть оборота</string>
+    <string name="picture_turn">Повернуть фото на четверть оборота</string>
+    <string name="picture_close">Закрыть фото</string>
     <string name="video_camera">Задняя или передняя камера</string>
     <string name="video_light">Подсветка</string>
     <string name="video_sound">Только звук (%1$s)</string>
