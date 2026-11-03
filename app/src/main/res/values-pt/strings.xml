@@ -220,8 +220,13 @@
     <string name="listening_play">Reproduzir</string>
     <string name="listening_pause">Pausa</string>
     <string name="listening_stop">Parar</string>
-    <string name="conf_mms_size">Usar o limite do operador: %1$d kB, ou seja %2$d kB utilizáveis</string>
-    <string name="conf_mms_size_note">Os MMS costumam estar limitados a %1$d kB, ou seja %2$d kB utilizáveis. O seu operador pode oferecer mais, mas o operador de quem os recebe pode recusar MMS tão generosos.</string>
+    <string name="conf_mms_size">Limite de tamanho MMS</string>
+    <string name="conf_mms_size_note">Os MMS estão geralmente limitados a %1$d kB.</string>
+    <string name="conf_mms_size_more">O seu operador indica %1$d kB, mas o do seu correspondente pode recusar MMS tão generosos.</string>
+    <string name="conf_mms_size_theirs">O seu operador indica %1$d kB.</string>
+    <string name="conf_operator_none">O seu operador não indica o seu limite.</string>
+    <string name="conf_mms_size_margin">Do limite escolhido, %1$d kB ficam reservados para o envelope da mensagem e a cifragem.</string>
+    <string name="conf_kb">%1$d kB</string>
     <string name="too_heavy_sent">Esta mensagem pesa %1$d kB, mais do que os %2$d kB fixados para os MMS: não foi enviada.</string>
     <string name="watch_turn">Rodar o vídeo um quarto de volta</string>
     <string name="video_camera">Câmara traseira ou frontal</string>
@@ -305,10 +310,14 @@
     <string name="all_contacts">Todos os contactos (%1$d)</string>
     <string name="conf_group_most">Limite de grupo MMS</string>
     <string name="conf_group_most_note">Os MMS costumam estar limitados a 20 destinatários. Alguns operadores aceitam muitos mais, uns poucos apenas dez.</string>
+    <string name="conf_group_most_operator">O seu operador indica %1$d destinatários.</string>
+    <string name="conf_sms_most">Limite de texto longo por SMS</string>
+    <string name="conf_sms_most_note">7 SMS é o comprimento máximo que passa em quase todo o lado. Algumas redes aceitam muito mais, e depende também da rede do destinatário. Acima disso, o texto sai como MMS ou, se o envio de MMS estiver desativado, o foomms pede-lhe confirmação primeiro.</string>
+    <string name="conf_sms_most_operator">O seu operador indica %1$d.</string>
     <string name="group_over">Este grupo tem %1$d membros, incluindo si, acima do limite de %2$d fixado na configuração: o operador pode recusar a mensagem, ou entregá-la a cada um separadamente.</string>
     <string name="group_over_send">Enviar mesmo assim</string>
     <string name="conf_mms_on">Permitir o envio de MMS</string>
-    <string name="conf_mms_on_note">Permite enviar mensagens de grupo, textos com mais de 8 SMS, mensagens de voz, fotografias ou vídeos curtos. De um operador para outro, um MMS chega com menos segurança do que um SMS, e alguns tarifários cobram-no. Outros operadores não suportam MMS, o que favorece as mensagens pela Internet e, portanto, a vigilância global.</string>
+    <string name="conf_mms_on_note">Permite enviar mensagens de grupo, textos longos, mensagens de voz, fotografias ou vídeos curtos. De um operador para outro, um MMS chega com menos segurança do que um SMS, e alguns tarifários cobram-no. Outros operadores não suportam MMS, o que favorece as mensagens pela Internet e, portanto, a vigilância global.</string>
     <string name="mms_off">O envio de MMS não está permitido na configuração: nem anexo, nem mensagem de voz, nem grupo MMS.</string>
     <string name="many_sms">Esta mensagem parte em %1$d SMS: alguns telefones juntam-nos mal, e o seu operador pode cobrá-los um a um.</string>
 </resources>

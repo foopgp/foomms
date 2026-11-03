@@ -1123,10 +1123,10 @@ class ThreadActivity : AskingActivity() {
     }
 
     /**
-     * A text leaves as SMS while it takes few of them, as an MMS beyond --
-     * beyond one when the person prefers MMS, beyond five otherwise: in both
-     * it is text, which whoever receives it can read or copy. An operator may
-     * charge for an MMS, and the person can ask to be told before one leaves.
+     * A text leaves as SMS while it takes no more of them than the person
+     * set, as an MMS beyond when MMS may be sent, and otherwise once the
+     * person agreed: in both it is text, which whoever receives it can read
+     * or copy.
      */
     private fun leave(text: String, written: String, verdict: Verdict?) {
         // To a group, always one MMS to all; else an MMS once longer than one SMS, MMS being on.
@@ -1147,7 +1147,7 @@ class ThreadActivity : AskingActivity() {
             list.postDelayed({ if (shown) load() }, 1500)
         }
         // Many SMS: asked first.
-        if (!mms && pieces > Conf.MANY_SMS) {
+        if (!mms && pieces > Conf.smsMost(this)) {
             AlertDialog.Builder(this)
                 .setMessage(getString(R.string.many_sms, pieces))
                 .setPositiveButton(R.string.group_over_send) { _, _ -> go() }

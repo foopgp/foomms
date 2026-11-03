@@ -40,10 +40,20 @@ object Outbox {
     fun operators(context: Context): Int? =
         runCatching { manager(context).carrierConfigValues.getInt(SmsManager.MMS_CONFIG_MAX_MESSAGE_SIZE, 0) }.getOrDefault(0).takeIf { it > 0 }
 
-    /** The heaviest message sent: the lesser of the standard and the operator's, the operator's when the person chose it. */
+    /** How many SMS the operator says a text may leave in before it is an MMS, when it says: a hint, for the person. */
+    fun operatorsSmsMost(context: Context): Int? =
+        runCatching { manager(context).carrierConfigValues.getInt(SmsManager.MMS_CONFIG_SMS_TO_MMS_TEXT_THRESHOLD, -1) }.getOrDefault(-1).takeIf { it > 0 }
+
+    /** How many an MMS may go to, as the operator says, when it says: a hint, for the person -- often a careful one. */
+    fun operatorsGroupMost(context: Context): Int? =
+        runCatching { manager(context).carrierConfigValues.getInt(SmsManager.MMS_CONFIG_RECIPIENT_LIMIT, 0) }.getOrDefault(0).takeIf { it in 1 until Int.MAX_VALUE }
+
+    /** The heaviest message sent: the lesser of the standard and the operator's; where the operator takes more, what the person set within it. */
     fun heaviest(context: Context): Int {
         val theirs = operators(context) ?: return STANDARD
-        return if (theirs > STANDARD && Conf.operatorSize(context)) theirs else minOf(theirs, STANDARD)
+        if (theirs <= STANDARD) return theirs
+        val set = Conf.mmsSize(context)?.let { it * 1024 } ?: if (Conf.operatorSize(context)) theirs else STANDARD
+        return set.coerceIn(STANDARD, theirs)
     }
 
     fun send(context: Context, to: List<String>, pdu: ByteArray, transaction: String, at: Long = System.currentTimeMillis()) {

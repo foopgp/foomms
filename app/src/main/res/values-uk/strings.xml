@@ -222,8 +222,13 @@
     <string name="listening_play">Відтворити</string>
     <string name="listening_pause">Пауза</string>
     <string name="listening_stop">Зупинити</string>
-    <string name="conf_mms_size">Використовувати межу оператора: %1$d КБ, тобто %2$d КБ корисних</string>
-    <string name="conf_mms_size_note">MMS зазвичай обмежені %1$d КБ, тобто %2$d КБ корисних. Ваш оператор може дозволяти більше, але оператор отримувача може відхилити такі щедрі MMS.</string>
+    <string name="conf_mms_size">Межа розміру MMS</string>
+    <string name="conf_mms_size_note">MMS зазвичай обмежені %1$d КБ.</string>
+    <string name="conf_mms_size_more">Ваш оператор вказує %1$d КБ, але оператор співрозмовника може відмовити в таких щедрих MMS.</string>
+    <string name="conf_mms_size_theirs">Ваш оператор вказує %1$d КБ.</string>
+    <string name="conf_operator_none">Ваш оператор не вказує своєї межі.</string>
+    <string name="conf_mms_size_margin">З обраної межі %1$d КБ відведено під конверт повідомлення та шифрування.</string>
+    <string name="conf_kb">%1$d КБ</string>
     <string name="too_heavy_sent">Це повідомлення важить %1$d КБ, більше за встановлені для MMS %2$d КБ: його не надіслано.</string>
     <string name="watch_turn">Повернути відео на чверть оберту</string>
     <string name="video_camera">Задня або передня камера</string>
@@ -321,10 +326,14 @@
     <string name="all_contacts">Усі контакти (%1$d)</string>
     <string name="conf_group_most">Межа групового MMS</string>
     <string name="conf_group_most_note">MMS зазвичай обмежені 20 одержувачами. Деякі оператори приймають набагато більше, нечисленні — лише десять.</string>
+    <string name="conf_group_most_operator">Ваш оператор вказує %1$d одержувачів.</string>
+    <string name="conf_sms_most">Межа довгого тексту через SMS</string>
+    <string name="conf_sms_most_note">7 SMS — найбільша довжина, що проходить майже всюди. Деякі мережі приймають набагато більше, і це залежить також від мережі одержувача. Понад це текст іде як MMS або, якщо надсилання MMS вимкнено, foomms спершу просить підтвердження.</string>
+    <string name="conf_sms_most_operator">Ваш оператор вказує %1$d.</string>
     <string name="group_over">У цій групі %1$d учасників, включно з вами, понад межу %2$d, задану в налаштуваннях: оператор може відхилити повідомлення або доставити його кожному окремо.</string>
     <string name="group_over_send">Однаково надіслати</string>
     <string name="conf_mms_on">Дозволити надсилання MMS</string>
-    <string name="conf_mms_on_note">Дає змогу надсилати групові повідомлення, тексти, довші за 8 SMS, голосові повідомлення, фото чи короткі відео. Між операторами MMS доходить менш надійно, ніж SMS, а деякі тарифи його оплачують окремо. Інші оператори зовсім не підтримують MMS, що вигідно інтернет-месенджерам, а отже, глобальному стеженню.</string>
+    <string name="conf_mms_on_note">Дає змогу надсилати групові повідомлення, довгі тексти, голосові повідомлення, фото чи короткі відео. Між операторами MMS доходить менш надійно, ніж SMS, а деякі тарифи його оплачують окремо. Інші оператори зовсім не підтримують MMS, що вигідно інтернет-месенджерам, а отже, глобальному стеженню.</string>
     <string name="mms_off">Надсилання MMS не дозволено в налаштуваннях: ні вкладень, ні голосових повідомлень, ні групових MMS.</string>
     <string name="many_sms">Це повідомлення піде %1$d SMS: деякі телефони погано їх складають, а оператор може брати плату за кожне.</string>
 </resources>

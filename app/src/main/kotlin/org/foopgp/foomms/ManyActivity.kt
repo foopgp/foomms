@@ -356,7 +356,7 @@ class ManyActivity : AskingActivity() {
             finish()
         }
         // Many SMS: asked first.
-        if (!mms && pieces > Conf.MANY_SMS) {
+        if (!mms && pieces > Conf.smsMost(this)) {
             AlertDialog.Builder(this)
                 .setMessage(getString(R.string.many_sms, pieces))
                 .setPositiveButton(R.string.group_over_send) { _, _ -> go() }

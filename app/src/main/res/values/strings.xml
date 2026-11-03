@@ -223,8 +223,13 @@
     <string name="listening_play">Play</string>
     <string name="listening_pause">Pause</string>
     <string name="listening_stop">Stop</string>
-    <string name="conf_mms_size">Use the operator\'s limit: %1$d kB, that is %2$d kB usable</string>
-    <string name="conf_mms_size_note">MMS are usually limited to %1$d kB, that is %2$d kB usable. Your operator may offer more, but the operator of whoever receives them may refuse MMS that generous.</string>
+    <string name="conf_mms_size">MMS size limit</string>
+    <string name="conf_mms_size_note">MMS are usually limited to %1$d kB.</string>
+    <string name="conf_mms_size_more">Your operator says %1$d kB, but your correspondent\'s may refuse MMS that generous.</string>
+    <string name="conf_mms_size_theirs">Your operator says %1$d kB.</string>
+    <string name="conf_operator_none">Your operator does not say its limit.</string>
+    <string name="conf_mms_size_margin">Of the limit set, %1$d kB are kept for the message\'s envelope and encryption.</string>
+    <string name="conf_kb">%1$d kB</string>
     <string name="too_heavy_sent">This message weighs %1$d kB, more than the %2$d kB set for MMS: it was not sent.</string>
     <string name="watch_turn">Turn the video a quarter</string>
     <string name="video_camera">Camera at the back or the front</string>
@@ -308,10 +313,14 @@
     <string name="all_contacts">All contacts (%1$d)</string>
     <string name="conf_group_most">MMS group limit</string>
     <string name="conf_group_most_note">MMS are usually limited to 20 recipients. Some networks take far more, a few others only ten.</string>
+    <string name="conf_group_most_operator">Your operator says %1$d recipients.</string>
+    <string name="conf_sms_most">Long text limit via SMS</string>
+    <string name="conf_sms_most_note">7 SMS is the longest a text can be and still get through almost everywhere. Some networks take far more, and it also depends on the recipient\'s. Beyond, the text leaves as an MMS or, when sending MMS is off, foomms asks you first.</string>
+    <string name="conf_sms_most_operator">Your operator says %1$d.</string>
     <string name="group_over">This group has %1$d members, oneself included, beyond the limit of %2$d set in the configuration: the network may refuse the message, or deliver it to each alone.</string>
     <string name="group_over_send">Send all the same</string>
     <string name="conf_mms_on">Allow sending MMS</string>
-    <string name="conf_mms_on_note">Lets you send group messages, texts longer than 8 SMS, voice messages, photos or short videos. From one operator to another, an MMS arrives less surely than an SMS, and some plans charge for it. Other networks do not support MMS at all, which favours Internet messengers and so global surveillance.</string>
+    <string name="conf_mms_on_note">Lets you send group messages, long texts, voice messages, photos or short videos. From one operator to another, an MMS arrives less surely than an SMS, and some plans charge for it. Other networks do not support MMS at all, which favours Internet messengers and so global surveillance.</string>
     <string name="mms_off">Sending MMS is not allowed in the configuration: no attachment, voice message or group MMS.</string>
     <string name="many_sms">This message leaves in %1$d SMS: some phones put them back together badly, and your network may charge each one.</string>
 </resources>
