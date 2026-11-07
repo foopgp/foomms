@@ -17,8 +17,8 @@ import android.widget.SeekBar
  * A video a message carries, watched
  * here, the screen upright or on its side, the picture never stretched. A
  * button turns it a quarter at a time: what the file says of which way up it
- * is may be wrong, or missing. One opened from its lock is in memory only:
- * written to the cache while it is watched, and gone with the page.
+ * is may be wrong, or missing. One opened from its lock is in memory only,
+ * played from there, and gone with the page.
  */
 class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
 
@@ -30,6 +30,12 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
     private lateinit var where: SeekBar
     private lateinit var elapsed: android.widget.TextView
     private var player: MediaPlayer? = null
+
+    /** What the picture is drawn on: a new one each time the window comes back -- screen off, Home --, the player kept. */
+    private var surface: Surface? = null
+
+    /** The video opened from its lock, taken from [held] once: the page keeps it while it lives, and no longer. */
+    private var opened: ByteArray? = null
     private var wide = 0
     private var high = 0
 
@@ -49,6 +55,8 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
+        opened = held
+        held = null
         Look.fullScreen(this)
         screen = TextureView(this).apply { surfaceTextureListener = this@WatchActivity }
         screen.setOnClickListener { val shown = over.firstOrNull()?.visibility != android.view.View.VISIBLE ; over.forEach { it.visibility = if (shown) android.view.View.VISIBLE else android.view.View.GONE } }
@@ -130,17 +138,21 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
     }
 
     override fun onSurfaceTextureAvailable(texture: SurfaceTexture, width: Int, height: Int) {
-        val opened = held
-        held = null
+        val drawn = Surface(texture)
+        surface = drawn
+        // Back from the screen off or from Home: the same player, on the new surface, where it was.
+        player?.let { it.setSurface(drawn) ; return }
+        val opened = opened
+        val made = MediaPlayer()
         player = runCatching {
-            MediaPlayer().apply {
+            made.apply {
                 if (opened != null) {
                     // Watched from memory: what was locked is never laid in a file.
                     setDataSource(Media.source(opened))
                 } else {
                     setDataSource(this@WatchActivity, intent.data ?: error("nothing to watch"))
                 }
-                setSurface(Surface(texture))
+                setSurface(drawn)
                 // The size as it is to be seen, the file's own turn already taken into account.
                 setOnVideoSizeChangedListener { _, w, h -> wide = w ; high = h ; fit() }
                 // Watched to the end, the page goes: back to the conversation.
@@ -149,13 +161,19 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
                 where.max = duration
                 start()
             }
-        }.getOrElse { finish() ; null }
+        }.getOrElse { made.release() ; finish() ; null }
         where.post(following)
     }
 
     override fun onSurfaceTextureSizeChanged(texture: SurfaceTexture, width: Int, height: Int) = fit()
 
-    override fun onSurfaceTextureDestroyed(texture: SurfaceTexture): Boolean = true
+    override fun onSurfaceTextureDestroyed(texture: SurfaceTexture): Boolean {
+        // Nothing drawn on a surface that is going: the player waits for the next one.
+        runCatching { player?.setSurface(null) }
+        surface?.release()
+        surface = null
+        return true
+    }
 
     override fun onSurfaceTextureUpdated(texture: SurfaceTexture) = Unit
 
@@ -205,6 +223,9 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
     override fun onDestroy() {
         player?.release()
         player = null
+        surface?.release()
+        surface = null
+        opened = null
         super.onDestroy()
     }
 

@@ -692,7 +692,8 @@ class ThreadActivity : AskingActivity() {
                 }
             }
             val lengths = thread {
-                for (piece in pieces) {
+                // As many as the pictures: a picture of each video of a long conversation was held, a megabyte each.
+                for (piece in found.takeLast(SHOWN_PICTURES).flatMap { it.pieces }) {
                     if (piece.type.startsWith("audio/") && !lasts.containsKey(piece.id)) Media.lasting(this, piece.uri)?.let { lasts[piece.id] = it ; drip() }
                     // What was opened on an earlier visit is still open: its length, and a video's picture, made again.
                     Opened.piece(piece.id)?.let { opened ->

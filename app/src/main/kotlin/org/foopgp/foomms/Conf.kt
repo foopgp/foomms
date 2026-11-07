@@ -39,7 +39,10 @@ object Conf {
 
     fun theme(context: Context, theme: Theme) = kept(context).edit().putString("theme", theme.name).apply()
 
-    fun hold(context: Context): Hold = named(kept(context).getString("hold", null), Hold.FIFTEEN_MINUTES)
+    /** How long what was opened stays open unless the person said otherwise: the setting's own, and the store's ([Opened]). */
+    val USUAL_HOLD = Hold.FIFTEEN_MINUTES
+
+    fun hold(context: Context): Hold = named(kept(context).getString("hold", null), USUAL_HOLD)
 
     fun hold(context: Context, hold: Hold) = kept(context).edit().putString("hold", hold.name).apply()
 

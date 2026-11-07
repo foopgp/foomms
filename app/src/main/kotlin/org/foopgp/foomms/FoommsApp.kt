@@ -13,6 +13,8 @@ class FoommsApp : Application() {
     override fun onCreate() {
         super.onCreate()
         Outbox.shut(this)
+        // What is opened is held as long as set, from the start: a message arriving, or foodjis answering, before any page.
+        Opened.holdFor = Conf.hold(this).seconds * 1000L
         // Where earlier versions played and watched what was opened from: emptied, should one have been left.
         for (left in listOf("playing", "listening", "watching.3gp")) File(cacheDir, left).delete()
     }

@@ -98,7 +98,7 @@ object Opened {
             .joinToString("") { "%02x".format(it) }.take(32)
 
     /** How long what was encrypted stays open after the last opening, in milliseconds. */
-    @Volatile var holdFor: Long = 5 * 60_000L
+    @Volatile var holdFor: Long = Conf.USUAL_HOLD.seconds * 1000L
 
     /** When something encrypted was last opened, conversation by conversation. */
     private val lastOpened = HashMap<Long, Long>()

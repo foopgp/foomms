@@ -406,7 +406,8 @@ class MainActivity : AskingActivity() {
         redraw()
         readMe()
         // What was read is shown at once, and read again only if nothing was; the profile reads its drafts and unread.
-        if (page != Page.TALKS || every.isEmpty()) fill()
+        // Read again in any case: what arrived meanwhile is at the top -- quick, the latest few first ([fill]).
+        fill()
     }
 
     /**
@@ -815,10 +816,14 @@ class MainActivity : AskingActivity() {
                 else talk.members.filterNot { Me.mine(this, it) }.map { one ->
                     row(Store.Talk(talk.thread, one, talk.at, talk.last, talk.incoming, talk.unread, talk.form), kept = false).apart()
                 }
-            fun show(found: List<Row>, whole: Boolean = false) = runOnUiThread {
+            // [counted]: how many conversations [found] was read from, set with it -- a block read meanwhile by
+            // scrolling ([more]) is dropped, rather than counted and lost under what is shown here.
+            fun show(found: List<Row>, whole: Boolean = false, counted: Int? = null) = runOnUiThread {
                 if (isFinishing || isDestroyed || turn != turns) return@runOnUiThread
                 every = found
                 everyWhole = whole
+                counted?.let { read = it }
+                shownAgain++
                 redraw()
                 verifySigned(found)
             }
@@ -856,12 +861,16 @@ class MainActivity : AskingActivity() {
                 }
                 val talks = runCatching { Store.talks(this, asked, given = stale) }.getOrDefault(emptyList())
                 val first = talks.flatMap(::rowsOf)
-                read = talks.size
-                show(first, whole = talks.size < asked)
+                show(first, whole = talks.size < asked, counted = talks.size)
                 // The groups only the headers of received MMS tell, merged with the rest by time.
                 val heard = runCatching { Store.heard(this) }.getOrDefault(emptyList()).map { row(it.talk, kept = false).heard(it.messages) }
                 runOnUiThread { if (!isFinishing && !isDestroyed && turn == turns) { heardRows = heard ; redraw() } }
-                if (!stale()) count()
+                // The unread alone, for the way to the profile: the full counts -- every message read through -- are
+                // the profile's, read when it is shown.
+                if (!stale()) counts?.let { known ->
+                    val unread = runCatching { Store.unread(this) }.getOrNull() ?: return@let
+                    if (unread != known.unread) runOnUiThread { if (!isFinishing && !isDestroyed) { counts = known.withUnread(unread) ; redraw() } }
+                } ?: count()
             }
         }
     }
@@ -1018,6 +1027,9 @@ class MainActivity : AskingActivity() {
     @Volatile private var read = 0
     private var reading = false
 
+    /** How many times the list was laid anew: a block read before that is no longer the continuation of what is shown. */
+    private var shownAgain = 0
+
     /**
      * The next block of conversations, read when the list comes near the end
      * of what it holds: the oldest are read only by whoever goes down to them.
@@ -1027,13 +1039,14 @@ class MainActivity : AskingActivity() {
         val make = rowOf ?: return
         val turn = turns
         val from = read
+        val shown = shownAgain
         reading = true
         thread {
             val talks = runCatching { Store.talks(this, BLOCK, from = from, given = { turn != turns }) }.getOrDefault(emptyList())
             val next = talks.flatMap(make)
             runOnUiThread {
                 reading = false
-                if (isFinishing || isDestroyed || turn != turns || read != from) return@runOnUiThread
+                if (isFinishing || isDestroyed || turn != turns || read != from || shown != shownAgain) return@runOnUiThread
                 every = every + next
                 read = from + talks.size
                 everyWhole = talks.size < BLOCK
@@ -1048,7 +1061,9 @@ class MainActivity : AskingActivity() {
 
     /** A conversation's name, and after it what the person said of its sender: not to be announced. */
     private fun marked(row: Row): CharSequence = android.text.SpannableStringBuilder(row.name).apply {
-        if (Marks.muted(this@MainActivity, row.talk.number)) append("  🔕")
+        // A group as it is muted, by its members; one person by whom the line is with.
+        val key = row.group?.let { "group:$it" } ?: row.with ?: row.talk.number
+        if (key != null && Marks.muted(this@MainActivity, key)) append("  🔕")
     }
 
     /** Pressed long, a conversation says what can be done about it and about who it is with. */

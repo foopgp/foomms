@@ -273,6 +273,8 @@ object Store {
 
         fun withTalks(talks: Int) = Counts(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks, persons, drafts, received, sent, receivedSms, receivedMms)
 
+        fun withUnread(unread: Int) = Counts(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks, persons, drafts, received, sent, receivedSms, receivedMms)
+
         /** As kept between two runs, and read back. */
         fun kept(): String = listOf(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks, persons, drafts, received, sent, receivedSms, receivedMms).joinToString(",")
 
@@ -529,6 +531,27 @@ object Store {
      * holds, since asking the phone for it would make one.
      */
     fun thread(context: Context, number: String): Long? {
+        // The phone's own numbering of the addresses that are [number], however written, then the conversation with
+        // that one alone, the latest: one of MMS only is found too, and the SMS are not all read through.
+        runCatching {
+            val tail = Phone.key(number).takeIf { it.all(Char::isDigit) }
+            val ids = HashSet<String>()
+            val (where, args) = if (tail != null) "address LIKE ?" to arrayOf("%$tail") else "address = ? COLLATE NOCASE" to arrayOf(number)
+            context.contentResolver.query(Uri.parse("content://mms-sms/canonical-addresses"), null, where, args, null)?.use { rows ->
+                val id = rows.getColumnIndex("_id")
+                val address = rows.getColumnIndex("address")
+                while (rows.moveToNext()) {
+                    val one = rows.getString(address).orEmpty()
+                    if (Phone.same(one, number) || one.equals(number, ignoreCase = true)) ids += rows.getLong(id).toString()
+                }
+            }
+            if (ids.isNotEmpty()) {
+                context.contentResolver.query(THREADS, arrayOf("_id", "recipient_ids"), "trim(recipient_ids) NOT LIKE '% %'", null, "date DESC")?.use { rows ->
+                    while (rows.moveToNext()) if (rows.getString(1)?.trim() in ids) return rows.getLong(0)
+                }
+            }
+        }
+        // The long way, for a phone that keeps no such list.
         context.contentResolver.query(SMS, arrayOf("thread_id", "address"), SMS_NOT_DRAFT, null, "date DESC")?.use { rows ->
             val seen = HashSet<Long>()
             while (rows.moveToNext()) {
@@ -581,6 +604,11 @@ object Store {
             }
         }
         return messages.associateWith { (words[it]?.toString().orEmpty()) to pieces[it].orEmpty() }
+    }
+
+    /** How many messages are unread, and nothing else: what the way to the profile says, counted at every change. */
+    fun unread(context: Context): Int = listOf(SMS to "read = 0 AND $SMS_NOT_DRAFT", MMS to "read = 0 AND $MMS_NOT_DRAFT").sumOf { (table, where) ->
+        runCatching { context.contentResolver.query(table, arrayOf("_id"), where, null, null)?.use { it.count } }.getOrNull() ?: 0
     }
 
     fun counts(context: Context): Counts {
@@ -705,15 +733,19 @@ object Store {
                 }
             }
         }
-        // The MMS whose words hold it: found by their text parts, then asked where and when they belong.
+        // The MMS whose words hold it: found by their text parts, then asked where and when they belong -- those in
+        // clear by what they say, those PGP by what they said once opened, as for the SMS.
         val found = LinkedHashMap<Long, String>()
         runCatching {
-            context.contentResolver.query(PARTS, arrayOf("mid", "text"), "ct = 'text/plain' AND text LIKE ? ESCAPE '\\'", arrayOf(like), null)?.use { rows ->
-                while (rows.moveToNext()) {
-                    val text = rows.getString(1).orEmpty()
-                    val armor = Pgp.armorIn(text)
-                    val words = if (armor == null) text else Opened.words(armor)?.words?.takeIf { it.contains(asked, ignoreCase = true) } ?: continue
-                    found.putIfAbsent(rows.getLong(0), words)
+            context.contentResolver.query(
+                PARTS, arrayOf("mid", "text"), "ct = 'text/plain' AND text LIKE ? ESCAPE '\\' AND text NOT LIKE '%$BANNER%'", arrayOf(like), "_id DESC",
+            )?.use { rows ->
+                while (rows.moveToNext() && found.size < most) found.putIfAbsent(rows.getLong(0), rows.getString(1).orEmpty())
+            }
+            context.contentResolver.query(PARTS, arrayOf("mid", "text"), "ct = 'text/plain' AND text LIKE '%$BANNER%'", null, "_id DESC")?.use { rows ->
+                while (rows.moveToNext() && found.size < most) {
+                    val words = Pgp.armorIn(rows.getString(1).orEmpty())?.let { Opened.words(it)?.words } ?: continue
+                    if (words.contains(asked, ignoreCase = true)) found.putIfAbsent(rows.getLong(0), words)
                 }
             }
         }
