@@ -1469,8 +1469,25 @@ class ThreadActivity : AskingActivity() {
     private val recheckedParts = HashSet<Long>()
 
     /** Signed only, a message needs no key: it is verified as soon as it is shown, and never stays grey -- its words, and its parts. */
+    /**
+     * Those foodjis has answered for, their signer's key found: not looked at again. Each answer read the whole
+     * conversation again, hashing every signed message's armor to look it up -- the work growing as the square of
+     * their number, on the main thread.
+     */
+    private val answered = HashSet<String>()
+    private val answeredParts = HashSet<Long>()
+
+    /** One reading of what is still to verify for the answers that come together: the first one asks, the others join it. */
+    private val verifyAgain = Runnable { if (!isFinishing && !isDestroyed) verifySigned() }
+
+    private fun verifySoon() {
+        list.removeCallbacks(verifyAgain)
+        list.postDelayed(verifyAgain, VERIFY_SETTLE_MS)
+    }
+
     private fun verifySigned() {
         for (piece in lines.flatMap { it.pieces }) {
+            if (piece.id in answeredParts) continue
             // A part whose signer's key was missing, too, once a page.
             val missing = Opened.piece(piece.id)?.signed?.result == OpenPgpSignatureResult.RESULT_KEY_MISSING
             if (!isSealed(piece) || pieceLocked[piece.id] != false || (Opened.piece(piece.id) != null && !(missing && recheckedParts.add(piece.id))) || !verifyingParts.add(piece.id)) continue
@@ -1481,12 +1498,14 @@ class ThreadActivity : AskingActivity() {
                         if (answer !is Provider.Answer.Done || isFinishing || isDestroyed) return@ask
                         got(piece, answer)
                         verifyingParts.remove(piece.id)
+                        if (Opened.piece(piece.id)?.signed?.result != OpenPgpSignatureResult.RESULT_KEY_MISSING) answeredParts += piece.id
                     }
                 }
             }
         }
         for (line in lines) {
             val armor = armorOf(line) ?: continue
+            if (armor in answered) continue
             // A key that was missing is asked about again, once a page: foodjis may hold it since. Once only --
             // each answer verifies the rest again, and two still missing would be asked about in turn for ever.
             val missing = Opened.words(armor)?.signed?.result == OpenPgpSignatureResult.RESULT_KEY_MISSING
@@ -1495,6 +1514,7 @@ class ThreadActivity : AskingActivity() {
                 if (answer !is Provider.Answer.Done || isFinishing || isDestroyed) return@ask
                 opened(armor, answer, offer = line.incoming)
                 verifying.remove(armor)
+                if (Opened.words(armor)?.signed?.result != OpenPgpSignatureResult.RESULT_KEY_MISSING) answered += armor
             }
         }
     }
@@ -1651,7 +1671,7 @@ class ThreadActivity : AskingActivity() {
         val signature = Signer.keep(this, armor, answer, here())
         bubbles.notifyDataSetChanged()
         // Opened onto another message: signed only, it is read at once, as any signed message is; locked, a press opens it.
-        verifySigned()
+        verifySoon()
         // A group's: whoever sent that message, not the conversation's first number -- once a member, a page.
         if (group) {
             if (!offer || signature?.result !in VALID) return
@@ -2135,6 +2155,9 @@ class ThreadActivity : AskingActivity() {
 
         /** How long the messages are to stay still before the page is read again. */
         private const val SETTLE_MS = 400L
+
+        /** How long answers from foodjis are let gather before what is still to verify is read again. */
+        private const val VERIFY_SETTLE_MS = 150L
 
         /** How long the page waits to be drawn again, gathering what arrives meanwhile. */
         private const val DRIP_MS = 120L

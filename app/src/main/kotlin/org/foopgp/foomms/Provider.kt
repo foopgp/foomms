@@ -45,17 +45,29 @@ class Provider(private val context: Context) {
 
     private fun whom(): ComponentName? = whom(context)
 
+    /**
+     * Those waiting for the link being made: one link for all the questions asked meanwhile. Each made its own,
+     * and all but the last were never let go -- foodjis kept alive, Android warning of leaked connections.
+     */
+    private var waiting: MutableList<(IOpenPgpService2?) -> Unit>? = null
+
+    /** The link made, or not, told to all who waited: once. Main thread. */
+    private fun tell(door: IOpenPgpService2?) {
+        val all = waiting ?: return
+        waiting = null
+        all.forEach { it(door) }
+    }
+
     private fun bound(then: (IOpenPgpService2?) -> Unit) {
         door?.let { return then(it) }
+        waiting?.let { it += then ; return }
         val to = whom() ?: return then(null)
-        var told = false
+        waiting = mutableListOf(then)
         val link = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName, binder: IBinder) {
                 door = IOpenPgpService2.Stub.asInterface(binder)
-                // Connected again after foodjis died and came back: the question was answered, or failed, long ago.
-                if (told) return
-                told = true
-                then(door)
+                // Connected again after foodjis died and came back: those questions were answered, or failed, long ago.
+                tell(door)
             }
             override fun onServiceDisconnected(name: ComponentName) { door = null }
 
@@ -63,9 +75,14 @@ class Provider(private val context: Context) {
             // back. Kept, every question after it failed with DeadObjectException until foomms was started
             // again; forgotten, the next question binds to the new foodjis.
             override fun onBindingDied(name: ComponentName) = forget()
+
+            // foodjis answering the link with nothing: no service to speak to.
+            override fun onNullBinding(name: ComponentName) { forget() ; tell(null) }
         }
         bond = link
-        if (!context.bindService(Intent(SERVICE).setComponent(to), link, Context.BIND_AUTO_CREATE)) then(null)
+        if (!context.bindService(Intent(SERVICE).setComponent(to), link, Context.BIND_AUTO_CREATE)) { bond = null ; tell(null) ; return }
+        // Never connected: said to whoever waits, rather than waited for for ever.
+        main.postDelayed({ if (door == null && waiting != null) { forget() ; tell(null) } }, TIMEOUT)
     }
 
     private fun forget() {
@@ -87,10 +104,15 @@ class Provider(private val context: Context) {
     private fun asked(request: Intent, input: ByteArray?, then: (Answer) -> Unit, again: Boolean) {
         bound { door ->
             if (door == null) return@bound then(Answer.Failed(context.getString(R.string.no_provider)))
+            // Answered once: by foodjis, or, past [TIMEOUT] of silence, by its not answering.
+            var told = false
+            main.postDelayed({ if (!told) { told = true ; then(Answer.Failed(context.getString(R.string.no_provider))) } }, ANSWER_TIMEOUT)
             thread {
                 val tried = runCatching { exchange(door, request, input) }
                 val gone = tried.exceptionOrNull() is DeadObjectException
                 main.post {
+                    if (told) return@post
+                    told = true
                     when {
                         gone && again -> { forget() ; asked(request, input, then, again = false) }
                         gone -> { forget() ; then(Answer.Failed(context.getString(R.string.no_provider))) }
@@ -115,9 +137,11 @@ class Provider(private val context: Context) {
             thread { runCatching { ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]).use { it.write(bytes) } } }
             pipe[0]
         }
-        val says = door.execute(request, sent, id)
-        sent?.close()
+        // The pipe let go whatever happens: left open on a failed call, its writer waited for ever.
+        val says = try { door.execute(request, sent, id) } finally { runCatching { sent?.close() } }
         reading?.join(TIMEOUT)
+        // Not all read in time: an answer cut short is no answer, whatever its signature said.
+        if (reading?.isAlive == true) return Answer.Failed(context.getString(R.string.no_provider))
         says.setExtrasClassLoader(OpenPgpError::class.java.classLoader)
         return when (says.getIntExtra(RESULT_CODE, RESULT_CODE_ERROR)) {
             RESULT_CODE_SUCCESS -> Answer.Done(out.toByteArray(), says)
@@ -252,6 +276,9 @@ class Provider(private val context: Context) {
         const val RESULT_CODE_USER_INTERACTION_REQUIRED = 2
 
         private const val TIMEOUT = 20_000L
+
+        /** How long foodjis may take to answer a question -- not a screen it shows, which answers at once. */
+        private const val ANSWER_TIMEOUT = 60_000L
         private val pipes = AtomicInteger()
     }
 }
