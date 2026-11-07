@@ -32,6 +32,7 @@
     <string name="tie_ask">%1$s is %2$s?</string>
     <string name="tie_write">Write it</string>
     <string name="channel_messages">Messages</string>
+    <string name="mms_unfetched">MMS not downloaded. Tap to try again.</string>
     <string name="not_default">The phone\'s messaging application still receives and keeps the messages. foomms can take its place: Android will ask you.</string>
     <string name="become_default">Make foomms the messaging application</string>
     <string name="configure">⚙️ Configuration</string>

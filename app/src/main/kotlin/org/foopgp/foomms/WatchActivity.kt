@@ -12,7 +12,6 @@ import android.view.TextureView
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.SeekBar
-import java.io.File
 
 /**
  * A video a message carries, watched
@@ -26,7 +25,6 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
     /** What lies over the picture: whose it is above, the controls below; a press on the picture shows or hides them. */
     private val over = ArrayList<android.view.View>()
 
-    private val watching by lazy { File(cacheDir, "watching.3gp") }
     private lateinit var screen: TextureView
     private lateinit var playing: android.widget.TextView
     private lateinit var where: SeekBar
@@ -137,8 +135,8 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
         player = runCatching {
             MediaPlayer().apply {
                 if (opened != null) {
-                    watching.writeBytes(opened)
-                    setDataSource(watching.path)
+                    // Watched from memory: what was locked is never laid in a file.
+                    setDataSource(Media.source(opened))
                 } else {
                     setDataSource(this@WatchActivity, intent.data ?: error("nothing to watch"))
                 }
@@ -207,7 +205,6 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
     override fun onDestroy() {
         player?.release()
         player = null
-        watching.delete()
         super.onDestroy()
     }
 

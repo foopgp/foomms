@@ -116,10 +116,41 @@ object Notify {
     /** Every message's notification taken away: everything was just read. */
     fun seenAll(context: Context) {
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
-        manager.activeNotifications.filter { it.notification.channelId == CHANNEL }.forEach { manager.cancel(it.tag, it.id) }
+        // Not an MMS still to fetch: reading every message does not fetch it.
+        manager.activeNotifications.filter { it.notification.channelId == CHANNEL && it.id != UNFETCHED }.forEach { manager.cancel(it.tag, it.id) }
+    }
+
+    /** An MMS that could not be fetched, said with the way to fetch it again: pressed, it is asked for. */
+    fun unfetched(context: Context, from: String?, name: String) {
+        val manager = context.getSystemService(NotificationManager::class.java) ?: return
+        manager.createNotificationChannel(
+            NotificationChannel(CHANNEL, context.getString(R.string.channel_messages), NotificationManager.IMPORTANCE_HIGH),
+        )
+        val who = from?.let { runCatching { Book.who(context, it) }.getOrNull()?.name ?: it } ?: context.getString(R.string.unknown_number)
+        val again = PendingIntent.getBroadcast(
+            context, name.hashCode(),
+            Intent(context, Unfetched.Again::class.java).putExtra(Unfetched.EXTRA_NAME, name),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        val text = context.getString(R.string.mms_unfetched)
+        val shown = Notification.Builder(context, CHANNEL)
+            .setSmallIcon(R.drawable.mark)
+            .setContentTitle(who)
+            .setContentText(text)
+            .setStyle(Notification.BigTextStyle().bigText(text))
+            .setCategory(Notification.CATEGORY_ERROR)
+            .setContentIntent(again)
+            .setAutoCancel(true)
+            .build()
+        runCatching { manager.notify(name, UNFETCHED, shown) }
+    }
+
+    fun unfetchedGone(context: Context, name: String) {
+        context.getSystemService(NotificationManager::class.java)?.cancel(name, UNFETCHED)
     }
 
     private const val CHANNEL = "messages"
+    private const val UNFETCHED = 2
 
     /** How long foodjis is waited for, in milliseconds: a receiver has ten seconds. */
     private const val PATIENCE = 8_000L

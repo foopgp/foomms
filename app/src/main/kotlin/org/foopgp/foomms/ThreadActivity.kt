@@ -775,7 +775,8 @@ class ThreadActivity : AskingActivity() {
         adding.alpha = if (reachable) 1f else 0.38f
         if (!reachable) field.setHint(R.string.no_answer)
         // With a certificate that can be locked for, that is how a message leaves unless told otherwise.
-        if (first) { locks.isChecked = whose?.usable == true ; signs.isChecked = whose?.usable == true }
+        // Not over what the person set: the page is read again on every return to it, from the camera as well.
+        if (first) { locks.suggest(whose?.usable == true) ; signs.suggest(whose?.usable == true) }
         paint()
         bubbles.notifyDataSetChanged()
     }
@@ -807,7 +808,7 @@ class ThreadActivity : AskingActivity() {
         val usable = found.count { it.card?.usable == true } + (if (mineUsable) 1 else 0)
         under.text = android.text.SpannableStringBuilder(resources.getQuantityString(R.plurals.group_members, all, all))
             .append("  ·  🔑 $usable/$all")
-        if (first) { locks.isChecked = lockable() ; signs.isChecked = lockable() }
+        if (first) { locks.suggest(lockable()) ; signs.suggest(lockable()) }
         paint()
         bubbles.notifyDataSetChanged()
     }
@@ -899,6 +900,8 @@ class ThreadActivity : AskingActivity() {
         val written = field.text.toString()
         val with = carried
         if (written.isBlank() && with == null) return
+        // Pressed twice: once. Asked again after a question, it is the same sending.
+        if (!plainSaid && !manySaid && Twice.again(written, with, number, members)) return
         // A group's: to all its members, once they are known.
         if (if (group) members.isEmpty() else Phone.plain(number) == null) return
         // MMS off: no part, no group -- said before anything else.
@@ -1776,10 +1779,8 @@ class ThreadActivity : AskingActivity() {
             player = android.media.MediaPlayer().apply {
                 val opened = Opened.piece(piece.id)
                 if (opened != null) {
-                    // What was locked is in memory only: a file of the cache, dropped as soon as it has been read.
-                    val sound = java.io.File(cacheDir, "playing").apply { writeBytes(opened.bytes) }
-                    sound.inputStream().use { setDataSource(it.fd) }
-                    sound.delete()
+                    // What was locked is in memory only, and played from there.
+                    setDataSource(Media.source(opened.bytes))
                 } else {
                     setDataSource(this@ThreadActivity, piece.uri)
                 }

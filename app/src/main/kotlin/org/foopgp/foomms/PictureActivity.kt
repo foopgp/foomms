@@ -83,7 +83,7 @@ class PictureActivity : Activity() {
         thread {
             val made = if (bytes != null) Media.thumbnail(bytes, side) else from?.let { Media.thumbnail(this, it, side) }
             val upright = runCatching {
-                (bytes?.inputStream() ?: from?.let { contentResolver.openInputStream(it) })?.use { turnOf(android.media.ExifInterface(it)) }
+                (bytes?.inputStream() ?: from?.let { contentResolver.openInputStream(it) })?.use { Media.turnOf(android.media.ExifInterface(it)) }
             }.getOrNull() ?: 0
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
@@ -91,14 +91,6 @@ class PictureActivity : Activity() {
                 picture.show(made, upright)
             }
         }
-    }
-
-    /** The turn the camera wrote the picture needs to stand upright: the decoder leaves it to whoever shows it. */
-    private fun turnOf(exif: android.media.ExifInterface) = when (exif.getAttributeInt(android.media.ExifInterface.TAG_ORIENTATION, 0)) {
-        android.media.ExifInterface.ORIENTATION_ROTATE_90 -> 90
-        android.media.ExifInterface.ORIENTATION_ROTATE_180 -> 180
-        android.media.ExifInterface.ORIENTATION_ROTATE_270 -> 270
-        else -> 0
     }
 
     /** The picture, fitted to the screen in its proportions, and from there as close as the person goes. */

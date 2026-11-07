@@ -29,6 +29,7 @@
     <string name="tie_ask">%1$s è %2$s?</string>
     <string name="tie_write">Scrivilo</string>
     <string name="channel_messages">Messaggi</string>
+    <string name="mms_unfetched">MMS non scaricato. Tocchi per riprovare.</string>
     <string name="not_default">L\'app di messaggistica del telefono continua a ricevere e conservare i messaggi. foomms può prenderne il posto: Android te lo chiederà.</string>
     <string name="become_default">Rendi foomms l\'app di messaggistica</string>
     <string name="configure">⚙️ Configurazione</string>

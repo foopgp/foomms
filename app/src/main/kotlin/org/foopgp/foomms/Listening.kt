@@ -49,16 +49,15 @@ class Listening : Service() {
         track = what
         playing = what.part
         onChange?.invoke()
-        val sound = java.io.File(cacheDir, "listening").apply { writeBytes(what.bytes) }
         player = runCatching {
             MediaPlayer().apply {
-                sound.inputStream().use { setDataSource(it.fd) }
+                // Played from memory: what was locked is never laid in a file.
+                setDataSource(Media.source(what.bytes))
                 prepare()
                 setOnCompletionListener { end() }
                 start()
             }
         }.getOrNull()
-        sound.delete()
         if (player == null) return end()
         val session = session ?: MediaSession(this, "foomms").also { session = it }
         session.setCallback(

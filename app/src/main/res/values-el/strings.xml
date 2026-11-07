@@ -29,6 +29,7 @@
     <string name="tie_ask">%1$s είναι ο/η %2$s;</string>
     <string name="tie_write">Καταχώριση</string>
     <string name="channel_messages">Μηνύματα</string>
+    <string name="mms_unfetched">Το MMS δεν λήφθηκε. Πατήστε για νέα προσπάθεια.</string>
     <string name="not_default">Η εφαρμογή μηνυμάτων του τηλεφώνου εξακολουθεί να λαμβάνει και να κρατά τα μηνύματα. Το foomms μπορεί να πάρει τη θέση της: το Android θα σας ρωτήσει.</string>
     <string name="become_default">Ορισμός του foomms ως εφαρμογής μηνυμάτων</string>
     <string name="configure">⚙️ Ρυθμίσεις</string>

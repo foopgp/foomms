@@ -72,7 +72,12 @@ object Backup {
                 resolver.query(Uri.parse("content://mms/$id/addr"), arrayOf("address", "type", "charset"), null, null, null)?.use { a ->
                     while (a.moveToNext()) addresses += a.getString(0).orEmpty() to a.getInt(1)
                 }
-                xml.attribute(null, "address", addresses.filter { it.second != FROM || addresses.size == 1 }.joinToString("~") { it.first })
+                // Whom it is with, as readers of the format file it: received, its sender and the others it went to, not
+                // this phone; sent, those it went to.
+                val received = rows.getInt(rows.getColumnIndexOrThrow("msg_box")) == Telephony.Mms.MESSAGE_BOX_INBOX
+                val with = if (received) addresses.filter { it.second == FROM } + addresses.filter { it.second != FROM && !Me.mine(context, it.first) }
+                    else addresses.filter { it.second != FROM || addresses.size == 1 }
+                xml.attribute(null, "address", with.joinToString("~") { it.first })
                 xml.startTag(null, "parts")
                 resolver.query(Uri.parse("content://mms/part"), null, "mid = ?", arrayOf(id.toString()), "seq ASC")?.use { p ->
                     while (p.moveToNext()) {
@@ -82,7 +87,9 @@ object Backup {
                             xml.attribute(null, column, if (at < 0 || p.isNull(at)) "null" else p.getString(at))
                         }
                         val type = p.getString(p.getColumnIndexOrThrow("ct")).orEmpty()
-                        if (!type.startsWith("text/") && type != "application/smil") {
+                        // The text column holds plain text and SMIL only: any other part -- a vCard, a group's members, a
+                        // calendar -- is in its file, and saved from there, or it came back empty.
+                        if (type != "text/plain" && type != "application/smil") {
                             val bytes = runCatching {
                                 resolver.openInputStream(Uri.parse("content://mms/part/" + p.getLong(p.getColumnIndexOrThrow("_id"))))?.use { it.readBytes() }
                             }.getOrNull()
@@ -177,12 +184,33 @@ object Backup {
                     message = null
                     val date = values.getAsLong("date") ?: continue
                     val box = values.getAsInteger("msg_box") ?: Telephony.Mms.MESSAGE_BOX_INBOX
+                    // Already here: the same moment, the same box, and the same people -- the copies of a sending to each
+                    // share their moment, and several received in one second do too.
+                    val same = addresses.map { Phone.plain(it.first) ?: it.first }.toSet()
                     val there = resolver.query(
                         Uri.parse("content://mms"), arrayOf("_id"), "date = ? AND msg_box = ?", arrayOf(date.toString(), box.toString()), null,
-                    )?.use { it.count > 0 } == true
+                    )?.use { rows ->
+                        var found = false
+                        while (!found && rows.moveToNext()) {
+                            val held = HashSet<String>()
+                            resolver.query(Uri.parse("content://mms/${rows.getLong(0)}/addr"), arrayOf("address"), null, null, null)?.use { a ->
+                                while (a.moveToNext()) a.getString(0)?.let { held += Phone.plain(it) ?: it }
+                            }
+                            found = held == same
+                        }
+                        found
+                    } == true
                     if (there) { skipped++ ; continue }
-                    val others = addresses.filter { it.second == if (box == Telephony.Mms.MESSAGE_BOX_INBOX) FROM else TO }.map { it.first }.toSet()
-                        .ifEmpty { addresses.map { it.first }.toSet() }
+                    // Filed as it was received or sent ([Keep]): a group's by its members part, else by those it went to.
+                    val from = addresses.firstOrNull { it.second == FROM }?.first
+                    val to = addresses.filter { it.second != FROM }.map { it.first }
+                    val members = parts.firstOrNull { given(it["name"]) == Members.PART || given(it["cl"]) == Members.PART }
+                        ?.let { given(it["data"]) }?.let { runCatching { Members.read(Base64.decode(it, Base64.DEFAULT)) }.getOrNull() }
+                    val others = when {
+                        box == Telephony.Mms.MESSAGE_BOX_INBOX && from != null ->
+                            members?.let { Keep.groupOf(context, from, it) } ?: Phone.received(from, to).toSet()
+                        else -> Phone.sent(to, Me.number(context)).toSet()
+                    }.ifEmpty { addresses.map { it.first }.toSet() }
                     if (others.isEmpty()) continue
                     values.put("thread_id", Telephony.Threads.getOrCreateThreadId(context, others))
                     val written = resolver.insert(Uri.parse("content://mms"), values) ?: continue

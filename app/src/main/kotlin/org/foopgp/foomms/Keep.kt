@@ -92,31 +92,29 @@ object Keep {
 
     private fun group(context: Context, from: String, message: PduRead.Message): Set<String>? {
         val part = message.parts.firstOrNull { it.name == Members.PART || it.location == Members.PART } ?: return null
+        return groupOf(context, from, Members.read(part.bytes))
+    }
+
+    /** A group's numbers, as its members part says them, with [from] and this phone: null when that is not several. */
+    fun groupOf(context: Context, from: String, members: List<Members.Member>): Set<String>? {
         val me = Me.number(context) ?: return null
         val all = ArrayList<String>()
-        for (one in Members.read(part.bytes).map { it.number } + from + me) {
+        for (one in members.map { it.number } + from + me) {
             if (all.none { Phone.same(it, one) || it == one } && (one == me || !Me.mine(context, one))) all += one
         }
         return all.toSet().takeIf { it.size > 2 }
     }
 
     /**
-     * A group's members part received: kept, for tying each from the
-     * group's menu; and to the contact tied to a member's certified
-     * certificate, the number it lacks.
+     * A group's members part received: kept, to offer the certificate each
+     * one names when that member is tied from the group's menu -- offered,
+     * the person saying yes. Never written into the address book from here:
+     * the part travels in clear and unsigned, and anybody may send one that
+     * pairs their own number with a certificate somebody trusts.
      */
     fun members(context: Context, message: PduRead.Message) {
         val part = message.parts.firstOrNull { it.name == Members.PART || it.location == Members.PART } ?: return
-        val members = Members.read(part.bytes)
-        Members.remember(context, members)
-        if (!ours(context)) return
-        val foodjis = Foodjis.of(context)
-        for (one in members) {
-            val whose = one.fingerprint ?: continue
-            if (Me.mine(context, one.number) || foodjis.card(whose)?.certified != true) continue
-            val contact = Book.tiedTo(context, whose)?.let { Book.own(context, it) } ?: continue
-            runCatching { Book.addNumber(context, contact.contact, one.number) }
-        }
+        Members.remember(context, Members.read(part.bytes))
     }
 
     fun mmsSent(context: Context, to: List<String>, pdu: ByteArray, at: Long = System.currentTimeMillis()): Uri? =

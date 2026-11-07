@@ -52,30 +52,47 @@ object Inbound {
             val announced = runCatching { PduRead.read(pushed) }.getOrNull() ?: return
             if (announced.kind != PduRead.NOTIFICATION) return
             val where = announced.location ?: return
-            val name = "in" + java.lang.Long.toHexString(System.nanoTime())
-            val subscription = intent.getIntExtra("subscription", -1)
-            val fetched = PendingIntent.getBroadcast(
-                context, name.hashCode(),
-                Intent(context, Fetched::class.java).putExtra(EXTRA_NAME, name).putExtra(EXTRA_SUBSCRIPTION, subscription)
-                    .putExtra(EXTRA_FROM, announced.from),
-                PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0),
+            fetch(context, where, announced.from, intent.getIntExtra("subscription", -1))
+        }
+    }
+
+    /**
+     * The MMS waiting at [where] asked of the phone's MMS service, into a file of ours, noted until it arrives
+     * ([Unfetched]): what is not fetched is said and asked for again.
+     */
+    fun fetch(context: Context, where: String, from: String?, subscription: Int) {
+        val name = "in" + java.lang.Long.toHexString(System.nanoTime())
+        Unfetched.note(context, name, where, from, subscription)
+        val fetched = PendingIntent.getBroadcast(
+            context, name.hashCode(),
+            Intent(context, Fetched::class.java).putExtra(EXTRA_NAME, name).putExtra(EXTRA_SUBSCRIPTION, subscription)
+                .putExtra(EXTRA_FROM, from),
+            PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0),
+        )
+        runCatching {
+            Outbox.file(context, name).apply { parentFile?.mkdirs() ; createNewFile() }
+            manager(context, subscription).downloadMultimediaMessage(
+                context, where, Uri.parse("content://${context.packageName}.pdu/$name"), null, fetched,
             )
-            runCatching {
-                Outbox.file(context, name).apply { parentFile?.mkdirs() ; createNewFile() }
-                manager(context, subscription).downloadMultimediaMessage(
-                    context, where, Uri.parse("content://${context.packageName}.pdu/$name"), null, fetched,
-                )
-            }.onFailure { Log.e(TAG, "an MMS could not be asked for", it) }
+        }.onFailure {
+            Log.e(TAG, "an MMS could not be asked for", it)
+            Unfetched.failed(context, name)
         }
     }
 
     /** The MMS fetched, or not: read, written in the phone's store, announced. */
     class Fetched : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val file: File = Outbox.file(context, intent.getStringExtra(EXTRA_NAME) ?: return)
+            val name = intent.getStringExtra(EXTRA_NAME) ?: return
+            val file: File = Outbox.file(context, name)
             try {
-                if (resultCode != Activity.RESULT_OK) return Log.e(TAG, "an MMS was not fetched: $resultCode").let { }
+                if (resultCode != Activity.RESULT_OK) {
+                    Log.e(TAG, "an MMS was not fetched: $resultCode")
+                    return Unfetched.failed(context, name)
+                }
                 val pdu = file.readBytes()
+                // Here, whatever is made of it next: not to be asked for again.
+                Unfetched.done(context, name)
                 val message = PduRead.read(pdu)
                 val from = message.from ?: intent.getStringExtra(EXTRA_FROM) ?: return
                 // A group's MMS this phone sent, come back to it -- to several, or to this phone alone as some networks deliver

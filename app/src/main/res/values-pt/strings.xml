@@ -29,6 +29,7 @@
     <string name="tie_ask">%1$s é %2$s?</string>
     <string name="tie_write">Escrever</string>
     <string name="channel_messages">Mensagens</string>
+    <string name="mms_unfetched">MMS não transferido. Toque para tentar de novo.</string>
     <string name="not_default">A aplicação de mensagens do telemóvel continua a receber e a guardar as mensagens. O foomms pode ocupar o seu lugar: o Android vai perguntar-lhe.</string>
     <string name="become_default">Tornar o foomms a aplicação de mensagens</string>
     <string name="configure">⚙️ Configuração</string>

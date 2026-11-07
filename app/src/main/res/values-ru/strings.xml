@@ -29,6 +29,7 @@
     <string name="tie_ask">%1$s — это %2$s?</string>
     <string name="tie_write">Записать</string>
     <string name="channel_messages">Сообщения</string>
+    <string name="mms_unfetched">MMS не загружено. Нажмите, чтобы повторить.</string>
     <string name="not_default">Приложение сообщений телефона по-прежнему получает и хранит сообщения. foomms может занять его место: Android спросит вас.</string>
     <string name="become_default">Сделать foomms приложением сообщений</string>
     <string name="configure">⚙️ Настройка</string>

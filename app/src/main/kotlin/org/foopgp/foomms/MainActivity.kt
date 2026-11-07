@@ -556,6 +556,8 @@ class MainActivity : AskingActivity() {
         if (Look.wantsDark(this) != dressed) return recreate()
         Look.dress(this)
         Foodjis.of(this).fresh()
+        // The MMS that could not be fetched, asked for again: opened, the phone is likelier to have the network.
+        thread { runCatching { Unfetched.againAll(applicationContext) } }
         // This phone's numbers, from the MMS it has received: once the messages may be read -- on a first start, not yet.
         if (!looked && checkSelfPermission(Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) {
             looked = true

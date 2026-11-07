@@ -193,7 +193,9 @@ class ManyActivity : AskingActivity() {
     private fun send(plainSaid: Boolean = false) {
         val written = field.text.toString()
         val with = carried
-        if ((written.isBlank() && with == null) || whom.isEmpty()) return
+        if ((written.isBlank() && with == null) || whom.isEmpty() || isFinishing) return
+        // Pressed twice: once. Asked again after a question, it is the same sending.
+        if (!plainSaid && Twice.again(written, with, whom.toList())) return
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)
         }

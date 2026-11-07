@@ -292,6 +292,8 @@ class WriteActivity : Activity() {
             // The group's conversation may have to be looked for among them all: not on the main thread.
             group -> {
                 val numbers = chosen.keys.toList()
+                // The button pressed is this one: the other is hidden while several are chosen.
+                toGroup.isEnabled = false
                 go.isEnabled = false
                 thread {
                     val next = ThreadActivity.forGroup(this, numbers)

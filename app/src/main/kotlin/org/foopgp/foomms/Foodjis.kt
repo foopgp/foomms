@@ -23,8 +23,9 @@ class Foodjis(private val context: Context) {
     var shut = false
         private set
 
-    private val door: String =
-        "content://" + Provider.foodjis(context) + ".directory"
+    /** foodjis's directory, when a foodjis signed as foomms is ([Provider.whom]): none, and nothing is asked. */
+    private val door: String? =
+        Provider.whom(context)?.packageName?.let { "content://$it.directory" }
 
     private val cards = HashMap<String, Cert?>()
     private val faces = HashMap<String, Bitmap?>()
@@ -120,7 +121,7 @@ class Foodjis(private val context: Context) {
         }
     }
 
-    private fun <T> asked(question: () -> T?): T? = try {
+    private fun <T> asked(question: () -> T?): T? = if (door == null) null else try {
         question().also { shut = false }
     } catch (refused: SecurityException) {
         shut = true

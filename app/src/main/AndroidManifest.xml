@@ -55,6 +55,7 @@
     </queries>
 
     <application
+        android:name=".FoommsApp"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
@@ -183,6 +184,8 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".Inbound$Fetched" android:exported="false" />
+        <!-- An MMS not fetched, its notification pressed: asked for again. -->
+        <receiver android:name=".Unfetched$Again" android:exported="false" />
         <service
             android:name=".Listening"
             android:exported="false"

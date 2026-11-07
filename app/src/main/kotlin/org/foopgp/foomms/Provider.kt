@@ -151,11 +151,19 @@ class Provider(private val context: Context) {
         private fun preferred(context: Context): List<String> =
             if (context.packageName.endsWith(".dev")) listOf(FOODJIS_DEV, FOODJIS) else listOf(FOODJIS)
 
+        /**
+         * The foodjis to speak to: of those this build would rather, the ones signed by the very key foomms is
+         * signed with -- the same, by the stores' rules -- and no other. A package name is anyone's to take: an
+         * application installed under foodjis's would otherwise be handed the texts to lock, and could answer
+         * "certified" for whatever it liked.
+         */
         fun whom(context: Context): ComponentName? {
             val preferred = preferred(context)
-            return context.packageManager.queryIntentServices(Intent(SERVICE), 0)
+            val manager = context.packageManager
+            return manager.queryIntentServices(Intent(SERVICE), 0)
                 .map { it.serviceInfo }
                 .filter { it.packageName in preferred }
+                .filter { manager.checkSignatures(context.packageName, it.packageName) == android.content.pm.PackageManager.SIGNATURE_MATCH }
                 .minByOrNull { preferred.indexOf(it.packageName) }
                 ?.let { ComponentName(it.packageName, it.name) }
         }

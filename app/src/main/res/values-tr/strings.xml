@@ -29,6 +29,7 @@
     <string name="tie_ask">%1$s, %2$s mi?</string>
     <string name="tie_write">Kaydet</string>
     <string name="channel_messages">Mesajlar</string>
+    <string name="mms_unfetched">MMS indirilemedi. Yeniden denemek için dokunun.</string>
     <string name="not_default">Telefonun mesajlaşma uygulaması mesajları almaya ve saklamaya devam ediyor. foomms onun yerini alabilir: Android size soracak.</string>
     <string name="become_default">foomms\'u mesajlaşma uygulaması yap</string>
     <string name="configure">⚙️ Ayarlar</string>

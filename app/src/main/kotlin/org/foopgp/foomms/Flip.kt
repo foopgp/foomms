@@ -21,9 +21,14 @@ class Flip(context: Context, glyph: String, verb: Int, changed: () -> Unit) : Li
     /** What the switch is set to, which it shows only while it can be used. */
     private var wanted = false
     private var showing = false
+
+    /** Whether the person set it by hand: what the page would set it to by itself no longer goes over that. */
+    var touched = false
+        private set
+
     private val switch = Switch(context).apply {
         setOnCheckedChangeListener { _, on ->
-            if (!showing) wanted = on
+            if (!showing) { wanted = on ; touched = true }
             changed()
         }
     }
@@ -31,6 +36,11 @@ class Flip(context: Context, glyph: String, verb: Int, changed: () -> Unit) : Li
     var isChecked: Boolean
         get() = wanted
         set(value) { wanted = value ; show() }
+
+    /** Set by the page, unless the person set it already. */
+    fun suggest(value: Boolean) {
+        if (!touched) isChecked = value
+    }
 
     private fun show() {
         showing = true
