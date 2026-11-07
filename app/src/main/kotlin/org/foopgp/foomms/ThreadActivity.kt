@@ -711,6 +711,11 @@ class ThreadActivity : AskingActivity() {
                 val bytes = runCatching { contentResolver.openInputStream(piece.uri)?.use { it.readBytes() } }.getOrNull()
                 sealedFor[piece.id] = bytes?.let { Pgp.recipients(it) }.orEmpty()
                 bytes?.let { pieceLocked[piece.id] = Pgp.isLocked(it) }
+                // Just sent from here: open as it left.
+                bytes?.let { Opened.claim(piece.id, it) }?.let { opened ->
+                    if (opened.type.startsWith("audio/") || opened.type.startsWith("video/")) Media.lasting(opened.bytes)?.let { lasts[piece.id] = it }
+                    if (opened.type.startsWith("video/") && framed.add(piece.id)) Media.frame(opened.bytes, Look.dp(this, 200))?.let { frames[piece.id] = it }
+                }
                 drip()
             }
             // Those named, each asked of foodjis at once, their faces drawn as they come.
@@ -1011,6 +1016,8 @@ class ThreadActivity : AskingActivity() {
             runCatching { Outbox.send(this, targets(), Pdu.send(transaction, targets(), parts), transaction) }
                 .onFailure { return@withMembers say(getString(R.string.failed, it.message)) }
             if (verdict != null && words != null) Opened.keep(this, words, written, null, verdict, thread = here())
+            // What it carries, open as its words are, for as long.
+            if (verdict != null) Opened.keepSent(this, piece.bytes, with.type, with.name, with.bytes, verdict, here())
             field.setText("")
             forgetDraft()
             carry(null)

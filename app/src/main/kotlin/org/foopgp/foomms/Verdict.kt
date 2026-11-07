@@ -230,6 +230,35 @@ object Opened {
         forgetOld(context)
     }
 
+    /**
+     * What was just sent, kept open as it left: the phone's store numbers its
+     * part only once it holds it, so it waits under a number of its own,
+     * found again by what was sealed ([claim]). Closed with its conversation
+     * in the meantime, it is not found again.
+     */
+    fun keepSent(
+        context: Context, sealed: ByteArray, type: String, name: String, bytes: ByteArray, verdict: Verdict,
+        thread: Long = NO_THREAD, now: Long = System.currentTimeMillis(),
+    ) {
+        val waiting = synchronized(sent) { sent.getOrPut(digest(sealed)) { --unnumbered } }
+        keepPiece(context, waiting, type, name, bytes, verdict, thread = thread, now = now)
+    }
+
+    /** The part [part] of the store, if it is what was just sent ([sealed]): open under its number from now. */
+    fun claim(part: Long, sealed: ByteArray): Piece? {
+        val waiting = synchronized(sent) { sent.remove(digest(sealed)) } ?: return null
+        return synchronized(pieces) { pieces.remove(waiting)?.also { pieces[part] = it } }
+    }
+
+    /** What was sent and not yet found in the store, by what it was sealed as. */
+    private val sent = HashMap<String, Long>()
+
+    /** Numbers below any the store gives, for what waits to be found there. */
+    private var unnumbered = NO_THREAD
+
+    private fun digest(bytes: ByteArray): String =
+        MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
+
     @Suppress("UNUSED_PARAMETER")
     fun pieceVerdict(context: Context, part: Long): Verdict? = piece(part)?.verdict
 
