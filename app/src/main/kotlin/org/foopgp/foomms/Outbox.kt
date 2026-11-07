@@ -182,11 +182,12 @@ object Outbox {
     }
 
     /**
-     * Whether [uri] is one of foomms's own -- what its provider serves, decrypted attachments among them -- or a
-     * path read with foomms's rights: never taken as something handed over to send.
+     * Whether [uri] is a path, read with foomms's own rights -- its files, what was opened from its lock among them
+     * --: never taken as something handed over to send. Applications share by content addresses since Android 7;
+     * a path is nobody's to hand over. What foomms serves itself is: what was opened here, shared back to foomms
+     * to be sent on, is the person's own doing.
      */
-    fun ours(context: Context, uri: Uri): Boolean =
-        uri.scheme == "file" || uri.authority?.let { it == context.packageName || it.startsWith(context.packageName + ".") } == true
+    fun path(uri: Uri): Boolean = uri.scheme == "file"
 
     /** The file a message waits in, on its way out or on its way in. */
     fun file(context: Context, transaction: String) =

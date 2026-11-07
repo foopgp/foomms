@@ -366,7 +366,7 @@ class ThreadActivity : AskingActivity() {
         given.firstOrNull()?.let(::offerEach)
         // And what was shared with them: a picture made small enough for an MMS, any other file if it fits.
         @Suppress("DEPRECATION")
-        if (state == null) intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)?.takeUnless { Outbox.ours(this, it) }?.let { shared ->
+        if (state == null) intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)?.takeUnless(Outbox::path)?.let { shared ->
             val type = intent.type ?: contentResolver.getType(shared).orEmpty()
             attached(if (type.startsWith("image/")) PICTURE else FILE, shared)
         }
