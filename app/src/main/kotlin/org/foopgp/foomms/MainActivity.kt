@@ -105,8 +105,11 @@ class MainActivity : AskingActivity() {
     private lateinit var heading: android.widget.TextView
     private lateinit var counted: android.widget.TextView
 
-    /** Under the bar, the ways to the two other pages. */
+    /** Under the bar, the way to the profile's page; from it, the way back is the bar's arrow. */
     private lateinit var others: LinearLayout
+
+    /** In the bar, the way to the configuration, on the conversations' page. */
+    private lateinit var gear: View
 
     /** On the profile's page: oneself, a member of every group -- face and number --, and under it what can be done about it. */
     private lateinit var meBox: LinearLayout
@@ -172,8 +175,10 @@ class MainActivity : AskingActivity() {
                 // Pressed: the pages, to go to another.
                 setOnClickListener { pages() }
                 val side = Look.dp(context, 36)
-                // At the far left, the way to the configuration; at the far right, to the search.
-                addView(Look.icon(context, R.drawable.settings, getString(R.string.configure)) { Menus.configure(this@MainActivity) })
+                // At the far left, the way to the configuration -- on the profile's page, the arrow back to the
+                // conversations in its place --; at the far right, to the search.
+                gear = Look.icon(context, R.drawable.settings, getString(R.string.configure)) { Menus.configure(this@MainActivity) }
+                addView(gear)
                 // The page's mark: the application's on the conversations, the unread's and the profile's on theirs.
                 mark = android.widget.ImageView(context).apply { setImageResource(R.drawable.launcher) }
                 addView(mark, LinearLayout.LayoutParams(side, side).apply { marginStart = Look.dp(context, 4) })
@@ -476,6 +481,41 @@ class MainActivity : AskingActivity() {
     private fun named(it: Page, counted: Boolean = false): String = when (it) {
         Page.TALKS -> getString(R.string.page_talks)
         Page.PROFILE -> counts?.unread?.takeIf { counted && it > 0 }?.let { getString(R.string.page_profile_n, it) } ?: getString(R.string.page_profile)
+    }
+
+    /** The bar's arrow, and the phone's back, from the profile's page: the conversations. */
+    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
+        if (item.itemId == android.R.id.home && page == Page.PROFILE) {
+            go(Page.TALKS)
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    /**
+     * The phone's back, taken while on the profile's page: from Android 13, through the callback -- with this
+     * target, Android 16 no longer calls [onBackPressed] --, before that through it.
+     */
+    private var backing: Any? = null
+
+    private fun backToTalks(on: Boolean) {
+        if (android.os.Build.VERSION.SDK_INT < 33 || on == (backing != null)) return
+        val dispatcher = onBackInvokedDispatcher
+        if (on) {
+            val callback = android.window.OnBackInvokedCallback { go(Page.TALKS) }
+            dispatcher.registerOnBackInvokedCallback(android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, callback)
+            backing = callback
+        } else {
+            dispatcher.unregisterOnBackInvokedCallback(backing as android.window.OnBackInvokedCallback)
+            backing = null
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (page == Page.PROFILE) return go(Page.TALKS)
+        @Suppress("DEPRECATION")
+        super.onBackPressed()
     }
 
     override fun onActivityResult(request: Int, outcome: Int, data: android.content.Intent?) {
@@ -850,6 +890,11 @@ class MainActivity : AskingActivity() {
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
             )
         }
+        // On the profile's page, the arrow every other page has, back to the conversations, where the gear was.
+        actionBar?.setDisplayHomeAsUpEnabled(page == Page.PROFILE)
+        backToTalks(page == Page.PROFILE)
+        gear.visibility = if (page == Page.PROFILE) View.GONE else View.VISIBLE
+        others.visibility = if (page == Page.PROFILE) View.GONE else View.VISIBLE
         meBox.visibility = if (page == Page.PROFILE) View.VISIBLE else View.GONE
         meActions.visibility = meBox.visibility
         meRule.visibility = meBox.visibility
