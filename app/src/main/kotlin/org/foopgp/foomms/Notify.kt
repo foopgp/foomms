@@ -100,7 +100,9 @@ object Notify {
             done()
         }
         main.postDelayed(::end, PATIENCE)
-        provider.ask(Intent(Provider.DECRYPT_VERIFY), armor.toByteArray()) { answer ->
+        // Asked from the main thread, as the link to foodjis is made and told there: a message arriving is
+        // received off it.
+        main.post { provider.ask(Intent(Provider.DECRYPT_VERIFY), armor.toByteArray()) { answer ->
             if (answer is Provider.Answer.Done && !over.get()) {
                 // Kept as the conversation would keep it: opened there, it is read already.
                 val signature = runCatching { Signer.keep(context, armor, answer) }.getOrNull()
@@ -112,7 +114,7 @@ object Notify {
                 }
             }
             end()
-        }
+        } }
     }
 
     fun seen(context: Context, number: String) {

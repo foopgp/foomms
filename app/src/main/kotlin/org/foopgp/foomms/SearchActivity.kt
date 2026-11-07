@@ -31,7 +31,10 @@ class SearchActivity : Activity() {
     /** Of the results, those that stand for a message sent to each of several: whom it went to. */
     private var alongside: Map<Store.Hit, List<String>> = emptyMap()
     private val names = HashMap<String, String>()
-    private var turn = 0
+    @Volatile private var turn = 0
+
+    /** The looking for what was typed, waiting for the typing to pause. */
+    private var looking: Runnable? = null
 
     /** Somebody one can write to, as the page of a new message shows them. */
     private class Whom(
@@ -60,7 +63,14 @@ class SearchActivity : Activity() {
             setSingleLine()
             addTextChangedListener(
                 object : TextWatcher {
-                    override fun afterTextChanged(text: Editable?) = look(text.toString())
+                    // Once the typing pauses, not at every letter: each looking read up to two hundred contacts,
+                    // their faces and their certificates, and those of the letters before went on for nothing.
+                    override fun afterTextChanged(text: Editable?) {
+                        val typed = text.toString()
+                        removeCallbacks(looking)
+                        looking = Runnable { if (!isFinishing && !isDestroyed) look(typed) }
+                        postDelayed(looking, TYPING_PAUSE_MS)
+                    }
                     override fun beforeTextChanged(text: CharSequence?, start: Int, count: Int, after: Int) = Unit
                     override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) = Unit
                 },
@@ -131,6 +141,8 @@ class SearchActivity : Activity() {
             Phone.plain(typed)?.let { found += Whom(it, it, null, typed = true) }
             if (checkSelfPermission(android.Manifest.permission.READ_CONTACTS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
                 for (one in Book.find(this, typed, MOST_CONTACTS)) {
+                    // Something else typed since: what this looking would find is not wanted any more.
+                    if (mine != turn) return@thread
                     if (found.any { Phone.same(it.number, one.number) }) continue
                     val person = Book.who(this, one.number)
                     val face = person?.let { Book.face(this, it) } ?: person?.fingerprint?.let { foodjis.face(it) }
@@ -230,6 +242,9 @@ class SearchActivity : Activity() {
     }
 
     companion object {
+        /** How long the typing pauses before what is typed is looked for. */
+        private const val TYPING_PAUSE_MS = 250L
+
         /** The conversation to look in; none, and every conversation is looked in. */
         const val EXTRA_NUMBER = "number"
 
