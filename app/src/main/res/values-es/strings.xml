@@ -123,15 +123,10 @@
     <string name="tie_ask_after">. Esto se escribirá en su libreta de direcciones, donde el contacto aún no lo indica:</string>
     <string name="whom_hint">Un nombre o un número de teléfono</string>
     <string name="mark_all_read">○ Marcar todo como leído</string>
-    <string name="mark_all_read_ask">¿Marcar los %1$d mensajes no leídos como leídos?</string>
     <string name="mark_read">○ Marcar como leído</string>
     <string name="mark_unread">● Marcar como no leído</string>
     <string name="count_detail">%1$d mensajes: %2$d SMS + %3$d MMS\nde ellos %4$d PGP: %5$d SMS + %6$d MMS\n%9$d recibidos: %13$d SMS + %14$d MMS\n%10$d enviados: %15$d SMS + %16$d MMS\n\n%7$d conversaciones: %11$d individuales + %12$d de grupo</string>
     <string name="count_bytes">%1$s bytes</string>
-    <plurals name="count_detail_unread_rest">
-        <item quantity="one">, de ellos %1$d PGP, en %2$d conversación.</item>
-        <item quantity="other">, de ellos %1$d PGP, en %2$d conversaciones.</item>
-    </plurals>
     <string name="switch_sign">Firmar</string>
     <string name="switch_lock">Cifrar</string>
     <string name="cert_show">🔑 Mostrar el certificado</string>
@@ -234,10 +229,9 @@
     <string name="video_sound">Solo audio (%1$s)</string>
     <!-- The three pages of the list, and what each counts under its name. -->
     <string name="page_talks">Conversaciones</string>
-    <string name="page_unread">No leídos</string>
-    <string name="page_unread_n">No leídos (%1$d)</string>
     <string name="page_groups">Grupos MMS</string>
     <string name="page_profile">Mi perfil</string>
+    <string name="page_profile_n">Mi perfil (%1$d)</string>
     <string name="me_wizard_title">¿Cuál es su ficha de contacto?</string>
     <string name="me_wizard_text">Indique a foomms qué ficha de contacto es la suya: le representa en los grupos, con su número y su certificado. Podrá cambiarla en «Mi perfil».</string>
     <string name="me_wizard_choose">Elegir mi ficha</string>
@@ -297,7 +291,10 @@
         <item quantity="one">%d borrador</item>
         <item quantity="other">%d borradores</item>
     </plurals>
-    <string name="clear_drafts">Borrar todos los borradores</string>
+    <string name="clear_drafts">Borrar los borradores</string>
+    <string name="clear_draft">Borrar</string>
+    <string name="see_unread">Ver los no leídos</string>
+    <string name="see_unread_one">Ver</string>
     <plurals name="clear_drafts_ask">
         <item quantity="one">¿Borrar %d borrador? Su texto se perderá.</item>
         <item quantity="other">¿Borrar los %d borradores? Su texto se perderá.</item>

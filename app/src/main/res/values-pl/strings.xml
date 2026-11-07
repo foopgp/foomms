@@ -123,17 +123,10 @@
     <string name="tie_ask_after">. Zostanie to zapisane w twojej książce adresowej, tam gdzie kontakt jeszcze tego nie podaje:</string>
     <string name="whom_hint">Imię lub numer telefonu</string>
     <string name="mark_all_read">○ Oznacz wszystko jako przeczytane</string>
-    <string name="mark_all_read_ask">Oznaczyć nieprzeczytane wiadomości (%1$d) jako przeczytane?</string>
     <string name="mark_read">○ Oznacz jako przeczytane</string>
     <string name="mark_unread">● Oznacz jako nieprzeczytane</string>
     <string name="count_detail">%1$d wiadomości: %2$d SMS + %3$d MMS\nw tym %4$d PGP: %5$d SMS + %6$d MMS\n%9$d odebranych: %13$d SMS + %14$d MMS\n%10$d wysłanych: %15$d SMS + %16$d MMS\n\n%7$d rozmów: %11$d indywidualnych + %12$d grupowych</string>
     <string name="count_bytes">%1$s bajtów</string>
-    <plurals name="count_detail_unread_rest">
-        <item quantity="one">, w tym %1$d PGP, w %2$d rozmowie.</item>
-        <item quantity="few">, w tym %1$d PGP, w %2$d rozmowach.</item>
-        <item quantity="many">, w tym %1$d PGP, w %2$d rozmowach.</item>
-        <item quantity="other">, w tym %1$d PGP, w %2$d rozmowach.</item>
-    </plurals>
     <string name="switch_sign">Podpisz</string>
     <string name="switch_lock">Zaszyfruj</string>
     <string name="cert_show">🔑 Pokaż certyfikat</string>
@@ -236,10 +229,9 @@
     <string name="video_sound">Tylko dźwięk (%1$s)</string>
     <!-- The three pages of the list, and what each counts under its name. -->
     <string name="page_talks">Rozmowy</string>
-    <string name="page_unread">Nieprzeczytane</string>
-    <string name="page_unread_n">Nieprzeczytane (%1$d)</string>
     <string name="page_groups">Grupy MMS</string>
     <string name="page_profile">Mój profil</string>
+    <string name="page_profile_n">Mój profil (%1$d)</string>
     <string name="me_wizard_title">Która wizytówka jest twoja?</string>
     <string name="me_wizard_text">Wskaż foomms, która wizytówka kontaktu jest twoja: reprezentuje cię w grupach, z twoim numerem i certyfikatem. Możesz ją zmienić w „Mój profil”.</string>
     <string name="me_wizard_choose">Wybierz moją wizytówkę</string>
@@ -309,7 +301,10 @@
         <item quantity="many">%d wersji roboczych</item>
         <item quantity="other">%d wersji roboczej</item>
     </plurals>
-    <string name="clear_drafts">Usuń wszystkie wersje robocze</string>
+    <string name="clear_drafts">Usuń wersje robocze</string>
+    <string name="clear_draft">Usuń</string>
+    <string name="see_unread">Zobacz nieprzeczytane</string>
+    <string name="see_unread_one">Zobacz</string>
     <plurals name="clear_drafts_ask">
         <item quantity="one">Usunąć %d wersję roboczą? Jej tekst przepadnie.</item>
         <item quantity="few">Usunąć %d wersje robocze? Ich tekst przepadnie.</item>

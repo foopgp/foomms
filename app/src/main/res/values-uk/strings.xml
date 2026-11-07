@@ -123,17 +123,10 @@
     <string name="tie_ask_after">. Це буде записано у вашу адресну книгу, де в контакті цього ще немає:</string>
     <string name="whom_hint">Ім\'я або номер телефону</string>
     <string name="mark_all_read">○ Позначити все як прочитане</string>
-    <string name="mark_all_read_ask">Позначити непрочитані повідомлення (%1$d) як прочитані?</string>
     <string name="mark_read">○ Позначити як прочитане</string>
     <string name="mark_unread">● Позначити як непрочитане</string>
     <string name="count_detail">%1$d повідомлень: %2$d SMS + %3$d MMS\nз них %4$d PGP: %5$d SMS + %6$d MMS\n%9$d отриманих: %13$d SMS + %14$d MMS\n%10$d надісланих: %15$d SMS + %16$d MMS\n\n%7$d листувань: %11$d особистих + %12$d групових</string>
     <string name="count_bytes">%1$s байтів</string>
-    <plurals name="count_detail_unread_rest">
-        <item quantity="one">, з них %1$d PGP, у %2$d листуванні.</item>
-        <item quantity="few">, з них %1$d PGP, у %2$d листуваннях.</item>
-        <item quantity="many">, з них %1$d PGP, у %2$d листуваннях.</item>
-        <item quantity="other">, з них %1$d PGP, у %2$d листуваннях.</item>
-    </plurals>
     <string name="switch_sign">Підписати</string>
     <string name="switch_lock">Зашифрувати</string>
     <string name="cert_show">🔑 Показати сертифікат</string>
@@ -236,10 +229,9 @@
     <string name="video_sound">Лише звук (%1$s)</string>
     <!-- The three pages of the list, and what each counts under its name. -->
     <string name="page_talks">Розмови</string>
-    <string name="page_unread">Непрочитані</string>
-    <string name="page_unread_n">Непрочитані (%1$d)</string>
     <string name="page_groups">MMS-групи</string>
     <string name="page_profile">Мій профіль</string>
+    <string name="page_profile_n">Мій профіль (%1$d)</string>
     <string name="me_wizard_title">Яка картка контакту ваша?</string>
     <string name="me_wizard_text">Вкажіть foomms, яка картка контакту ваша: вона представляє вас у групах, з вашим номером і сертифікатом. Ви зможете змінити її в «Мій профіль».</string>
     <string name="me_wizard_choose">Вибрати мою картку</string>
@@ -309,7 +301,10 @@
         <item quantity="many">%d чернеток</item>
         <item quantity="other">%d чернетки</item>
     </plurals>
-    <string name="clear_drafts">Видалити всі чернетки</string>
+    <string name="clear_drafts">Видалити чернетки</string>
+    <string name="clear_draft">Видалити</string>
+    <string name="see_unread">Переглянути непрочитані</string>
+    <string name="see_unread_one">Переглянути</string>
     <plurals name="clear_drafts_ask">
         <item quantity="one">Видалити %d чернетку? Її текст буде втрачено.</item>
         <item quantity="few">Видалити %d чернетки? Їхній текст буде втрачено.</item>

@@ -123,15 +123,10 @@
     <string name="tie_ask_after">. Ceci sera inscrit dans votre carnet d\'adresses, là où le contact ne le dit pas déjà :</string>
     <string name="whom_hint">Un nom, ou un numéro de téléphone</string>
     <string name="mark_all_read">○ Tout marquer comme lu</string>
-    <string name="mark_all_read_ask">Marquer les %1$d messages non lus comme lus ?</string>
     <string name="mark_read">○ Marquer comme lu</string>
     <string name="mark_unread">● Marquer comme non lu</string>
     <string name="count_detail">%1$d messages : %2$d SMS + %3$d MMS\ndont %4$d PGP : %5$d SMS + %6$d MMS\n%9$d reçus : %13$d SMS + %14$d MMS\n%10$d émis : %15$d SMS + %16$d MMS\n\n%7$d conversations : %11$d individuelles + %12$d de groupe</string>
     <string name="count_bytes">%1$s octets</string>
-    <plurals name="count_detail_unread_rest">
-        <item quantity="one">, dont %1$d PGP, dans %2$d conversation.</item>
-        <item quantity="other">, dont %1$d PGP, dans %2$d conversations.</item>
-    </plurals>
     <string name="switch_sign">Signer</string>
     <string name="switch_lock">Chiffrer</string>
     <string name="cert_show">🔑 Afficher le certificat</string>
@@ -234,10 +229,9 @@
     <string name="video_sound">Audio seul (%1$s)</string>
     <!-- The three pages of the list, and what each counts under its name. -->
     <string name="page_talks">Conversations</string>
-    <string name="page_unread">Non-lus</string>
-    <string name="page_unread_n">Non-lus (%1$d)</string>
     <string name="page_groups">Groupes MMS</string>
     <string name="page_profile">Mon profil</string>
+    <string name="page_profile_n">Mon profil (%1$d)</string>
     <string name="me_wizard_title">Quelle fiche est la vôtre ?</string>
     <string name="me_wizard_text">Dites à foomms quelle fiche contact est la vôtre : elle vous représente dans les groupes, avec votre numéro et votre certificat. Vous pourrez la changer dans « Mon profil ».</string>
     <string name="me_wizard_choose">Choisir ma fiche</string>
@@ -297,7 +291,10 @@
         <item quantity="one">%d brouillon</item>
         <item quantity="other">%d brouillons</item>
     </plurals>
-    <string name="clear_drafts">Effacer tous les brouillons</string>
+    <string name="clear_drafts">Effacer les brouillons</string>
+    <string name="clear_draft">Effacer</string>
+    <string name="see_unread">Voir les non lus</string>
+    <string name="see_unread_one">Voir</string>
     <plurals name="clear_drafts_ask">
         <item quantity="one">Effacer %d brouillon ? Son texte sera perdu.</item>
         <item quantity="other">Effacer les %d brouillons ? Leur texte sera perdu.</item>

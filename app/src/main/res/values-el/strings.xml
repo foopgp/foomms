@@ -123,15 +123,10 @@
     <string name="tie_ask_after">. Αυτό θα γραφτεί στο βιβλίο διευθύνσεών σας, όπου η επαφή δεν το αναφέρει ακόμη:</string>
     <string name="whom_hint">Ένα όνομα ή ένας αριθμός τηλεφώνου</string>
     <string name="mark_all_read">○ Σήμανση όλων ως αναγνωσμένα</string>
-    <string name="mark_all_read_ask">Σήμανση των %1$d μη αναγνωσμένων μηνυμάτων ως αναγνωσμένων;</string>
     <string name="mark_read">○ Σήμανση ως αναγνωσμένο</string>
     <string name="mark_unread">● Σήμανση ως μη αναγνωσμένο</string>
     <string name="count_detail">%1$d μηνύματα: %2$d SMS + %3$d MMS\nαπό τα οποία %4$d PGP: %5$d SMS + %6$d MMS\n%9$d ληφθέντα: %13$d SMS + %14$d MMS\n%10$d απεσταλμένα: %15$d SMS + %16$d MMS\n\n%7$d συνομιλίες: %11$d ατομικές + %12$d ομαδικές</string>
     <string name="count_bytes">%1$s byte</string>
-    <plurals name="count_detail_unread_rest">
-        <item quantity="one">, από τα οποία %1$d PGP, σε %2$d συνομιλία.</item>
-        <item quantity="other">, από τα οποία %1$d PGP, σε %2$d συνομιλίες.</item>
-    </plurals>
     <string name="switch_sign">Υπογραφή</string>
     <string name="switch_lock">Κρυπτογράφηση</string>
     <string name="cert_show">🔑 Εμφάνιση του πιστοποιητικού</string>
@@ -234,10 +229,9 @@
     <string name="video_sound">Μόνο ήχος (%1$s)</string>
     <!-- The three pages of the list, and what each counts under its name. -->
     <string name="page_talks">Συνομιλίες</string>
-    <string name="page_unread">Μη αναγνωσμένα</string>
-    <string name="page_unread_n">Μη αναγνωσμένα (%1$d)</string>
     <string name="page_groups">Ομάδες MMS</string>
     <string name="page_profile">Το προφίλ μου</string>
+    <string name="page_profile_n">Το προφίλ μου (%1$d)</string>
     <string name="me_wizard_title">Ποια κάρτα επαφής είναι η δική σας;</string>
     <string name="me_wizard_text">Πείτε στο foomms ποια κάρτα επαφής είναι η δική σας: σας εκπροσωπεί στις ομάδες, με τον αριθμό και το πιστοποιητικό σας. Μπορείτε να την αλλάξετε στο «Το προφίλ μου».</string>
     <string name="me_wizard_choose">Επιλογή της κάρτας μου</string>
@@ -297,7 +291,10 @@
         <item quantity="one">%d πρόχειρο</item>
         <item quantity="other">%d πρόχειρα</item>
     </plurals>
-    <string name="clear_drafts">Διαγραφή όλων των πρόχειρων</string>
+    <string name="clear_drafts">Διαγραφή προχείρων</string>
+    <string name="clear_draft">Διαγραφή</string>
+    <string name="see_unread">Προβολή μη αναγνωσμένων</string>
+    <string name="see_unread_one">Προβολή</string>
     <plurals name="clear_drafts_ask">
         <item quantity="one">Διαγραφή %d πρόχειρου; Το κείμενό του θα χαθεί.</item>
         <item quantity="other">Διαγραφή των %d πρόχειρων; Το κείμενό τους θα χαθεί.</item>

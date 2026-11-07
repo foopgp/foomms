@@ -123,15 +123,10 @@
     <string name="tie_ask_after">. Bu, kişide henüz yazmıyorsa adres defterinize kaydedilecek:</string>
     <string name="whom_hint">Bir ad ya da telefon numarası</string>
     <string name="mark_all_read">○ Tümünü okundu olarak işaretle</string>
-    <string name="mark_all_read_ask">%1$d okunmamış mesaj okundu olarak işaretlensin mi?</string>
     <string name="mark_read">○ Okundu olarak işaretle</string>
     <string name="mark_unread">● Okunmadı olarak işaretle</string>
     <string name="count_detail">%1$d mesaj: %2$d SMS + %3$d MMS\nbunların %4$d tanesi PGP: %5$d SMS + %6$d MMS\n%9$d alınan: %13$d SMS + %14$d MMS\n%10$d gönderilen: %15$d SMS + %16$d MMS\n\n%7$d konuşma: %11$d bireysel + %12$d grup</string>
     <string name="count_bytes">%1$s bayt</string>
-    <plurals name="count_detail_unread_rest">
-        <item quantity="one">, bunların %1$d tanesi PGP, %2$d konuşmada.</item>
-        <item quantity="other">, bunların %1$d tanesi PGP, %2$d konuşmada.</item>
-    </plurals>
     <string name="switch_sign">İmzala</string>
     <string name="switch_lock">Şifrele</string>
     <string name="cert_show">🔑 Sertifikayı göster</string>
@@ -234,10 +229,9 @@
     <string name="video_sound">Yalnızca ses (%1$s)</string>
     <!-- The three pages of the list, and what each counts under its name. -->
     <string name="page_talks">Konuşmalar</string>
-    <string name="page_unread">Okunmamış</string>
-    <string name="page_unread_n">Okunmamış (%1$d)</string>
     <string name="page_groups">MMS grupları</string>
     <string name="page_profile">Profilim</string>
+    <string name="page_profile_n">Profilim (%1$d)</string>
     <string name="me_wizard_title">Hangi kişi kartı sizin?</string>
     <string name="me_wizard_text">foomms\'a hangi kişi kartının sizin olduğunu söyleyin: gruplarda numaranız ve sertifikanızla sizi temsil eder. «Profilim» bölümünden değiştirebilirsiniz.</string>
     <string name="me_wizard_choose">Kartımı seç</string>
@@ -297,7 +291,10 @@
         <item quantity="one">%d taslak</item>
         <item quantity="other">%d taslak</item>
     </plurals>
-    <string name="clear_drafts">Tüm taslakları sil</string>
+    <string name="clear_drafts">Taslakları sil</string>
+    <string name="clear_draft">Sil</string>
+    <string name="see_unread">Okunmamışları gör</string>
+    <string name="see_unread_one">Gör</string>
     <plurals name="clear_drafts_ask">
         <item quantity="one">%d taslak silinsin mi? Metni kaybolacak.</item>
         <item quantity="other">%d taslak silinsin mi? Metinleri kaybolacak.</item>

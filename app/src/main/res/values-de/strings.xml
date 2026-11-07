@@ -123,15 +123,10 @@
     <string name="tie_ask_after">. Dies wird in Ihr Adressbuch eingetragen, wo der Kontakt es noch nicht enthält:</string>
     <string name="whom_hint">Ein Name oder eine Telefonnummer</string>
     <string name="mark_all_read">○ Alle als gelesen markieren</string>
-    <string name="mark_all_read_ask">Die %1$d ungelesenen Nachrichten als gelesen markieren?</string>
     <string name="mark_read">○ Als gelesen markieren</string>
     <string name="mark_unread">● Als ungelesen markieren</string>
     <string name="count_detail">%1$d Nachrichten: %2$d SMS + %3$d MMS\ndavon %4$d PGP: %5$d SMS + %6$d MMS\n%9$d empfangen: %13$d SMS + %14$d MMS\n%10$d gesendet: %15$d SMS + %16$d MMS\n\n%7$d Unterhaltungen: %11$d Einzel- + %12$d Gruppenunterhaltungen</string>
     <string name="count_bytes">%1$s Bytes</string>
-    <plurals name="count_detail_unread_rest">
-        <item quantity="one">, davon %1$d PGP, in %2$d Unterhaltung.</item>
-        <item quantity="other">, davon %1$d PGP, in %2$d Unterhaltungen.</item>
-    </plurals>
     <string name="switch_sign">Signieren</string>
     <string name="switch_lock">Verschlüsseln</string>
     <string name="cert_show">🔑 Zertifikat anzeigen</string>
@@ -234,10 +229,9 @@
     <string name="video_sound">Nur Ton (%1$s)</string>
     <!-- The three pages of the list, and what each counts under its name. -->
     <string name="page_talks">Unterhaltungen</string>
-    <string name="page_unread">Ungelesen</string>
-    <string name="page_unread_n">Ungelesen (%1$d)</string>
     <string name="page_groups">MMS-Gruppen</string>
     <string name="page_profile">Mein Profil</string>
+    <string name="page_profile_n">Mein Profil (%1$d)</string>
     <string name="me_wizard_title">Welche Kontaktkarte ist Ihre?</string>
     <string name="me_wizard_text">Sagen Sie foomms, welche Kontaktkarte Ihre ist: Sie steht in Gruppen für Sie, mit Ihrer Nummer und Ihrem Zertifikat. Sie können sie unter „Mein Profil“ ändern.</string>
     <string name="me_wizard_choose">Meine Karte wählen</string>
@@ -297,7 +291,10 @@
         <item quantity="one">%d Entwurf</item>
         <item quantity="other">%d Entwürfe</item>
     </plurals>
-    <string name="clear_drafts">Alle Entwürfe löschen</string>
+    <string name="clear_drafts">Entwürfe löschen</string>
+    <string name="clear_draft">Löschen</string>
+    <string name="see_unread">Ungelesene ansehen</string>
+    <string name="see_unread_one">Ansehen</string>
     <plurals name="clear_drafts_ask">
         <item quantity="one">%d Entwurf löschen? Sein Text geht verloren.</item>
         <item quantity="other">Die %d Entwürfe löschen? Ihr Text geht verloren.</item>
