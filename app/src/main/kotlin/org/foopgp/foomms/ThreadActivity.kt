@@ -602,17 +602,18 @@ class ThreadActivity : AskingActivity() {
         super.onPause()
     }
 
-    /** Who this is, what foodjis says of their certificate, and the messages. */
+    /** The readings of the page begun: only the latest's results are shown, an older one finishing late put back what was. */
+    @Volatile private var loads = 0
+
     /**
+     * Who this is, what foodjis says of their certificate, and the messages.
+     *
      * The conversation read and shown as it comes: its messages at once,
      * then -- each found side by side -- who it is with, the pictures, the
      * lengths, whom locked parts are for, and the faces of those named, the
      * page drawn again as each arrives. Something moves at once; the page
      * fills before the eyes.
      */
-    /** The readings of the page begun: only the latest's results are shown, an older one finishing late put back what was. */
-    @Volatile private var loads = 0
-
     private fun load(first: Boolean = false) {
         val contacts = checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
         val turn = ++loads
@@ -890,8 +891,6 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
-    /** What a group is muted by: its members but this phone, whichever of its conversations a message comes to. */
-    private fun groupKey(): String = "group:" + groupSet()
 
     /** The group as the set of its numbers but this phone's: what its name and its silence are kept by. */
     private fun groupSet(): String = Phone.group(everyone, Me.all(this))
@@ -1287,7 +1286,7 @@ class ThreadActivity : AskingActivity() {
     private val openedThumbs = HashMap<Long, Bitmap?>()
 
     /** A picture opened from its lock, made small to sit in its bubble, or to the [side] asked. */
-    private fun thumbnail(bytes: ByteArray, side: Int = Look.dp(this, 200)): Bitmap? = Media.thumbnail(bytes, side)
+    private fun thumbnail(bytes: ByteArray): Bitmap? = Media.thumbnail(bytes, Look.dp(this, 200))
 
     override fun onActivityResult(request: Int, outcome: Int, data: Intent?) {
         super.onActivityResult(request, outcome, data)
@@ -1623,8 +1622,7 @@ class ThreadActivity : AskingActivity() {
      * A message shown alone, its text to select from -- a word, a line, all
      * of it. In a window of its own: a list redraws its lines as it scrolls,
      * and a selection does not survive that.
-     */
-    /**
+     *
      * The text to select from, its web addresses pressable as in a page; Copy takes what is selected, or all
      * of it when nothing is.
      */
@@ -2127,7 +2125,6 @@ class ThreadActivity : AskingActivity() {
 
         /** The date of the message to show first. */
         const val EXTRA_AT = "at"
-        private const val TIE = 1
         private const val PICTURE = 5
         private const val SHOT = 7
         private const val CONTACT = 8
@@ -2137,8 +2134,6 @@ class ThreadActivity : AskingActivity() {
         private const val SAVE_PIECE = 12
         private const val VIDEO = 13
 
-
-        /** How soon a picture pressed again after growing gives its menu, in milliseconds. */
 
         /** How many of the latest messages have their pictures shown small. */
         private const val SHOWN_PICTURES = 40

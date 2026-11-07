@@ -297,10 +297,13 @@ object Store {
      * Read from the phone's own list of conversations, which is short; going
      * through every message to find the last of each took the time it takes
      * to read years of them.
+     *
+     * [groupsOnly]: only the conversations with several numbers, read for themselves -- a few among hundreds.
+     *
+     * [from]: how many of the latest to pass over -- the list read a block at a time, as it is scrolled.
+     *
+     * [only]: these conversations alone, by their numbers in the phone's list -- the few that hold a draft.
      */
-    /** [groupsOnly]: only the conversations with several numbers, read for themselves -- a few among hundreds. */
-    /** [from]: how many of the latest to pass over -- the list read a block at a time, as it is scrolled. */
-    /** [only]: these conversations alone, by their numbers in the phone's list -- the few that hold a draft. */
     fun talks(context: Context, most: Int, unreadOnly: Boolean = false, given: () -> Boolean = { false }, groupsOnly: Boolean = false, from: Int = 0, only: Set<Long>? = null): List<Talk> {
         val talks = ArrayList<Talk>()
         // The unread, by their messages ([unreadThreads]).
@@ -493,7 +496,6 @@ object Store {
         }
     }.getOrNull().orEmpty()
 
-    /** The conversations holding something not read yet. */
     /** The conversations of the group of [numbers]: with [me] among them or without, newest first. */
     fun groupThreads(context: Context, numbers: List<String>, mine: List<String>): List<Long> = runCatching {
         val key = Phone.group(numbers, mine)
@@ -511,6 +513,8 @@ object Store {
      * The conversations that hold a message not read yet, the latest first:
      * told by their messages, the mark Android keeps on a conversation not
      * following a message moved to another.
+     *
+     * The conversations holding something not read yet.
      */
     fun unreadThreads(context: Context): List<Long> = runCatching {
         val at = HashMap<Long, Long>()

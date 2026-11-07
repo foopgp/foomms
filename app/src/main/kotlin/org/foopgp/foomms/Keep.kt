@@ -176,11 +176,6 @@ object Keep {
     }
 
     /**
-     * Take a message, or a whole conversation, out of the phone's store: for
-     * good, and only the phone's messaging application can. Says whether
-     * anything went.
-     */
-    /**
      * The mark of a draft in [thread]: an SMS draft with no words to one
      * person, or an MMS draft to a group's members, its moment now. Its
      * words are foomms's ([Drafts]); one draft a conversation.
@@ -258,6 +253,11 @@ object Keep {
     /** Whether [thread] holds a draft's mark. */
     fun hasDraft(context: Context, thread: Long): Boolean = Store.draftAt(context, thread) != null
 
+    /**
+     * Take a message, or a whole conversation, out of the phone's store: for
+     * good, and only the phone's messaging application can. Says whether
+     * anything went.
+     */
     fun forget(context: Context, line: Store.Line): Boolean =
         ours(context) && runCatching { context.contentResolver.delete(line.uri, null, null) > 0 }.getOrDefault(false)
 
@@ -265,8 +265,11 @@ object Keep {
         context.contentResolver.delete(Uri.parse("content://mms-sms/conversations/$thread"), null, null) > 0
     }.getOrDefault(false)
 
-    /** Opening a conversation reads it, but for what is still locked: that is read once opened ([read] of a line). */
-    /** A conversation read, but for [locked], up to [upTo] (milliseconds): what came after was not on the screen. */
+    /**
+     * Opening a conversation reads it, but for what is still locked: that is read once opened ([read] of a line).
+     *
+     * A conversation read, but for [locked], up to [upTo] (milliseconds): what came after was not on the screen.
+     */
     fun read(context: Context, thread: Long, locked: List<Store.Line> = emptyList(), upTo: Long = Long.MAX_VALUE) {
         if (!ours(context)) return
         val seen = ContentValues().apply { put("read", 1) ; put("seen", 1) }

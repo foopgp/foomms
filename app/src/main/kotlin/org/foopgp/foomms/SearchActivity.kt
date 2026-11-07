@@ -18,10 +18,10 @@ import kotlin.concurrent.thread
 
 /**
  * Looking for someone, or for a message by its words. From the list of
- * conversations it looks first in the contacts -- all of them, those one has
- * never written to as well -- each with its button to write; a selector beside
- * the field turns it to the conversations, and the page keeps the choice.
- * From a conversation it looks in that one only. A PGP message is found by
+ * conversations it looks, as chosen there ([Searching]), in the contacts --
+ * all of them, those one has never written to as well, each with its button
+ * to write -- or in the conversations. From a conversation it looks in that
+ * one only. A PGP message is found by
  * what it says only while it is open; closed, nobody here knows what it says.
  */
 class SearchActivity : Activity() {

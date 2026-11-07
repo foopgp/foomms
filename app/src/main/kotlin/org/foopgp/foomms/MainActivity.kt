@@ -49,10 +49,10 @@ class MainActivity : AskingActivity() {
         fun standing(now: String?) = Row(talk, person, face, name, verdict, last, now, group, threads, unread, with, crowd, speaker, messages, draft)
 
         /** The line of one of those a sending to each went to: theirs, the sending shown in their conversation, not a conversation of its own. */
-        fun apart() = Row(talk, person, face, name, verdict, last, standing, group, emptyList(), unread, with, crowd, speaker)
+        fun apart() = Row(talk, person, face, name, verdict, last, standing, group, emptyList(), unread, with, crowd, speaker, draft = draft)
 
         /** A group heard from the headers of [messages], filed in their senders' conversations: none of those is its. */
-        fun heard(messages: List<Long>) = Row(talk, person, face, name, verdict, last, standing, group, emptyList(), unread, with, crowd, speaker, messages)
+        fun heard(messages: List<Long>) = Row(talk, person, face, name, verdict, last, standing, group, emptyList(), unread, with, crowd, speaker, messages, draft)
 
         /** Its face of pixels, with no picture: the certificate's, the number's, or the group's. */
         val seed: String? get() = group ?: Look.seed(person?.fingerprint, with)
@@ -427,7 +427,7 @@ class MainActivity : AskingActivity() {
                     setPadding(pad * 2, pad, pad * 2, pad)
                     addView(
                         if (one == Page.TALKS) android.widget.ImageView(context).apply { setImageResource(R.drawable.launcher) }
-                        else Look.words(context, glyph(one), size = 20f).apply { gravity = Gravity.CENTER },
+                        else Look.words(context, profileMark, size = 20f).apply { gravity = Gravity.CENTER },
                         LinearLayout.LayoutParams(side, side),
                     )
                     addView(
@@ -469,15 +469,15 @@ class MainActivity : AskingActivity() {
 
     /** A page's name after its mark, the application's own drawn in the text for the conversations, [side] high. */
     private fun marked(of: Page, side: Int): CharSequence {
-        if (of != Page.TALKS) return "${glyph(of)} ${named(of, counted = true)}"
+        if (of != Page.TALKS) return "$profileMark ${named(of, counted = true)}"
         val mark = getDrawable(R.drawable.launcher)?.apply { setBounds(0, 0, side, side) } ?: return named(of)
         return android.text.SpannableStringBuilder("  ${named(of)}").apply {
             setSpan(android.text.style.ImageSpan(mark, android.text.style.DynamicDrawableSpan.ALIGN_BOTTOM), 0, 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 
-    /** The mark of a page but the conversations', whose mark is the application's. */
-    private fun glyph(of: Page): String = "👤"
+    /** The profile's page's mark: the conversations' is the application's own. */
+    private val profileMark = "👤"
 
     /** A page's name; the profile's, on the way to it, with how many messages are unread, when some are. */
     private fun named(it: Page, counted: Boolean = false): String = when (it) {
@@ -916,7 +916,7 @@ class MainActivity : AskingActivity() {
         meRule.visibility = meBox.visibility
         mark.visibility = if (page == Page.TALKS) View.VISIBLE else View.GONE
         markGlyph.visibility = if (page == Page.TALKS) View.GONE else View.VISIBLE
-        markGlyph.text = glyph(page)
+        markGlyph.text = profileMark
         val known = counts
         if (known != null) {
             counted.text = when (page) {

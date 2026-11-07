@@ -118,8 +118,9 @@ object Media {
     /**
      * A picture, as JPEG, no heavier than [most]: made smaller, then lighter,
      * until it fits. Null when it is not a picture one can read.
+     *
+     * [name]: the picture's own, a photograph just taken being named when it was taken ([named]).
      */
-    /** [name]: the picture's own, a photograph just taken being named when it was taken ([named]). */
     fun picture(context: Context, from: Uri, most: Int, name: String = "photo.jpg"): Attachment? {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         context.contentResolver.openInputStream(from)?.use { BitmapFactory.decodeStream(it, null, bounds) }

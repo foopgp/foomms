@@ -346,12 +346,12 @@ object Look {
     /**
      * A face: the contact's own picture, else the one the certificate carries,
      * else the mark foodjis shows where there is none.
-     */
-    /**
+     *
      * [framable]: room is kept around the picture for a frame, whether one is drawn or not, so that a list
      * of faces stays aligned and every picture keeps its [side].
+     *
+     * [seed]: with no picture, the face of pixels it makes ([pixels]); [lineDp], the frame's width.
      */
-    /** [seed]: with no picture, the face of pixels it makes ([pixels]); [lineDp], the frame's width. */
     fun face(
         context: Context, side: Int, photo: Uri?, avatar: Bitmap?, standing: String? = null, framable: Boolean = false,
         seed: String? = null, lineDp: Int = 4,

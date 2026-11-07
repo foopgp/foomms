@@ -23,14 +23,17 @@ import kotlin.concurrent.thread
  * the list of conversations does -- the latest first, each behind its face --
  * and narrows to the contacts whose name or number holds what is typed. One
  * chosen, their conversation opens; several, the same message goes to each,
- * or -- from two to nine -- one MMS goes to all of them, a group's.
+ * or -- up to the group limit set -- one MMS goes to all of them, a group's.
  * A page of its own, as messaging applications have it: a window over the
  * list of conversations sent fingers looking for a recipient behind it.
  */
 class WriteActivity : Activity() {
 
-    /** Somebody one can write to: a name, a number, a face when there is one. */
-    /** [header]: not somebody, the heading of those that follow. [light]: only a name and a number, the rest read when shown. */
+    /**
+     * Somebody one can write to: a name, a number, a face when there is one.
+     *
+     * [header]: not somebody, the heading of those that follow. [light]: only a name and a number, the rest read when shown.
+     */
     private class Whom(
         val number: String, val name: String, val face: Bitmap?, val typed: Boolean = false, val fingerprint: String? = null, val standing: String? = null,
         val header: String? = null, val light: Boolean = false,
@@ -223,10 +226,9 @@ class WriteActivity : Activity() {
             )
         }
         (picked.parent as? View)?.visibility = if (chosen.isEmpty()) View.GONE else View.VISIBLE
-        // A group MMS goes to two to nine people: beyond, to each.
-        // And this phone, which gets it back: its number, from one's own contact.
+        // A group MMS goes to as many as the limit set, this phone among them: beyond, to each. And this phone,
+        // which gets it back: its number, from one's own contact.
         val known = Me.number(this) != null
-        // Ten with oneself, or what the person set: some networks take far more.
         val most = Conf.groupMost(this) - 1
         val mms = Conf.mms(this)
         val groupable = chosen.size in 2..most && known && mms

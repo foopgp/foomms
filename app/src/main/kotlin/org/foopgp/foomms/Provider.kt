@@ -172,11 +172,6 @@ class Provider(private val context: Context) {
         fun foodjis(context: Context): String = whom(context)?.packageName ?: preferred(context).first()
 
         /**
-         * Nobody to speak to: the way to install foodjis, the published one,
-         * which a trial build of ours speaks to as well -- the store's page,
-         * or that page on the web when the phone has no store.
-         */
-        /**
          * The version of the foodjis spoken to, when it is older than the one
          * this build needs -- 1.5.0, the first to lay a signature made already
          * inside the lock --, or null: none to speak to, or recent enough.
@@ -191,6 +186,11 @@ class Provider(private val context: Context) {
         const val NEEDED_CODE = 54L
         const val NEEDED_NAME = "1.5.0"
 
+        /**
+         * Nobody to speak to: the way to install foodjis, the published one,
+         * which a trial build of ours speaks to as well -- the store's page,
+         * or that page on the web when the phone has no store.
+         */
         fun install(context: Context) {
             val wanted = FOODJIS
             runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("market://details?id=$wanted"))) }

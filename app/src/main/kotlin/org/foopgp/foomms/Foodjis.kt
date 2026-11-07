@@ -90,9 +90,9 @@ class Foodjis(private val context: Context) {
     }
 
     companion object {
+        /** One for the application: what foodjis said is asked again when a page comes back ([fresh]). */
         @Volatile private var one: Foodjis? = null
 
-        /** One for the application: what foodjis said is asked again when a page comes back ([fresh]). */
         /**
          * What foodjis said, behind its icon -- in place of words saying who
          * speaks --; its name when the icon cannot be had.

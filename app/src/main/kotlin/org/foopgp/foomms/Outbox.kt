@@ -62,7 +62,6 @@ object Outbox {
         check(pdu.size <= most) { context.getString(R.string.too_heavy_sent, (pdu.size + 1023) / 1024, most / 1024) }
         File(context.cacheDir, DIR).mkdirs()
         file(context, transaction).writeBytes(pdu)
-        journal(context).edit().putString(transaction, "${System.currentTimeMillis()}\t${to.joinToString(", ")}\t${pdu.size}\t$GOING").apply()
         // The phone keeps what its messaging application tells it to, and nothing of what another sends: written
         // before it leaves, so that a refusal can be marked on it.
         val written = if (Keep.ours(context)) runCatching { Keep.mmsSent(context, to, pdu, at) }.getOrNull() else null
@@ -91,8 +90,6 @@ object Outbox {
         val pieces = manager.divideMessage(words)
         // By the nanosecond: several sent in one millisecond -- quick answers to a call -- shared their notice.
         val transaction = "S" + java.lang.Long.toHexString(System.nanoTime())
-        journal(context).edit()
-            .putString(transaction, "${System.currentTimeMillis()}\t$to\t${words.length}\t$GOING").apply()
         // Told once, by the last piece: the others answer nobody.
         // The phone writes what another application sends; its messaging application writes its own.
         val written = if (Keep.ours(context)) runCatching { Keep.smsSent(context, to, words, at) }.getOrNull() else null
@@ -111,16 +108,6 @@ object Outbox {
         }
         return pieces.size
     }
-
-    class Line(val at: Long, val to: String, val weight: Int, val outcome: String)
-
-    fun lines(context: Context): List<Line> = journal(context).all.values.mapNotNull { kept ->
-        val said = (kept as? String)?.split('\t') ?: return@mapNotNull null
-        if (said.size != 4) return@mapNotNull null
-        Line(said[0].toLongOrNull() ?: return@mapNotNull null, said[1], said[2].toIntOrNull() ?: 0, said[3])
-    }.sortedByDescending { it.at }
-
-    fun forget(context: Context) = journal(context).edit().clear().apply()
 
     /**
      * The operator's server told an MMS it announced as [transaction] was fetched ([Pdu.fetched]): sent as an
@@ -144,7 +131,6 @@ object Outbox {
         if (Build.VERSION.SDK_INT >= 31) context.getSystemService(SmsManager::class.java)
         else @Suppress("DEPRECATION") SmsManager.getDefault()
 
-    private fun journal(context: Context) = context.getSharedPreferences("sent", Context.MODE_PRIVATE)
 
     private const val OPENED = "open"
     private const val SHOT = "shot"
@@ -200,17 +186,13 @@ object Outbox {
             file(context, transaction).delete()
             // An answer to the operator's server, not a message: nothing to mark, nothing to say.
             if (intent.getBooleanExtra(EXTRA_QUIET, false)) return
-            val outcome = if (resultCode == android.app.Activity.RESULT_OK) GONE else "$REFUSED $resultCode"
+            val gone = resultCode == android.app.Activity.RESULT_OK
             // Refused: certainly not sent, and marked so where it is kept. Taken, it is not known to have arrived.
-            if (outcome != GONE) intent.getStringExtra(EXTRA_WRITTEN)?.let { kept ->
+            if (!gone) intent.getStringExtra(EXTRA_WRITTEN)?.let { kept ->
                 val where = Uri.parse(kept)
                 runCatching { if (where.authority == "mms") Keep.mmsFailed(context, where) else Keep.smsFailed(context, where) }
             }
-            val kept = journal(context)
-            kept.getString(transaction, null)?.let { line ->
-                kept.edit().putString(transaction, line.substringBeforeLast('\t') + "\t" + outcome).apply()
-            }
-            val words = if (outcome == GONE) R.string.sent else R.string.not_sent
+            val words = if (gone) R.string.sent else R.string.not_sent
             // An MMS left a file behind; an SMS did not, and deleting nothing is no harm.
             Toast.makeText(context, context.getString(words, resultCode), Toast.LENGTH_LONG).show()
         }
@@ -270,9 +252,6 @@ object Outbox {
         override fun update(uri: Uri, values: ContentValues?, s: String?, a: Array<String>?) = 0
     }
 
-    const val GOING = "going"
-    const val GONE = "gone"
-    const val REFUSED = "refused"
     private const val DIR = "out"
     private const val EXTRA_TRANSACTION = "transaction"
     private const val EXTRA_WRITTEN = "written"

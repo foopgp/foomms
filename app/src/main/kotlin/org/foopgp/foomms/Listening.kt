@@ -22,7 +22,7 @@ import android.os.IBinder
  * short one is played in its bubble, and stops with it.
  *
  * What is played may have been opened from its lock: it is handed over in
- * memory, written to the cache only as long as the player takes to read it.
+ * memory, and played from there.
  */
 class Listening : Service() {
 

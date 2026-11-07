@@ -230,7 +230,6 @@
     <string name="video_sound">Только звук (%1$s)</string>
     <!-- The three pages of the list, and what each counts under its name. -->
     <string name="page_talks">Беседы</string>
-    <string name="page_groups">MMS-группы</string>
     <string name="page_profile">Мой профиль</string>
     <string name="page_profile_n">Мой профиль (%1$d)</string>
     <string name="me_wizard_title">Какая карточка контакта ваша?</string>
@@ -260,12 +259,6 @@
         <item quantity="few">%d непрочитанных</item>
         <item quantity="many">%d непрочитанных</item>
         <item quantity="other">%d непрочитанного</item>
-    </plurals>
-    <plurals name="groups_n">
-        <item quantity="one">%d группа</item>
-        <item quantity="few">%d группы</item>
-        <item quantity="many">%d групп</item>
-        <item quantity="other">%d группы</item>
     </plurals>
     <plurals name="group_members">
         <item quantity="one">%d участник</item>

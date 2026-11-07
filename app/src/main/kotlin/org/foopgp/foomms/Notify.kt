@@ -11,8 +11,9 @@ import org.openintents.openpgp.OpenPgpSignatureResult
 
 /**
  * Saying that a message has arrived: from whom, and its words -- or, for a
- * PGP message, what it is: the words of one are not shown on a locked screen
- * that anybody can read, and cannot be before the security key has opened it.
+ * PGP message, what it is. An encrypted one's words are never said, the key
+ * not having opened it; a signed one's are, once foodjis has verified it,
+ * in the colour of what its signature is worth.
  */
 object Notify {
 

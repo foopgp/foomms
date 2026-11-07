@@ -60,10 +60,6 @@ object Members {
         edit.apply()
     }
 
-    /** The number a members part last gave the certificate [fingerprint]. */
-    fun numberOf(context: android.content.Context, fingerprint: String): String? =
-        kept(context).all.values.mapNotNull { (it as? String)?.split('\t') }.firstOrNull { it.size >= 4 && it[2].equals(fingerprint, ignoreCase = true) }?.get(1)
-
     /** What a members part last said of [number]: of that very number, not of another ending the same way. */
     fun known(context: android.content.Context, number: String): Member? =
         kept(context).getString(Phone.key(number), null)?.split('\t')?.takeIf { it.size >= 4 && Phone.same(it[1], number) }?.let {
