@@ -244,6 +244,14 @@
         <item quantity="one">%d mensaje sin leer</item>
         <item quantity="other">%d mensajes sin leer</item>
     </plurals>
+    <plurals name="count_detail_unread_rest">
+        <item quantity="one">, de ellos %1$d PGP, en %2$d conversación.</item>
+        <item quantity="other">, de ellos %1$d PGP, en %2$d conversaciones.</item>
+    </plurals>
+    <plurals name="unread_short">
+        <item quantity="one">%d no leído</item>
+        <item quantity="other">%d no leídos</item>
+    </plurals>
     <plurals name="groups_n">
         <item quantity="one">%d grupo</item>
         <item quantity="other">%d grupos</item>

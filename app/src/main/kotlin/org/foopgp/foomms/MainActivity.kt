@@ -424,7 +424,7 @@ class MainActivity : AskingActivity() {
                         LinearLayout.LayoutParams(side, side),
                     )
                     addView(
-                        Look.words(context, named(one), size = 17f).apply {
+                        Look.words(context, named(one, counted = true), size = 17f).apply {
                             setPadding(pad, 0, 0, 0)
                             if (one == Page.TALKS) setTypeface(typeface, Typeface.BOLD)
                             if (one == page) setTextColor(Look.ORANGE)
@@ -836,7 +836,8 @@ class MainActivity : AskingActivity() {
             },
         )
         talks.notifyDataSetChanged()
-        heading.text = named(page)
+        // Its own count in the profile's title as well, as on the way to it.
+        heading.text = named(page, counted = true)
         others.removeAllViews()
         for (other in Page.entries.filter { it != page }) {
             others.addView(
@@ -872,7 +873,10 @@ class MainActivity : AskingActivity() {
             clearDrafts.text = getString(if (known.drafts == 1) R.string.clear_draft else R.string.clear_drafts)
             seeUnread.text = getString(if (known.unread == 1) R.string.see_unread_one else R.string.see_unread)
             bytesSaid.text = getString(R.string.count_bytes, weight)
-            unreadSaid.text = "📬 " + resources.getQuantityString(R.plurals.unread_n, known.unread, known.unread)
+            unreadSaid.text = android.text.SpannableStringBuilder("📬 ").append(
+                resources.getQuantityString(R.plurals.unread_short, known.unread, known.unread),
+                android.text.style.StyleSpan(Typeface.BOLD), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+            )
             usable(clearDrafts, known.drafts > 0)
             usable(seeUnread, known.unread > 0)
         }
@@ -908,7 +912,13 @@ class MainActivity : AskingActivity() {
     /** The conversations holding something unread, and a way to mark it all read. */
     private fun seeUnread() {
         val many = counts?.unread ?: 0
-        conversations(resources.getQuantityString(R.plurals.unread_n, many, many), unreadRows, getString(R.string.mark_all_read)) {
+        val known = counts
+        // How many, how many of them PGP, and in how many conversations: the window lists the conversations.
+        val said = android.text.SpannableStringBuilder().append(
+            resources.getQuantityString(R.plurals.unread_n, many, many),
+            android.text.style.StyleSpan(Typeface.BOLD), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+        ).append(resources.getQuantityString(R.plurals.count_detail_unread_rest, known?.unreadTalks ?: 0, known?.unreadPgp ?: 0, known?.unreadTalks ?: 0))
+        conversations(said, unreadRows, getString(R.string.mark_all_read)) {
             thread {
                 Keep.readAll(this)
                 Notify.seenAll(this)
@@ -922,7 +932,7 @@ class MainActivity : AskingActivity() {
      * one, a long press shows its menu --, under [said], with one act on them
      * all, [named], done by [act].
      */
-    private fun conversations(said: String, shown: List<Row>, named: String, act: () -> Unit) {
+    private fun conversations(said: CharSequence, shown: List<Row>, named: String, act: () -> Unit) {
         var window: AlertDialog? = null
         val list = ListView(this).apply {
             adapter = lines { shown }
@@ -936,9 +946,14 @@ class MainActivity : AskingActivity() {
                 true
             }
         }
+        // Half the screen at most: a long list scrolls inside it, and the buttons stay in sight under it.
+        val most = resources.displayMetrics.heightPixels / 2
+        val held = android.widget.FrameLayout(this).apply {
+            addView(list, android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, if (shown.size > SHORT_LIST) most else ViewGroup.LayoutParams.WRAP_CONTENT))
+        }
         window = AlertDialog.Builder(this)
             .setMessage(said)
-            .apply { if (shown.isNotEmpty()) setView(list) }
+            .apply { if (shown.isNotEmpty()) setView(held) }
             .setPositiveButton(named) { _, _ -> act() }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
@@ -1126,6 +1141,9 @@ class MainActivity : AskingActivity() {
 
         /** The newest read first, alone, before the rest is read again ([fill]). */
         const val QUICK = 6
+
+        /** As many conversations as a window shows whole; more, and it scrolls within half the screen. */
+        const val SHORT_LIST = 4
 
         /** How long the messages are to stay still before the list is read again. */
         const val SETTLE_MS = 400L

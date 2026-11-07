@@ -248,6 +248,18 @@
         <item quantity="many">%d nieprzeczytanych wiadomości</item>
         <item quantity="other">%d nieprzeczytanej wiadomości</item>
     </plurals>
+    <plurals name="count_detail_unread_rest">
+        <item quantity="one">, w tym %1$d PGP, w %2$d rozmowie.</item>
+        <item quantity="few">, w tym %1$d PGP, w %2$d rozmowach.</item>
+        <item quantity="many">, w tym %1$d PGP, w %2$d rozmowach.</item>
+        <item quantity="other">, w tym %1$d PGP, w %2$d rozmowach.</item>
+    </plurals>
+    <plurals name="unread_short">
+        <item quantity="one">%d nieprzeczytana</item>
+        <item quantity="few">%d nieprzeczytane</item>
+        <item quantity="many">%d nieprzeczytanych</item>
+        <item quantity="other">%d nieprzeczytanej</item>
+    </plurals>
     <plurals name="groups_n">
         <item quantity="one">%d grupa</item>
         <item quantity="few">%d grupy</item>
