@@ -33,9 +33,10 @@ object TalkMenu {
                 val looking = AlertDialog.Builder(activity).setMessage(R.string.cert_fetching).setPositiveButton(R.string.close, null).show()
                 val provider = Provider(activity)
                 provider.ask(Intent(Provider.GET_KEY).putExtra(Provider.EXTRA_KEY_ID, keyId).putExtra(Provider.EXTRA_REFRESH, refresh), null) { answer ->
-                    looking.dismiss()
                     provider.close()
+                    // The page left while foodjis looked: its window went with it, and closing it now would throw.
                     if (activity.isFinishing || activity.isDestroyed) return@ask
+                    runCatching { looking.dismiss() }
                     when (answer) {
                         is Provider.Answer.Done -> {
                             Foodjis.of(activity).fresh()

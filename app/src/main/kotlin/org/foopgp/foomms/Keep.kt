@@ -266,13 +266,15 @@ object Keep {
     }.getOrDefault(false)
 
     /** Opening a conversation reads it, but for what is still locked: that is read once opened ([read] of a line). */
-    fun read(context: Context, thread: Long, locked: List<Store.Line> = emptyList()) {
+    /** A conversation read, but for [locked], up to [upTo] (milliseconds): what came after was not on the screen. */
+    fun read(context: Context, thread: Long, locked: List<Store.Line> = emptyList(), upTo: Long = Long.MAX_VALUE) {
         if (!ours(context)) return
         val seen = ContentValues().apply { put("read", 1) ; put("seen", 1) }
         fun but(mms: Boolean) = locked.filter { it.mms == mms }.joinToString(",") { it.id.toString() }.let { if (it.isEmpty()) "" else " AND _id NOT IN ($it)" }
         runCatching {
-            context.contentResolver.update(Telephony.Sms.CONTENT_URI, seen, "thread_id = ? AND read = 0" + but(false), arrayOf(thread.toString()))
-            context.contentResolver.update(Telephony.Mms.CONTENT_URI, seen, "thread_id = ? AND read = 0" + but(true), arrayOf(thread.toString()))
+            // An SMS's date is in milliseconds, an MMS's in seconds.
+            context.contentResolver.update(Telephony.Sms.CONTENT_URI, seen, "thread_id = ? AND read = 0 AND date <= ?" + but(false), arrayOf(thread.toString(), upTo.toString()))
+            context.contentResolver.update(Telephony.Mms.CONTENT_URI, seen, "thread_id = ? AND read = 0 AND date <= ?" + but(true), arrayOf(thread.toString(), (upTo / 1000).toString()))
         }
     }
 

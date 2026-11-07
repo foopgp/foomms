@@ -52,7 +52,9 @@ object Inbound {
             val announced = runCatching { PduRead.read(pushed) }.getOrNull() ?: return
             if (announced.kind != PduRead.NOTIFICATION) return
             val where = announced.location ?: return
-            fetch(context, where, announced.from, intent.getIntExtra("subscription", -1))
+            // Announced again -- a server not told it was fetched, or not yet --: fetched once.
+            if (Unfetched.known(context, where)) return
+            fetch(context, where, announced.from, intent.getIntExtra("subscription", -1), announced.transaction)
         }
     }
 
@@ -60,9 +62,9 @@ object Inbound {
      * The MMS waiting at [where] asked of the phone's MMS service, into a file of ours, noted until it arrives
      * ([Unfetched]): what is not fetched is said and asked for again.
      */
-    fun fetch(context: Context, where: String, from: String?, subscription: Int) {
+    fun fetch(context: Context, where: String, from: String?, subscription: Int, transaction: String? = null) {
         val name = "in" + java.lang.Long.toHexString(System.nanoTime())
-        Unfetched.note(context, name, where, from, subscription)
+        Unfetched.note(context, name, where, from, subscription, transaction)
         val fetched = PendingIntent.getBroadcast(
             context, name.hashCode(),
             Intent(context, Fetched::class.java).putExtra(EXTRA_NAME, name).putExtra(EXTRA_SUBSCRIPTION, subscription)
@@ -91,8 +93,8 @@ object Inbound {
                     return Unfetched.failed(context, name)
                 }
                 val pdu = file.readBytes()
-                // Here, whatever is made of it next: not to be asked for again.
-                Unfetched.done(context, name)
+                // Here, whatever is made of it next: not to be asked for again, and the server told so.
+                Unfetched.fetched(context, name)?.let { said -> runCatching { Outbox.acknowledge(context, said, intent.getIntExtra(EXTRA_SUBSCRIPTION, -1)) } }
                 val message = PduRead.read(pdu)
                 val from = message.from ?: intent.getStringExtra(EXTRA_FROM) ?: return
                 // A group's MMS this phone sent, come back to it -- to several, or to this phone alone as some networks deliver

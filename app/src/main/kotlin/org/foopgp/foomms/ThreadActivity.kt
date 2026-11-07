@@ -41,7 +41,17 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
-    private val number by lazy { intent.getStringExtra(EXTRA_NUMBER) ?: intent.data?.schemeSpecificPart.orEmpty() }
+    /**
+     * What this page was told by foomms itself: its own intent; asked from outside -- "write to this number" from
+     * any application --, none. The page shows a conversation's history and sends to a number: another
+     * application naming one person's conversation and another's number was showing the first and sending to the
+     * second.
+     */
+    private val inner: Intent by lazy {
+        if (intent.action == Intent.ACTION_SENDTO || intent.action == Intent.ACTION_VIEW) Intent() else intent
+    }
+
+    private val number by lazy { inner.getStringExtra(EXTRA_NUMBER) ?: intent.data?.schemeSpecificPart.orEmpty() }
     private val foodjis by lazy { Foodjis.of(this) }
 
     private var person: Book.Person? = null
@@ -89,6 +99,9 @@ class ThreadActivity : AskingActivity() {
     /** This conversation, as what is opened in it is counted down: none yet, the conversation of nobody. */
     private fun here(): Long = thread ?: Opened.NO_THREAD
 
+    /** Every conversation the page shows lines of -- a group's several, a sending to each filed elsewhere --: closed together. */
+    private fun shownHere(): Set<Long> = lines.map { it.thread }.toSet() + here()
+
     /**
      * Everybody the conversation is with, this phone included when it is a
      * group's: the numbers Android names its conversation by. Read at once,
@@ -97,7 +110,7 @@ class ThreadActivity : AskingActivity() {
     private val everyone: List<String> by lazy {
         val all = ArrayList<String>()
         // A group heard only from the headers of MMS filed elsewhere: its members, as the list read them.
-        val heard = if (elsewhere.isEmpty()) emptyList() else intent.getStringArrayExtra(EXTRA_MEMBERS)?.toList().orEmpty()
+        val heard = if (elsewhere.isEmpty()) emptyList() else inner.getStringArrayExtra(EXTRA_MEMBERS)?.toList().orEmpty()
         for (one in given.flatMap { runCatching { Store.members(this, it) }.getOrDefault(emptyList()) } + heard) {
             if (all.none { Phone.same(it, one) || it == one }) all += one
         }
@@ -105,7 +118,7 @@ class ThreadActivity : AskingActivity() {
     }
 
     /** A group's MMS filed in their senders' conversations by another application, by number: shown with its own. */
-    private val elsewhere: List<Long> by lazy { intent.getLongArrayExtra(EXTRA_MESSAGES)?.toList().orEmpty() }
+    private val elsewhere: List<Long> by lazy { inner.getLongArrayExtra(EXTRA_MESSAGES)?.toList().orEmpty() }
 
     /**
      * The conversations the page was opened on: one, or those Android keeps
@@ -113,8 +126,8 @@ class ThreadActivity : AskingActivity() {
      * without --, shown as one.
      */
     private val given: List<Long> by lazy {
-        intent.getLongArrayExtra(EXTRA_THREADS)?.toList()?.takeIf { it.isNotEmpty() }
-            ?: listOfNotNull(intent.getLongExtra(EXTRA_THREAD, -1L).takeIf { it >= 0 })
+        inner.getLongArrayExtra(EXTRA_THREADS)?.toList()?.takeIf { it.isNotEmpty() }
+            ?: listOfNotNull(inner.getLongExtra(EXTRA_THREAD, -1L).takeIf { it >= 0 })
     }
 
     /** A conversation with several numbers: a group MMS's. */
@@ -226,7 +239,7 @@ class ThreadActivity : AskingActivity() {
         super.onCreate(state)
         if (number.isBlank()) return finish()
         title = number
-        wanted = intent.getLongExtra(EXTRA_AT, 0L)
+        wanted = inner.getLongExtra(EXTRA_AT, 0L)
         // In the bar: who the conversation is with -- a face, a name, and under it the number and what its
         // certificate is worth. Pressed, what can be done about them, as from the list of conversations.
         whoIs = Look.words(this, number, size = 17f).apply { setTextColor(Look.ORANGE) ; setTypeface(typeface, android.graphics.Typeface.BOLD) ; maxLines = 1 }
@@ -353,7 +366,7 @@ class ThreadActivity : AskingActivity() {
         given.firstOrNull()?.let(::offerEach)
         // And what was shared with them: a picture made small enough for an MMS, any other file if it fits.
         @Suppress("DEPRECATION")
-        if (state == null) intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)?.let { shared ->
+        if (state == null) intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)?.takeUnless { Outbox.ours(this, it) }?.let { shared ->
             val type = intent.type ?: contentResolver.getType(shared).orEmpty()
             attached(if (type.startsWith("image/")) PICTURE else FILE, shared)
         }
@@ -363,7 +376,12 @@ class ThreadActivity : AskingActivity() {
     private var shown = false
 
     private val arrivals = object : android.database.ContentObserver(android.os.Handler(android.os.Looper.getMainLooper())) {
-        override fun onChange(self: Boolean) { if (shown) load() }
+        // Once the messages stop changing: opening several marks each read, and each change read the page again.
+        private val again = Runnable { if (shown && !isFinishing && !isDestroyed) load() }
+        override fun onChange(self: Boolean) {
+            closing.removeCallbacks(again)
+            closing.postDelayed(again, SETTLE_MS)
+        }
     }
 
     private var dressed = false
@@ -378,7 +396,7 @@ class ThreadActivity : AskingActivity() {
             setBackgroundColor(Look.pale(Verdict.YELLOW))
             visibility = View.GONE
             addView(remaining, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-            addView(Look.small(context, getString(R.string.close_now)) { Opened.close(here()) ; tick() })
+            addView(Look.small(context, getString(R.string.close_now)) { shownHere().forEach(Opened::close) ; tick() })
         }
     }
     private val remaining by lazy { Look.words(this, "", size = 14f) }
@@ -394,7 +412,7 @@ class ThreadActivity : AskingActivity() {
     private var wasOpen = false
 
     private fun tick() {
-        val closes = Opened.closesAt(here())
+        val closes = shownHere().mapNotNull { Opened.closesAt(it) }.maxOrNull()
         if (closes != null) remaining.text = getString(R.string.closes_in, Media.clock(maxOf(0L, closes - System.currentTimeMillis() + 999)))
         closing.visibility = if (closes != null) View.VISIBLE else View.GONE
         // Closed now: the bubbles show it, and the pictures opened from locked parts go with the rest.
@@ -592,8 +610,13 @@ class ThreadActivity : AskingActivity() {
      * page drawn again as each arrives. Something moves at once; the page
      * fills before the eyes.
      */
+    /** The readings of the page begun: only the latest's results are shown, an older one finishing late put back what was. */
+    @Volatile private var loads = 0
+
     private fun load(first: Boolean = false) {
         val contacts = checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
+        val turn = ++loads
+        val latest = { turn == loads }
         thread {
             // Who the number is, beside the messages: its head drawn as soon as known. A group's, each member.
             if (group) thread {
@@ -605,12 +628,12 @@ class ThreadActivity : AskingActivity() {
                     own?.photo?.let { Media.thumbnail(this, it, Media.FACE) } ?: own?.fingerprint?.let { foodjis.face(it) },
                     mineCert?.validity, Look.seed(own?.fingerprint, Me.number(this)),
                 )
-                runOnUiThread { if (!isFinishing && !isDestroyed) groupHead(found, first, mineCert?.usable == true, myself) }
+                runOnUiThread { if (!isFinishing && !isDestroyed && latest()) groupHead(found, first, mineCert?.usable == true, myself) }
             } else thread {
                 val who = if (contacts) Book.who(this, number) else null
                 val whose = who?.fingerprint?.let { foodjis.card(it) }
                 val theirs = who?.let { Book.face(this, it) } ?: who?.fingerprint?.let { foodjis.face(it) }
-                runOnUiThread { if (!isFinishing && !isDestroyed) head(who, whose, theirs, first) }
+                runOnUiThread { if (!isFinishing && !isDestroyed && latest()) head(who, whose, theirs, first) }
             }
             // The conversation it was opened from, when it was opened from one: a sender that is a name and not a
             // number -- a bank, a shop -- has a conversation all the same.
@@ -626,7 +649,7 @@ class ThreadActivity : AskingActivity() {
                 .let { if (given.size > 1 || elsewhere.isNotEmpty()) (it + elsewhere).sortedBy { line -> line.at } else it }
             // The messages shown at once; signed ones verified from now.
             runOnUiThread {
-                if (isFinishing || isDestroyed) return@runOnUiThread
+                if (isFinishing || isDestroyed || !latest()) return@runOnUiThread
                 lines = found
                 hits = null
                 this.thread = thread
@@ -638,10 +661,12 @@ class ThreadActivity : AskingActivity() {
                     wanted = 0
                 }
             }
-            if (shown) {
-                // Read, but for what is still locked, which waits to be opened, and what the person made unread again.
+            if (shown && latest()) {
+                // Read, but for what is still locked, which waits to be opened, and what the person made unread again --
+                // and no later than what was read here: one arrived meanwhile has not been seen.
                 for (one in given.ifEmpty { listOfNotNull(thread) }) {
-                    Keep.read(this, one, found.filter { line -> line.thread == one && (lockedAndClosed(line) || line.key in keptUnread) })
+                    val upTo = found.filter { it.thread == one }.maxOfOrNull { it.at } ?: continue
+                    Keep.read(this, one, found.filter { line -> line.thread == one && (lockedAndClosed(line) || line.key in keptUnread) }, upTo)
                 }
                 Notify.seen(this, number)
             }
@@ -699,7 +724,7 @@ class ThreadActivity : AskingActivity() {
             }
             (faces + pictures + lengths).forEach { it.join() }
             // What the locked parts said known: those signed only are verified now.
-            runOnUiThread { if (!isFinishing && !isDestroyed) { bubbles.notifyDataSetChanged() ; verifySigned() } }
+            runOnUiThread { if (!isFinishing && !isDestroyed && latest()) { bubbles.notifyDataSetChanged() ; verifySigned() } }
         }
     }
 
@@ -768,7 +793,7 @@ class ThreadActivity : AskingActivity() {
         under.text =
             if (who?.name != null && who.name != number) android.text.SpannableStringBuilder("$number — ").append(standing) else standing
         // Asked from the list of conversations: whose certificate this number means.
-        when (intent.getStringExtra(EXTRA_ASK).also { intent.removeExtra(EXTRA_ASK) }) {
+        when (inner.getStringExtra(EXTRA_ASK).also { inner.removeExtra(EXTRA_ASK) }) {
             ASK_TIE -> tie()
             ASK_REFRESH -> who?.fingerprint?.let { refreshed(it) }
         }
@@ -1221,7 +1246,9 @@ class ThreadActivity : AskingActivity() {
                     ask = { input, then -> ask(Intent(Provider.DECRYPT_VERIFY), input, why, notForUs = { read(chosen) }, done = then) },
                     alive = { !isFinishing && !isDestroyed },
                 ) { job, answer ->
-                    if (job.line.thread != here) return@open Unlocking.keep(this, job, answer)
+                    // Another conversation's, not on this page: kept for it. One on this page, of whatever conversation
+                    // it is filed in, is opened as this page's: shown, read, counted down and closed with the rest.
+                    if (lines.none { it.key == job.line.key }) return@open Unlocking.keep(this, job, answer)
                     when (job) {
                         is Unlocking.Job.Words -> opened(job.armor, answer, offer = job.line === chosen && job.line.incoming)
                         is Unlocking.Job.Part -> got(job.piece, answer)
@@ -1564,6 +1591,7 @@ class ThreadActivity : AskingActivity() {
     private fun fetchCert(keyId: Long) {
         // Shown while foodjis looks, and gone when it answers, whatever it says.
         val looking = AlertDialog.Builder(this).setMessage(R.string.cert_fetching).setPositiveButton(R.string.close, null).show()
+        fetching = looking
         ask(
             Intent(Provider.GET_KEY).putExtra(Provider.EXTRA_KEY_ID, keyId), null,
             failed = { looking.dismiss() ; say(getString(R.string.cert_not_found)) },
@@ -1580,6 +1608,14 @@ class ThreadActivity : AskingActivity() {
             verifySigned()
             bubbles.notifyDataSetChanged()
         }
+    }
+
+    /** The window shown while foodjis looks for a certificate: closed with the page, should it leave first. */
+    private var fetching: AlertDialog? = null
+
+    override fun onDestroy() {
+        runCatching { fetching?.dismiss() }
+        super.onDestroy()
     }
 
     /**
@@ -2105,6 +2141,9 @@ class ThreadActivity : AskingActivity() {
 
         /** How many of the latest messages have their pictures shown small. */
         private const val SHOWN_PICTURES = 40
+
+        /** How long the messages are to stay still before the page is read again. */
+        private const val SETTLE_MS = 400L
 
         /** How long the page waits to be drawn again, gathering what arrives meanwhile. */
         private const val DRIP_MS = 120L

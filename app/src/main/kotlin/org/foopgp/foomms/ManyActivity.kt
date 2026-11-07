@@ -122,7 +122,8 @@ class ManyActivity : AskingActivity() {
             AlertDialog.Builder(this)
                 .setMessage(resources.getQuantityString(R.plurals.each_over_drafts, own.size, own.size))
                 .setPositiveButton(R.string.draft_replace, null)
-                .setNegativeButton(android.R.string.cancel) { _, _ -> finish() }
+                // Left as they were: the words handed over are not kept in their place on the way out ([onPause]).
+                .setNegativeButton(android.R.string.cancel) { _, _ -> draftRead = field.text.toString() ; finish() }
                 .setCancelable(false)
                 .show()
         }

@@ -309,7 +309,9 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
         val id = (0 until Camera.getNumberOfCameras()).firstOrNull { info(it).facing == facing } ?: 0
         runCatching {
             camera.unlock()
-            recorder = MediaRecorder().apply {
+            // Held before it is set up: one that fails to prepare or start is released, and the camera with it.
+            recorder = MediaRecorder()
+            recorder!!.apply {
                 setCamera(camera)
                 setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
                 setVideoSource(MediaRecorder.VideoSource.CAMERA)
@@ -352,7 +354,9 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
     private fun listen() {
         val out = file(this).apply { delete() }
         runCatching {
-            recorder = MediaRecorder().apply {
+            // Held before it is set up: one that fails to prepare or start is released, and the camera with it.
+            recorder = MediaRecorder()
+            recorder!!.apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
                 setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)

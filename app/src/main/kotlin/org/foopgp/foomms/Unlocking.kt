@@ -123,7 +123,7 @@ object Unlocking {
         val name = inside?.takeIf { it.isNotBlank() } ?: Pgp.innerName(piece.name, answer.bytes, told.extension)
         val signer = signature?.takeIf { it.result != OpenPgpSignatureResult.RESULT_NO_SIGNATURE }
         Opened.keepPiece(
-            context, piece.id, told.type, name, answer.bytes, Verdict.of(locked, certified),
+            context, piece.id, told.type, name, answer.bytes, Verdict.of(Provider.encrypted(answer, locked), certified),
             signed = Signer.of(signature), signer = signer?.keyId, eid = signer?.let { Signer.eid(it) }, thread = thread,
         )
         return told

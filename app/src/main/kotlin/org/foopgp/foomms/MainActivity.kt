@@ -346,7 +346,8 @@ class MainActivity : AskingActivity() {
         if (asked?.action != Intent.ACTION_SEND) return
         val text = asked.getStringExtra(Intent.EXTRA_TEXT)
         @Suppress("DEPRECATION")
-        val stream = asked.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)
+        // Never one of our own files, nor a path read with our rights: what was opened from its lock lives there.
+        val stream = asked.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)?.takeUnless { Outbox.ours(this, it) }
         if (text == null && stream == null) return
         // Once: the page made again keeps its intent, and would ask again.
         setIntent(Intent(this, MainActivity::class.java))

@@ -45,24 +45,26 @@ class Voice(private val context: Context) {
     fun start(most: Int): Boolean {
         if (recorder != null) return true
         file.delete()
+        // Released when it would not start -- the microphone taken by a call --: dropped, it held it.
+        var made: MediaRecorder? = null
         return runCatching {
             @Suppress("DEPRECATION")
-            val made = if (Build.VERSION.SDK_INT >= 31) MediaRecorder(context) else MediaRecorder()
-            made.setAudioSource(MediaRecorder.AudioSource.MIC)
-            made.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-            made.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-            made.setAudioSamplingRate(8000)
-            made.setAudioEncodingBitRate(12200)
-            made.setMaxFileSize(most.toLong())
-            made.setOutputFile(file.absolutePath)
-            made.prepare()
-            made.start()
-            recorder = made
+            val recording = (if (Build.VERSION.SDK_INT >= 31) MediaRecorder(context) else MediaRecorder()).also { made = it }
+            recording.setAudioSource(MediaRecorder.AudioSource.MIC)
+            recording.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+            recording.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+            recording.setAudioSamplingRate(8000)
+            recording.setAudioEncodingBitRate(12200)
+            recording.setMaxFileSize(most.toLong())
+            recording.setOutputFile(file.absolutePath)
+            recording.prepare()
+            recording.start()
+            recorder = recording
             started = System.currentTimeMillis()
             looks = 0 ; mutes = 0 ; running = 0 ; silent = false ; partlySilent = false
             // The first asking says nothing: what came since the one before, and there was none.
-            made.maxAmplitude
-        }.isSuccess
+            recording.maxAmplitude
+        }.onFailure { made?.release() }.isSuccess
     }
 
     /**

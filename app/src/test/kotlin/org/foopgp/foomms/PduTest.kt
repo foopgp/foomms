@@ -60,4 +60,15 @@ class PduTest {
     @Test fun `nobody to send to is refused`() {
         assertThrows(IllegalArgumentException::class.java) { Pdu.send("T4", emptyList(), emptyList()) }
     }
+
+    @Test fun `the answer that an MMS was fetched, byte for byte`() {
+        val expected = bytes(
+            0x8C, 0x83,                         // X-Mms-Message-Type: m-notifyresp-ind
+            0x98, "abc", 0,                     // X-Mms-Transaction-ID
+            0x8D, 0x92,                         // X-Mms-MMS-Version: 1.2
+            0x95, 0x81,                         // X-Mms-Status: retrieved
+            0x91, 0x81,                         // X-Mms-Report-Allowed: no
+        )
+        assertArrayEquals(expected, Pdu.fetched("abc"))
+    }
 }

@@ -75,6 +75,7 @@ object Outbox {
         val from = Uri.parse("content://${context.packageName}.pdu/$transaction")
         runCatching { manager(context).sendMultimediaMessage(context, from, null, null, told) }.onFailure { failure ->
             written?.let { runCatching { Keep.mmsFailed(context, it) } }
+            file(context, transaction).delete()
             throw failure
         }
         // To a group, this phone among them: what left kept, to hold what comes back against it.
@@ -88,7 +89,8 @@ object Outbox {
     fun text(context: Context, to: String, words: String, at: Long = System.currentTimeMillis()): Int {
         val manager = manager(context)
         val pieces = manager.divideMessage(words)
-        val transaction = "S" + java.lang.Long.toHexString(System.currentTimeMillis())
+        // By the nanosecond: several sent in one millisecond -- quick answers to a call -- shared their notice.
+        val transaction = "S" + java.lang.Long.toHexString(System.nanoTime())
         journal(context).edit()
             .putString(transaction, "${System.currentTimeMillis()}\t$to\t${words.length}\t$GOING").apply()
         // Told once, by the last piece: the others answer nobody.
@@ -99,8 +101,14 @@ object Outbox {
             Intent(context, Told::class.java).putExtra(EXTRA_TRANSACTION, transaction).putExtra(EXTRA_WRITTEN, written?.toString()),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
-        val answers = ArrayList<PendingIntent?>(pieces.map { null }).apply { this[size - 1] = told }
-        manager.sendMultipartTextMessage(to, null, pieces, answers, null)
+        // Refused at once -- no service, a text of nothing --: kept as not sent, as a refusal by the network is.
+        runCatching {
+            val answers = ArrayList<PendingIntent?>(pieces.map { null }).apply { this[size - 1] = told }
+            manager.sendMultipartTextMessage(to, null, pieces, answers, null)
+        }.onFailure { failure ->
+            written?.let { runCatching { Keep.smsFailed(context, it) } }
+            throw failure
+        }
         return pieces.size
     }
 
@@ -113,6 +121,24 @@ object Outbox {
     }.sortedByDescending { it.at }
 
     fun forget(context: Context) = journal(context).edit().clear().apply()
+
+    /**
+     * The operator's server told an MMS it announced as [transaction] was fetched ([Pdu.fetched]): sent as an
+     * MMS is, through the phone's service, and said to nobody.
+     */
+    fun acknowledge(context: Context, transaction: String, subscription: Int) {
+        val name = "A" + java.lang.Long.toHexString(System.nanoTime())
+        File(context.cacheDir, DIR).mkdirs()
+        file(context, name).writeBytes(Pdu.fetched(transaction))
+        val told = PendingIntent.getBroadcast(
+            context, name.hashCode(),
+            Intent(context, Told::class.java).putExtra(EXTRA_TRANSACTION, name).putExtra(EXTRA_QUIET, true),
+            PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0),
+        )
+        runCatching {
+            Inbound.manager(context, subscription).sendMultimediaMessage(context, Uri.parse("content://${context.packageName}.pdu/$name"), null, null, told)
+        }.onFailure { file(context, name).delete() }
+    }
 
     fun manager(context: Context): SmsManager =
         if (Build.VERSION.SDK_INT >= 31) context.getSystemService(SmsManager::class.java)
@@ -155,6 +181,13 @@ object Outbox {
         return Uri.parse("content://${context.packageName}.pdu/$OPENED/$called") to told.type
     }
 
+    /**
+     * Whether [uri] is one of foomms's own -- what its provider serves, decrypted attachments among them -- or a
+     * path read with foomms's rights: never taken as something handed over to send.
+     */
+    fun ours(context: Context, uri: Uri): Boolean =
+        uri.scheme == "file" || uri.authority?.let { it == context.packageName || it.startsWith(context.packageName + ".") } == true
+
     /** The file a message waits in, on its way out or on its way in. */
     fun file(context: Context, transaction: String) =
         File(File(context.cacheDir, DIR), transaction.filter { it.isLetterOrDigit() } + ".pdu")
@@ -164,6 +197,8 @@ object Outbox {
         override fun onReceive(context: Context, intent: Intent) {
             val transaction = intent.getStringExtra(EXTRA_TRANSACTION) ?: return
             file(context, transaction).delete()
+            // An answer to the operator's server, not a message: nothing to mark, nothing to say.
+            if (intent.getBooleanExtra(EXTRA_QUIET, false)) return
             val outcome = if (resultCode == android.app.Activity.RESULT_OK) GONE else "$REFUSED $resultCode"
             // Refused: certainly not sent, and marked so where it is kept. Taken, it is not known to have arrived.
             if (outcome != GONE) intent.getStringExtra(EXTRA_WRITTEN)?.let { kept ->
@@ -240,4 +275,5 @@ object Outbox {
     private const val DIR = "out"
     private const val EXTRA_TRANSACTION = "transaction"
     private const val EXTRA_WRITTEN = "written"
+    private const val EXTRA_QUIET = "quiet"
 }

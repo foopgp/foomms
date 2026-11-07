@@ -103,6 +103,8 @@ object Notify {
             if (answer is Provider.Answer.Done && !over.get()) {
                 // Kept as the conversation would keep it: opened there, it is read already.
                 val signature = runCatching { Signer.keep(context, armor, answer) }.getOrNull()
+                // Encrypted after all, whatever its armor looked like: its words are not for a notification.
+                if (Provider.encrypted(answer, false)) return@ask end()
                 when (signature?.result) {
                     OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED -> then(String(answer.bytes, Charsets.UTF_8), true)
                     OpenPgpSignatureResult.RESULT_VALID_KEY_UNCONFIRMED -> then(String(answer.bytes, Charsets.UTF_8), false)

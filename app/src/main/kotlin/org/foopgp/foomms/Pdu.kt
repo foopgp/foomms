@@ -60,6 +60,18 @@ object Pdu {
         return out.toByteArray()
     }
 
+    /**
+     * The M-NotifyResp.ind (OMA-MMS-ENC 1.2, section 6.2) that tells the operator's server the MMS it announced
+     * under [transaction] was fetched: told nothing, some servers announce it again, and it is fetched twice.
+     */
+    fun fetched(transaction: String): ByteArray = ByteArrayOutputStream().apply {
+        write(MESSAGE_TYPE) ; write(M_NOTIFYRESP_IND)
+        write(TRANSACTION_ID) ; text(transaction)
+        write(MMS_VERSION) ; write(VERSION_1_2)
+        write(STATUS) ; write(RETRIEVED)
+        write(REPORT_ALLOWED) ; write(NO)
+    }.toByteArray()
+
     /** A part's type, the name it is to be saved under, and for a text the alphabet it is written in. */
     private fun contentType(part: Part): ByteArray {
         val inside = ByteArrayOutputStream().apply {
@@ -109,12 +121,16 @@ object Pdu {
     private const val MMS_VERSION = 0x8D
     private const val PRIORITY = 0x8F
     private const val READ_REPORT = 0x90
+    private const val REPORT_ALLOWED = 0x91
+    private const val STATUS = 0x95
     private const val SUBJECT = 0x96
     private const val TO = 0x97
     private const val TRANSACTION_ID = 0x98
 
     // Their values.
     private const val M_SEND_REQ = 0x80
+    private const val M_NOTIFYRESP_IND = 0x83
+    private const val RETRIEVED = 0x81
     private const val VERSION_1_2 = 0x92
     private const val INSERT_ADDRESS = 0x81
     private const val PERSONAL = 0x80

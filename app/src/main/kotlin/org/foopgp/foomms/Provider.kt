@@ -234,6 +234,19 @@ class Provider(private val context: Context) {
         const val RESULT_ERROR = "error"
         const val RESULT_INTENT = "intent"
         const val RESULT_SIGNATURE = "signature"
+        const val RESULT_DECRYPTION = "decryption"
+
+        /**
+         * Whether what foodjis answered was encrypted: as it says, or as [guess] -- foomms's own reading of the
+         * armor -- says, either being enough. A message held for not encrypted is never closed again, and a
+         * notification may say its words: foomms's reading alone, of an armor a network bent, could miss one.
+         */
+        fun encrypted(answer: Answer.Done, guess: Boolean): Boolean {
+            answer.says.setExtrasClassLoader(org.openintents.openpgp.OpenPgpDecryptionResult::class.java.classLoader)
+            @Suppress("DEPRECATION")
+            val said = answer.says.getParcelableExtra<org.openintents.openpgp.OpenPgpDecryptionResult>(RESULT_DECRYPTION)?.result
+            return guess || said == org.openintents.openpgp.OpenPgpDecryptionResult.RESULT_ENCRYPTED
+        }
         const val RESULT_CODE_ERROR = 0
         const val RESULT_CODE_SUCCESS = 1
         const val RESULT_CODE_USER_INTERACTION_REQUIRED = 2

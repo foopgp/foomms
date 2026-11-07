@@ -49,15 +49,16 @@ class Listening : Service() {
         track = what
         playing = what.part
         onChange?.invoke()
+        val made = MediaPlayer()
         player = runCatching {
-            MediaPlayer().apply {
+            made.apply {
                 // Played from memory: what was locked is never laid in a file.
                 setDataSource(Media.source(what.bytes))
                 prepare()
                 setOnCompletionListener { end() }
                 start()
             }
-        }.getOrNull()
+        }.onFailure { made.release() }.getOrNull()
         if (player == null) return end()
         val session = session ?: MediaSession(this, "foomms").also { session = it }
         session.setCallback(
@@ -105,11 +106,26 @@ class Listening : Service() {
             .addAction(Notification.Action.Builder(Icon.createWithResource(this, android.R.drawable.ic_menu_close_clear_cancel), getString(R.string.listening_stop), pressed(STOP)).build())
             .setStyle(Notification.MediaStyle().setMediaSession(session?.sessionToken).setShowActionsInCompactView(0, 1))
             .build()
+        ahead(shown)
+    }
+
+    /** In the foreground, as a service started for it must be within seconds, playing or not. */
+    private var foreground = false
+
+    private fun ahead(shown: Notification) {
         if (android.os.Build.VERSION.SDK_INT >= 29) startForeground(ID, shown, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
         else startForeground(ID, shown)
+        foreground = true
     }
 
     private fun end() {
+        // Ended before anything played -- a sound the player could not read, nothing left to play --: in the
+        // foreground first all the same, or Android takes the application down for a service that never came forward.
+        if (!foreground) runCatching {
+            getSystemService(NotificationManager::class.java)
+                .createNotificationChannel(NotificationChannel(CHANNEL, getString(R.string.channel_listening), NotificationManager.IMPORTANCE_LOW))
+            ahead(Notification.Builder(this, CHANNEL).setSmallIcon(R.drawable.mark).build())
+        }
         player?.let { runCatching { it.stop() } ; it.release() }
         player = null
         session?.release()
