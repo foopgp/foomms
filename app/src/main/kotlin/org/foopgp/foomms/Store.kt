@@ -298,18 +298,24 @@ object Store {
      */
     /** [groupsOnly]: only the conversations with several numbers, read for themselves -- a few among hundreds. */
     /** [from]: how many of the latest to pass over -- the list read a block at a time, as it is scrolled. */
-    fun talks(context: Context, most: Int, unreadOnly: Boolean = false, given: () -> Boolean = { false }, groupsOnly: Boolean = false, from: Int = 0): List<Talk> {
+    /** [only]: these conversations alone, by their numbers in the phone's list -- the few that hold a draft. */
+    fun talks(context: Context, most: Int, unreadOnly: Boolean = false, given: () -> Boolean = { false }, groupsOnly: Boolean = false, from: Int = 0, only: Set<Long>? = null): List<Talk> {
         val talks = ArrayList<Talk>()
         // The unread, by their messages ([unreadThreads]).
         val unread = if (unreadOnly) unreadThreads(context).ifEmpty { return talks } else null
+        if (only != null && only.isEmpty()) return talks
         val listed = runCatching {
             // Only those that hold something unread, when that is all that is asked: a hundred to read rather than all.
             context.contentResolver.query(
                 THREADS, arrayOf("_id", "date", "snippet", "recipient_ids", "read"),
-                listOfNotNull(unread?.let { "_id IN (${it.joinToString(",")})" }, "trim(recipient_ids) LIKE '% %'".takeIf { groupsOnly }).joinToString(" AND ").ifEmpty { null },
+                listOfNotNull(
+                    unread?.let { "_id IN (${it.joinToString(",")})" },
+                    only?.let { "_id IN (${it.joinToString(",")})" },
+                    "trim(recipient_ids) LIKE '% %'".takeIf { groupsOnly },
+                ).joinToString(" AND ").ifEmpty { null },
                 null, "date DESC",
             )
-        }.getOrNull() ?: return everyTalk(context).filter { (!unreadOnly || it.unread) && (!groupsOnly || it.group) }.drop(from).take(most)
+        }.getOrNull() ?: return everyTalk(context).filter { (!unreadOnly || it.unread) && (!groupsOnly || it.group) && (only == null || it.thread in only) }.drop(from).take(most)
         listed.use { rows ->
             if (from > 0 && !rows.moveToPosition(from - 1)) return talks
             // [given] up: whoever asked no longer wants the answer, and reading on would only slow what they asked next.

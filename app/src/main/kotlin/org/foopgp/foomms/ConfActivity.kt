@@ -158,12 +158,6 @@ class ConfActivity : AskingActivity() {
         )
         note(R.string.conf_to_myself_note)
 
-        heading(R.string.backup_all)
-        note(R.string.backup_about)
-        column.addView(Look.button(this, getString(R.string.backup_save)) { Saving.save(this) })
-        column.addView(Look.button(this, getString(R.string.backup_restore)) { if (!Saving.restore(this)) backedUp(getString(R.string.forget_not_ours)) })
-        if (backup.isNotEmpty()) column.addView(Look.words(this, backup, size = 15f))
-
         heading(R.string.conf_mms)
         val on = Conf.mms(this)
         column.addView(flip(R.string.conf_mms_on, on) { Conf.mms(this, it) ; draw() })
@@ -206,16 +200,6 @@ class ConfActivity : AskingActivity() {
             slider(Conf.groupMost(this), Conf.GROUP_MOST_EVER, Conf.GROUP_LEAST) { Conf.groupMost(this, it) }
         }
 
-    }
-
-    /** How the last saving or restoring went: the page is drawn again on return, and it is kept for that. */
-    private var backup = ""
-
-    private fun backedUp(words: String) { backup = words ; draw() }
-
-    override fun onActivityResult(request: Int, outcome: Int, data: Intent?) {
-        super.onActivityResult(request, outcome, data)
-        Saving.done(this, request, outcome, data, ::backedUp)
     }
 
     /** A switch of the configuration; greyed, it shows off, and what it is set to is kept for when it is usable again. */

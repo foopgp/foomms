@@ -153,9 +153,7 @@
     <string name="place_off">Визначення місцезнаходження на телефоні вимкнено.</string>
     <string name="place_seeking">Визначення місцезнаходження…</string>
     <string name="place_none">Телефон зараз не знає, де він.</string>
-    <string name="backup_all">Резервна копія</string>
     <string name="backup_one">💾 Зберегти листування</string>
-    <string name="backup_about">Усі листування зберігаються у файлі XML. Повідомлення PGP залишаються такими, якими були в дорозі: зашифрованими.</string>
     <string name="backup_save">Зберегти все</string>
     <string name="backup_restore">Відновити з копії</string>
     <string name="backup_working">Виконується…</string>

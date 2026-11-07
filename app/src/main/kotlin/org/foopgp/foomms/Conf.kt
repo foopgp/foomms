@@ -39,7 +39,7 @@ object Conf {
 
     fun theme(context: Context, theme: Theme) = kept(context).edit().putString("theme", theme.name).apply()
 
-    fun hold(context: Context): Hold = named(kept(context).getString("hold", null), Hold.FIVE_MINUTES)
+    fun hold(context: Context): Hold = named(kept(context).getString("hold", null), Hold.FIFTEEN_MINUTES)
 
     fun hold(context: Context, hold: Hold) = kept(context).edit().putString("hold", hold.name).apply()
 

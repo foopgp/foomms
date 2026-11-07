@@ -151,9 +151,7 @@
     <string name="place_off">Telefonun konum hizmeti kapalı.</string>
     <string name="place_seeking">Konumunuz bulunuyor…</string>
     <string name="place_none">Telefon şu anda nerede olduğunu bilmiyor.</string>
-    <string name="backup_all">Yedekleme</string>
     <string name="backup_one">💾 Konuşmayı kaydet</string>
-    <string name="backup_about">Tüm konuşmalar bir XML dosyasına kaydedilir. PGP mesajları yolculuk ettikleri gibi kalır: şifreli.</string>
     <string name="backup_save">Tümünü kaydet</string>
     <string name="backup_restore">Bir yedeği geri yükle</string>
     <string name="backup_working">Sürüyor…</string>

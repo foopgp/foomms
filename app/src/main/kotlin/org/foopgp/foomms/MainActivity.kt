@@ -209,7 +209,7 @@ class MainActivity : AskingActivity() {
                     }
                 },
             )
-            setOnItemClickListener { _, _, at, _ -> open(rows[at].talk, threads = rows[at].threads, with = rows[at].with ?: rows[at].talk.number, messages = rows[at].messages) }
+            setOnItemClickListener { _, _, at, _ -> open(rows[at]) }
         }
         others = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -588,8 +588,17 @@ class MainActivity : AskingActivity() {
         )
     }.getOrDefault(false)
 
+    /**
+     * The list read again once the messages stop changing: a conversation
+     * read marks its messages one by one, and each change began a reading
+     * that the next one dropped, so that nothing was shown for seconds.
+     */
     private val arrivals = object : android.database.ContentObserver(android.os.Handler(android.os.Looper.getMainLooper())) {
-        override fun onChange(self: Boolean) = fill()
+        private val again = Runnable { if (!isFinishing && !isDestroyed) fill() }
+        override fun onChange(self: Boolean) {
+            list.removeCallbacks(again)
+            list.postDelayed(again, SETTLE_MS)
+        }
     }
 
     /**
@@ -784,6 +793,10 @@ class MainActivity : AskingActivity() {
                 runOnUiThread { if (!isFinishing && !isDestroyed) redraw() }
             }
             if (profile) {
+                // The conversations holding a draft, for the window that offers to forget them all ([clearDrafts]).
+                val drafted = runCatching { Store.talks(this, Int.MAX_VALUE, given = stale, only = Drafts.threads(this)) }.getOrDefault(emptyList())
+                    .flatMap(::rowsOf).sortedByDescending { it.talk.at }
+                runOnUiThread { if (!isFinishing && !isDestroyed && turn == turns) draftRows = drafted }
                 if (!stale()) count()
             } else if (apart) {
                 val found = runCatching { Store.talks(this, Int.MAX_VALUE, unreadOnly = unreadOnly, given = stale) }.getOrDefault(emptyList()).flatMap(::rowsOf)
@@ -793,6 +806,15 @@ class MainActivity : AskingActivity() {
                 // The latest first, and no more than were shown already: the rest comes a block at a time, as the list is scrolled ([more]).
                 rowOf = ::rowsOf
                 val asked = maxOf(FIRST, read)
+                // The newest few first, over what was shown: a conversation just read from its notification is at the
+                // top at once, not after all the others the list had read are read again.
+                val quick = runCatching { Store.talks(this, QUICK, given = stale) }.getOrDefault(emptyList())
+                if (quick.isNotEmpty() && !stale()) {
+                    val fresh = quick.map { it.thread }.toSet()
+                    val oldest = quick.last().at
+                    val shown = every
+                    show(quick.flatMap(::rowsOf) + shown.filter { it.talk.thread !in fresh && it.talk.at < oldest }, whole = everyWhole)
+                }
                 val talks = runCatching { Store.talks(this, asked, given = stale) }.getOrDefault(emptyList())
                 val first = talks.flatMap(::rowsOf)
                 read = talks.size
@@ -878,11 +900,33 @@ class MainActivity : AskingActivity() {
         button.alpha = if (on) 1f else 0.38f
     }
 
-    /** Every draft forgotten, its mark and its words, once the person has said so. */
+    /** The conversations holding a draft, read with the profile's page. */
+    private var draftRows: List<Row> = emptyList()
+
+    /**
+     * Every draft forgotten, its mark and its words, once the person has said
+     * so -- under the conversations that hold one, drawn as in the list: a
+     * press goes into one, a long press shows its menu.
+     */
     private fun clearDrafts() {
         val many = counts?.drafts ?: 0
-        AlertDialog.Builder(this)
+        val shown = draftRows
+        var window: AlertDialog? = null
+        val list = ListView(this).apply {
+            adapter = lines { shown }
+            setOnItemClickListener { _, _, at, _ ->
+                window?.dismiss()
+                open(shown[at])
+            }
+            setOnItemLongClickListener { _, _, at, _ ->
+                window?.dismiss()
+                about(shown[at])
+                true
+            }
+        }
+        window = AlertDialog.Builder(this)
             .setMessage(resources.getQuantityString(R.plurals.clear_drafts_ask, many, many))
+            .apply { if (shown.isNotEmpty()) setView(list) }
             .setPositiveButton(R.string.clear_drafts) { _, _ ->
                 thread {
                     Drafts.forgetAll(this)
@@ -981,6 +1025,9 @@ class MainActivity : AskingActivity() {
         )
     }
 
+    /** Into a line's conversation, as the list goes into it. */
+    private fun open(row: Row) = open(row.talk, threads = row.threads, with = row.with ?: row.talk.number, messages = row.messages)
+
     private fun open(talk: Store.Talk, ask: String? = null, threads: List<Long> = listOf(talk.thread), with: String? = talk.number, messages: List<Long> = emptyList()) = startActivity(
         Intent(this, ThreadActivity::class.java)
             .putExtra(ThreadActivity.EXTRA_MESSAGES, messages.toLongArray())
@@ -992,13 +1039,16 @@ class MainActivity : AskingActivity() {
             .putExtra(ThreadActivity.EXTRA_ASK, ask),
     )
 
-    private val talks = object : BaseAdapter() {
-        override fun getCount() = rows.size
-        override fun getItem(at: Int) = rows[at]
-        override fun getItemId(at: Int) = rows[at].talk.thread
+    private val talks = lines { rows }
+
+    /** Conversations drawn as the list draws them, from [of]: the list's own, or the drafts' in their window. */
+    private fun lines(of: () -> List<Row>) = object : BaseAdapter() {
+        override fun getCount() = of().size
+        override fun getItem(at: Int) = of()[at]
+        override fun getItemId(at: Int) = of()[at].talk.thread
 
         override fun getView(at: Int, old: View?, parent: ViewGroup): View {
-            val row = rows[at]
+            val row = of()[at]
             val context = this@MainActivity
             val pad = Look.dp(context, 12)
             val names = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
@@ -1081,6 +1131,12 @@ class MainActivity : AskingActivity() {
 
         /** How many conversations are shown before the rest is read, and how many more each time the list nears its end. */
         const val FIRST = 20
+
+        /** The newest read first, alone, before the rest is read again ([fill]). */
+        const val QUICK = 6
+
+        /** How long the messages are to stay still before the list is read again. */
+        const val SETTLE_MS = 400L
         const val BLOCK = 30
 
         /** How near the end of what the list holds the next block is asked for: read before it is reached. */

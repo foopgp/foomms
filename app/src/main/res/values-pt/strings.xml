@@ -151,9 +151,7 @@
     <string name="place_off">A localização do telemóvel está desligada.</string>
     <string name="place_seeking">A procurar onde está…</string>
     <string name="place_none">O telemóvel não sabe onde está neste momento.</string>
-    <string name="backup_all">Cópia de segurança</string>
     <string name="backup_one">💾 Guardar a conversa</string>
-    <string name="backup_about">Todas as conversas são guardadas num ficheiro XML. As mensagens PGP ficam tal como viajaram: cifradas.</string>
     <string name="backup_save">Guardar tudo</string>
     <string name="backup_restore">Restaurar uma cópia</string>
     <string name="backup_working">Em curso…</string>

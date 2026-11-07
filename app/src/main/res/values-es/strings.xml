@@ -151,9 +151,7 @@
     <string name="place_off">La ubicación del teléfono está desactivada.</string>
     <string name="place_seeking">Buscando dónde está…</string>
     <string name="place_none">El teléfono no sabe ahora dónde está.</string>
-    <string name="backup_all">Copia de seguridad</string>
     <string name="backup_one">💾 Guardar la conversación</string>
-    <string name="backup_about">Todas las conversaciones se guardan en un archivo XML. Los mensajes PGP quedan tal como viajaron: cifrados.</string>
     <string name="backup_save">Guardarlo todo</string>
     <string name="backup_restore">Restaurar una copia</string>
     <string name="backup_working">En curso…</string>
