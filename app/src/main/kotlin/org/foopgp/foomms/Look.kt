@@ -256,6 +256,12 @@ object Look {
         shown.text = text
     }
 
+    /** When something happened, as people say it: "3 min ago", "yesterday", "12 Oct". */
+    fun ago(at: Long): CharSequence =
+        android.text.format.DateUtils.getRelativeTimeSpanString(
+            at, System.currentTimeMillis(), android.text.format.DateUtils.MINUTE_IN_MILLIS, android.text.format.DateUtils.FORMAT_ABBREV_ALL,
+        )
+
     fun dp(context: Context, value: Int): Int =
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value.toFloat(), context.resources.displayMetrics).toInt()
 

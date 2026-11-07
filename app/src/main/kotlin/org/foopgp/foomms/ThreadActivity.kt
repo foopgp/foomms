@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.text.InputType
-import android.text.format.DateUtils
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -623,12 +622,8 @@ class ThreadActivity : AskingActivity() {
             if (group) thread {
                 val found = GroupMenu.read(this, everyone)
                 // And oneself, a member too: one's face, and whether one's own contact is tied to a certificate that can be locked for.
-                val own = Me.card(this)?.let { Book.own(this, it) }
-                val mineCert = own?.fingerprint?.let { foodjis.card(it) }
-                val myself = Look.Mini(
-                    own?.photo?.let { Media.thumbnail(this, it, Media.FACE) } ?: own?.fingerprint?.let { foodjis.face(it) },
-                    mineCert?.validity, Look.seed(own?.fingerprint, Me.number(this)),
-                )
+                val mineCert = Me.card(this)?.let { Book.own(this, it) }?.fingerprint?.let { foodjis.card(it) }
+                val myself = Me.mini(this, foodjis)
                 runOnUiThread { if (!isFinishing && !isDestroyed && latest()) groupHead(found, first, mineCert?.usable == true, myself) }
             } else thread {
                 val who = if (contacts) Book.who(this, number) else null
@@ -1012,7 +1007,7 @@ class ThreadActivity : AskingActivity() {
      */
     private fun sendWith(with: Media.Attachment, written: String, mode: Mode) {
         fun post(words: String?, piece: Pdu.Part, verdict: Verdict?) = withMembers(listOfNotNull(words?.let { Pdu.Part.text(it) }, piece)) { parts ->
-            val transaction = "T" + java.lang.Long.toHexString(System.currentTimeMillis())
+            val transaction = Outbox.transaction()
             runCatching { Outbox.send(this, targets(), Pdu.send(transaction, targets(), parts), transaction) }
                 .onFailure { return@withMembers say(getString(R.string.failed, it.message)) }
             if (verdict != null && words != null) Opened.keep(this, words, written, null, verdict, thread = here())
@@ -1168,7 +1163,7 @@ class ThreadActivity : AskingActivity() {
             runCatching {
                 if (!mms) Outbox.text(this, number, text)
                 else {
-                    val transaction = "T" + java.lang.Long.toHexString(System.currentTimeMillis())
+                    val transaction = Outbox.transaction()
                     Outbox.send(this, targets(), Pdu.send(transaction, targets(), parts), transaction)
                 }
             }.onFailure { return@withMembers say(getString(R.string.failed, it.message)) }
@@ -1706,7 +1701,7 @@ class ThreadActivity : AskingActivity() {
     /** What a page of its own says over a part: whose conversation, then the part's name and when it came. */
     private fun seenAs(piece: Store.Piece, at: Int): Pair<String, String> {
         val name = Opened.piece(piece.id)?.name ?: piece.name ?: piece.type
-        val then = lines.getOrNull(at)?.let { DateUtils.getRelativeTimeSpanString(it.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL) }
+        val then = lines.getOrNull(at)?.let { Look.ago(it.at) }
         return (person?.name ?: number) to listOfNotNull(name, then).joinToString("  ·  ")
     }
 
@@ -1870,7 +1865,7 @@ class ThreadActivity : AskingActivity() {
                 else -> getString(R.string.signed_press)
             }
             val under = android.text.SpannableStringBuilder().apply {
-                append(DateUtils.getRelativeTimeSpanString(line.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL))
+                append(Look.ago(line.at))
                 if (verdict.encrypted) append("  ⚿")
                 // Who signed: the words, or else what the first of its PGP parts said once opened -- a voice message has no words.
                 (read?.signed ?: line.pieces.filter(::isSealed).firstNotNullOfOrNull { Opened.piece(it.id)?.signed })?.let { Signer.words(context, it) }

@@ -68,10 +68,7 @@ object Backup {
                     if ((column == "date" || column == "date_sent") && value != "null") value = (value.toLong() * 1000).toString()
                     xml.attribute(null, column, value)
                 }
-                val addresses = ArrayList<Pair<String, Int>>()
-                resolver.query(Uri.parse("content://mms/$id/addr"), arrayOf("address", "type", "charset"), null, null, null)?.use { a ->
-                    while (a.moveToNext()) addresses += a.getString(0).orEmpty() to a.getInt(1)
-                }
+                val addresses = Store.addresses(context, id).map { it.number to it.type }
                 // Whom it is with, as readers of the format file it: received, its sender and the others it went to, not
                 // this phone; sent, those it went to.
                 val received = rows.getInt(rows.getColumnIndexOrThrow("msg_box")) == Telephony.Mms.MESSAGE_BOX_INBOX
@@ -192,10 +189,7 @@ object Backup {
                     )?.use { rows ->
                         var found = false
                         while (!found && rows.moveToNext()) {
-                            val held = HashSet<String>()
-                            resolver.query(Uri.parse("content://mms/${rows.getLong(0)}/addr"), arrayOf("address"), null, null, null)?.use { a ->
-                                while (a.moveToNext()) a.getString(0)?.let { held += Phone.plain(it) ?: it }
-                            }
+                            val held = Store.addresses(context, rows.getLong(0)).map { Phone.plain(it.number) ?: it.number }.toSet()
                             found = held == same
                         }
                         found
@@ -247,6 +241,6 @@ object Backup {
         "exp", "pri", "rr", "d_rpt", "ct_l", "text_only",
     )
     private val PART_COLUMNS = listOf("seq", "ct", "name", "chset", "cd", "fn", "cid", "cl", "ctt_s", "ctt_t", "text")
-    private const val FROM = 137
-    private const val TO = 151
+    private const val FROM = Store.FROM
+    private const val TO = Store.TO
 }

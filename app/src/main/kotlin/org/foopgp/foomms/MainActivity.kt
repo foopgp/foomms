@@ -9,7 +9,6 @@ import android.graphics.Bitmap
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.TextUtils
-import android.text.format.DateUtils
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -736,15 +735,7 @@ class MainActivity : AskingActivity() {
             val foodjis = Foodjis.of(this)
             // Oneself by name, when one wrote a group's last message.
             val myName: String by lazy { Me.card(this)?.let { Book.own(this, it) }?.name ?: getString(R.string.me_tag) }
-            // Oneself as a small face, last in each group's square: one's contact's picture, else pixels from one's number.
-            val myself: Look.Mini by lazy {
-                val own = Me.card(this)?.let { Book.own(this, it) }
-                val cert = own?.fingerprint?.let { foodjis.card(it) }
-                Look.Mini(
-                    own?.photo?.let { Media.thumbnail(this, it, Media.FACE) } ?: own?.fingerprint?.let { foodjis.face(it) },
-                    cert?.validity, Look.seed(own?.fingerprint, Me.number(this)),
-                )
-            }
+            val myself: Look.Mini by lazy { Me.mini(this, foodjis) }
             fun row(talk: Store.Talk, kept: Boolean = true): Row {
                 // A line kept is kept but for its badge: what foodjis says of the certificate changes there, unseen here.
                 synchronized(lines) { lines[talk.thread] }?.takeIf { kept }?.takeIf { it.talk.at == talk.at && it.talk.unread == talk.unread && it.talk.last == talk.last }?.let { kept ->
@@ -1140,7 +1131,7 @@ class MainActivity : AskingActivity() {
                 },
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
             )
-            names.addView(Look.words(context, ago(row.talk.at), size = 13f, muted = true))
+            names.addView(Look.words(context, Look.ago(row.talk.at), size = 13f, muted = true))
             val text = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 setPadding(pad, 0, 0, 0)
@@ -1187,9 +1178,6 @@ class MainActivity : AskingActivity() {
         @Suppress("DEPRECATION")
         startActivityForResult(ask, ROLE)
     }
-
-    private fun ago(at: Long): CharSequence =
-        DateUtils.getRelativeTimeSpanString(at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL)
 
     private companion object {
         const val PAGE = "page"

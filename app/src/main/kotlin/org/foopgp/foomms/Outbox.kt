@@ -109,6 +109,9 @@ object Outbox {
         return pieces.size
     }
 
+    /** A new MMS's transaction, by the nanosecond: two sent in one millisecond -- copies to each -- are two. */
+    fun transaction(): String = "T" + java.lang.Long.toHexString(System.nanoTime())
+
     /**
      * The operator's server told an MMS it announced as [transaction] was fetched ([Pdu.fetched]): sent as an
      * MMS is, through the phone's service, and said to nobody.
@@ -127,9 +130,7 @@ object Outbox {
         }.onFailure { file(context, name).delete() }
     }
 
-    fun manager(context: Context): SmsManager =
-        if (Build.VERSION.SDK_INT >= 31) context.getSystemService(SmsManager::class.java)
-        else @Suppress("DEPRECATION") SmsManager.getDefault()
+    fun manager(context: Context): SmsManager = Inbound.manager(context, -1)
 
 
     private const val OPENED = "open"

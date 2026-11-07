@@ -304,6 +304,6 @@ object Keep {
     }
 
     private const val UTF_8 = 106
-    private const val FROM = 137
-    private const val TO = 151
+    private const val FROM = Store.FROM
+    private const val TO = Store.TO
 }

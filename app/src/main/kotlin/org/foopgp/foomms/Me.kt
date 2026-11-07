@@ -63,10 +63,7 @@ object Me {
             context.contentResolver.query(INBOX, arrayOf("_id"), null, null, "date DESC")?.use { rows ->
                 var seen = 0
                 while (rows.moveToNext() && seen++ < most) {
-                    val to = ArrayList<String>()
-                    context.contentResolver.query(Uri.parse("content://mms/${rows.getLong(0)}/addr"), arrayOf("address", "type"), null, null, null)?.use { addresses ->
-                        while (addresses.moveToNext()) if (addresses.getInt(1) in TO_OR_CC) addresses.getString(0)?.let { to += it }
-                    }
+                    val to = Store.addresses(context, rows.getLong(0)).filter { it.type in Store.TO_OR_CC }.map { it.number }
                     to.singleOrNull()?.takeIf { Phone.plain(it) != null }?.let { found += it }
                 }
             }
@@ -85,12 +82,22 @@ object Me {
 
     private val INBOX: Uri = Uri.parse("content://mms/inbox")
 
-    /** How the phone's store tells an MMS's recipients: To and Cc, as the PDU names them (OMA-MMS-ENC, table 12). */
-    private val TO_OR_CC = setOf(0x97, 0x82)
-
     private const val NUMBERS = "numbers"
     private const val CHOSEN = "chosen_number"
     private const val CARD = "card"
+
+    /**
+     * Oneself as a small face, last in each group's square, read off the page: one's contact's picture, else the
+     * one one's certificate carries, else pixels from one's number -- framed in what one's certificate is worth.
+     */
+    fun mini(context: Context, foodjis: Foodjis): Look.Mini {
+        val own = card(context)?.let { Book.own(context, it) }
+        val cert = own?.fingerprint?.let { foodjis.card(it) }
+        return Look.Mini(
+            own?.photo?.let { Media.thumbnail(context, it, Media.FACE) } ?: own?.fingerprint?.let { foodjis.face(it) },
+            cert?.validity, Look.seed(own?.fingerprint, number(context)),
+        )
+    }
 
     private fun kept(context: Context) = context.getSharedPreferences("me", Context.MODE_PRIVATE)
 }

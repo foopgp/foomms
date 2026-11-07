@@ -47,14 +47,22 @@ object Store {
      * it went to --, each once; read once a message. Received with this
      * phone alone in its "To", whatever number it had then: its sender only.
      */
+    /** One of an MMS's addresses, as the phone keeps them: the number, and whether it is from, to or cc ([FROM], [TO_OR_CC]). */
+    class Address(val number: String, val type: Int)
+
+    /** An MMS's addresses, read once: what six places read each in its own way. */
+    fun addresses(context: Context, message: Long): List<Address> = runCatching {
+        context.contentResolver.query(Uri.parse("content://mms/$message/addr"), arrayOf("address", "type"), null, null, null)?.use { rows ->
+            buildList { while (rows.moveToNext()) rows.getString(0)?.let { add(Address(it, rows.getInt(1))) } }
+        }
+    }.getOrNull().orEmpty()
+
     fun others(context: Context, message: Long): List<String> = synchronized(headers) { headers[message] } ?: run {
         var from: String? = null
         val to = ArrayList<String>()
-        context.contentResolver.query(Uri.parse("content://mms/$message/addr"), arrayOf("address", "type"), null, null, null)?.use { rows ->
-            while (rows.moveToNext()) {
-                val one = rows.getString(0)?.takeIf { Phone.plain(it) != null } ?: continue
-                if (rows.getInt(1) == FROM) from = one else if (rows.getInt(1) in TO_OR_CC) to += one
-            }
+        for (address in addresses(context, message)) {
+            val one = address.number.takeIf { Phone.plain(it) != null } ?: continue
+            if (address.type == FROM) from = one else if (address.type in TO_OR_CC) to += one
         }
         val sender = from
         val found = ArrayList<String>()
@@ -114,7 +122,7 @@ object Store {
     private const val LOOKED_AT = 20
 
     /** How the phone's store tells an MMS's recipients: To and Cc, as the PDU names them (OMA-MMS-ENC, table 12). */
-    private val TO_OR_CC = setOf(0x97, 0x82)
+    internal val TO_OR_CC = setOf(0x97, 0x82)
 
     /**
      * The numbers SMS sent with [body] went to, written at [at] exactly --
@@ -159,9 +167,7 @@ object Store {
 
     /** Everybody an MMS sent went to, as its "To" and "Cc" say. */
     private fun recipients(context: Context, message: Long): List<String> =
-        context.contentResolver.query(Uri.parse("content://mms/$message/addr"), arrayOf("address", "type"), null, null, null)?.use { rows ->
-            buildList { while (rows.moveToNext()) if (rows.getInt(1) in TO_OR_CC) rows.getString(0)?.let { add(it) } }
-        }.orEmpty()
+        addresses(context, message).filter { it.type in TO_OR_CC }.map { it.number }
 
     /** The conversations of several numbers, [number] among them: where sendings to each are filed. */
     private fun eachWith(context: Context, number: String): List<Long> {
@@ -198,11 +204,8 @@ object Store {
             // Received: everybody it went to but its sender, as its "To" says -- this phone once, whatever number it had.
             var from: String? = null
             val to = ArrayList<String>()
-            context.contentResolver.query(Uri.parse("content://mms/${line.id}/addr"), arrayOf("address", "type"), null, null, null)?.use { rows ->
-                while (rows.moveToNext()) {
-                    val one = rows.getString(0) ?: continue
-                    if (rows.getInt(1) == FROM) from = one else if (rows.getInt(1) in TO_OR_CC) to += one
-                }
+            for (address in addresses(context, line.id)) {
+                if (address.type == FROM) from = address.number else if (address.type in TO_OR_CC) to += address.number
             }
             val found = ArrayList<String>()
             var me = false
@@ -768,12 +771,7 @@ object Store {
 
     private fun number(context: Context, message: Long, incoming: Boolean): String? {
         val wanted = if (incoming) FROM else TO
-        return context.contentResolver
-            .query(Uri.parse("content://mms/$message/addr"), arrayOf("address", "type"), null, null, null)?.use { rows ->
-                var number: String? = null
-                while (rows.moveToNext()) if (rows.getInt(1) == wanted) number = number ?: rows.getString(0)
-                number
-            }
+        return addresses(context, message).firstOrNull { it.type == wanted }?.number
     }
 
     private val SMS = Uri.parse("content://sms")
@@ -788,6 +786,7 @@ object Store {
     /** Not a draft: what is being written is not a message, sent or received, and is read apart. */
     const val SMS_NOT_DRAFT = "type != ${android.provider.Telephony.Sms.MESSAGE_TYPE_DRAFT}"
     const val MMS_NOT_DRAFT = "msg_box != ${android.provider.Telephony.Mms.MESSAGE_BOX_DRAFTS}"
-    private const val FROM = 137
-    private const val TO = 151
+    /** An MMS address's types, as the phone keeps them (OMA-MMS-ENC header codes): from, and to. */
+    internal const val FROM = 137
+    internal const val TO = 151
 }

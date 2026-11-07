@@ -7,7 +7,6 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextUtils
 import android.text.TextWatcher
-import android.text.format.DateUtils
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
@@ -215,7 +214,7 @@ class SearchActivity : Activity() {
             val who = hit.number?.let { synchronized(names) { names[it] } ?: it } ?: getString(R.string.unknown_number)
             val many = alongside[hit]
             val about = (if (many != null) getString(R.string.sent_to_each, many.size) else getString(if (hit.incoming) R.string.hit_from else R.string.hit_to, who)) + "  ·  " +
-                DateUtils.getRelativeTimeSpanString(hit.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL)
+                Look.ago(hit.at)
             return LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 val pad = Look.dp(context, 10)
