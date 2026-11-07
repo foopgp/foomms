@@ -133,6 +133,11 @@ class ThreadActivity : AskingActivity() {
     /** A group's members but this phone, once known; none in a conversation between two. */
     @Volatile private var members: List<Member> = emptyList()
 
+    /** The primary keys of those this conversation is with: the certificate tied to its number, or its members'. */
+    private fun whose(): Set<Long> =
+        (listOfNotNull(person?.fingerprint) + members.mapNotNull { it.card?.fingerprint ?: it.person?.fingerprint })
+            .mapNotNull { runCatching { Fingerprint.keyId(it) }.getOrNull() }.toSet()
+
     /** A group's drafts, under its members but this phone: the same, from whichever of its conversations. */
     private val drafted: List<String> by lazy {
         if (!group) listOf(number) else everyone.filterNot { Me.mine(this, it) }
@@ -1813,11 +1818,13 @@ class ThreadActivity : AskingActivity() {
             val read = armor?.let { Opened.words(it) }
             val sealed = line.pieces.filter(::isSealed)
             // Not opened yet: nothing tells what a PGP message is worth, signed or not, before the key does.
-            val verdict = when {
-                armor != null -> Opened.verdict(context, armor) ?: Verdict.GREY
-                sealed.isNotEmpty() -> sealed.firstNotNullOfOrNull { Opened.pieceVerdict(context, it.id) } ?: Verdict.GREY
-                else -> Verdict.RED
+            val opened = when {
+                armor != null -> read?.let { it.verdict to it.signer }
+                sealed.isNotEmpty() -> sealed.firstNotNullOfOrNull { Opened.piece(it.id) }?.let { it.verdict to it.signer }
+                else -> Verdict.RED to null
             }
+            // Received and certified by somebody else than whom this conversation is with: its own colours.
+            val verdict = opened?.let { (worth, signer) -> if (line.incoming) Verdict.received(worth, signer, whose()) else worth } ?: Verdict.GREY
             val closed = armor != null && read == null
             val locked = closed && Pgp.isLocked(armor!!)
             val words = when {

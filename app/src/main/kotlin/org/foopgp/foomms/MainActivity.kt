@@ -768,7 +768,11 @@ class MainActivity : AskingActivity() {
                 val verdict = when {
                     armor == null -> Verdict.RED
                     // Not opened yet: nothing tells what it is worth, signed or not, before the key does.
-                    else -> Opened.verdict(this, armor) ?: Verdict.GREY
+                    // Received and certified by somebody else than whom the line is with: its own colours.
+                    else -> Opened.words(armor)?.let { read ->
+                        if (!talk.incoming) read.verdict
+                        else Verdict.received(read.verdict, read.signer, listOfNotNull((person ?: talk.from?.takeIf { group != null }?.let(::who))?.fingerprint).mapNotNull { runCatching { Fingerprint.keyId(it) }.getOrNull() })
+                    } ?: Verdict.GREY
                 }
                 val last = when {
                     armor == null -> talk.last

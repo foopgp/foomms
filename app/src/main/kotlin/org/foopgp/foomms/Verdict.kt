@@ -16,7 +16,15 @@ enum class Verdict(val encrypted: Boolean, val certified: Boolean) {
     GREEN(true, true),
 
     /** A PGP message not yet opened: what it is worth is in what the key will say. */
-    GREY(true, false);
+    GREY(true, false),
+
+    /**
+     * Received, and certified -- but signed by somebody else than whom the conversation is with: a message
+     * forwarded, or passed off as theirs. In clear, violet; encrypted, yellow-green -- each its own shade, not
+     * the marks' of the same names. Few read "signed by"; everybody sees a colour.
+     */
+    VIOLET(false, true),
+    OLIVE(true, true);
 
     companion object {
         fun of(encrypted: Boolean, certified: Boolean): Verdict = when {
@@ -24,6 +32,18 @@ enum class Verdict(val encrypted: Boolean, val certified: Boolean) {
             encrypted -> YELLOW
             certified -> BLUE
             else -> RED
+        }
+
+        /**
+         * [verdict] of a message received in a conversation with the certificates whose primary keys are
+         * [whose], signed by [signer]'s: blue or green only when the signer is one of them -- with none tied to the
+         * number, nobody says the signer is whom one writes with.
+         */
+        fun received(verdict: Verdict, signer: Long?, whose: Collection<Long>): Verdict = when {
+            !verdict.certified || (signer != null && signer in whose) -> verdict
+            verdict == GREEN -> OLIVE
+            verdict == BLUE -> VIOLET
+            else -> verdict
         }
     }
 }

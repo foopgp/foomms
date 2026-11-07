@@ -81,7 +81,10 @@ object Notify {
         if (armor == null || Pgp.isLocked(armor)) return done()
         // Signed only, foodjis reads it without the key: its words follow the glyph, in the colour of what the signature is worth.
         verify(context.applicationContext, armor, done) { read, certified ->
-            show(context.getString(R.string.signed_words, read), Look.colour(if (certified) Verdict.BLUE else Verdict.RED, dark))
+            // Certified by somebody else than whom the number is tied to: violet, as in the conversation.
+            val tied = listOfNotNull(person?.fingerprint).mapNotNull { runCatching { Fingerprint.keyId(it) }.getOrNull() }
+            val worth = if (certified) Verdict.received(Verdict.BLUE, Opened.words(armor)?.signer, tied) else Verdict.RED
+            show(context.getString(R.string.signed_words, read), Look.colour(worth, dark))
         }
     }
 

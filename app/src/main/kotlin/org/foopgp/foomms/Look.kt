@@ -113,6 +113,9 @@ object Look {
         Verdict.BLUE -> if (dark) Color.rgb(0x71, 0xBF, 0xFF) else Color.rgb(0x00, 0x68, 0xB2)
         Verdict.GREEN -> Color.rgb(0x00, 0xD3, 0x90)
         Verdict.GREY -> Color.rgb(0xA1, 0xA1, 0xAA)
+        // Deeper than the violet of a signed message's mark, more olive than the yellow-green of an encrypted one's.
+        Verdict.VIOLET -> if (dark) Color.rgb(0xC0, 0x84, 0xFC) else Color.rgb(0x6D, 0x28, 0xD9)
+        Verdict.OLIVE -> Color.rgb(0x8A, 0xA6, 0x1C)
     }
 
     /**
@@ -134,6 +137,8 @@ object Look {
             Verdict.BLUE -> Color.rgb(0x0B, 0x3A, 0x5E)
             Verdict.GREEN -> Color.rgb(0x0A, 0x4A, 0x38)
             Verdict.GREY -> Color.rgb(0x3F, 0x3F, 0x46)
+            Verdict.VIOLET -> Color.rgb(0x3B, 0x1F, 0x63)
+            Verdict.OLIVE -> Color.rgb(0x38, 0x42, 0x0E)
         }
     } else {
         when (verdict) {
@@ -142,6 +147,8 @@ object Look {
             Verdict.BLUE -> Color.rgb(0xD6, 0xEC, 0xFF)
             Verdict.GREEN -> Color.rgb(0xCD, 0xF6, 0xE8)
             Verdict.GREY -> Color.rgb(0xE4, 0xE4, 0xE7)
+            Verdict.VIOLET -> Color.rgb(0xEC, 0xE3, 0xFC)
+            Verdict.OLIVE -> Color.rgb(0xEE, 0xF4, 0xCC)
         }
     }
 
