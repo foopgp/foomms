@@ -7,4 +7,5 @@
 • Um MMS que o telefone não conseguiu descarregar é assinalado e pedido de novo durante 7 dias.
 • Uma foto ou um ficheiro que envia cifrado aparece aberto na sua bolha, como o seu texto.
 • Um anexo cifrado deixa de ser reduzido pelo caminho pelo operador; se o operador retirar um anexo, o foomms di-lo sob a mensagem.
+• Partilhar uma foto ou um vídeo a partir do ecrã inteiro; se chegou cifrado, o foomms avisa primeiro que sairá sem cifra.
 • Uma lista mais rápida e numerosas correções.

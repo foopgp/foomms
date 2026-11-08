@@ -42,6 +42,11 @@
     <string name="locked_for">⚿ Зашифрованное сообщение для</string>
     <string name="piece_for">для</string>
     <string name="share">⤴ Поделиться</string>
+    <string name="share_picture">Поделиться фото</string>
+    <string name="share_video">Поделиться видео</string>
+    <string name="share_clear_title">Поделиться без шифрования?</string>
+    <string name="share_clear_says">Оно пришло зашифрованным. Если поделиться, оно уйдёт без шифрования: выбранное приложение и тот, кто его получит, смогут его увидеть.</string>
+    <string name="share_clear_go">Поделиться без шифрования</string>
     <string name="save">↧ Сохранить</string>
     <string name="saved">Сохранено.</string>
     <string name="conf_theme">Тема</string>

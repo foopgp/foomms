@@ -42,6 +42,11 @@
     <string name="locked_for">⚿ Şifreli mesaj, alıcı:</string>
     <string name="piece_for">alıcı:</string>
     <string name="share">⤴ Paylaş</string>
+    <string name="share_picture">Fotoğrafı paylaş</string>
+    <string name="share_video">Videoyu paylaş</string>
+    <string name="share_clear_title">Şifresiz paylaşılsın mı?</string>
+    <string name="share_clear_says">Şifreli geldi. Paylaşılırsa şifresiz gidecek: seçtiğiniz uygulama ve onu alan kişi görebilecek.</string>
+    <string name="share_clear_go">Şifresiz paylaş</string>
     <string name="save">↧ Kaydet</string>
     <string name="saved">Kaydedildi.</string>
     <string name="conf_theme">Tema</string>

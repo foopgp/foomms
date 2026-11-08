@@ -7,4 +7,5 @@
 • MMS, którego telefon nie zdołał pobrać, jest zgłaszany i ponownie żądany przez 7 dni.
 • Zdjęcie lub plik wysłany przez Ciebie w postaci zaszyfrowanej wyświetla się otwarty w Twoim dymku, jak jego tekst.
 • Zaszyfrowany załącznik nie jest już po drodze zmniejszany przez operatora; jeśli operator usunie załącznik, foomms mówi o tym pod wiadomością.
+• Udostępnianie zdjęcia lub filmu z pełnego ekranu; jeśli dotarło zaszyfrowane, foomms najpierw ostrzega, że wyjdzie bez szyfrowania.
 • Szybsza lista i liczne poprawki.

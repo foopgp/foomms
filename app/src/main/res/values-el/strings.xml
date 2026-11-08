@@ -42,6 +42,11 @@
     <string name="locked_for">⚿ Κρυπτογραφημένο μήνυμα για</string>
     <string name="piece_for">για</string>
     <string name="share">⤴ Κοινοποίηση</string>
+    <string name="share_picture">Κοινοποίηση φωτογραφίας</string>
+    <string name="share_video">Κοινοποίηση βίντεο</string>
+    <string name="share_clear_title">Κοινοποίηση χωρίς κρυπτογράφηση;</string>
+    <string name="share_clear_says">Έφτασε κρυπτογραφημένο. Αν το κοινοποιήσετε, θα φύγει χωρίς κρυπτογράφηση: η εφαρμογή που θα επιλέξετε, και όποιος το λάβει, θα μπορούν να το δουν.</string>
+    <string name="share_clear_go">Κοινοποίηση χωρίς κρυπτογράφηση</string>
     <string name="save">↧ Αποθήκευση</string>
     <string name="saved">Αποθηκεύτηκε.</string>
     <string name="conf_theme">Θέμα</string>

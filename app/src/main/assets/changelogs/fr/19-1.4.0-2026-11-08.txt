@@ -7,4 +7,5 @@
 • Un MMS que le téléphone n'a pas pu télécharger est signalé, et redemandé pendant 7 jours.
 • Une photo ou un fichier que vous envoyez chiffré s'affiche ouvert dans votre bulle, comme son texte.
 • Une pièce jointe chiffrée n'est plus réduite en route par l'opérateur ; s'il retire une pièce jointe, foomms le dit sous le message.
+• Partager une photo ou une vidéo depuis son plein écran ; si elle est arrivée chiffrée, foomms prévient d'abord qu'elle partira en clair.
 • Une liste plus rapide, et de nombreuses corrections.

@@ -7,4 +7,5 @@
 • Un MMS que el teléfono no pudo descargar se señala, y se vuelve a pedir durante 7 días.
 • Una foto o un archivo que envía cifrado se muestra abierto en su burbuja, como su texto.
 • Un adjunto cifrado ya no es reducido por el operador por el camino; si el operador quita un adjunto, foomms lo dice bajo el mensaje.
+• Compartir una foto o un vídeo desde su pantalla completa; si llegó cifrado, foomms avisa primero de que saldrá sin cifrar.
 • Una lista más rápida y numerosas correcciones.

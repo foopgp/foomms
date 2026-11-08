@@ -17,8 +17,8 @@ import android.widget.SeekBar
  * A video a message carries, watched
  * here, the screen upright or on its side, the picture never stretched. A
  * button turns it a quarter at a time: what the file says of which way up it
- * is may be wrong, or missing. One opened from its lock is in memory only,
- * played from there, and gone with the page.
+ * is may be wrong, or missing; a share above the pause. One opened from its
+ * lock is in memory only, played from there, and gone with the page.
  */
 class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
 
@@ -111,13 +111,26 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
                         orientation = LinearLayout.VERTICAL
                         setPadding(pad, pad, pad, Look.dp(context, 32))
                         background = shade(android.graphics.drawable.GradientDrawable.Orientation.BOTTOM_TOP)
-                        // Where it is, out of how long it lasts: above the stop, leaving the bar its width.
+                        // The share above the pause; where it is, out of how long it lasts, above the stop, leaving the bar its width.
                         elapsed = android.widget.TextView(context).apply {
                             textSize = 13f ; setTextColor(android.graphics.Color.WHITE) ; setTypeface(typeface, android.graphics.Typeface.BOLD)
-                            gravity = Gravity.END
+                            gravity = Gravity.END or Gravity.BOTTOM
                             setPadding(0, 0, 0, Look.dp(context, 4))
                         }
-                        addView(elapsed, LinearLayout.LayoutParams(-1, -2))
+                        addView(
+                            LinearLayout(context).apply {
+                                orientation = LinearLayout.HORIZONTAL
+                                val round = Look.dp(context, 52)
+                                addView(
+                                    Look.knob(context, R.drawable.share, getString(R.string.share_video)) {
+                                        HandOut.share(this@WatchActivity, opened, intent.data, intent.getStringExtra(EXTRA_NAME) ?: "video", intent.getStringExtra(EXTRA_TYPE), intent.getBooleanExtra(EXTRA_LOCKED, false))
+                                    },
+                                    LinearLayout.LayoutParams(round, round).apply { bottomMargin = Look.dp(context, 8) },
+                                )
+                                addView(elapsed, LinearLayout.LayoutParams(0, -1, 1f))
+                            },
+                            LinearLayout.LayoutParams(-1, -2),
+                        )
                         addView(
                             LinearLayout(context).apply {
                                 orientation = LinearLayout.HORIZONTAL
@@ -235,12 +248,16 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
 
         private const val EXTRA_TITLE = "title"
         private const val EXTRA_SAID = "said"
+        private const val EXTRA_NAME = "name"
+        private const val EXTRA_TYPE = "type"
+        private const val EXTRA_LOCKED = "locked"
 
-        /** [title]: whose conversation; [said]: the video's name and when it came. */
-        fun watch(activity: Activity, bytes: ByteArray?, uri: Uri?, title: String, said: String) {
+        /** [title]: whose conversation; [said]: the video's name and when it came; [name], [type], [locked]: to share it. */
+        fun watch(activity: Activity, bytes: ByteArray?, uri: Uri?, title: String, said: String, name: String, type: String?, locked: Boolean) {
             held = bytes
             activity.startActivity(
-                android.content.Intent(activity, WatchActivity::class.java).setData(uri).putExtra(EXTRA_TITLE, title).putExtra(EXTRA_SAID, said),
+                android.content.Intent(activity, WatchActivity::class.java).setData(uri).putExtra(EXTRA_TITLE, title).putExtra(EXTRA_SAID, said)
+                    .putExtra(EXTRA_NAME, name).putExtra(EXTRA_TYPE, type).putExtra(EXTRA_LOCKED, locked),
             )
         }
     }

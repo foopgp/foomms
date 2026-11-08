@@ -7,4 +7,5 @@
 • Eine MMS, die das Telefon nicht herunterladen konnte, wird gemeldet und 7 Tage lang erneut angefordert.
 • Ein Foto oder eine Datei, die Sie verschlüsselt senden, erscheint in Ihrer Blase geöffnet, wie ihr Text.
 • Ein verschlüsselter Anhang wird unterwegs nicht mehr vom Netzbetreiber verkleinert; entfernt er einen Anhang, sagt foomms es unter der Nachricht.
+• Ein Foto oder Video aus der Vollbildansicht teilen; kam es verschlüsselt an, warnt foomms zuerst, dass es unverschlüsselt weitergeht.
 • Eine schnellere Liste und zahlreiche Korrekturen.

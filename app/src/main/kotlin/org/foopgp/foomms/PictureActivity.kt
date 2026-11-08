@@ -19,8 +19,8 @@ import kotlin.concurrent.thread
  * A picture a message carries, on the whole screen: spread or pinched to
  * look closer, moved with a finger, a double press to go in or back out. A
  * button turns it a quarter at a time, as the video's page does, and a stop
- * goes back to the conversation. One opened from its lock is in memory
- * only, and gone with the page.
+ * goes back to the conversation, the share beside it. One opened from its
+ * lock is in memory only, and gone with the page.
  */
 class PictureActivity : Activity() {
 
@@ -29,8 +29,13 @@ class PictureActivity : Activity() {
 
     private lateinit var picture: Zoomed
 
+    /** The picture opened from its lock, taken from [held] once: kept while the page lives, to share. */
+    private var opened: ByteArray? = null
+
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
+        opened = held
+        held = null
         Look.fullScreen(this)
         picture = Zoomed(this) { val shown = over.firstOrNull()?.visibility != android.view.View.VISIBLE ; over.forEach { it.visibility = if (shown) android.view.View.VISIBLE else android.view.View.GONE } }
         setContentView(
@@ -67,16 +72,21 @@ class PictureActivity : Activity() {
                         gravity = Gravity.CENTER_HORIZONTAL
                         setPadding(Look.dp(context, 12), Look.dp(context, 12), Look.dp(context, 12), Look.dp(context, 32))
                         background = Look.shade(android.graphics.drawable.GradientDrawable.Orientation.BOTTOM_TOP)
-                        // Alone at the bottom, a little larger than the video's, where a thumb finds it.
+                        // At the bottom, a little larger than the video's, where a thumb finds it; the share at its left.
                         val round = Look.dp(context, 64)
+                        addView(
+                            Look.knob(context, R.drawable.share, getString(R.string.share_picture)) {
+                                HandOut.share(this@PictureActivity, opened, intent.data, intent.getStringExtra(EXTRA_NAME) ?: "picture", intent.getStringExtra(EXTRA_TYPE), intent.getBooleanExtra(EXTRA_LOCKED, false))
+                            },
+                            LinearLayout.LayoutParams(round, round).apply { marginEnd = Look.dp(context, 24) },
+                        )
                         addView(Look.knob(context, "■", getString(R.string.picture_close)) { finish() }.apply { textSize = 26f }, LinearLayout.LayoutParams(round, round))
                     }.also { over += it },
                     FrameLayout.LayoutParams(-1, -2, Gravity.BOTTOM),
                 )
             },
         )
-        val bytes = held
-        held = null
+        val bytes = opened
         val from = intent.data
         // Decoded at the screen's longest side, up to twice: enough to look closer, never a photo whole.
         val side = maxOf(resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels)
@@ -209,12 +219,16 @@ class PictureActivity : Activity() {
 
         private const val EXTRA_TITLE = "title"
         private const val EXTRA_SAID = "said"
+        private const val EXTRA_NAME = "name"
+        private const val EXTRA_TYPE = "type"
+        private const val EXTRA_LOCKED = "locked"
 
-        /** [title]: whose conversation; [said]: the picture's name and when it came. */
-        fun look(activity: Activity, bytes: ByteArray?, uri: Uri?, title: String, said: String) {
+        /** [title]: whose conversation; [said]: the picture's name and when it came; [name], [type], [locked]: to share it. */
+        fun look(activity: Activity, bytes: ByteArray?, uri: Uri?, title: String, said: String, name: String, type: String?, locked: Boolean) {
             held = bytes
             activity.startActivity(
-                android.content.Intent(activity, PictureActivity::class.java).setData(uri).putExtra(EXTRA_TITLE, title).putExtra(EXTRA_SAID, said),
+                android.content.Intent(activity, PictureActivity::class.java).setData(uri).putExtra(EXTRA_TITLE, title).putExtra(EXTRA_SAID, said)
+                    .putExtra(EXTRA_NAME, name).putExtra(EXTRA_TYPE, type).putExtra(EXTRA_LOCKED, locked),
             )
         }
     }

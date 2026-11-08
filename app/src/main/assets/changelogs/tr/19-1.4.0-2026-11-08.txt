@@ -7,4 +7,5 @@
 • Telefonun indiremediği bir MMS bildirilir ve 7 gün boyunca yeniden istenir.
 • Şifreli gönderdiğiniz bir fotoğraf ya da dosya, metni gibi balonunuzda açık görünür.
 • Şifreli bir ek artık yolda operatör tarafından küçültülmez; operatör bir eki kaldırırsa foomms bunu mesajın altında söyler.
+• Bir fotoğraf ya da videoyu tam ekrandan paylaşma; şifreli geldiyse foomms önce şifresiz gideceği konusunda uyarır.
 • Daha hızlı bir liste ve çok sayıda düzeltme.

@@ -42,6 +42,11 @@
     <string name="locked_for">⚿ Verschlüsselte Nachricht für</string>
     <string name="piece_for">für</string>
     <string name="share">⤴ Teilen</string>
+    <string name="share_picture">Foto teilen</string>
+    <string name="share_video">Video teilen</string>
+    <string name="share_clear_title">Unverschlüsselt teilen?</string>
+    <string name="share_clear_says">Es kam verschlüsselt an. Geteilt, geht es unverschlüsselt weiter: die gewählte App und wer es erhält, können es sehen.</string>
+    <string name="share_clear_go">Unverschlüsselt teilen</string>
     <string name="save">↧ Speichern</string>
     <string name="saved">Gespeichert.</string>
     <string name="conf_theme">Design</string>

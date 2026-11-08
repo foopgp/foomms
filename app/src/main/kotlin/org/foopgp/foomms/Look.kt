@@ -81,6 +81,19 @@ object Look {
         setOnClickListener { then() }
     }
 
+    /** The same round knob, with a drawing for its sign: the share, whose usual sign is no character. */
+    fun knob(context: Context, drawing: Int, said: String, then: () -> Unit) = ImageView(context).apply {
+        setImageResource(drawing)
+        imageTintList = android.content.res.ColorStateList.valueOf(ORANGE)
+        scaleType = ImageView.ScaleType.CENTER_INSIDE
+        val pad = dp(context, 14)
+        setPadding(pad, pad, pad, pad)
+        background = GradientDrawable().apply { shape = GradientDrawable.OVAL ; setColor(Color.argb(0x66, 0, 0, 0)) }
+        contentDescription = said
+        isClickable = true
+        setOnClickListener { then() }
+    }
+
     /** the whole screen to a picture -- no title bar, the phone's own bars away until swiped back. */
     fun fullScreen(activity: Activity) {
         activity.actionBar?.hide()

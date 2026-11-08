@@ -42,6 +42,11 @@
     <string name="locked_for">⚿ Wiadomość zaszyfrowana dla</string>
     <string name="piece_for">dla</string>
     <string name="share">⤴ Udostępnij</string>
+    <string name="share_picture">Udostępnij zdjęcie</string>
+    <string name="share_video">Udostępnij film</string>
+    <string name="share_clear_title">Udostępnić bez szyfrowania?</string>
+    <string name="share_clear_says">Dotarło zaszyfrowane. Udostępnione, wyjdzie bez szyfrowania: wybrana aplikacja i ten, kto je otrzyma, będą mogli je zobaczyć.</string>
+    <string name="share_clear_go">Udostępnij bez szyfrowania</string>
     <string name="save">↧ Zapisz</string>
     <string name="saved">Zapisano.</string>
     <string name="conf_theme">Motyw</string>

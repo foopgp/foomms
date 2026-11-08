@@ -42,6 +42,11 @@
     <string name="locked_for">⚿ Messaggio cifrato per</string>
     <string name="piece_for">per</string>
     <string name="share">⤴ Condividi</string>
+    <string name="share_picture">Condividi la foto</string>
+    <string name="share_video">Condividi il video</string>
+    <string name="share_clear_title">Condividere in chiaro?</string>
+    <string name="share_clear_says">È arrivato cifrato. Condiviso, partirà in chiaro: l\'applicazione scelta, e chi lo riceverà, potranno vederlo.</string>
+    <string name="share_clear_go">Condividi in chiaro</string>
     <string name="save">↧ Salva</string>
     <string name="saved">Salvato.</string>
     <string name="conf_theme">Tema</string>

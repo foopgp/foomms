@@ -1417,7 +1417,10 @@ class ThreadActivity : AskingActivity() {
         // A picture looked at on its own page, on the whole screen.
         if ((opened?.type ?: piece.type).startsWith("image/") && (openedThumbs[piece.id] ?: thumbs[piece.id]) != null) {
             val (title, said) = seenAs(piece, at)
-            return PictureActivity.look(this, opened?.bytes, if (opened == null) piece.uri else null, title, said)
+            return PictureActivity.look(
+                this, opened?.bytes, if (opened == null) piece.uri else null, title, said,
+                opened?.name ?: piece.name ?: "picture", opened?.type ?: piece.type, opened?.verdict?.encrypted == true,
+            )
         }
         handOver(piece, Intent.ACTION_VIEW)
     }
@@ -1722,7 +1725,10 @@ class ThreadActivity : AskingActivity() {
     private fun watch(piece: Store.Piece, at: Int) {
         val opened = Opened.piece(piece.id)
         val (title, said) = seenAs(piece, at)
-        WatchActivity.watch(this, opened?.bytes, if (opened == null) piece.uri else null, title, said)
+        WatchActivity.watch(
+            this, opened?.bytes, if (opened == null) piece.uri else null, title, said,
+            opened?.name ?: piece.name ?: "video", opened?.type ?: piece.type, opened?.verdict?.encrypted == true,
+        )
     }
 
     /** What a page of its own says over a part: whose conversation, then the part's name and when it came. */

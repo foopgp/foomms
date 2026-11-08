@@ -7,4 +7,5 @@
 • An MMS the phone could not download is reported, and asked for again for 7 days.
 • A photo or a file you send encrypted shows open in your bubble, like its text.
 • An encrypted attachment is no longer scaled down on the way by the carrier; if the carrier removes an attachment, foomms says so under the message.
+• Share a photo or a video from its full screen; if it arrived encrypted, foomms first warns that it will leave in clear.
 • A faster list, and many fixes.
