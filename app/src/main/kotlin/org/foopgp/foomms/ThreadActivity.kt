@@ -346,7 +346,7 @@ class ThreadActivity : AskingActivity() {
                 },
             )
         }
-        chip = carriedRow.words
+        chip = carriedRow.words.apply { typeface = android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.BOLD) }
         val bar = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.BOTTOM
@@ -374,8 +374,8 @@ class ThreadActivity : AskingActivity() {
                 writing = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
                     addView(eachBanner)
-                    addView(chipRow)
                     addView(options)
+                    addView(chipRow)
                     addView(replyRow)
                     addView(bar)
                 }

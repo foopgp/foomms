@@ -24,8 +24,8 @@ object Quote {
 
     /** A cited message as a reply's first line says it: [day] when another than the reply's, [time], and some of its words. */
     class Cited(val day: String?, val time: String, val words: String) {
-        /** A part cited by its type, name and size, rather than words: "image/jpeg photo.jpg 183476 +1". */
-        val part: Boolean get() = PART.matches(words)
+        /** Not words of the message but what foomms said of it: a part's type, name and size, or [LOCKED]. */
+        val part: Boolean get() = words == LOCKED || PART.matches(words)
     }
 
     private val PART = Regex("""^[a-z]+/[\w.+-]+ .*\d+( \+\d+)?$""")

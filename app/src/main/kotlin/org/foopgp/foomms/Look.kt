@@ -326,8 +326,8 @@ object Look {
     }
 
     /**
-     * A message an answer cites: its time and its chevron narrow, then its words -- narrow too when they are a
-     * part's type, name and size --, on a veil that greys whatever bubble it sits in, framed more softly still.
+     * A message an answer cites: its time and its chevron narrow and grey, then its words in the ink of a message --
+     * narrow and grey too when foomms wrote them: a part's type, name and size, or that it was locked --, on a veil that greys whatever bubble it sits in, framed more softly still.
      */
     fun cited(context: Context, cited: Quote.Cited): TextView {
         val stamp = listOfNotNull(cited.day, cited.time).joinToString(" ") + ">"
@@ -337,7 +337,9 @@ object Look {
         if (cited.words.isNotEmpty()) {
             val from = said.length + 1
             said.append(" ").append(cited.words)
+            // What foomms wrote narrow and grey as the time; the words answered, in the ink of a message.
             if (cited.part) said.setSpan(android.text.style.TypefaceSpan("sans-serif-condensed"), from, said.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            else said.setSpan(android.text.style.ForegroundColorSpan(INK), from, said.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         val pad = dp(context, 6)
         return words(context, said, size = 13f, muted = true).apply {
