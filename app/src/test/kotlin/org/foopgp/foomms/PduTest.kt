@@ -2,7 +2,9 @@ package org.foopgp.foomms
 
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PduTest {
@@ -26,7 +28,6 @@ class PduTest {
             0x8F, 0x81,                         // X-Mms-Priority: normal
             0x86, 0x81,                         // X-Mms-Delivery-Report: no
             0x90, 0x81,                         // X-Mms-Read-Report: no
-            0xBC, 0x81,                         // X-Mms-Adaptation-Allowed: no
             0x84, 0xA3,                         // Content-Type: multipart/mixed
             0x01,                               // one part
             0x12, 0x02,                         // its headers: 18 bytes; its data: 2
@@ -56,6 +57,15 @@ class PduTest {
         val text = String(made, Charsets.ISO_8859_1)
         assertEquals(1, text.split(String(subject, Charsets.ISO_8859_1)).size - 1)
         assertEquals(2, text.split("/TYPE=PLMN").size - 1)
+    }
+
+    @Test fun `a sealed part is not to be cut down on the way, a picture in clear may be`() {
+        val refused = byteArrayOf(0xBC.toByte(), 0x81.toByte())
+        fun refuses(made: ByteArray) = made.toList().windowed(2).any { it == refused.toList() }
+        val image = byteArrayOf(1, 2, 3)
+        assertTrue(refuses(Pdu.send("T5", listOf("0600000000"), listOf(Pdu.Part(Pgp.TYPE, "3.pgp", image)))))
+        assertTrue(refuses(Pdu.send("T6", listOf("0600000000"), listOf(Pdu.Part("application/octet-stream", "a.jpg.pgp", image)))))
+        assertFalse(refuses(Pdu.send("T7", listOf("0600000000"), listOf(Pdu.Part("image/jpeg", "a.jpg", image)))))
     }
 
     @Test fun `nobody to send to is refused`() {

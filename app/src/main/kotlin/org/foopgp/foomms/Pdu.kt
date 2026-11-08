@@ -14,6 +14,10 @@ import java.io.ByteArrayOutputStream
 object Pdu {
 
     class Part(val type: String, val name: String, val bytes: ByteArray) {
+        /** A PGP message of its own, by its label or its name: cut down on the way, it is lost. */
+        val sealed: Boolean
+            get() = name.lowercase().let { type == Pgp.TYPE || it.endsWith(".pgp") || it.endsWith(".gpg") || it.endsWith(".asc") }
+
         companion object {
             fun text(words: String, name: String = "text.txt") =
                 Part("text/plain", name, words.toByteArray(Charsets.UTF_8))
@@ -44,8 +48,9 @@ object Pdu {
         out.write(PRIORITY) ; out.write(NORMAL)
         out.write(DELIVERY_REPORT) ; out.write(NO)
         out.write(READ_REPORT) ; out.write(NO)
-        // Not to be cut down on the way (OMA-MMS-ENC 1.3): a sealed part trimmed is a part lost.
-        out.write(ADAPTATION_ALLOWED) ; out.write(NO)
+        // A sealed part not to be cut down on the way (OMA-MMS-ENC 1.3): trimmed, it is lost. A picture in
+        // clear may still be made smaller for a phone that could not take it whole.
+        if (parts.any { it.sealed }) { out.write(ADAPTATION_ALLOWED) ; out.write(NO) }
         // Last of the headers, as the encoding wants it: what follows is the body.
         out.write(CONTENT_TYPE) ; out.write(MULTIPART_MIXED)
         out.uintvar(parts.size)
