@@ -42,6 +42,9 @@
     <string name="locked_for">⚿ Verschlüsselte Nachricht für</string>
     <string name="piece_for">für</string>
     <string name="share">⤴ Teilen</string>
+    <string name="reply">↩ Antworten</string>
+    <string name="reply_drop">Nicht mehr auf diese Nachricht antworten</string>
+    <string name="quote_gone">Die zitierte Nachricht ist nicht in dieser Unterhaltung</string>
     <string name="share_picture">Foto teilen</string>
     <string name="share_video">Video teilen</string>
     <string name="share_clear_title">Unverschlüsselt teilen?</string>

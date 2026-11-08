@@ -42,6 +42,9 @@
     <string name="locked_for">⚿ Message chiffré pour</string>
     <string name="piece_for">pour</string>
     <string name="share">⤴ Partager</string>
+    <string name="reply">↩ Répondre</string>
+    <string name="reply_drop">Ne plus répondre à ce message</string>
+    <string name="quote_gone">Le message cité n\'est pas dans cette conversation</string>
     <string name="share_picture">Partager la photo</string>
     <string name="share_video">Partager la vidéo</string>
     <string name="share_clear_title">Partager en clair ?</string>

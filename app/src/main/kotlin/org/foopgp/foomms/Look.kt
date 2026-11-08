@@ -296,7 +296,7 @@ object Look {
         }
     }
 
-    fun carried(context: Context, drop: () -> Unit): Carried {
+    fun carried(context: Context, sign: String = "📎", dropSaid: Int = R.string.drop_attachment, drop: () -> Unit): Carried {
         val pad = dp(context, 6)
         val said = words(context, "", size = 16f, muted = true).apply {
             gravity = Gravity.CENTER
@@ -306,10 +306,10 @@ object Look {
             setTypeface(typeface, Typeface.BOLD)
             setPadding(pad * 4, 0, pad * 4, 0)
         }
-        val clip = glyph("📎")
+        val clip = glyph(sign)
         val cross = glyph("✕").apply {
             setTextColor(Color.rgb(0xE5, 0x39, 0x35))
-            contentDescription = context.getString(R.string.drop_attachment)
+            contentDescription = context.getString(dropSaid)
             setOnClickListener { drop() }
         }
         val row = LinearLayout(context).apply {

@@ -42,6 +42,9 @@
     <string name="locked_for">⚿ Wiadomość zaszyfrowana dla</string>
     <string name="piece_for">dla</string>
     <string name="share">⤴ Udostępnij</string>
+    <string name="reply">↩ Odpowiedz</string>
+    <string name="reply_drop">Nie odpowiadaj na tę wiadomość</string>
+    <string name="quote_gone">Cytowanej wiadomości nie ma w tej rozmowie</string>
     <string name="share_picture">Udostępnij zdjęcie</string>
     <string name="share_video">Udostępnij film</string>
     <string name="share_clear_title">Udostępnić bez szyfrowania?</string>

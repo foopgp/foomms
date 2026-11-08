@@ -87,6 +87,10 @@ class ThreadActivity : AskingActivity() {
 
     /** [chip] between its paper clip and the cross that alone takes the attachment off. */
     private lateinit var carriedRow: Look.Carried
+
+    /** The message being answered, cited above the field until it leaves or is let go. */
+    private var replying: Store.Line? = null
+    private lateinit var replyRow: Look.Carried
     private val chipRow get() = carriedRow.row
     private lateinit var whoIs: android.widget.TextView
     private lateinit var under: android.widget.TextView
@@ -289,7 +293,7 @@ class ThreadActivity : AskingActivity() {
             }
             customView.layoutParams = android.app.ActionBar.LayoutParams(android.app.ActionBar.LayoutParams.MATCH_PARENT, android.app.ActionBar.LayoutParams.WRAP_CONTENT)
         }
-        list = ListView(this).apply {
+        list = Swiped(this) { at -> lines.getOrNull(at)?.let(::reply) }.apply {
             divider = null
             transcriptMode = ListView.TRANSCRIPT_MODE_NORMAL
             isStackFromBottom = true
@@ -321,6 +325,7 @@ class ThreadActivity : AskingActivity() {
         val add = adding
         // What is attached, said above the field; only its cross takes it off.
         carriedRow = Look.carried(this) { carry(null) }
+        replyRow = Look.carried(this, "↩", R.string.reply_drop) { reply(null) }.apply { attached(true) }
         chip = carriedRow.words
         val bar = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -349,6 +354,7 @@ class ThreadActivity : AskingActivity() {
                 writing = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
                     addView(eachBanner)
+                    addView(replyRow.row)
                     addView(chipRow)
                     addView(options)
                     addView(bar)
@@ -544,6 +550,54 @@ class ThreadActivity : AskingActivity() {
         ticking.run()
     }
 
+    /**
+     * [line] answered, or none: cited above the field -- its time and some of its words -- until the
+     * answer leaves or the cross lets it go; kept with the draft. The field is offered at once.
+     */
+    private fun reply(line: Store.Line?) {
+        replying = line
+        replyRow.row.visibility = if (line == null) View.GONE else View.VISIBLE
+        replyRow.words.text = line?.let { quoteOf(it, locks = true).removePrefix("> ") }.orEmpty()
+        Replies.keep(this, drafted, line?.key)
+        if (line == null) return
+        field.requestFocus()
+        getSystemService(android.view.inputmethod.InputMethodManager::class.java)?.showSoftInput(field, 0)
+    }
+
+    /**
+     * The first line of an answer to [line] ([Quote]): when it was sent -- by its sender's clock, when the network
+     * says it --, and its words; a part's type, name and size when it has none. What is still closed is cited by
+     * its time alone; so is what travelled locked when the answer leaves in clear ([locks] false): it would leak.
+     */
+    private fun quoteOf(line: Store.Line, locks: Boolean): String {
+        val at = if (line.incoming && line.sentAt > 0) line.sentAt else line.at
+        val armor = armorOf(line)
+        val read = armor?.let { Opened.words(it) }
+        val shown = when {
+            armor == null -> line.body
+            read == null || (read.verdict.encrypted && !locks) -> ""
+            else -> read.words
+        }
+        if (Quote.excerpt(shown).isNotEmpty() || armor != null) return Quote.line(at, shown)
+        val pieces = line.pieces.filterNot { Members.isPart(it.name) }
+        val first = pieces.firstOrNull() ?: return Quote.line(at, "")
+        val opened = Opened.piece(first.id)
+        val told = when {
+            opened != null -> if (opened.verdict.encrypted && !locks) null else "${opened.type} ${opened.name} ${opened.bytes.size}"
+            isSealed(first) -> null
+            else -> "${first.type} ${first.name.orEmpty()} ${runCatching { contentResolver.openFileDescriptor(first.uri, "r")?.use { it.statSize } }.getOrNull() ?: ""}"
+        }
+        return Quote.line(at, told?.let { if (pieces.size > 1) "$it +${pieces.size - 1}" else it }.orEmpty())
+    }
+
+    /** A cited message pressed: the conversation goes to it, if it is here. */
+    private fun goToCited(cited: Quote.Cited, replyAt: Long) {
+        val ats = lines.map { if (it.incoming && it.sentAt > 0) it.sentAt else it.at }
+        val found = Quote.find(cited, replyAt, ats) { at -> lines.getOrNull(at)?.let(::textOf) }
+            ?: return Toast.makeText(this, R.string.quote_gone, Toast.LENGTH_SHORT).show()
+        list.setSelection(found)
+    }
+
     /** The draft as it was read when the page opened: kept again only once it has changed. */
     private var draftRead = ""
 
@@ -647,6 +701,8 @@ class ThreadActivity : AskingActivity() {
             runOnUiThread {
                 if (isFinishing || isDestroyed || !latest()) return@runOnUiThread
                 lines = found
+                // An answer begun here before, still to send: cited again.
+                if (replying == null) Replies.of(this, drafted)?.let { key -> found.firstOrNull { it.key == key }?.let(::reply) }
                 hits = null
                 this.thread = thread
                 if (given.isEmpty()) thread?.let(::offerEach)
@@ -952,12 +1008,14 @@ class ThreadActivity : AskingActivity() {
         }
         if (!plainSaid && plainOrAsk(locks, ::paint) { send(plainSaid = true, manySaid = manySaid) }) return
         val mode = mode
-        if (with != null) return sendWith(with, written, mode)
-        if (mode == Mode.PLAIN) return leave(written, written, null)
-        ask(request(mode, armored = true), written.toByteArray(), ::say) { answer ->
+        // An answer: the message it cites, on its first line -- what was locked cited only by its time, sent in clear.
+        val said = replying?.let { quoteOf(it, mode.locks) + "\n" + written } ?: written
+        if (with != null) return sendWith(with, said, mode)
+        if (mode == Mode.PLAIN) return leave(said, said, null)
+        ask(request(mode, armored = true), said.toByteArray(), ::say) { answer ->
             val armor = Pgp.armorIn(String(answer.bytes, Charsets.US_ASCII))
                 ?: return@ask say(Foodjis.says(this, "what came back is not a PGP message"))
-            leave(armor, written, worth(mode))
+            leave(armor, said, worth(mode))
         }
     }
 
@@ -1019,6 +1077,7 @@ class ThreadActivity : AskingActivity() {
             // What it carries, open as its words are, for as long.
             if (verdict != null) Opened.keepSent(this, piece.bytes, with.type, with.name, with.bytes, verdict, here())
             field.setText("")
+            reply(null)
             forgetDraft()
             carry(null)
             Toast.makeText(this, getString(R.string.handed_mms, with.name), Toast.LENGTH_SHORT).show()
@@ -1176,6 +1235,7 @@ class ThreadActivity : AskingActivity() {
             }.onFailure { return@withMembers say(getString(R.string.failed, it.message)) }
             if (verdict != null) Opened.keep(this, text, written, null, verdict, thread = here())
             field.setText("")
+            reply(null)
             forgetDraft()
             // The phone writes what was sent a moment after taking it.
             list.postDelayed({ if (shown) load() }, 1500)
@@ -1346,6 +1406,7 @@ class ThreadActivity : AskingActivity() {
         val choices = ArrayList<Pair<Int, () -> Unit>>()
         // Still locked: opening it comes first, as a press does.
         if (lockedAndClosed(line)) choices += R.string.decrypt_this to { pressed(at) }
+        choices += R.string.reply to { reply(line) }
         if (piece == null && text.isNotEmpty()) {
             choices += R.string.copy_text to {
                 getSystemService(android.content.ClipboardManager::class.java)
@@ -1925,7 +1986,10 @@ class ThreadActivity : AskingActivity() {
                 }
             }
             val pad = Look.dp(context, 10)
-            val text = Look.words(context, if (closed) words else marked(words, at), size = 16f, muted = closed)
+            // An answer: what it cites, apart above its own words.
+            val citing = if (closed) null else Quote.split(words)
+            val own = citing?.second ?: words
+            val text = Look.words(context, if (closed) own else marked(own, at), size = 16f, muted = closed)
             val bubble = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 background = Look.rounded(Look.pale(verdict), Look.dp(context, 14))
@@ -1948,10 +2012,23 @@ class ThreadActivity : AskingActivity() {
                         },
                     )
                 } else if (words.isNotEmpty() || line.pieces.isEmpty()) {
+                    citing?.first?.let { cited ->
+                        addView(
+                            Look.words(context, "↩ " + listOfNotNull(cited.day, cited.time).joinToString(" ") + "  " + cited.words, size = 13f, muted = true).apply {
+                                background = Look.framed(context)
+                                setPadding(pad * 3 / 4, pad / 3, pad * 3 / 4, pad / 3)
+                                maxLines = 2
+                                ellipsize = android.text.TextUtils.TruncateAt.END
+                                setOnClickListener { goToCited(cited, if (line.incoming && line.sentAt > 0) line.sentAt else line.at) }
+                            },
+                            LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { bottomMargin = pad / 2 },
+                        )
+                    }
                     // Open, the words are selected, links included: nothing is followed on a press alone.
                     text.setOnClickListener { if (closed || words.isEmpty()) pressed(at) else select(words, armored = false) }
                     text.setOnLongClickListener { about(at, words = true) ; true }
-                    addView(text)
+                    // An answer made of its citation and a part alone has no words of its own to show.
+                    if (own.isNotEmpty() || citing == null) addView(text)
                 }
                 // An encrypted group's members part is for foomms, not for reading.
                 for (piece in line.pieces.filterNot { Members.isPart(it.name) }) addView(shownPiece(piece, at))

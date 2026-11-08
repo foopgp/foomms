@@ -45,6 +45,9 @@
     <string name="locked_for">⚿ Encrypted message for</string>
     <string name="piece_for">for</string>
     <string name="share">⤴ Share</string>
+    <string name="reply">↩ Reply</string>
+    <string name="reply_drop">Do not reply to this message</string>
+    <string name="quote_gone">The message cited is not in this conversation</string>
     <string name="share_picture">Share the photo</string>
     <string name="share_video">Share the video</string>
     <string name="share_clear_title">Share in clear?</string>

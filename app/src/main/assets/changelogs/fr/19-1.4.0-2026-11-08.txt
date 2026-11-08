@@ -8,4 +8,5 @@
 • Une photo ou un fichier que vous envoyez chiffré s'affiche ouvert dans votre bulle, comme son texte.
 • Une pièce jointe chiffrée n'est plus réduite en route par l'opérateur ; s'il retire une pièce jointe, foomms le dit sous le message.
 • Partager une photo ou une vidéo depuis son plein écran ; si elle est arrivée chiffrée, foomms prévient d'abord qu'elle partira en clair.
+• Répondre à un message, en glissant sa bulle vers la droite ou par l'appui long : la réponse commence par une ligne qui le cite — son heure et ses premiers mots —, lisible sur tout téléphone ; un appui sur la citation y ramène.
 • Une liste plus rapide, et de nombreuses corrections.

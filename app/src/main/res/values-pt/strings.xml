@@ -42,6 +42,9 @@
     <string name="locked_for">⚿ Mensagem cifrada para</string>
     <string name="piece_for">para</string>
     <string name="share">⤴ Partilhar</string>
+    <string name="reply">↩ Responder</string>
+    <string name="reply_drop">Deixar de responder a esta mensagem</string>
+    <string name="quote_gone">A mensagem citada não está nesta conversa</string>
     <string name="share_picture">Partilhar a foto</string>
     <string name="share_video">Partilhar o vídeo</string>
     <string name="share_clear_title">Partilhar sem cifra?</string>

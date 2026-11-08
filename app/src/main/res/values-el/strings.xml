@@ -42,6 +42,9 @@
     <string name="locked_for">⚿ Κρυπτογραφημένο μήνυμα για</string>
     <string name="piece_for">για</string>
     <string name="share">⤴ Κοινοποίηση</string>
+    <string name="reply">↩ Απάντηση</string>
+    <string name="reply_drop">Να μην απαντηθεί αυτό το μήνυμα</string>
+    <string name="quote_gone">Το μήνυμα που παρατίθεται δεν είναι σε αυτή τη συνομιλία</string>
     <string name="share_picture">Κοινοποίηση φωτογραφίας</string>
     <string name="share_video">Κοινοποίηση βίντεο</string>
     <string name="share_clear_title">Κοινοποίηση χωρίς κρυπτογράφηση;</string>

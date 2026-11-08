@@ -8,4 +8,5 @@
 • Una foto o un file che inviate cifrato appare aperto nella vostra bolla, come il suo testo.
 • Un allegato cifrato non viene più ridotto lungo il percorso dall'operatore; se l'operatore rimuove un allegato, foomms lo dice sotto il messaggio.
 • Condividere una foto o un video dallo schermo intero; se è arrivato cifrato, foomms avverte prima che partirà in chiaro.
+• Rispondere a un messaggio facendo scorrere la sua bolla verso destra o con una pressione prolungata: la risposta inizia con una riga che lo cita — l'ora e le prime parole —, leggibile su qualsiasi telefono; toccando la citazione si torna a esso.
 • Un elenco più veloce e numerose correzioni.

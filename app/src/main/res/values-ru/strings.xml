@@ -42,6 +42,9 @@
     <string name="locked_for">⚿ Зашифрованное сообщение для</string>
     <string name="piece_for">для</string>
     <string name="share">⤴ Поделиться</string>
+    <string name="reply">↩ Ответить</string>
+    <string name="reply_drop">Не отвечать на это сообщение</string>
+    <string name="quote_gone">Цитируемого сообщения нет в этой беседе</string>
     <string name="share_picture">Поделиться фото</string>
     <string name="share_video">Поделиться видео</string>
     <string name="share_clear_title">Поделиться без шифрования?</string>

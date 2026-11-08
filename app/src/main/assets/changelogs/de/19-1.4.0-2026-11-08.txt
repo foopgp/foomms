@@ -8,4 +8,5 @@
 • Ein Foto oder eine Datei, die Sie verschlüsselt senden, erscheint in Ihrer Blase geöffnet, wie ihr Text.
 • Ein verschlüsselter Anhang wird unterwegs nicht mehr vom Netzbetreiber verkleinert; entfernt er einen Anhang, sagt foomms es unter der Nachricht.
 • Ein Foto oder Video aus der Vollbildansicht teilen; kam es verschlüsselt an, warnt foomms zuerst, dass es unverschlüsselt weitergeht.
+• Auf eine Nachricht antworten, indem man ihre Blase nach rechts wischt oder lange drückt: Die Antwort beginnt mit einer Zeile, die sie zitiert — Uhrzeit und erste Wörter —, auf jedem Telefon lesbar; ein Druck auf das Zitat führt zu ihr zurück.
 • Eine schnellere Liste und zahlreiche Korrekturen.

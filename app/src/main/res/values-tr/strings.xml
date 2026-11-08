@@ -42,6 +42,9 @@
     <string name="locked_for">⚿ Şifreli mesaj, alıcı:</string>
     <string name="piece_for">alıcı:</string>
     <string name="share">⤴ Paylaş</string>
+    <string name="reply">↩ Yanıtla</string>
+    <string name="reply_drop">Bu mesajı yanıtlamaktan vazgeç</string>
+    <string name="quote_gone">Alıntılanan mesaj bu konuşmada yok</string>
     <string name="share_picture">Fotoğrafı paylaş</string>
     <string name="share_video">Videoyu paylaş</string>
     <string name="share_clear_title">Şifresiz paylaşılsın mı?</string>
