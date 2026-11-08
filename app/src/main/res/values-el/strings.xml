@@ -9,6 +9,7 @@
     <string name="sent">Το μήνυμα στάλθηκε.</string>
     <string name="not_sent">Το μήνυμα δεν στάλθηκε (%1$d).</string>
     <string name="refused">⚠ Δεν στάλθηκε: απορρίφθηκε από τον πάροχο</string>
+    <string name="stripped">⚠ Ο πάροχος αφαίρεσε το συνημμένο καθ\' οδόν: «%1$s»</string>
     <string name="no_provider">Το foodjis δεν είναι εγκατεστημένο ή δεν απαντά.</string>
     <string name="failed">%1$s</string>
     <string name="signed_certified">Υπογραφή από %1$s, πιστοποιημένο.</string>

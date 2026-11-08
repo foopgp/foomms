@@ -9,6 +9,7 @@
     <string name="sent">Wiadomość wysłana.</string>
     <string name="not_sent">Wiadomość niewysłana (%1$d).</string>
     <string name="refused">⚠ Nie wysłano: odrzucone przez operatora</string>
+    <string name="stripped">⚠ Operator usunął załącznik po drodze: „%1$s”</string>
     <string name="no_provider">foodjis nie jest zainstalowany lub nie odpowiada.</string>
     <string name="failed">%1$s</string>
     <string name="signed_certified">Podpisane przez %1$s, poświadczone.</string>

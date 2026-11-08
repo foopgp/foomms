@@ -9,6 +9,7 @@
     <string name="sent">Nachricht gesendet.</string>
     <string name="not_sent">Nachricht nicht gesendet (%1$d).</string>
     <string name="refused">⚠ Nicht gesendet: vom Netz abgelehnt</string>
+    <string name="stripped">⚠ Das Netz hat den Anhang unterwegs entfernt: „%1$s“</string>
     <string name="no_provider">foodjis ist nicht installiert oder antwortet nicht.</string>
     <string name="failed">%1$s</string>
     <string name="signed_certified">Signiert von %1$s, beglaubigt.</string>

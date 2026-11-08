@@ -9,6 +9,7 @@
     <string name="sent">Mensaje enviado.</string>
     <string name="not_sent">Mensaje no enviado (%1$d).</string>
     <string name="refused">⚠ No enviado: rechazado por el operador</string>
+    <string name="stripped">⚠ El operador eliminó el adjunto por el camino: «%1$s»</string>
     <string name="no_provider">foodjis no está instalado o no responde.</string>
     <string name="failed">%1$s</string>
     <string name="signed_certified">Firmado por %1$s, certificado.</string>

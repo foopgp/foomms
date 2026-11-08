@@ -255,6 +255,8 @@ object Store {
         val unread: Boolean = false, val thread: Long = -1,
         /** Refused by the network when it was to leave: certainly not sent. Taken, it may still not arrive. */
         val failed: Boolean = false,
+        /** What the network wrote in place of the parts it took out on the way, in its own words. */
+        val stripped: String? = null,
     ) {
         val attachments: Int get() = pieces.size
         val uri: Uri get() = Uri.parse(if (mms) "content://mms/$id" else "content://sms/$id")
@@ -486,8 +488,8 @@ object Store {
         }
         val parts = parts(context, heads.map { it.id })
         return heads.map { head ->
-            val (words, pieces) = parts[head.id] ?: ("" to emptyList())
-            Line(head.at, head.incoming, words, pieces, id = head.id, mms = true, sentAt = head.sentAt, unread = head.unread, thread = head.thread, failed = head.failed)
+            val (words, pieces, stripped) = parts[head.id] ?: Parts("", emptyList())
+            Line(head.at, head.incoming, words, pieces, id = head.id, mms = true, sentAt = head.sentAt, unread = head.unread, thread = head.thread, failed = head.failed, stripped = stripped)
         }
     }
 
@@ -582,12 +584,22 @@ object Store {
         return null
     }
 
+    /** An MMS's words, its parts that are something else, and what the network said of those it took out. */
+    private data class Parts(val words: String, val pieces: List<Piece>, val stripped: String? = null)
+
+    /**
+     * The text part an operator puts in place of the parts it took out, too
+     * heavy for the phone it delivers to: no code, a sentence of its own.
+     */
+    private val NOTICES = setOf("mxnotify.txt")
+
     /** The words of an MMS, and its parts that are something else. */
-    private fun parts(context: Context, message: Long): Pair<String, List<Piece>> = parts(context, listOf(message))[message] ?: ("" to emptyList())
+    private fun parts(context: Context, message: Long): Parts = parts(context, listOf(message))[message] ?: Parts("", emptyList())
 
     /** The words and the other parts of several MMS, by message, asked a few hundred at a time. */
-    private fun parts(context: Context, messages: List<Long>): Map<Long, Pair<String, List<Piece>>> {
+    private fun parts(context: Context, messages: List<Long>): Map<Long, Parts> {
         val words = HashMap<Long, StringBuilder>()
+        val stripped = HashMap<Long, String>()
         val pieces = HashMap<Long, ArrayList<Piece>>()
         for (some in messages.chunked(400)) {
             context.contentResolver.query(
@@ -603,14 +615,16 @@ object Store {
                                 context.contentResolver.openInputStream(Uri.withAppendedPath(PARTS, rows.getString(0)))
                                     ?.use { String(it.readBytes(), Charsets.UTF_8) }
                             }.getOrNull()
-                            if (!text.isNullOrEmpty()) words.getOrPut(mid) { StringBuilder() }.let { it.append(if (it.isEmpty()) "" else "\n").append(text) }
+                            if (text.isNullOrEmpty()) continue
+                            if ((rows.getString(3) ?: rows.getString(4)).orEmpty().lowercase() in NOTICES) stripped[mid] = text.trim()
+                            else words.getOrPut(mid) { StringBuilder() }.let { it.append(if (it.isEmpty()) "" else "\n").append(text) }
                         }
                         else -> pieces.getOrPut(mid) { ArrayList() } += Piece(rows.getLong(0), type, rows.getString(3) ?: rows.getString(4))
                     }
                 }
             }
         }
-        return messages.associateWith { (words[it]?.toString().orEmpty()) to pieces[it].orEmpty() }
+        return messages.associateWith { Parts(words[it]?.toString().orEmpty(), pieces[it].orEmpty(), stripped[it]) }
     }
 
     /** How many messages are unread, and nothing else: what the way to the profile says, counted at every change. */

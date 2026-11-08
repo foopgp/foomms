@@ -1904,6 +1904,13 @@ class ThreadActivity : AskingActivity() {
                         android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
                     )
                 }
+                // Come without what it carried: the network took it out, and says so in its own words.
+                line.stripped?.let { notice ->
+                    append("\n").append(
+                        getString(R.string.stripped, notice), android.text.style.ForegroundColorSpan(Look.standingColour("revoked")),
+                        android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+                    )
+                }
             }
             val pad = Look.dp(context, 10)
             val text = Look.words(context, if (closed) words else marked(words, at), size = 16f, muted = closed)

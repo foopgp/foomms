@@ -9,6 +9,7 @@
     <string name="sent">Сообщение отправлено.</string>
     <string name="not_sent">Сообщение не отправлено (%1$d).</string>
     <string name="refused">⚠ Не отправлено: отклонено оператором</string>
+    <string name="stripped">⚠ Оператор удалил вложение по пути: «%1$s»</string>
     <string name="no_provider">foodjis не установлен или не отвечает.</string>
     <string name="failed">%1$s</string>
     <string name="signed_certified">Подписано %1$s, заверено.</string>
