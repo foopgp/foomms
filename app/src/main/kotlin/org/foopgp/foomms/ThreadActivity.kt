@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.Toast
@@ -90,7 +91,8 @@ class ThreadActivity : AskingActivity() {
 
     /** The message being answered, cited above the field until it leaves or is let go. */
     private var replying: Store.Line? = null
-    private lateinit var replyRow: Look.Carried
+    private lateinit var replyRow: LinearLayout
+    private lateinit var replyCited: FrameLayout
     private val chipRow get() = carriedRow.row
     private lateinit var whoIs: android.widget.TextView
     private lateinit var under: android.widget.TextView
@@ -325,7 +327,25 @@ class ThreadActivity : AskingActivity() {
         val add = adding
         // What is attached, said above the field; only its cross takes it off.
         carriedRow = Look.carried(this) { carry(null) }
-        replyRow = Look.carried(this, "↩", R.string.reply_drop) { reply(null) }.apply { attached(true) }
+        // The message answered, under the switches: its sign, it cited as in the bubble, and the cross that lets it go.
+        replyCited = FrameLayout(this)
+        replyRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            visibility = View.GONE
+            setPadding(pad * 3, pad / 2, 0, pad / 2)
+            addView(Look.words(context, "↩", size = 22f).apply { setTypeface(typeface, android.graphics.Typeface.BOLD) })
+            addView(replyCited, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = pad * 2 })
+            addView(
+                Look.words(context, "✕", size = 22f).apply {
+                    setTypeface(typeface, android.graphics.Typeface.BOLD)
+                    setTextColor(android.graphics.Color.rgb(0xE5, 0x39, 0x35))
+                    setPadding(pad * 4, 0, pad * 4, 0)
+                    contentDescription = getString(R.string.reply_drop)
+                    setOnClickListener { reply(null) }
+                },
+            )
+        }
         chip = carriedRow.words
         val bar = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -354,9 +374,9 @@ class ThreadActivity : AskingActivity() {
                 writing = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
                     addView(eachBanner)
-                    addView(replyRow.row)
                     addView(chipRow)
                     addView(options)
+                    addView(replyRow)
                     addView(bar)
                 }
                 addView(writing)
@@ -556,12 +576,19 @@ class ThreadActivity : AskingActivity() {
      */
     private fun reply(line: Store.Line?) {
         replying = line
-        replyRow.row.visibility = if (line == null) View.GONE else View.VISIBLE
-        replyRow.words.text = line?.let { quoteOf(it, locks = true).removePrefix("> ") }.orEmpty()
+        replyRow.visibility = if (line == null) View.GONE else View.VISIBLE
+        showReply()
         Replies.keep(this, drafted, line?.key)
         if (line == null) return
         field.requestFocus()
         getSystemService(android.view.inputmethod.InputMethodManager::class.java)?.showSoftInput(field, 0)
+    }
+
+    /** The answer's citation as it would leave now: what was locked hides its words as soon as Encrypt is off. */
+    private fun showReply() {
+        replyCited.removeAllViews()
+        val cited = replying?.let { Quote.split(quoteOf(it, mode.locks))?.first } ?: return
+        replyCited.addView(Look.cited(this, cited), FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
     }
 
     /**
@@ -575,7 +602,7 @@ class ThreadActivity : AskingActivity() {
         val read = armor?.let { Opened.words(it) }
         val shown = when {
             armor == null -> line.body
-            read == null || (read.verdict.encrypted && !locks) -> ""
+            read == null || (read.verdict.encrypted && !locks) -> Quote.LOCKED
             else -> read.words
         }
         if (Quote.excerpt(shown).isNotEmpty() || armor != null) return Quote.line(at, shown)
@@ -583,11 +610,11 @@ class ThreadActivity : AskingActivity() {
         val first = pieces.firstOrNull() ?: return Quote.line(at, "")
         val opened = Opened.piece(first.id)
         val told = when {
-            opened != null -> if (opened.verdict.encrypted && !locks) null else "${opened.type} ${opened.name} ${opened.bytes.size}"
-            isSealed(first) -> null
+            opened != null -> if (opened.verdict.encrypted && !locks) Quote.LOCKED else "${opened.type} ${opened.name} ${opened.bytes.size}"
+            isSealed(first) -> Quote.LOCKED
             else -> "${first.type} ${first.name.orEmpty()} ${runCatching { contentResolver.openFileDescriptor(first.uri, "r")?.use { it.statSize } }.getOrNull() ?: ""}"
         }
-        return Quote.line(at, told?.let { if (pieces.size > 1) "$it +${pieces.size - 1}" else it }.orEmpty())
+        return Quote.line(at, told?.let { if (pieces.size > 1 && it != Quote.LOCKED) "$it +${pieces.size - 1}" else it }.orEmpty())
     }
 
     /** A cited message pressed: the conversation goes to it, if it is here. */
@@ -972,6 +999,8 @@ class ThreadActivity : AskingActivity() {
 
     /** The switches as they can be, and the colour of what they add up to. */
     private fun paint() {
+        // What the answer cites follows the switches: locked words hide once it would leave in clear.
+        if (::replyCited.isInitialized) showReply()
         // Nothing to encrypt for without a certificate that stands; nothing to sign with until foodjis has said whose identity this is.
         locks.isEnabled = lockable()
         signs.isEnabled = mine != null
@@ -2014,11 +2043,7 @@ class ThreadActivity : AskingActivity() {
                 } else if (words.isNotEmpty() || line.pieces.isEmpty()) {
                     citing?.first?.let { cited ->
                         addView(
-                            Look.words(context, "↩ " + listOfNotNull(cited.day, cited.time).joinToString(" ") + "  " + cited.words, size = 13f, muted = true).apply {
-                                background = Look.framed(context)
-                                setPadding(pad * 3 / 4, pad / 3, pad * 3 / 4, pad / 3)
-                                maxLines = 2
-                                ellipsize = android.text.TextUtils.TruncateAt.END
+                            Look.cited(context, cited).apply {
                                 setOnClickListener { goToCited(cited, if (line.incoming && line.sentAt > 0) line.sentAt else line.at) }
                             },
                             LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { bottomMargin = pad / 2 },

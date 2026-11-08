@@ -19,8 +19,16 @@ object Quote {
     /** How far apart the two phones may say a message was sent: the network's own delays, an MMS's. */
     const val NEAR = 2 * 60 * 1000L
 
+    /** What stands for the words of a message cited closed, or locked and answered in clear: the same in every language. */
+    const val LOCKED = "*encrypted message*"
+
     /** A cited message as a reply's first line says it: [day] when another than the reply's, [time], and some of its words. */
-    class Cited(val day: String?, val time: String, val words: String)
+    class Cited(val day: String?, val time: String, val words: String) {
+        /** A part cited by its type, name and size, rather than words: "image/jpeg photo.jpg 183476 +1". */
+        val part: Boolean get() = PART.matches(words)
+    }
+
+    private val PART = Regex("""^[a-z]+/[\w.+-]+ .*\d+( \+\d+)?$""")
 
     private val LINE = Regex("""^> (?:(\d{4}-\d{2}-\d{2}) )?(\d{2}:\d{2}:\d{2})>(?: (.*))?$""")
 

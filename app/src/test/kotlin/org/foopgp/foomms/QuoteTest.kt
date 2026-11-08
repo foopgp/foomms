@@ -49,4 +49,10 @@ class QuoteTest {
         assertEquals(1, Quote.find(cited, reply, ats) { words[it] })
         assertNull(Quote.find(Quote.split("> 12:00:00>\n")!!.first, reply, ats) { words[it] })
     }
+
+    @Test fun `a part cited by type name and size is told from words`() {
+        assert(Quote.split("> 18:42:07> image/jpeg photo.jpg 183476 +1\nok")!!.first.part)
+        assert(!Quote.split("> 18:42:07> On se voit à 18 h\nok")!!.first.part)
+        assert(!Quote.split("> 18:42:07> ${Quote.LOCKED}\nok")!!.first.part)
+    }
 }

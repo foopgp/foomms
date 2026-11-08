@@ -325,6 +325,33 @@ object Look {
         return Carried(row, said, clip, cross)
     }
 
+    /**
+     * A message an answer cites: its time and its chevron narrow, then its words -- narrow too when they are a
+     * part's type, name and size --, on a veil that greys whatever bubble it sits in, framed more softly still.
+     */
+    fun cited(context: Context, cited: Quote.Cited): TextView {
+        val stamp = listOfNotNull(cited.day, cited.time).joinToString(" ") + ">"
+        val said = android.text.SpannableStringBuilder(stamp)
+        val narrow = android.text.style.TypefaceSpan("sans-serif-condensed")
+        said.setSpan(narrow, 0, stamp.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        if (cited.words.isNotEmpty()) {
+            val from = said.length + 1
+            said.append(" ").append(cited.words)
+            if (cited.part) said.setSpan(android.text.style.TypefaceSpan("sans-serif-condensed"), from, said.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        val pad = dp(context, 6)
+        return words(context, said, size = 13f, muted = true).apply {
+            background = GradientDrawable().apply {
+                setColor(if (dark) Color.argb(0x22, 0xFF, 0xFF, 0xFF) else Color.argb(0x14, 0, 0, 0))
+                setStroke(dp(context, 1), Color.argb(0x33, Color.red(MUTED), Color.green(MUTED), Color.blue(MUTED)))
+                cornerRadius = dp(context, 6).toFloat()
+            }
+            setPadding(pad + pad / 2, pad / 2, pad + pad / 2, pad / 2)
+            maxLines = 2
+            ellipsize = android.text.TextUtils.TruncateAt.END
+        }
+    }
+
     /** A discreet frame around a text set apart, as a note among others: a thin line, rounded, nothing filled. */
     fun framed(context: Context): GradientDrawable = GradientDrawable().apply {
         setStroke(dp(context, 1), MUTED)
