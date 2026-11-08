@@ -30,7 +30,7 @@ object Pdu {
         val out = ByteArrayOutputStream()
         out.write(MESSAGE_TYPE) ; out.write(M_SEND_REQ)
         out.write(TRANSACTION_ID) ; out.text(transaction)
-        out.write(MMS_VERSION) ; out.write(VERSION_1_2)
+        out.write(MMS_VERSION) ; out.write(VERSION_1_3)
         // "Put my number here yourself": the network knows it better than a phone does.
         out.write(FROM) ; out.write(1) ; out.write(INSERT_ADDRESS)
         for (number in to) {
@@ -44,6 +44,8 @@ object Pdu {
         out.write(PRIORITY) ; out.write(NORMAL)
         out.write(DELIVERY_REPORT) ; out.write(NO)
         out.write(READ_REPORT) ; out.write(NO)
+        // Not to be cut down on the way (OMA-MMS-ENC 1.3): a sealed part trimmed is a part lost.
+        out.write(ADAPTATION_ALLOWED) ; out.write(NO)
         // Last of the headers, as the encoding wants it: what follows is the body.
         out.write(CONTENT_TYPE) ; out.write(MULTIPART_MIXED)
         out.uintvar(parts.size)
@@ -126,12 +128,14 @@ object Pdu {
     private const val SUBJECT = 0x96
     private const val TO = 0x97
     private const val TRANSACTION_ID = 0x98
+    private const val ADAPTATION_ALLOWED = 0xBC
 
     // Their values.
     private const val M_SEND_REQ = 0x80
     private const val M_NOTIFYRESP_IND = 0x83
     private const val RETRIEVED = 0x81
     private const val VERSION_1_2 = 0x92
+    private const val VERSION_1_3 = 0x93
     private const val INSERT_ADDRESS = 0x81
     private const val PERSONAL = 0x80
     private const val NORMAL = 0x81

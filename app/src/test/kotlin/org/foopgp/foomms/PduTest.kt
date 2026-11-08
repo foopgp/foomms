@@ -19,13 +19,14 @@ class PduTest {
         val expected = bytes(
             0x8C, 0x80,                         // X-Mms-Message-Type: m-send-req
             0x98, "T1", 0,                      // X-Mms-Transaction-ID
-            0x8D, 0x92,                         // X-Mms-MMS-Version: 1.2
+            0x8D, 0x93,                         // X-Mms-MMS-Version: 1.3
             0x89, 0x01, 0x81,                   // From: insert-address-token
             0x97, "+33600000000/TYPE=PLMN", 0,  // To
             0x8A, 0x80,                         // X-Mms-Message-Class: personal
             0x8F, 0x81,                         // X-Mms-Priority: normal
             0x86, 0x81,                         // X-Mms-Delivery-Report: no
             0x90, 0x81,                         // X-Mms-Read-Report: no
+            0xBC, 0x81,                         // X-Mms-Adaptation-Allowed: no
             0x84, 0xA3,                         // Content-Type: multipart/mixed
             0x01,                               // one part
             0x12, 0x02,                         // its headers: 18 bytes; its data: 2
