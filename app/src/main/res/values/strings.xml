@@ -48,8 +48,8 @@
     <string name="share_picture">Share the photo</string>
     <string name="share_video">Share the video</string>
     <string name="share_clear_title">Share in clear?</string>
-    <string name="share_clear_says">It travelled encrypted. Shared, it will leave in clear: the application you choose, and whoever receives it, will be able to see it.</string>
-    <string name="share_clear_says_text">This message travelled encrypted. Shared, it will leave in clear: the application you choose, and whoever receives it, will be able to read it.</string>
+    <string name="share_clear_says">This item travelled encrypted. Shared, it will leave in clear for the application you choose.</string>
+    <string name="share_clear_says_text">This message travelled encrypted. Shared, it will leave in clear for the application you choose.</string>
     <string name="share_clear_go">Share in clear</string>
     <string name="save">↧ Save</string>
     <string name="saved">Saved.</string>

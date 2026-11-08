@@ -105,8 +105,8 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
                     }.also { over += it },
                     FrameLayout.LayoutParams(-1, -2, Gravity.TOP),
                 )
-                // Play or pause, where it is and out of how long; below, the share and the stop side by side, centred
-                // as on a picture's page: the one way out before the end, besides back.
+                // The share and the stop side by side, centred as on a picture's page -- the one way out before the end,
+                // besides back --; below, play or pause, where it is and out of how long.
                 addView(
                     LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
@@ -118,18 +118,8 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
                         }
                         addView(
                             LinearLayout(context).apply {
-                                orientation = LinearLayout.HORIZONTAL
-                                gravity = Gravity.CENTER_VERTICAL
-                                val round = Look.dp(context, 52)
-                                addView(playing, LinearLayout.LayoutParams(round, round))
-                                addView(where, LinearLayout.LayoutParams(0, -2, 1f))
-                                addView(elapsed, LinearLayout.LayoutParams(-2, -2))
-                            },
-                        )
-                        addView(
-                            LinearLayout(context).apply {
                                 gravity = Gravity.CENTER_HORIZONTAL
-                                setPadding(0, Look.dp(context, 12), 0, 0)
+                                setPadding(0, 0, 0, Look.dp(context, 12))
                                 val round = Look.dp(context, 64)
                                 addView(
                                     Look.knob(context, R.drawable.share, getString(R.string.share_video)) {
@@ -140,6 +130,16 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
                                 addView(knob("■", R.string.listening_stop) { finish() }.apply { textSize = 26f }, LinearLayout.LayoutParams(round, round))
                             },
                             LinearLayout.LayoutParams(-1, -2),
+                        )
+                        addView(
+                            LinearLayout(context).apply {
+                                orientation = LinearLayout.HORIZONTAL
+                                gravity = Gravity.CENTER_VERTICAL
+                                val round = Look.dp(context, 52)
+                                addView(playing, LinearLayout.LayoutParams(round, round))
+                                addView(where, LinearLayout.LayoutParams(0, -2, 1f))
+                                addView(elapsed, LinearLayout.LayoutParams(-2, -2))
+                            },
                         )
                     }.also { over += it },
                     FrameLayout.LayoutParams(-1, -2, Gravity.BOTTOM),

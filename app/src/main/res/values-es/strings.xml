@@ -45,8 +45,8 @@
     <string name="share_picture">Compartir la foto</string>
     <string name="share_video">Compartir el vídeo</string>
     <string name="share_clear_title">¿Compartir sin cifrar?</string>
-    <string name="share_clear_says">Viajó cifrado. Si lo comparte, saldrá sin cifrar: la aplicación elegida, y quien lo reciba, podrán verlo.</string>
-    <string name="share_clear_says_text">Este mensaje viajó cifrado. Si lo comparte, saldrá sin cifrar: la aplicación elegida, y quien lo reciba, podrán leerlo.</string>
+    <string name="share_clear_says">Este objeto viajó cifrado. Si lo comparte, saldrá sin cifrar hacia la aplicación elegida.</string>
+    <string name="share_clear_says_text">Este mensaje viajó cifrado. Si lo comparte, saldrá sin cifrar hacia la aplicación elegida.</string>
     <string name="share_clear_go">Compartir sin cifrar</string>
     <string name="save">↧ Guardar</string>
     <string name="saved">Guardado.</string>

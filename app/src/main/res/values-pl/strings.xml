@@ -45,8 +45,8 @@
     <string name="share_picture">Udostępnij zdjęcie</string>
     <string name="share_video">Udostępnij film</string>
     <string name="share_clear_title">Udostępnić bez szyfrowania?</string>
-    <string name="share_clear_says">Podróżowało zaszyfrowane. Udostępnione, wyjdzie bez szyfrowania: wybrana aplikacja i ten, kto je otrzyma, będą mogli je zobaczyć.</string>
-    <string name="share_clear_says_text">Ta wiadomość podróżowała zaszyfrowana. Udostępniona, wyjdzie bez szyfrowania: wybrana aplikacja i ten, kto ją otrzyma, będą mogli ją przeczytać.</string>
+    <string name="share_clear_says">Ten obiekt podróżował zaszyfrowany. Udostępniony, trafi bez szyfrowania do wybranej aplikacji.</string>
+    <string name="share_clear_says_text">Ta wiadomość podróżowała zaszyfrowana. Udostępniona, trafi bez szyfrowania do wybranej aplikacji.</string>
     <string name="share_clear_go">Udostępnij bez szyfrowania</string>
     <string name="save">↧ Zapisz</string>
     <string name="saved">Zapisano.</string>

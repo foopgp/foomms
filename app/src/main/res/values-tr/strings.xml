@@ -45,8 +45,8 @@
     <string name="share_picture">Fotoğrafı paylaş</string>
     <string name="share_video">Videoyu paylaş</string>
     <string name="share_clear_title">Şifresiz paylaşılsın mı?</string>
-    <string name="share_clear_says">Şifreli yolculuk etti. Paylaşılırsa şifresiz gidecek: seçtiğiniz uygulama ve onu alan kişi görebilecek.</string>
-    <string name="share_clear_says_text">Bu mesaj şifreli yolculuk etti. Paylaşılırsa şifresiz gidecek: seçtiğiniz uygulama ve onu alan kişi okuyabilecek.</string>
+    <string name="share_clear_says">Bu öğe şifreli yolculuk etti. Paylaşılırsa seçtiğiniz uygulamaya şifresiz gidecek.</string>
+    <string name="share_clear_says_text">Bu mesaj şifreli yolculuk etti. Paylaşılırsa seçtiğiniz uygulamaya şifresiz gidecek.</string>
     <string name="share_clear_go">Şifresiz paylaş</string>
     <string name="save">↧ Kaydet</string>
     <string name="saved">Kaydedildi.</string>
