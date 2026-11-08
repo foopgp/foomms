@@ -1,0 +1,10 @@
+• Mein Profil: Entwürfe und ungelesene Nachrichten, jeweils in einer eigenen Zeile, öffnen die Liste der betroffenen Unterhaltungen. Die Seite „Ungelesen“ entfällt; ihre Anzahl steht neben „Mein Profil“.
+• Langes Drücken auf eine Unterhaltung, eine Gruppe oder eines ihrer Mitglieder öffnet sein Menü.
+• Empfangene Fotos öffnen sich im Vollbild: vergrößern, verschieben, drehen.
+• Einstellungen: bis zu wie vielen SMS ein Text als SMS geht und die Größe einer MMS werden mit Schiebereglern eingestellt; was der Netzbetreiber erlaubt, wird angezeigt.
+• Verschlüsseltes bleibt standardmäßig 15 Minuten offen.
+• Eine zertifizierte Nachricht, die aber von jemand anderem als Ihrem Gegenüber signiert ist, erscheint violett, oder gelbgrün, wenn sie auch verschlüsselt ist.
+• Eine MMS, die das Telefon nicht herunterladen konnte, wird gemeldet und 7 Tage lang erneut angefordert.
+• Ein Foto oder eine Datei, die Sie verschlüsselt senden, erscheint in Ihrer Blase geöffnet, wie ihr Text.
+• Ein verschlüsselter Anhang wird unterwegs nicht mehr vom Netzbetreiber verkleinert; entfernt er einen Anhang, sagt foomms es unter der Nachricht.
+• Eine schnellere Liste und zahlreiche Korrekturen.

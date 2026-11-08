@@ -1,0 +1,10 @@
+• O meu perfil: os rascunhos e as não lidas, cada um na sua linha, abrem a lista das conversas em causa. A página das não lidas desaparece; o seu número aparece ao lado de «O meu perfil».
+• Um toque longo numa conversa, num grupo ou num dos seus membros abre o seu menu.
+• As fotos recebidas abrem em ecrã inteiro: ampliam-se, deslocam-se, rodam-se.
+• Configuração: até quantos SMS um texto sai como SMS, e o tamanho dos MMS, ajustam-se com cursores; é lembrado o que o operador permite.
+• O que está cifrado fica aberto 15 minutos por omissão.
+• Uma mensagem certificada, mas assinada por outra pessoa que não o seu interlocutor, aparece a violeta, ou a amarelo-esverdeado se também estiver cifrada.
+• Um MMS que o telefone não conseguiu descarregar é assinalado e pedido de novo durante 7 dias.
+• Uma foto ou um ficheiro que envia cifrado aparece aberto na sua bolha, como o seu texto.
+• Um anexo cifrado deixa de ser reduzido pelo caminho pelo operador; se o operador retirar um anexo, o foomms di-lo sob a mensagem.
+• Uma lista mais rápida e numerosas correções.

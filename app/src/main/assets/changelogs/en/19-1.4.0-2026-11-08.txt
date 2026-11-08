@@ -1,0 +1,10 @@
+• My profile: drafts and unread messages, each on its own line, open onto the list of the conversations concerned. The Unread page is gone; their number shows next to "My profile".
+• A long press on a conversation, a group or one of its members opens its menu.
+• Received photos open full screen: zoom in, move around, rotate.
+• Settings: how many SMS a text may take before it goes as MMS, and the size of an MMS, are set with sliders; what the carrier allows is recalled.
+• What is encrypted stays open 15 minutes by default.
+• A message certified but signed by someone other than the person you are talking to shows in violet, or in yellow-green if it is also encrypted.
+• An MMS the phone could not download is reported, and asked for again for 7 days.
+• A photo or a file you send encrypted shows open in your bubble, like its text.
+• An encrypted attachment is no longer scaled down on the way by the carrier; if the carrier removes an attachment, foomms says so under the message.
+• A faster list, and many fixes.

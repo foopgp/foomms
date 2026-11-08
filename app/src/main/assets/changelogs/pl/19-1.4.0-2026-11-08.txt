@@ -1,0 +1,10 @@
+• Mój profil: wersje robocze i nieprzeczytane, każde w osobnym wierszu, otwierają listę odpowiednich rozmów. Strona nieprzeczytanych znika; ich liczba widnieje obok „Mój profil”.
+• Długie naciśnięcie rozmowy, grupy lub jednego z jej członków otwiera jego menu.
+• Odebrane zdjęcia otwierają się na pełnym ekranie: można je powiększać, przesuwać, obracać.
+• Konfiguracja: do ilu SMS-ów tekst wychodzi jako SMS oraz rozmiar MMS ustawia się suwakami; przypomina się, na co pozwala operator.
+• To, co zaszyfrowane, pozostaje domyślnie otwarte przez 15 minut.
+• Wiadomość certyfikowana, ale podpisana przez kogoś innego niż rozmówca, wyświetla się na fioletowo, a jeśli jest też zaszyfrowana — na żółtozielono.
+• MMS, którego telefon nie zdołał pobrać, jest zgłaszany i ponownie żądany przez 7 dni.
+• Zdjęcie lub plik wysłany przez Ciebie w postaci zaszyfrowanej wyświetla się otwarty w Twoim dymku, jak jego tekst.
+• Zaszyfrowany załącznik nie jest już po drodze zmniejszany przez operatora; jeśli operator usunie załącznik, foomms mówi o tym pod wiadomością.
+• Szybsza lista i liczne poprawki.

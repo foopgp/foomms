@@ -1,0 +1,9 @@
+• Brouillons et non-lus dans Mon profil.
+• Menus par appui long.
+• Photos reçues en plein écran.
+• Limites SMS et MMS réglables.
+• 15 minutes d'ouverture par défaut.
+• Violet et jaune-vert : certifié, mais signé par un autre.
+• MMS non téléchargés signalés et redemandés.
+• Pièces jointes chiffrées gardées entières en route.
+• Pièces envoyées affichées ouvertes.
