@@ -60,7 +60,7 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
         Look.fullScreen(this)
         screen = TextureView(this).apply { surfaceTextureListener = this@WatchActivity }
         screen.setOnClickListener { val shown = over.firstOrNull()?.visibility != android.view.View.VISIBLE ; over.forEach { it.visibility = if (shown) android.view.View.VISIBLE else android.view.View.GONE } }
-        playing = knob("❚❚", R.string.listening_pause) { toggle() }
+        playing = knob("❚❚", R.string.listening_pause) { toggle() }.apply { textSize = PAUSE }
         where = SeekBar(this).apply {
             // The very orange of the signs beside it.
             progressTintList = android.content.res.ColorStateList.valueOf(Look.ORANGE)
@@ -105,32 +105,17 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
                     }.also { over += it },
                     FrameLayout.LayoutParams(-1, -2, Gravity.TOP),
                 )
-                // Play or pause, where it is, and stop at the other end: the one way out before the end, besides back.
+                // Play or pause, where it is and out of how long; below, the share and the stop side by side, centred
+                // as on a picture's page: the one way out before the end, besides back.
                 addView(
                     LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
                         setPadding(pad, pad, pad, Look.dp(context, 32))
                         background = shade(android.graphics.drawable.GradientDrawable.Orientation.BOTTOM_TOP)
-                        // The share above the pause; where it is, out of how long it lasts, above the stop, leaving the bar its width.
                         elapsed = android.widget.TextView(context).apply {
                             textSize = 13f ; setTextColor(android.graphics.Color.WHITE) ; setTypeface(typeface, android.graphics.Typeface.BOLD)
-                            gravity = Gravity.END or Gravity.BOTTOM
-                            setPadding(0, 0, 0, Look.dp(context, 4))
+                            setPadding(Look.dp(context, 4), 0, 0, 0)
                         }
-                        addView(
-                            LinearLayout(context).apply {
-                                orientation = LinearLayout.HORIZONTAL
-                                val round = Look.dp(context, 52)
-                                addView(
-                                    Look.knob(context, R.drawable.share, getString(R.string.share_video)) {
-                                        HandOut.share(this@WatchActivity, opened, intent.data, intent.getStringExtra(EXTRA_NAME) ?: "video", intent.getStringExtra(EXTRA_TYPE), intent.getBooleanExtra(EXTRA_LOCKED, false))
-                                    },
-                                    LinearLayout.LayoutParams(round, round).apply { bottomMargin = Look.dp(context, 8) },
-                                )
-                                addView(elapsed, LinearLayout.LayoutParams(0, -1, 1f))
-                            },
-                            LinearLayout.LayoutParams(-1, -2),
-                        )
                         addView(
                             LinearLayout(context).apply {
                                 orientation = LinearLayout.HORIZONTAL
@@ -138,8 +123,23 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
                                 val round = Look.dp(context, 52)
                                 addView(playing, LinearLayout.LayoutParams(round, round))
                                 addView(where, LinearLayout.LayoutParams(0, -2, 1f))
-                                addView(knob("■", R.string.listening_stop) { finish() }, LinearLayout.LayoutParams(round, round))
+                                addView(elapsed, LinearLayout.LayoutParams(-2, -2))
                             },
+                        )
+                        addView(
+                            LinearLayout(context).apply {
+                                gravity = Gravity.CENTER_HORIZONTAL
+                                setPadding(0, Look.dp(context, 12), 0, 0)
+                                val round = Look.dp(context, 64)
+                                addView(
+                                    Look.knob(context, R.drawable.share, getString(R.string.share_video)) {
+                                        HandOut.share(this@WatchActivity, opened, intent.data, intent.getStringExtra(EXTRA_NAME) ?: "video", intent.getStringExtra(EXTRA_TYPE), intent.getBooleanExtra(EXTRA_LOCKED, false))
+                                    },
+                                    LinearLayout.LayoutParams(round, round).apply { marginEnd = Look.dp(context, 24) },
+                                )
+                                addView(knob("■", R.string.listening_stop) { finish() }.apply { textSize = 26f }, LinearLayout.LayoutParams(round, round))
+                            },
+                            LinearLayout.LayoutParams(-1, -2),
                         )
                     }.also { over += it },
                     FrameLayout.LayoutParams(-1, -2, Gravity.BOTTOM),
@@ -225,12 +225,18 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
     private fun toggle() {
         val player = player ?: return
         if (player.isPlaying) player.pause() else player.start()
-        playing.text = if (player.isPlaying) "❚❚" else "▶"
+        shown(player.isPlaying)
+    }
+
+    /** Pause or play on the knob: the two bars drawn larger than the triangle, so a little smaller. */
+    private fun shown(going: Boolean) {
+        playing.text = if (going) "❚❚" else "▶"
+        playing.textSize = if (going) PAUSE else 20f
     }
 
     override fun onPause() {
         super.onPause()
-        player?.let { if (it.isPlaying) { it.pause() ; playing.text = "▶" } }
+        player?.let { if (it.isPlaying) { it.pause() ; shown(false) } }
     }
 
     override fun onDestroy() {
@@ -248,6 +254,9 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
 
         private const val EXTRA_TITLE = "title"
         private const val EXTRA_SAID = "said"
+
+        /** The pause's size: as the play's looks, not as its characters are. */
+        private const val PAUSE = 16f
         private const val EXTRA_NAME = "name"
         private const val EXTRA_TYPE = "type"
         private const val EXTRA_LOCKED = "locked"

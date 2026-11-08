@@ -45,7 +45,8 @@
     <string name="share_picture">Foto teilen</string>
     <string name="share_video">Video teilen</string>
     <string name="share_clear_title">Unverschlüsselt teilen?</string>
-    <string name="share_clear_says">Es kam verschlüsselt an. Geteilt, geht es unverschlüsselt weiter: die gewählte App und wer es erhält, können es sehen.</string>
+    <string name="share_clear_says">Es reiste verschlüsselt. Geteilt, geht es unverschlüsselt weiter: die gewählte App und wer es erhält, können es sehen.</string>
+    <string name="share_clear_says_text">Diese Nachricht reiste verschlüsselt. Geteilt, geht sie unverschlüsselt weiter: die gewählte App und wer sie erhält, können sie lesen.</string>
     <string name="share_clear_go">Unverschlüsselt teilen</string>
     <string name="save">↧ Speichern</string>
     <string name="saved">Gespeichert.</string>

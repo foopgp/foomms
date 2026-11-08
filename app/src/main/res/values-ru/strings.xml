@@ -45,7 +45,8 @@
     <string name="share_picture">Поделиться фото</string>
     <string name="share_video">Поделиться видео</string>
     <string name="share_clear_title">Поделиться без шифрования?</string>
-    <string name="share_clear_says">Оно пришло зашифрованным. Если поделиться, оно уйдёт без шифрования: выбранное приложение и тот, кто его получит, смогут его увидеть.</string>
+    <string name="share_clear_says">Оно передавалось зашифрованным. Если поделиться, оно уйдёт без шифрования: выбранное приложение и тот, кто его получит, смогут его увидеть.</string>
+    <string name="share_clear_says_text">Это сообщение передавалось зашифрованным. Если поделиться, оно уйдёт без шифрования: выбранное приложение и тот, кто его получит, смогут его прочитать.</string>
     <string name="share_clear_go">Поделиться без шифрования</string>
     <string name="save">↧ Сохранить</string>
     <string name="saved">Сохранено.</string>

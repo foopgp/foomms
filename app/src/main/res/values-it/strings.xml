@@ -45,7 +45,8 @@
     <string name="share_picture">Condividi la foto</string>
     <string name="share_video">Condividi il video</string>
     <string name="share_clear_title">Condividere in chiaro?</string>
-    <string name="share_clear_says">È arrivato cifrato. Condiviso, partirà in chiaro: l\'applicazione scelta, e chi lo riceverà, potranno vederlo.</string>
+    <string name="share_clear_says">Ha viaggiato cifrato. Condiviso, partirà in chiaro: l\'applicazione scelta, e chi lo riceverà, potranno vederlo.</string>
+    <string name="share_clear_says_text">Questo messaggio ha viaggiato cifrato. Condiviso, partirà in chiaro: l\'applicazione scelta, e chi lo riceverà, potranno leggerlo.</string>
     <string name="share_clear_go">Condividi in chiaro</string>
     <string name="save">↧ Salva</string>
     <string name="saved">Salvato.</string>

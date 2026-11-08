@@ -1360,9 +1360,15 @@ class ThreadActivity : AskingActivity() {
         }
         choices += R.string.share to {
             if (piece == null && (text.isNotEmpty() || pieces.isEmpty())) {
-                startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text), null))
+                HandOut.shareText(this, text, armorOf(line)?.let { Opened.words(it) }?.verdict?.encrypted == true)
             } else {
-                pick(pieces) { handOver(it, Intent.ACTION_SEND) }
+                pick(pieces) {
+                    val opened = Opened.piece(it.id)
+                    HandOut.share(
+                        this, opened?.bytes, if (opened == null) it.uri else null,
+                        opened?.name ?: it.name ?: "file", opened?.type ?: it.type, opened?.verdict?.encrypted == true,
+                    )
+                }
             }
         }
         choices += R.string.details to { details(line) }
@@ -1396,7 +1402,7 @@ class ThreadActivity : AskingActivity() {
                 .show()
         }
         AlertDialog.Builder(this)
-            .setItems(choices.map { getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }
+            .setItems(choices.map { if (it.first == R.string.share) HandOut.label(this, getString(it.first)) else getString(it.first) }.toTypedArray()) { _, which -> choices[which].second() }
             .show()
     }
 

@@ -45,7 +45,8 @@
     <string name="share_picture">Partager la photo</string>
     <string name="share_video">Partager la vidéo</string>
     <string name="share_clear_title">Partager en clair ?</string>
-    <string name="share_clear_says">Elle est arrivée chiffrée. Partagée, elle partira en clair : l\'application choisie, et qui la recevra, pourront la voir.</string>
+    <string name="share_clear_says">Elle a voyagé chiffrée. Partagée, elle partira en clair : l\'application choisie, et qui la recevra, pourront la voir.</string>
+    <string name="share_clear_says_text">Ce message a voyagé chiffré. Partagé, il partira en clair : l\'application choisie, et qui le recevra, pourront le lire.</string>
     <string name="share_clear_go">Partager en clair</string>
     <string name="save">↧ Enregistrer</string>
     <string name="saved">Enregistré.</string>
