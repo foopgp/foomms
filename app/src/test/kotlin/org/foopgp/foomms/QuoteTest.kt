@@ -55,4 +55,13 @@ class QuoteTest {
         assert(!Quote.split("> 18:42:07> On se voit à 18 h\nok")!!.first.part)
         assert(Quote.split("> 18:42:07> ${Quote.LOCKED}\nok")!!.first.part)
     }
+
+    @Test fun `a part's name is shortened, never its type or size`() {
+        val said = Quote.part("application/octet-stream", "sms-Association-foopgp-20261015-1501.xml", 5263, 1)
+        assertEquals(Quote.MOST, said.codePointCount(0, said.length))
+        assert(said.startsWith("application/octet-stream sms-"))
+        assert(said.endsWith("… 5263 +1"))
+        assertEquals("image/jpeg a.jpg 12", Quote.part("image/jpeg", "a.jpg", 12, 0))
+        assert(Quote.split("> 01:31:35> application/octet-stream sms-Association-foopgp-20…\nok")!!.first.part)
+    }
 }

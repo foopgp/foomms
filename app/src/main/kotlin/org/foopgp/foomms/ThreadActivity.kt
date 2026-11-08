@@ -609,12 +609,13 @@ class ThreadActivity : AskingActivity() {
         val pieces = line.pieces.filterNot { Members.isPart(it.name) }
         val first = pieces.firstOrNull() ?: return Quote.line(at, "")
         val opened = Opened.piece(first.id)
+        val more = pieces.size - 1
         val told = when {
-            opened != null -> if (opened.verdict.encrypted && !locks) Quote.LOCKED else "${opened.type} ${opened.name} ${opened.bytes.size}"
+            opened != null -> if (opened.verdict.encrypted && !locks) Quote.LOCKED else Quote.part(opened.type, opened.name, opened.bytes.size.toLong(), more)
             isSealed(first) -> Quote.LOCKED
-            else -> "${first.type} ${first.name.orEmpty()} ${runCatching { contentResolver.openFileDescriptor(first.uri, "r")?.use { it.statSize } }.getOrNull() ?: ""}"
+            else -> Quote.part(first.type, first.name.orEmpty(), runCatching { contentResolver.openFileDescriptor(first.uri, "r")?.use { it.statSize } }.getOrNull(), more)
         }
-        return Quote.line(at, told?.let { if (pieces.size > 1 && it != Quote.LOCKED) "$it +${pieces.size - 1}" else it }.orEmpty())
+        return Quote.line(at, told)
     }
 
     /** A cited message pressed: the conversation goes to it, if it is here. */

@@ -28,7 +28,8 @@ object Quote {
         val part: Boolean get() = words == LOCKED || PART.matches(words)
     }
 
-    private val PART = Regex("""^[a-z]+/[\w.+-]+ .*\d+( \+\d+)?$""")
+    /** A type first is enough: what an earlier version cut before the size is still a part's. */
+    private val PART = Regex("""^[a-z]+/[\w.+-]+( .*)?$""")
 
     private val LINE = Regex("""^> (?:(\d{4}-\d{2}-\d{2}) )?(\d{2}:\d{2}:\d{2})>(?: (.*))?$""")
 
@@ -38,6 +39,21 @@ object Quote {
         val time = SimpleDateFormat("HH:mm:ss", Locale.ROOT).format(at)
         val said = excerpt(words)
         return if (said.isEmpty()) "> $day$time>" else "> $day$time> $said"
+    }
+
+    /**
+     * A part as a reply cites it: its type, its name, its size in bytes, and "+N" for the others it came
+     * with -- the name shortened, never the rest, to stay within [MOST].
+     */
+    fun part(type: String, name: String, size: Long?, more: Int): String {
+        val tail = listOfNotNull(size?.toString(), if (more > 0) "+$more" else null).joinToString(" ")
+        val room = MOST - type.length - tail.length - 2
+        val named = when {
+            room <= 1 -> ""
+            name.codePointCount(0, name.length) <= room -> name
+            else -> name.substring(0, name.offsetByCodePoints(0, room - 1)) + "…"
+        }
+        return listOf(type, named, tail).filter { it.isNotEmpty() }.joinToString(" ")
     }
 
     /**
