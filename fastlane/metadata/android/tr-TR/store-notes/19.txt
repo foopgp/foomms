@@ -1,8 +1,10 @@
+• Bir mesajı alıntılayarak yanıtlama.
+• Tam ekrandan fotoğraf ve video paylaşma.
+• «Ara» aramayı başlatır.
 • Taslaklar ve okunmamışlar Profilim'de.
 • Uzun basışla menüler.
 • Alınan fotoğraflar tam ekranda.
 • Ayarlanabilir SMS ve MMS sınırları.
-• Varsayılan olarak 15 dakika açık.
 • Mor ve sarı-yeşil: sertifikalı, ama başkası imzalamış.
 • İndirilemeyen MMS bildirilir ve yeniden istenir.
 • Şifreli ekler yolda bütün kalır.

@@ -1,8 +1,10 @@
+• Responder a un mensaje, citándolo.
+• Compartir fotos y vídeos desde pantalla completa.
+• «Llamar» inicia la llamada.
 • Borradores y no leídos en Mi perfil.
 • Menús con pulsación larga.
 • Fotos recibidas a pantalla completa.
 • Límites de SMS y MMS ajustables.
-• 15 minutos abierto por defecto.
 • Violeta y amarillo verdoso: certificado, pero firmado por otro.
 • MMS no descargados señalados y pedidos de nuevo.
 • Adjuntos cifrados intactos por el camino.

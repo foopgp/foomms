@@ -1,8 +1,10 @@
+• Responder a uma mensagem, citando-a.
+• Partilhar fotos e vídeos do ecrã inteiro.
+• «Ligar» faz a chamada.
 • Rascunhos e não lidas em O meu perfil.
 • Menus com toque longo.
 • Fotos recebidas em ecrã inteiro.
 • Limites de SMS e MMS ajustáveis.
-• 15 minutos aberto por omissão.
 • Violeta e amarelo-esverdeado: certificada, mas assinada por outro.
 • MMS não descarregados assinalados e pedidos de novo.
 • Anexos cifrados intactos pelo caminho.

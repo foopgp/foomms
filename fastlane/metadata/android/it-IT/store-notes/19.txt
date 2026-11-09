@@ -1,8 +1,10 @@
+• Rispondere a un messaggio, citandolo.
+• Condividere foto e video dallo schermo intero.
+• «Chiama» avvia la chiamata.
 • Bozze e non letti in Il mio profilo.
 • Menu con pressione prolungata.
 • Foto ricevute a schermo intero.
 • Limiti SMS e MMS regolabili.
-• 15 minuti aperto per impostazione predefinita.
 • Viola e giallo-verde: certificato, ma firmato da un altro.
 • MMS non scaricati segnalati e richiesti di nuovo.
 • Allegati cifrati integri lungo il percorso.

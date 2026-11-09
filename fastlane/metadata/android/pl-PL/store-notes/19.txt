@@ -1,8 +1,10 @@
+• Odpowiedź na wiadomość z cytatem.
+• Udostępnianie zdjęć i filmów z pełnego ekranu.
+• „Zadzwoń” od razu dzwoni.
 • Wersje robocze i nieprzeczytane w Mój profil.
 • Menu po długim naciśnięciu.
 • Odebrane zdjęcia na pełnym ekranie.
 • Regulowane limity SMS i MMS.
-• Domyślnie 15 minut otwarte.
 • Fiolet i żółtozielony: certyfikowana, ale podpisana przez kogoś innego.
 • Niepobrane MMS zgłaszane i żądane ponownie.
 • Zaszyfrowane załączniki docierają w całości.
