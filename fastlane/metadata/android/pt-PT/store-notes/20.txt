@@ -1,0 +1,1 @@
+• Alguns operadores recusavam os MMS cifrados ou assinados desde a 1.4.0: o foomms agora nota-o e reenvia-os de imediato de outra forma.

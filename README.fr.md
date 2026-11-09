@@ -68,9 +68,11 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   vous envoyez chiffré s'affiche ouvert de même dans votre bulle. Une image
   s'affiche en petit, et s'ouvre en plein écran pour l'agrandir, la déplacer,
   la tourner ; un son se joue sur place. Un MMS qui porte une pièce chiffrée
-  ou signée interdit au réseau de l'adapter (`X-Mms-Adaptation-Allowed: No`,
-  OMA-MMS-ENC 1.3) : réduite, elle serait perdue. Si un opérateur retire tout
-  de même une pièce en route, la bulle le dit, avec les mots de l'opérateur.
+  ou signée demande au réseau de ne pas l'adapter (`X-Mms-Adaptation-Allowed:
+  No`, OMA-MMS-ENC 1.3) : réduite, elle serait perdue. Un réseau qui refuse le
+  MMS entier pour cela — Free le fait — est retenu, et le MMS repart aussitôt
+  sans le demander. Si un opérateur retire tout de même une pièce en route, la
+  bulle le dit, avec les mots de l'opérateur.
 - **Relire ce qu'on a envoyé** : un message chiffré l'est aussi pour vous,
   sauf si vous réglez que non.
 - **Appuyer pour parler** : le champ, tant qu'il est vide, maintenu enregistre
@@ -185,9 +187,10 @@ Un JDK 17 ou plus récent et le SDK Android (plateforme 36).
 
 - **Ce que les opérateurs font d'une pièce jointe.** Certains retaillent les
   images pour le téléphone qui reçoit, ou retirent une pièce trop lourde et
-  mettent un mot à sa place. Le champ `X-Mms-Adaptation-Allowed: No` a suffi
-  pour qu'une pièce chiffrée de 574 Ko arrive entière d'Orange à Free. Reste à
-  l'éprouver chez d'autres opérateurs, et de pays en pays.
+  mettent un mot à sa place. Le champ `X-Mms-Adaptation-Allowed: No`
+  (OMA-MMS-ENC 1.3) a gardé entière une pièce chiffrée de 574 Ko d'Orange à
+  Free ; envoyé par Free, un MMS qui le porte est refusé (HTTP 400). Reste à
+  l'éprouver chez d'autres opérateurs.
 - **Envoyer son certificat.** À qui a foodjis et pas encore votre
   certificat : le même MMS, avec le certificat en pièce jointe.
 - **Dire qui peut recevoir.** foodjis sait quels contacts portent un numéro ;

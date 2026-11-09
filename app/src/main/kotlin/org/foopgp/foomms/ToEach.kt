@@ -31,7 +31,7 @@ object ToEach {
                     else {
                         val transaction = Outbox.transaction()
                         val parts = listOfNotNull(one.text?.let { Pdu.Part.text(it) }, one.piece)
-                        Outbox.send(context, listOf(one.number), Pdu.send(transaction, listOf(one.number), parts), transaction, at)
+                        Outbox.send(context, listOf(one.number), Pdu.send(transaction, listOf(one.number), parts), transaction, at, sealed = parts.any { it.sealed })
                     }
                 }.onFailure { failed += one.name }
             }

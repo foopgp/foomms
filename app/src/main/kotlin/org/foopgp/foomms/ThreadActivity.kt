@@ -1101,7 +1101,7 @@ class ThreadActivity : AskingActivity() {
     private fun sendWith(with: Media.Attachment, written: String, mode: Mode) {
         fun post(words: String?, piece: Pdu.Part, verdict: Verdict?) = withMembers(listOfNotNull(words?.let { Pdu.Part.text(it) }, piece)) { parts ->
             val transaction = Outbox.transaction()
-            runCatching { Outbox.send(this, targets(), Pdu.send(transaction, targets(), parts), transaction) }
+            runCatching { Outbox.send(this, targets(), Pdu.send(transaction, targets(), parts), transaction, sealed = parts.any { it.sealed }) }
                 .onFailure { return@withMembers say(getString(R.string.failed, it.message)) }
             if (verdict != null && words != null) Opened.keep(this, words, written, null, verdict, thread = here())
             // What it carries, open as its words are, for as long.

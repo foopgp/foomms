@@ -1,0 +1,1 @@
+• Verschlüsselte oder signierte MMS wurden seit 1.4.0 von manchen Netzbetreibern abgelehnt: foomms merkt es jetzt und sendet sie sofort anders erneut.

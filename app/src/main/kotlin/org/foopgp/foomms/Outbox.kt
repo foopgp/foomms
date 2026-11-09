@@ -56,7 +56,12 @@ object Outbox {
         return set.coerceIn(STANDARD, theirs)
     }
 
-    fun send(context: Context, to: List<String>, pdu: ByteArray, transaction: String, at: Long = System.currentTimeMillis()) {
+    /**
+     * [made] sent. [sealed]: it carries a sealed part, asked to be kept whole on the way ([Pdu.whole]) unless this
+     * phone's network refused that once ([Whole]); refused now, it leaves again without asking ([Told]).
+     */
+    fun send(context: Context, to: List<String>, made: ByteArray, transaction: String, at: Long = System.currentTimeMillis(), sealed: Boolean = false) {
+        val pdu = if (sealed && Whole.taken(context)) Pdu.whole(made) else made
         // The last word on weight, whatever made the message: heavier than set, it does not leave.
         val most = heaviest(context)
         check(pdu.size <= most) { context.getString(R.string.too_heavy_sent, (pdu.size + 1023) / 1024, most / 1024) }
@@ -184,10 +189,24 @@ object Outbox {
     class Told : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val transaction = intent.getStringExtra(EXTRA_TRANSACTION) ?: return
-            file(context, transaction).delete()
+            val gone = resultCode == android.app.Activity.RESULT_OK
+            // Refused while asking to be kept whole: this network will not have it. Never asked of it again, and the
+            // same message sent at once without asking -- not a refusal for the person to see.
+            val sent = file(context, transaction)
+            if (!gone && resultCode == SmsManager.MMS_ERROR_HTTP_FAILURE && sent.isFile && Pdu.isWhole(sent.readBytes())) {
+                Whole.refused(context)
+                sent.writeBytes(Pdu.unwhole(sent.readBytes()))
+                val again = PendingIntent.getBroadcast(
+                    context, transaction.hashCode(),
+                    Intent(context, Told::class.java).putExtra(EXTRA_TRANSACTION, transaction).putExtra(EXTRA_WRITTEN, intent.getStringExtra(EXTRA_WRITTEN)),
+                    PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0),
+                )
+                val from = Uri.parse("content://${context.packageName}.pdu/$transaction")
+                if (runCatching { manager(context).sendMultimediaMessage(context, from, null, null, again) }.isSuccess) return
+            }
+            sent.delete()
             // An answer to the operator's server, not a message: nothing to mark, nothing to say.
             if (intent.getBooleanExtra(EXTRA_QUIET, false)) return
-            val gone = resultCode == android.app.Activity.RESULT_OK
             // Refused: certainly not sent, and marked so where it is kept. Taken, it is not known to have arrived.
             if (!gone) intent.getStringExtra(EXTRA_WRITTEN)?.let { kept ->
                 val where = Uri.parse(kept)

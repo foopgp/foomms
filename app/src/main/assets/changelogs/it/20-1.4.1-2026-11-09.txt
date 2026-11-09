@@ -1,0 +1,1 @@
+• Alcuni operatori rifiutavano gli MMS cifrati o firmati dalla 1.4.0: ora foomms se ne accorge e li rinvia subito in un altro modo.
