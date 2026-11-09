@@ -45,17 +45,29 @@ class Provider(private val context: Context) {
 
     private fun whom(): ComponentName? = whom(context)
 
+    /**
+     * Those waiting for the link being made: one link for all the questions asked meanwhile. Each made its own,
+     * and all but the last were never let go -- foodjis kept alive, Android warning of leaked connections.
+     */
+    private var waiting: MutableList<(IOpenPgpService2?) -> Unit>? = null
+
+    /** The link made, or not, told to all who waited: once. Main thread. */
+    private fun tell(door: IOpenPgpService2?) {
+        val all = waiting ?: return
+        waiting = null
+        all.forEach { it(door) }
+    }
+
     private fun bound(then: (IOpenPgpService2?) -> Unit) {
         door?.let { return then(it) }
+        waiting?.let { it += then ; return }
         val to = whom() ?: return then(null)
-        var told = false
+        waiting = mutableListOf(then)
         val link = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName, binder: IBinder) {
                 door = IOpenPgpService2.Stub.asInterface(binder)
-                // Connected again after foodjis died and came back: the question was answered, or failed, long ago.
-                if (told) return
-                told = true
-                then(door)
+                // Connected again after foodjis died and came back: those questions were answered, or failed, long ago.
+                tell(door)
             }
             override fun onServiceDisconnected(name: ComponentName) { door = null }
 
@@ -63,9 +75,14 @@ class Provider(private val context: Context) {
             // back. Kept, every question after it failed with DeadObjectException until foomms was started
             // again; forgotten, the next question binds to the new foodjis.
             override fun onBindingDied(name: ComponentName) = forget()
+
+            // foodjis answering the link with nothing: no service to speak to.
+            override fun onNullBinding(name: ComponentName) { forget() ; tell(null) }
         }
         bond = link
-        if (!context.bindService(Intent(SERVICE).setComponent(to), link, Context.BIND_AUTO_CREATE)) then(null)
+        if (!context.bindService(Intent(SERVICE).setComponent(to), link, Context.BIND_AUTO_CREATE)) { bond = null ; tell(null) ; return }
+        // Never connected: said to whoever waits, rather than waited for for ever.
+        main.postDelayed({ if (door == null && waiting != null) { forget() ; tell(null) } }, TIMEOUT)
     }
 
     private fun forget() {
@@ -87,10 +104,15 @@ class Provider(private val context: Context) {
     private fun asked(request: Intent, input: ByteArray?, then: (Answer) -> Unit, again: Boolean) {
         bound { door ->
             if (door == null) return@bound then(Answer.Failed(context.getString(R.string.no_provider)))
+            // Answered once: by foodjis, or, past [TIMEOUT] of silence, by its not answering.
+            var told = false
+            main.postDelayed({ if (!told) { told = true ; then(Answer.Failed(context.getString(R.string.no_provider))) } }, ANSWER_TIMEOUT)
             thread {
                 val tried = runCatching { exchange(door, request, input) }
                 val gone = tried.exceptionOrNull() is DeadObjectException
                 main.post {
+                    if (told) return@post
+                    told = true
                     when {
                         gone && again -> { forget() ; asked(request, input, then, again = false) }
                         gone -> { forget() ; then(Answer.Failed(context.getString(R.string.no_provider))) }
@@ -115,9 +137,11 @@ class Provider(private val context: Context) {
             thread { runCatching { ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]).use { it.write(bytes) } } }
             pipe[0]
         }
-        val says = door.execute(request, sent, id)
-        sent?.close()
+        // The pipe let go whatever happens: left open on a failed call, its writer waited for ever.
+        val says = try { door.execute(request, sent, id) } finally { runCatching { sent?.close() } }
         reading?.join(TIMEOUT)
+        // Not all read in time: an answer cut short is no answer, whatever its signature said.
+        if (reading?.isAlive == true) return Answer.Failed(context.getString(R.string.no_provider))
         says.setExtrasClassLoader(OpenPgpError::class.java.classLoader)
         return when (says.getIntExtra(RESULT_CODE, RESULT_CODE_ERROR)) {
             RESULT_CODE_SUCCESS -> Answer.Done(out.toByteArray(), says)
@@ -151,11 +175,19 @@ class Provider(private val context: Context) {
         private fun preferred(context: Context): List<String> =
             if (context.packageName.endsWith(".dev")) listOf(FOODJIS_DEV, FOODJIS) else listOf(FOODJIS)
 
+        /**
+         * The foodjis to speak to: of those this build would rather, the ones signed by the very key foomms is
+         * signed with -- the same, by the stores' rules -- and no other. A package name is anyone's to take: an
+         * application installed under foodjis's would otherwise be handed the texts to lock, and could answer
+         * "certified" for whatever it liked.
+         */
         fun whom(context: Context): ComponentName? {
             val preferred = preferred(context)
-            return context.packageManager.queryIntentServices(Intent(SERVICE), 0)
+            val manager = context.packageManager
+            return manager.queryIntentServices(Intent(SERVICE), 0)
                 .map { it.serviceInfo }
                 .filter { it.packageName in preferred }
+                .filter { manager.checkSignatures(context.packageName, it.packageName) == android.content.pm.PackageManager.SIGNATURE_MATCH }
                 .minByOrNull { preferred.indexOf(it.packageName) }
                 ?.let { ComponentName(it.packageName, it.name) }
         }
@@ -163,11 +195,6 @@ class Provider(private val context: Context) {
         /** The package of the foodjis spoken to: the one found, or the one this build would rather have. */
         fun foodjis(context: Context): String = whom(context)?.packageName ?: preferred(context).first()
 
-        /**
-         * Nobody to speak to: the way to install foodjis, the published one,
-         * which a trial build of ours speaks to as well -- the store's page,
-         * or that page on the web when the phone has no store.
-         */
         /**
          * The version of the foodjis spoken to, when it is older than the one
          * this build needs -- 1.5.0, the first to lay a signature made already
@@ -183,6 +210,11 @@ class Provider(private val context: Context) {
         const val NEEDED_CODE = 54L
         const val NEEDED_NAME = "1.5.0"
 
+        /**
+         * Nobody to speak to: the way to install foodjis, the published one,
+         * which a trial build of ours speaks to as well -- the store's page,
+         * or that page on the web when the phone has no store.
+         */
         fun install(context: Context) {
             val wanted = FOODJIS
             runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("market://details?id=$wanted"))) }
@@ -226,11 +258,27 @@ class Provider(private val context: Context) {
         const val RESULT_ERROR = "error"
         const val RESULT_INTENT = "intent"
         const val RESULT_SIGNATURE = "signature"
+        const val RESULT_DECRYPTION = "decryption"
+
+        /**
+         * Whether what foodjis answered was encrypted: as it says, or as [guess] -- foomms's own reading of the
+         * armor -- says, either being enough. A message held for not encrypted is never closed again, and a
+         * notification may say its words: foomms's reading alone, of an armor a network bent, could miss one.
+         */
+        fun encrypted(answer: Answer.Done, guess: Boolean): Boolean {
+            answer.says.setExtrasClassLoader(org.openintents.openpgp.OpenPgpDecryptionResult::class.java.classLoader)
+            @Suppress("DEPRECATION")
+            val said = answer.says.getParcelableExtra<org.openintents.openpgp.OpenPgpDecryptionResult>(RESULT_DECRYPTION)?.result
+            return guess || said == org.openintents.openpgp.OpenPgpDecryptionResult.RESULT_ENCRYPTED
+        }
         const val RESULT_CODE_ERROR = 0
         const val RESULT_CODE_SUCCESS = 1
         const val RESULT_CODE_USER_INTERACTION_REQUIRED = 2
 
         private const val TIMEOUT = 20_000L
+
+        /** How long foodjis may take to answer a question -- not a screen it shows, which answers at once. */
+        private const val ANSWER_TIMEOUT = 60_000L
         private val pipes = AtomicInteger()
     }
 }

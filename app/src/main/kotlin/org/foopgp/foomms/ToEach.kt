@@ -29,7 +29,7 @@ object ToEach {
                 runCatching {
                     if (!mms) Outbox.text(context, one.number, one.text.orEmpty(), at)
                     else {
-                        val transaction = "T" + java.lang.Long.toHexString(System.nanoTime())
+                        val transaction = Outbox.transaction()
                         val parts = listOfNotNull(one.text?.let { Pdu.Part.text(it) }, one.piece)
                         Outbox.send(context, listOf(one.number), Pdu.send(transaction, listOf(one.number), parts), transaction, at)
                     }

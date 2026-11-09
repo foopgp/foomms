@@ -25,6 +25,9 @@
     <uses-feature android:name="android.hardware.location" android:required="false" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
+    <!-- "Call" in a conversation's menu places the call the person asked for;
+         without it, the dialler only opens with the number. -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
     <!-- A few words spoken, while a finger stays on the empty field. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- Filming a short video for an MMS. -->
@@ -55,6 +58,7 @@
     </queries>
 
     <application
+        android:name=".FoommsApp"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
@@ -114,6 +118,12 @@
         <!-- Turned with the phone, it goes on playing: not rebuilt, the video in memory is not lost. -->
         <activity
             android:name=".WatchActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize" />
+
+        <!-- A picture on the whole screen: turned with the phone, not rebuilt, the picture in memory is not lost. -->
+        <activity
+            android:name=".PictureActivity"
             android:exported="false"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize" />
 
@@ -177,6 +187,8 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".Inbound$Fetched" android:exported="false" />
+        <!-- An MMS not fetched, its notification pressed: asked for again. -->
+        <receiver android:name=".Unfetched$Again" android:exported="false" />
         <service
             android:name=".Listening"
             android:exported="false"

@@ -7,7 +7,6 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextUtils
 import android.text.TextWatcher
-import android.text.format.DateUtils
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
@@ -18,10 +17,10 @@ import kotlin.concurrent.thread
 
 /**
  * Looking for someone, or for a message by its words. From the list of
- * conversations it looks first in the contacts -- all of them, those one has
- * never written to as well -- each with its button to write; a selector beside
- * the field turns it to the conversations, and the page keeps the choice.
- * From a conversation it looks in that one only. A PGP message is found by
+ * conversations it looks, as chosen there ([Searching]), in the contacts --
+ * all of them, those one has never written to as well, each with its button
+ * to write -- or in the conversations. From a conversation it looks in that
+ * one only. A PGP message is found by
  * what it says only while it is open; closed, nobody here knows what it says.
  */
 class SearchActivity : Activity() {
@@ -32,7 +31,10 @@ class SearchActivity : Activity() {
     /** Of the results, those that stand for a message sent to each of several: whom it went to. */
     private var alongside: Map<Store.Hit, List<String>> = emptyMap()
     private val names = HashMap<String, String>()
-    private var turn = 0
+    @Volatile private var turn = 0
+
+    /** The looking for what was typed, waiting for the typing to pause. */
+    private var looking: Runnable? = null
 
     /** Somebody one can write to, as the page of a new message shows them. */
     private class Whom(
@@ -61,7 +63,14 @@ class SearchActivity : Activity() {
             setSingleLine()
             addTextChangedListener(
                 object : TextWatcher {
-                    override fun afterTextChanged(text: Editable?) = look(text.toString())
+                    // Once the typing pauses, not at every letter: each looking read up to two hundred contacts,
+                    // their faces and their certificates, and those of the letters before went on for nothing.
+                    override fun afterTextChanged(text: Editable?) {
+                        val typed = text.toString()
+                        removeCallbacks(looking)
+                        looking = Runnable { if (!isFinishing && !isDestroyed) look(typed) }
+                        postDelayed(looking, TYPING_PAUSE_MS)
+                    }
                     override fun beforeTextChanged(text: CharSequence?, start: Int, count: Int, after: Int) = Unit
                     override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) = Unit
                 },
@@ -132,6 +141,8 @@ class SearchActivity : Activity() {
             Phone.plain(typed)?.let { found += Whom(it, it, null, typed = true) }
             if (checkSelfPermission(android.Manifest.permission.READ_CONTACTS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
                 for (one in Book.find(this, typed, MOST_CONTACTS)) {
+                    // Something else typed since: what this looking would find is not wanted any more.
+                    if (mine != turn) return@thread
                     if (found.any { Phone.same(it.number, one.number) }) continue
                     val person = Book.who(this, one.number)
                     val face = person?.let { Book.face(this, it) } ?: person?.fingerprint?.let { foodjis.face(it) }
@@ -215,7 +226,7 @@ class SearchActivity : Activity() {
             val who = hit.number?.let { synchronized(names) { names[it] } ?: it } ?: getString(R.string.unknown_number)
             val many = alongside[hit]
             val about = (if (many != null) getString(R.string.sent_to_each, many.size) else getString(if (hit.incoming) R.string.hit_from else R.string.hit_to, who)) + "  ·  " +
-                DateUtils.getRelativeTimeSpanString(hit.at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL)
+                Look.ago(hit.at)
             return LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 val pad = Look.dp(context, 10)
@@ -231,6 +242,9 @@ class SearchActivity : Activity() {
     }
 
     companion object {
+        /** How long the typing pauses before what is typed is looked for. */
+        private const val TYPING_PAUSE_MS = 250L
+
         /** The conversation to look in; none, and every conversation is looked in. */
         const val EXTRA_NUMBER = "number"
 

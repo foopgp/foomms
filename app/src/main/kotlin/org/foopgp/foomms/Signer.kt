@@ -66,7 +66,7 @@ object Signer {
         val certified = signature?.result == OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED
         val signer = signature?.takeIf { it.result != OpenPgpSignatureResult.RESULT_NO_SIGNATURE }
         Opened.keep(
-            context, armor, String(answer.bytes, Charsets.UTF_8), of(signature), Verdict.of(Pgp.isLocked(armor), certified),
+            context, armor, String(answer.bytes, Charsets.UTF_8), of(signature), Verdict.of(Provider.encrypted(answer, Pgp.isLocked(armor)), certified),
             signer = signer?.keyId, eid = signer?.let { eid(it) }, thread = thread,
         )
         return signature

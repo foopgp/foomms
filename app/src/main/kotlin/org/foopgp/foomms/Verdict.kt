@@ -16,7 +16,15 @@ enum class Verdict(val encrypted: Boolean, val certified: Boolean) {
     GREEN(true, true),
 
     /** A PGP message not yet opened: what it is worth is in what the key will say. */
-    GREY(true, false);
+    GREY(true, false),
+
+    /**
+     * Received, and certified -- but signed by somebody else than whom the conversation is with: a message
+     * forwarded, or passed off as theirs. In clear, violet; encrypted, yellow-green -- each its own shade, not
+     * the marks' of the same names. Few read "signed by"; everybody sees a colour.
+     */
+    VIOLET(false, true),
+    OLIVE(true, true);
 
     companion object {
         fun of(encrypted: Boolean, certified: Boolean): Verdict = when {
@@ -24,6 +32,18 @@ enum class Verdict(val encrypted: Boolean, val certified: Boolean) {
             encrypted -> YELLOW
             certified -> BLUE
             else -> RED
+        }
+
+        /**
+         * [verdict] of a message received in a conversation with the certificates whose primary keys are
+         * [whose], signed by [signer]'s: blue or green only when the signer is one of them -- with none tied to the
+         * number, nobody says the signer is whom one writes with.
+         */
+        fun received(verdict: Verdict, signer: Long?, whose: Collection<Long>): Verdict = when {
+            !verdict.certified || (signer != null && signer in whose) -> verdict
+            verdict == GREEN -> OLIVE
+            verdict == BLUE -> VIOLET
+            else -> verdict
         }
     }
 }
@@ -78,7 +98,7 @@ object Opened {
             .joinToString("") { "%02x".format(it) }.take(32)
 
     /** How long what was encrypted stays open after the last opening, in milliseconds. */
-    @Volatile var holdFor: Long = 5 * 60_000L
+    @Volatile var holdFor: Long = Conf.USUAL_HOLD.seconds * 1000L
 
     /** When something encrypted was last opened, conversation by conversation. */
     private val lastOpened = HashMap<Long, Long>()
@@ -209,6 +229,35 @@ object Opened {
         if (verdict.encrypted) synchronized(lastOpened) { lastOpened[thread] = now }
         forgetOld(context)
     }
+
+    /**
+     * What was just sent, kept open as it left: the phone's store numbers its
+     * part only once it holds it, so it waits under a number of its own,
+     * found again by what was sealed ([claim]). Closed with its conversation
+     * in the meantime, it is not found again.
+     */
+    fun keepSent(
+        context: Context, sealed: ByteArray, type: String, name: String, bytes: ByteArray, verdict: Verdict,
+        thread: Long = NO_THREAD, now: Long = System.currentTimeMillis(),
+    ) {
+        val waiting = synchronized(sent) { sent.getOrPut(digest(sealed)) { --unnumbered } }
+        keepPiece(context, waiting, type, name, bytes, verdict, thread = thread, now = now)
+    }
+
+    /** The part [part] of the store, if it is what was just sent ([sealed]): open under its number from now. */
+    fun claim(part: Long, sealed: ByteArray): Piece? {
+        val waiting = synchronized(sent) { sent.remove(digest(sealed)) } ?: return null
+        return synchronized(pieces) { pieces.remove(waiting)?.also { pieces[part] = it } }
+    }
+
+    /** What was sent and not yet found in the store, by what it was sealed as. */
+    private val sent = HashMap<String, Long>()
+
+    /** Numbers below any the store gives, for what waits to be found there. */
+    private var unnumbered = NO_THREAD
+
+    private fun digest(bytes: ByteArray): String =
+        MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
 
     @Suppress("UNUSED_PARAMETER")
     fun pieceVerdict(context: Context, part: Long): Verdict? = piece(part)?.verdict

@@ -1,0 +1,13 @@
+• Mon profil : les brouillons et les non-lus, chacun sur sa ligne, s'ouvrent sur la liste des conversations concernées. La page des non-lus disparaît ; leur nombre s'affiche à côté de « Mon profil ».
+• Un appui long sur une conversation, un groupe ou l'un de ses membres ouvre son menu.
+• Les photos reçues s'ouvrent en plein écran : on les agrandit, on les déplace, on les tourne.
+• Configuration : jusqu'à combien de SMS un texte part en SMS, et la taille des MMS, se règlent par des curseurs ; ce que permet l'opérateur est rappelé.
+• Ce qui est chiffré reste ouvert 15 minutes par défaut.
+• Un message certifié, mais signé par un autre que votre correspondant, s'affiche en violet, ou en jaune-vert s'il est aussi chiffré.
+• Un MMS que le téléphone n'a pas pu télécharger est signalé, et redemandé pendant 7 jours.
+• Une photo ou un fichier que vous envoyez chiffré s'affiche ouvert dans votre bulle, comme son texte.
+• Une pièce jointe chiffrée n'est plus réduite en route par l'opérateur ; s'il retire une pièce jointe, foomms le dit sous le message.
+• Partager une photo ou une vidéo depuis son plein écran ; si elle est arrivée chiffrée, foomms prévient d'abord qu'elle partira en clair.
+• Répondre à un message, en glissant sa bulle vers la droite ou par l'appui long : la réponse commence par une ligne qui le cite — son heure et ses premiers mots —, lisible sur tout téléphone ; un appui sur la citation y ramène.
+• « Appeler le … », dans le menu d'une conversation, lance l'appel directement, une fois que vous l'avez permis ; sinon, le numéro s'affiche dans le composeur, comme avant.
+• Une liste plus rapide, et de nombreuses corrections.

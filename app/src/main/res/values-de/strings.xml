@@ -9,6 +9,7 @@
     <string name="sent">Nachricht gesendet.</string>
     <string name="not_sent">Nachricht nicht gesendet (%1$d).</string>
     <string name="refused">⚠ Nicht gesendet: vom Netz abgelehnt</string>
+    <string name="stripped">⚠ Das Netz hat den Anhang unterwegs entfernt: „%1$s“</string>
     <string name="no_provider">foodjis ist nicht installiert oder antwortet nicht.</string>
     <string name="failed">%1$s</string>
     <string name="signed_certified">Signiert von %1$s, beglaubigt.</string>
@@ -29,6 +30,7 @@
     <string name="tie_ask">%1$s ist %2$s?</string>
     <string name="tie_write">Eintragen</string>
     <string name="channel_messages">Nachrichten</string>
+    <string name="mms_unfetched">MMS nicht heruntergeladen. Zum erneuten Versuch tippen.</string>
     <string name="not_default">Die Nachrichten-App des Telefons empfängt und speichert die Nachrichten weiterhin. foomms kann an ihre Stelle treten: Android wird Sie fragen.</string>
     <string name="become_default">foomms zur Nachrichten-App machen</string>
     <string name="configure">⚙️ Konfiguration</string>
@@ -40,6 +42,15 @@
     <string name="locked_for">⚿ Verschlüsselte Nachricht für</string>
     <string name="piece_for">für</string>
     <string name="share">⤴ Teilen</string>
+    <string name="reply">↩ Antworten</string>
+    <string name="reply_drop">Nicht mehr auf diese Nachricht antworten</string>
+    <string name="quote_gone">Die zitierte Nachricht ist nicht in dieser Unterhaltung</string>
+    <string name="share_picture">Foto teilen</string>
+    <string name="share_video">Video teilen</string>
+    <string name="share_clear_title">Unverschlüsselt teilen?</string>
+    <string name="share_clear_says">Dieses Objekt reiste verschlüsselt. Geteilt, geht es unverschlüsselt an die gewählte App.</string>
+    <string name="share_clear_says_text">Diese Nachricht reiste verschlüsselt. Geteilt, geht sie unverschlüsselt an die gewählte App.</string>
+    <string name="share_clear_go">Unverschlüsselt teilen</string>
     <string name="save">↧ Speichern</string>
     <string name="saved">Gespeichert.</string>
     <string name="conf_theme">Design</string>
@@ -123,15 +134,10 @@
     <string name="tie_ask_after">. Dies wird in Ihr Adressbuch eingetragen, wo der Kontakt es noch nicht enthält:</string>
     <string name="whom_hint">Ein Name oder eine Telefonnummer</string>
     <string name="mark_all_read">○ Alle als gelesen markieren</string>
-    <string name="mark_all_read_ask">Die %1$d ungelesenen Nachrichten als gelesen markieren?</string>
     <string name="mark_read">○ Als gelesen markieren</string>
     <string name="mark_unread">● Als ungelesen markieren</string>
     <string name="count_detail">%1$d Nachrichten: %2$d SMS + %3$d MMS\ndavon %4$d PGP: %5$d SMS + %6$d MMS\n%9$d empfangen: %13$d SMS + %14$d MMS\n%10$d gesendet: %15$d SMS + %16$d MMS\n\n%7$d Unterhaltungen: %11$d Einzel- + %12$d Gruppenunterhaltungen</string>
     <string name="count_bytes">%1$s Bytes</string>
-    <plurals name="count_detail_unread_rest">
-        <item quantity="one">, davon %1$d PGP, in %2$d Unterhaltung.</item>
-        <item quantity="other">, davon %1$d PGP, in %2$d Unterhaltungen.</item>
-    </plurals>
     <string name="switch_sign">Signieren</string>
     <string name="switch_lock">Verschlüsseln</string>
     <string name="cert_show">🔑 Zertifikat anzeigen</string>
@@ -151,9 +157,7 @@
     <string name="place_off">Die Standortbestimmung des Telefons ist ausgeschaltet.</string>
     <string name="place_seeking">Standort wird ermittelt…</string>
     <string name="place_none">Das Telefon kennt seinen Standort gerade nicht.</string>
-    <string name="backup_all">Sicherung</string>
-    <string name="backup_one">💾 Diese Unterhaltung sichern</string>
-    <string name="backup_about">Alle Unterhaltungen werden in einer XML-Datei gesichert. PGP-Nachrichten bleiben, wie sie übertragen wurden: verschlüsselt.</string>
+    <string name="backup_one">💾 Die Unterhaltung sichern</string>
     <string name="backup_save">Alles sichern</string>
     <string name="backup_restore">Eine Sicherung wiederherstellen</string>
     <string name="backup_working">In Arbeit…</string>
@@ -220,19 +224,24 @@
     <string name="listening_play">Abspielen</string>
     <string name="listening_pause">Pause</string>
     <string name="listening_stop">Beenden</string>
-    <string name="conf_mms_size">Grenze des Betreibers verwenden: %1$d kB, also %2$d kB nutzbar</string>
-    <string name="conf_mms_size_note">MMS sind meist auf %1$d kB begrenzt, also %2$d kB nutzbar. Ihr Betreiber bietet vielleicht mehr, doch der Betreiber des Empfängers kann so großzügige MMS ablehnen.</string>
+    <string name="conf_mms_size">MMS-Größengrenze</string>
+    <string name="conf_mms_size_note">MMS sind meist auf %1$d kB begrenzt.</string>
+    <string name="conf_mms_size_more">Ihr Betreiber gibt %1$d kB an, aber der Ihres Gegenübers lehnt so großzügige MMS womöglich ab.</string>
+    <string name="conf_mms_size_theirs">Ihr Betreiber gibt %1$d kB an.</string>
+    <string name="conf_operator_none">Ihr Betreiber gibt seine Grenze nicht an.</string>
+    <string name="conf_mms_size_margin">Von der gewählten Grenze sind %1$d kB für den Umschlag der Nachricht und die Verschlüsselung reserviert.</string>
+    <string name="conf_kb">%1$d kB</string>
     <string name="too_heavy_sent">Diese Nachricht wiegt %1$d kB, mehr als die für MMS festgelegten %2$d kB: Sie wurde nicht gesendet.</string>
     <string name="watch_turn">Video um eine Vierteldrehung drehen</string>
+    <string name="picture_turn">Bild um eine Vierteldrehung drehen</string>
+    <string name="picture_close">Bild schließen</string>
     <string name="video_camera">Kamera hinten oder vorne</string>
     <string name="video_light">Licht</string>
     <string name="video_sound">Nur Ton (%1$s)</string>
     <!-- The three pages of the list, and what each counts under its name. -->
     <string name="page_talks">Unterhaltungen</string>
-    <string name="page_unread">Ungelesen</string>
-    <string name="page_unread_n">Ungelesen (%1$d)</string>
-    <string name="page_groups">MMS-Gruppen</string>
     <string name="page_profile">Mein Profil</string>
+    <string name="page_profile_n">Mein Profil (%1$d)</string>
     <string name="me_wizard_title">Welche Kontaktkarte ist Ihre?</string>
     <string name="me_wizard_text">Sagen Sie foomms, welche Kontaktkarte Ihre ist: Sie steht in Gruppen für Sie, mit Ihrer Nummer und Ihrem Zertifikat. Sie können sie unter „Mein Profil“ ändern.</string>
     <string name="me_wizard_choose">Meine Karte wählen</string>
@@ -245,9 +254,13 @@
         <item quantity="one">%d ungelesene Nachricht</item>
         <item quantity="other">%d ungelesene Nachrichten</item>
     </plurals>
-    <plurals name="groups_n">
-        <item quantity="one">%d Gruppe</item>
-        <item quantity="other">%d Gruppen</item>
+    <plurals name="count_detail_unread_rest">
+        <item quantity="one">, davon %1$d PGP, in %2$d Unterhaltung.</item>
+        <item quantity="other">, davon %1$d PGP, in %2$d Unterhaltungen.</item>
+    </plurals>
+    <plurals name="unread_short">
+        <item quantity="one">%d ungelesen</item>
+        <item quantity="other">%d ungelesen</item>
     </plurals>
     <plurals name="group_members">
         <item quantity="one">%d Mitglied</item>
@@ -292,7 +305,10 @@
         <item quantity="one">%d Entwurf</item>
         <item quantity="other">%d Entwürfe</item>
     </plurals>
-    <string name="clear_drafts">Alle Entwürfe löschen</string>
+    <string name="clear_drafts">Entwürfe löschen</string>
+    <string name="clear_draft">Löschen</string>
+    <string name="see_unread">Ungelesene ansehen</string>
+    <string name="see_unread_one">Ansehen</string>
     <plurals name="clear_drafts_ask">
         <item quantity="one">%d Entwurf löschen? Sein Text geht verloren.</item>
         <item quantity="other">Die %d Entwürfe löschen? Ihr Text geht verloren.</item>
@@ -305,10 +321,14 @@
     <string name="all_contacts">Alle Kontakte (%1$d)</string>
     <string name="conf_group_most">Grenze für Gruppen-MMS</string>
     <string name="conf_group_most_note">MMS sind meist auf 20 Empfänger begrenzt. Manche Netzbetreiber nehmen weit mehr an, einige wenige nur zehn.</string>
+    <string name="conf_group_most_operator">Ihr Betreiber gibt %1$d Empfänger an.</string>
+    <string name="conf_sms_most">Grenze für lange Texte per SMS</string>
+    <string name="conf_sms_most_note">7 SMS sind die größte Länge, die fast überall durchkommt. Manche Netze nehmen weit mehr an, und es hängt auch vom Netz des Empfängers ab. Darüber geht der Text als MMS oder, wenn das Senden von MMS aus ist, fragt foomms Sie zuerst.</string>
+    <string name="conf_sms_most_operator">Ihr Betreiber gibt %1$d an.</string>
     <string name="group_over">Diese Gruppe hat %1$d Mitglieder, Sie eingeschlossen, über der in der Konfiguration festgelegten Grenze von %2$d: Das Netz könnte die Nachricht ablehnen oder sie jedem einzeln zustellen.</string>
     <string name="group_over_send">Trotzdem senden</string>
     <string name="conf_mms_on">Senden von MMS erlauben</string>
-    <string name="conf_mms_on_note">Ermöglicht Gruppennachrichten, Texte über 8 SMS, Sprachnachrichten, Fotos oder kurze Videos. Von einem Betreiber zum anderen kommt eine MMS weniger sicher an als eine SMS, und manche Tarife berechnen sie. Andere Netzbetreiber unterstützen gar keine MMS, was Internet-Messengern und damit der globalen Überwachung zugutekommt.</string>
+    <string name="conf_mms_on_note">Ermöglicht Gruppennachrichten, lange Texte, Sprachnachrichten, Fotos oder kurze Videos. Von einem Betreiber zum anderen kommt eine MMS weniger sicher an als eine SMS, und manche Tarife berechnen sie. Andere Netzbetreiber unterstützen gar keine MMS, was Internet-Messengern und damit der globalen Überwachung zugutekommt.</string>
     <string name="mms_off">Das Senden von MMS ist in der Konfiguration nicht erlaubt: weder Anhang noch Sprachnachricht noch Gruppen-MMS.</string>
     <string name="many_sms">Diese Nachricht geht als %1$d SMS: Manche Telefone setzen sie schlecht zusammen, und Ihr Netz kann jede einzeln berechnen.</string>
 </resources>

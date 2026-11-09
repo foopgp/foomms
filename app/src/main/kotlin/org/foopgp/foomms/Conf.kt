@@ -39,7 +39,10 @@ object Conf {
 
     fun theme(context: Context, theme: Theme) = kept(context).edit().putString("theme", theme.name).apply()
 
-    fun hold(context: Context): Hold = named(kept(context).getString("hold", null), Hold.FIVE_MINUTES)
+    /** How long what was opened stays open unless the person said otherwise: the setting's own, and the store's ([Opened]). */
+    val USUAL_HOLD = Hold.FIFTEEN_MINUTES
+
+    fun hold(context: Context): Hold = named(kept(context).getString("hold", null), USUAL_HOLD)
 
     fun hold(context: Context, hold: Hold) = kept(context).edit().putString("hold", hold.name).apply()
 
@@ -62,17 +65,38 @@ object Conf {
      * one, and only when MMS may be sent. SMS arrive where MMS sometimes do
      * not -- from one network to another --, and a few of them are no burden.
      */
-    fun asMms(context: Context, pieces: Int): Boolean = asMms(mms(context), pieces)
+    fun asMms(context: Context, pieces: Int): Boolean = asMms(mms(context), pieces, smsMost(context))
 
-    fun asMms(mms: Boolean, pieces: Int): Boolean = mms && pieces > SMS_MOST
+    fun asMms(mms: Boolean, pieces: Int, most: Int = SMS_MOST): Boolean = mms && pieces > most
 
-    /** The most SMS a text leaves in when it could be an MMS. */
+    /**
+     * The most SMS a text leaves in: beyond, an MMS when MMS may be sent, and
+     * otherwise the person asked first -- some phones put many back together
+     * badly, and each may be charged. Seven passes almost everywhere; what a
+     * message can be also depends on the network it arrives on, which
+     * nothing here knows ahead.
+     */
+    fun smsMost(context: Context): Int = kept(context).getInt("sms_most", SMS_MOST).coerceIn(SMS_LEAST, SMS_MOST_EVER)
+
+    fun smsMost(context: Context, most: Int) = kept(context).edit().putInt("sms_most", most.coerceIn(SMS_LEAST, SMS_MOST_EVER)).apply()
+
     const val SMS_MOST = 7
+    const val SMS_LEAST = 1
 
-    /** Beyond this many SMS, the person is asked first: some phones put many back together badly, and each may be charged. */
-    const val MANY_SMS = 10
+    /**
+     * The longest text foodjis still shows as text is 8 KiB of armor
+     * (Envelope.MOST_TEXT); past it, a file. Armor is ASCII, 153 characters
+     * to each SMS of a long one (3GPP TS 23.040 §9.2.3.24.1): 53 SMS, kept
+     * round at 32.
+     */
+    const val SMS_MOST_EVER = 32
 
-    /** Send MMS as heavy as the operator says it takes, beyond the standard's 300 kB. */
+    /** What an MMS may weigh, in kB, as the person set it; heard only where the operator says it takes more than the standard. */
+    fun mmsSize(context: Context): Int? = kept(context).getInt("mms_size", 0).takeIf { it > 0 }
+
+    fun mmsSize(context: Context, kb: Int) = kept(context).edit().putInt("mms_size", kb).apply()
+
+    /** Send MMS as heavy as the operator says it takes, beyond the standard's 300 kB: what [mmsSize] was before it. */
     fun operatorSize(context: Context): Boolean = kept(context).getBoolean("operator_size", false)
 
     fun operatorSize(context: Context, on: Boolean) = kept(context).edit().putBoolean("operator_size", on).apply()

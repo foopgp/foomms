@@ -49,8 +49,8 @@ class ConfActivity : AskingActivity() {
         column.addView(Look.words(this, getString(words), size = 17f).apply { setPadding(0, Look.dp(context, 12), 0, 0) })
 
     /** A number from [least] to [most], set by sliding, shown beside. */
-    private fun slider(now: Int, most: Int, least: Int = 0, set: (Int) -> Unit) {
-        val shown = Look.words(this, now.toString(), size = 18f)
+    private fun slider(now: Int, most: Int, least: Int = 0, shows: (Int) -> String = Int::toString, set: (Int) -> Unit) {
+        val shown = Look.words(this, shows(now), size = 18f)
         column.addView(
             LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -63,7 +63,7 @@ class ConfActivity : AskingActivity() {
                             object : SeekBar.OnSeekBarChangeListener {
                                 override fun onProgressChanged(bar: SeekBar?, value: Int, byHand: Boolean) {
                                     set(value + least)
-                                    shown.text = (value + least).toString()
+                                    shown.text = shows(value + least)
                                 }
                                 override fun onStartTrackingTouch(bar: SeekBar?) = Unit
                                 override fun onStopTrackingTouch(bar: SeekBar?) = Unit
@@ -72,7 +72,8 @@ class ConfActivity : AskingActivity() {
                     },
                     LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
                 )
-                addView(shown, LinearLayout.LayoutParams(Look.dp(context, 36), ViewGroup.LayoutParams.WRAP_CONTENT))
+                addView(shown, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { marginStart = Look.dp(context, 8) })
+                shown.minWidth = Look.dp(context, 36)
             },
         )
     }
@@ -157,41 +158,48 @@ class ConfActivity : AskingActivity() {
         )
         note(R.string.conf_to_myself_note)
 
-        heading(R.string.backup_all)
-        note(R.string.backup_about)
-        column.addView(Look.button(this, getString(R.string.backup_save)) { Saving.save(this) })
-        column.addView(Look.button(this, getString(R.string.backup_restore)) { if (!Saving.restore(this)) backedUp(getString(R.string.forget_not_ours)) })
-        if (backup.isNotEmpty()) column.addView(Look.words(this, backup, size = 15f))
-
         heading(R.string.conf_mms)
         val on = Conf.mms(this)
         column.addView(flip(R.string.conf_mms_on, on) { Conf.mms(this, it) ; draw() })
         note(R.string.conf_mms_on_note)
+        // How many SMS a text may leave in: beyond, an MMS, or with MMS off asked first. What the operator says, as a hint.
+        subheading(R.string.conf_sms_most)
+        note(
+            getString(R.string.conf_sms_most_note) + " " +
+                (Outbox.operatorsSmsMost(this)?.let { getString(R.string.conf_sms_most_operator, it) } ?: getString(R.string.conf_operator_none)),
+        )
+        slider(Conf.smsMost(this), Conf.SMS_MOST_EVER, Conf.SMS_LEAST) { Conf.smsMost(this, it) }
         // What MMS may weigh, and how many a group MMS may go to: with MMS on only.
         // Heavier than the standard only where the operator says it takes more: greyed, and off, otherwise.
         if (on) {
             val theirs = Outbox.operators(this)
-            column.addView(
-                flip(R.string.conf_mms_size, Conf.operatorSize(this), usable = (theirs ?: 0) > Outbox.STANDARD) { Conf.operatorSize(this, it) }
-                    .apply { (theirs ?: Outbox.STANDARD).let { most -> text = getString(R.string.conf_mms_size, most / 1024, (most - Outbox.MARGIN) / 1024) } },
+            subheading(R.string.conf_mms_size)
+            note(
+                listOf(
+                    getString(R.string.conf_mms_size_note, Outbox.STANDARD / 1024),
+                    when {
+                        theirs == null -> getString(R.string.conf_operator_none)
+                        theirs > Outbox.STANDARD -> getString(R.string.conf_mms_size_more, theirs / 1024)
+                        else -> getString(R.string.conf_mms_size_theirs, theirs / 1024)
+                    },
+                    getString(R.string.conf_mms_size_margin, Outbox.MARGIN / 1024),
+                ).joinToString(" "),
             )
-            note(getString(R.string.conf_mms_size_note, Outbox.STANDARD / 1024, (Outbox.STANDARD - Outbox.MARGIN) / 1024))
+            // Only where the operator takes more than the standard is there anything to choose: otherwise the limit, said.
+            if (theirs != null && theirs > Outbox.STANDARD) {
+                slider(Outbox.heaviest(this) / 1024, theirs / 1024, Outbox.STANDARD / 1024, shows = { getString(R.string.conf_kb, it) }) { Conf.mmsSize(this, it) }
+            } else {
+                column.addView(Look.words(this, getString(R.string.conf_kb, Outbox.heaviest(this) / 1024), size = 18f))
+            }
             // How many a group MMS may go to, oneself included.
             subheading(R.string.conf_group_most)
-            note(R.string.conf_group_most_note)
+            note(
+                getString(R.string.conf_group_most_note) + " " +
+                    (Outbox.operatorsGroupMost(this)?.let { getString(R.string.conf_group_most_operator, it) } ?: getString(R.string.conf_operator_none)),
+            )
             slider(Conf.groupMost(this), Conf.GROUP_MOST_EVER, Conf.GROUP_LEAST) { Conf.groupMost(this, it) }
         }
 
-    }
-
-    /** How the last saving or restoring went: the page is drawn again on return, and it is kept for that. */
-    private var backup = ""
-
-    private fun backedUp(words: String) { backup = words ; draw() }
-
-    override fun onActivityResult(request: Int, outcome: Int, data: Intent?) {
-        super.onActivityResult(request, outcome, data)
-        Saving.done(this, request, outcome, data, ::backedUp)
     }
 
     /** A switch of the configuration; greyed, it shows off, and what it is set to is kept for when it is usable again. */

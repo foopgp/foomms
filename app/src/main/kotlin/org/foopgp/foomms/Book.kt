@@ -150,20 +150,6 @@ object Book {
     /** The numbers of the contact tied to the certificate [fingerprint], mobile ones first; none when no contact is. */
     fun numbersOf(context: Context, fingerprint: String): List<String> = tiedTo(context, fingerprint)?.let { own(context, it) }?.numbers.orEmpty()
 
-    /** A number written in a contact where it has none like it: what a certificate's own member list says, certified. */
-    fun addNumber(context: Context, contact: Long, number: String) {
-        if (values(context, contact, PhoneRow.CONTENT_ITEM_TYPE, PhoneRow.NUMBER).any { Phone.same(it, number) }) return
-        val raw = rawOf(context, contact) ?: return
-        context.contentResolver.insert(
-            Data.CONTENT_URI,
-            ContentValues().apply {
-                put(Data.RAW_CONTACT_ID, raw) ; put(Data.MIMETYPE, PhoneRow.CONTENT_ITEM_TYPE) ; put(PhoneRow.NUMBER, number)
-                put(PhoneRow.TYPE, PhoneRow.TYPE_CUSTOM) ; put(PhoneRow.LABEL, MARK)
-            },
-        )
-        written++
-    }
-
     /** The lookup key of the contact tied to the certificate [fingerprint], if one is: the phone's own profile first. */
     fun tiedTo(context: Context, fingerprint: String): String? = profile(context)?.takeIf { it.fingerprint.equals(fingerprint, ignoreCase = true) }?.key ?: runCatching {
         context.contentResolver.query(
@@ -196,16 +182,17 @@ object Book {
         return found
     }
 
+    /** Which of two to keep, when the contact and the certificate say otherwise: the contact's or the certificate's. */
+    enum class Pick { CONTACT, CERTIFICATE }
+
     /**
      * Write that [number] means the certificate [card] is the card of, and
      * what the card says of its holder -- name, addresses, numbers, notes,
      * face -- where the contact does not say it already. A contact is made
      * when the number has none.
+     *
+     * [contact]: the one to write in, when it is known -- the person's own --, rather than whoever the number finds.
      */
-    /** Which of two to keep, when the contact and the certificate say otherwise: the contact's or the certificate's. */
-    enum class Pick { CONTACT, CERTIFICATE }
-
-    /** [contact]: the one to write in, when it is known -- the person's own --, rather than whoever the number finds. */
     fun tie(
         context: Context, number: String, card: Card, address: String, stale: List<Stale> = emptyList(),
         face: Pick = Pick.CONTACT, note: Pick = Pick.CONTACT, contact: Long? = null, name: Pick = Pick.CONTACT,
@@ -302,14 +289,14 @@ object Book {
         context.contentResolver.delete(dataOf(contact), "${Data.CONTACT_ID} = ? AND ${Data.MIMETYPE} = ?", arrayOf(contact.toString(), kind))
     }
 
+    /** [name]: the contact's, when the certificate gives another. */
+    class Differs(val face: android.graphics.Bitmap?, val notes: List<String>, val name: String? = null)
+
     /**
      * Where the contact and the certificate each have a face, or a note, and
      * they are not the same: the contact's, to set beside the certificate's.
      * Faces are compared as a person would ([Likeness]), notes word for word.
      */
-    /** [name]: the contact's, when the certificate gives another. */
-    class Differs(val face: android.graphics.Bitmap?, val notes: List<String>, val name: String? = null)
-
     fun differs(context: Context, number: String, card: Card, contact: Long? = null): Differs {
         val known = known(context, number, contact) ?: return Differs(null, emptyList())
         val theirs = card.photo

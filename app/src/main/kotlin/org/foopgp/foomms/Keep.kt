@@ -92,31 +92,29 @@ object Keep {
 
     private fun group(context: Context, from: String, message: PduRead.Message): Set<String>? {
         val part = message.parts.firstOrNull { it.name == Members.PART || it.location == Members.PART } ?: return null
+        return groupOf(context, from, Members.read(part.bytes))
+    }
+
+    /** A group's numbers, as its members part says them, with [from] and this phone: null when that is not several. */
+    fun groupOf(context: Context, from: String, members: List<Members.Member>): Set<String>? {
         val me = Me.number(context) ?: return null
         val all = ArrayList<String>()
-        for (one in Members.read(part.bytes).map { it.number } + from + me) {
+        for (one in members.map { it.number } + from + me) {
             if (all.none { Phone.same(it, one) || it == one } && (one == me || !Me.mine(context, one))) all += one
         }
         return all.toSet().takeIf { it.size > 2 }
     }
 
     /**
-     * A group's members part received: kept, for tying each from the
-     * group's menu; and to the contact tied to a member's certified
-     * certificate, the number it lacks.
+     * A group's members part received: kept, to offer the certificate each
+     * one names when that member is tied from the group's menu -- offered,
+     * the person saying yes. Never written into the address book from here:
+     * the part travels in clear and unsigned, and anybody may send one that
+     * pairs their own number with a certificate somebody trusts.
      */
     fun members(context: Context, message: PduRead.Message) {
         val part = message.parts.firstOrNull { it.name == Members.PART || it.location == Members.PART } ?: return
-        val members = Members.read(part.bytes)
-        Members.remember(context, members)
-        if (!ours(context)) return
-        val foodjis = Foodjis.of(context)
-        for (one in members) {
-            val whose = one.fingerprint ?: continue
-            if (Me.mine(context, one.number) || foodjis.card(whose)?.certified != true) continue
-            val contact = Book.tiedTo(context, whose)?.let { Book.own(context, it) } ?: continue
-            runCatching { Book.addNumber(context, contact.contact, one.number) }
-        }
+        Members.remember(context, Members.read(part.bytes))
     }
 
     fun mmsSent(context: Context, to: List<String>, pdu: ByteArray, at: Long = System.currentTimeMillis()): Uri? =
@@ -177,11 +175,6 @@ object Keep {
         return written
     }
 
-    /**
-     * Take a message, or a whole conversation, out of the phone's store: for
-     * good, and only the phone's messaging application can. Says whether
-     * anything went.
-     */
     /**
      * The mark of a draft in [thread]: an SMS draft with no words to one
      * person, or an MMS draft to a group's members, its moment now. Its
@@ -260,6 +253,11 @@ object Keep {
     /** Whether [thread] holds a draft's mark. */
     fun hasDraft(context: Context, thread: Long): Boolean = Store.draftAt(context, thread) != null
 
+    /**
+     * Take a message, or a whole conversation, out of the phone's store: for
+     * good, and only the phone's messaging application can. Says whether
+     * anything went.
+     */
     fun forget(context: Context, line: Store.Line): Boolean =
         ours(context) && runCatching { context.contentResolver.delete(line.uri, null, null) > 0 }.getOrDefault(false)
 
@@ -267,14 +265,19 @@ object Keep {
         context.contentResolver.delete(Uri.parse("content://mms-sms/conversations/$thread"), null, null) > 0
     }.getOrDefault(false)
 
-    /** Opening a conversation reads it, but for what is still locked: that is read once opened ([read] of a line). */
-    fun read(context: Context, thread: Long, locked: List<Store.Line> = emptyList()) {
+    /**
+     * Opening a conversation reads it, but for what is still locked: that is read once opened ([read] of a line).
+     *
+     * A conversation read, but for [locked], up to [upTo] (milliseconds): what came after was not on the screen.
+     */
+    fun read(context: Context, thread: Long, locked: List<Store.Line> = emptyList(), upTo: Long = Long.MAX_VALUE) {
         if (!ours(context)) return
         val seen = ContentValues().apply { put("read", 1) ; put("seen", 1) }
         fun but(mms: Boolean) = locked.filter { it.mms == mms }.joinToString(",") { it.id.toString() }.let { if (it.isEmpty()) "" else " AND _id NOT IN ($it)" }
         runCatching {
-            context.contentResolver.update(Telephony.Sms.CONTENT_URI, seen, "thread_id = ? AND read = 0" + but(false), arrayOf(thread.toString()))
-            context.contentResolver.update(Telephony.Mms.CONTENT_URI, seen, "thread_id = ? AND read = 0" + but(true), arrayOf(thread.toString()))
+            // An SMS's date is in milliseconds, an MMS's in seconds.
+            context.contentResolver.update(Telephony.Sms.CONTENT_URI, seen, "thread_id = ? AND read = 0 AND date <= ?" + but(false), arrayOf(thread.toString(), upTo.toString()))
+            context.contentResolver.update(Telephony.Mms.CONTENT_URI, seen, "thread_id = ? AND read = 0 AND date <= ?" + but(true), arrayOf(thread.toString(), (upTo / 1000).toString()))
         }
     }
 
@@ -301,6 +304,6 @@ object Keep {
     }
 
     private const val UTF_8 = 106
-    private const val FROM = 137
-    private const val TO = 151
+    private const val FROM = Store.FROM
+    private const val TO = Store.TO
 }

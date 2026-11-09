@@ -81,6 +81,19 @@ object Look {
         setOnClickListener { then() }
     }
 
+    /** The same round knob, with a drawing for its sign: the share, whose usual sign is no character. */
+    fun knob(context: Context, drawing: Int, said: String, then: () -> Unit) = ImageView(context).apply {
+        setImageResource(drawing)
+        imageTintList = android.content.res.ColorStateList.valueOf(ORANGE)
+        scaleType = ImageView.ScaleType.CENTER_INSIDE
+        val pad = dp(context, 14)
+        setPadding(pad, pad, pad, pad)
+        background = GradientDrawable().apply { shape = GradientDrawable.OVAL ; setColor(Color.argb(0x66, 0, 0, 0)) }
+        contentDescription = said
+        isClickable = true
+        setOnClickListener { then() }
+    }
+
     /** the whole screen to a picture -- no title bar, the phone's own bars away until swiped back. */
     fun fullScreen(activity: Activity) {
         activity.actionBar?.hide()
@@ -113,6 +126,9 @@ object Look {
         Verdict.BLUE -> if (dark) Color.rgb(0x71, 0xBF, 0xFF) else Color.rgb(0x00, 0x68, 0xB2)
         Verdict.GREEN -> Color.rgb(0x00, 0xD3, 0x90)
         Verdict.GREY -> Color.rgb(0xA1, 0xA1, 0xAA)
+        // Deeper than the violet of a signed message's mark, more olive than the yellow-green of an encrypted one's.
+        Verdict.VIOLET -> if (dark) Color.rgb(0xC0, 0x84, 0xFC) else Color.rgb(0x6D, 0x28, 0xD9)
+        Verdict.OLIVE -> Color.rgb(0x8A, 0xA6, 0x1C)
     }
 
     /**
@@ -134,6 +150,8 @@ object Look {
             Verdict.BLUE -> Color.rgb(0x0B, 0x3A, 0x5E)
             Verdict.GREEN -> Color.rgb(0x0A, 0x4A, 0x38)
             Verdict.GREY -> Color.rgb(0x3F, 0x3F, 0x46)
+            Verdict.VIOLET -> Color.rgb(0x3B, 0x1F, 0x63)
+            Verdict.OLIVE -> Color.rgb(0x38, 0x42, 0x0E)
         }
     } else {
         when (verdict) {
@@ -142,6 +160,8 @@ object Look {
             Verdict.BLUE -> Color.rgb(0xD6, 0xEC, 0xFF)
             Verdict.GREEN -> Color.rgb(0xCD, 0xF6, 0xE8)
             Verdict.GREY -> Color.rgb(0xE4, 0xE4, 0xE7)
+            Verdict.VIOLET -> Color.rgb(0xEC, 0xE3, 0xFC)
+            Verdict.OLIVE -> Color.rgb(0xEE, 0xF4, 0xCC)
         }
     }
 
@@ -249,6 +269,12 @@ object Look {
         shown.text = text
     }
 
+    /** When something happened, as people say it: "3 min ago", "yesterday", "12 Oct". */
+    fun ago(at: Long): CharSequence =
+        android.text.format.DateUtils.getRelativeTimeSpanString(
+            at, System.currentTimeMillis(), android.text.format.DateUtils.MINUTE_IN_MILLIS, android.text.format.DateUtils.FORMAT_ABBREV_ALL,
+        )
+
     fun dp(context: Context, value: Int): Int =
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value.toFloat(), context.resources.displayMetrics).toInt()
 
@@ -270,7 +296,7 @@ object Look {
         }
     }
 
-    fun carried(context: Context, drop: () -> Unit): Carried {
+    fun carried(context: Context, sign: String = "📎", dropSaid: Int = R.string.drop_attachment, drop: () -> Unit): Carried {
         val pad = dp(context, 6)
         val said = words(context, "", size = 16f, muted = true).apply {
             gravity = Gravity.CENTER
@@ -280,10 +306,10 @@ object Look {
             setTypeface(typeface, Typeface.BOLD)
             setPadding(pad * 4, 0, pad * 4, 0)
         }
-        val clip = glyph("📎")
+        val clip = glyph(sign)
         val cross = glyph("✕").apply {
             setTextColor(Color.rgb(0xE5, 0x39, 0x35))
-            contentDescription = context.getString(R.string.drop_attachment)
+            contentDescription = context.getString(dropSaid)
             setOnClickListener { drop() }
         }
         val row = LinearLayout(context).apply {
@@ -297,6 +323,35 @@ object Look {
             addView(cross)
         }
         return Carried(row, said, clip, cross)
+    }
+
+    /**
+     * A message an answer cites: its time and its chevron narrow and grey, then its words in the ink of a message --
+     * narrow and grey too when foomms wrote them: a part's type, name and size, or that it was locked --, on a veil that greys whatever bubble it sits in, framed more softly still.
+     */
+    fun cited(context: Context, cited: Quote.Cited): TextView {
+        val stamp = listOfNotNull(cited.day, cited.time).joinToString(" ") + ">"
+        val said = android.text.SpannableStringBuilder(stamp)
+        val narrow = android.text.style.TypefaceSpan("sans-serif-condensed")
+        said.setSpan(narrow, 0, stamp.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        if (cited.words.isNotEmpty()) {
+            val from = said.length + 1
+            said.append(" ").append(cited.words)
+            // What foomms wrote narrow and grey as the time; the words answered, in the ink of a message.
+            if (cited.part) said.setSpan(android.text.style.TypefaceSpan("sans-serif-condensed"), from, said.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            else said.setSpan(android.text.style.ForegroundColorSpan(INK), from, said.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        val pad = dp(context, 6)
+        return words(context, said, size = 13f, muted = true).apply {
+            background = GradientDrawable().apply {
+                setColor(if (dark) Color.argb(0x22, 0xFF, 0xFF, 0xFF) else Color.argb(0x14, 0, 0, 0))
+                setStroke(dp(context, 1), Color.argb(0x33, Color.red(MUTED), Color.green(MUTED), Color.blue(MUTED)))
+                cornerRadius = dp(context, 6).toFloat()
+            }
+            setPadding(pad + pad / 2, pad / 2, pad + pad / 2, pad / 2)
+            maxLines = 2
+            ellipsize = android.text.TextUtils.TruncateAt.END
+        }
     }
 
     /** A discreet frame around a text set apart, as a note among others: a thin line, rounded, nothing filled. */
@@ -339,12 +394,12 @@ object Look {
     /**
      * A face: the contact's own picture, else the one the certificate carries,
      * else the mark foodjis shows where there is none.
-     */
-    /**
+     *
      * [framable]: room is kept around the picture for a frame, whether one is drawn or not, so that a list
      * of faces stays aligned and every picture keeps its [side].
+     *
+     * [seed]: with no picture, the face of pixels it makes ([pixels]); [lineDp], the frame's width.
      */
-    /** [seed]: with no picture, the face of pixels it makes ([pixels]); [lineDp], the frame's width. */
     fun face(
         context: Context, side: Int, photo: Uri?, avatar: Bitmap?, standing: String? = null, framable: Boolean = false,
         seed: String? = null, lineDp: Int = 4,

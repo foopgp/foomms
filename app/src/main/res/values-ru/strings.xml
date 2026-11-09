@@ -9,6 +9,7 @@
     <string name="sent">Сообщение отправлено.</string>
     <string name="not_sent">Сообщение не отправлено (%1$d).</string>
     <string name="refused">⚠ Не отправлено: отклонено оператором</string>
+    <string name="stripped">⚠ Оператор удалил вложение по пути: «%1$s»</string>
     <string name="no_provider">foodjis не установлен или не отвечает.</string>
     <string name="failed">%1$s</string>
     <string name="signed_certified">Подписано %1$s, заверено.</string>
@@ -29,6 +30,7 @@
     <string name="tie_ask">%1$s — это %2$s?</string>
     <string name="tie_write">Записать</string>
     <string name="channel_messages">Сообщения</string>
+    <string name="mms_unfetched">MMS не загружено. Нажмите, чтобы повторить.</string>
     <string name="not_default">Приложение сообщений телефона по-прежнему получает и хранит сообщения. foomms может занять его место: Android спросит вас.</string>
     <string name="become_default">Сделать foomms приложением сообщений</string>
     <string name="configure">⚙️ Настройка</string>
@@ -40,6 +42,15 @@
     <string name="locked_for">⚿ Зашифрованное сообщение для</string>
     <string name="piece_for">для</string>
     <string name="share">⤴ Поделиться</string>
+    <string name="reply">↩ Ответить</string>
+    <string name="reply_drop">Не отвечать на это сообщение</string>
+    <string name="quote_gone">Цитируемого сообщения нет в этой беседе</string>
+    <string name="share_picture">Поделиться фото</string>
+    <string name="share_video">Поделиться видео</string>
+    <string name="share_clear_title">Поделиться без шифрования?</string>
+    <string name="share_clear_says">Этот объект передавался зашифрованным. Если поделиться, он уйдёт без шифрования в выбранное приложение.</string>
+    <string name="share_clear_says_text">Это сообщение передавалось зашифрованным. Если поделиться, оно уйдёт без шифрования в выбранное приложение.</string>
+    <string name="share_clear_go">Поделиться без шифрования</string>
     <string name="save">↧ Сохранить</string>
     <string name="saved">Сохранено.</string>
     <string name="conf_theme">Тема</string>
@@ -123,17 +134,10 @@
     <string name="tie_ask_after">. Это будет записано в вашу адресную книгу, где у контакта этого ещё нет:</string>
     <string name="whom_hint">Имя или номер телефона</string>
     <string name="mark_all_read">○ Отметить всё как прочитанное</string>
-    <string name="mark_all_read_ask">Отметить непрочитанные сообщения (%1$d) как прочитанные?</string>
     <string name="mark_read">○ Отметить как прочитанное</string>
     <string name="mark_unread">● Отметить как непрочитанное</string>
     <string name="count_detail">%1$d сообщений: %2$d SMS + %3$d MMS\nиз них %4$d PGP: %5$d SMS + %6$d MMS\n%9$d получено: %13$d SMS + %14$d MMS\n%10$d отправлено: %15$d SMS + %16$d MMS\n\n%7$d переписок: %11$d личных + %12$d групповых</string>
     <string name="count_bytes">%1$s байт</string>
-    <plurals name="count_detail_unread_rest">
-        <item quantity="one">, из них %1$d PGP, в %2$d переписке.</item>
-        <item quantity="few">, из них %1$d PGP, в %2$d переписках.</item>
-        <item quantity="many">, из них %1$d PGP, в %2$d переписках.</item>
-        <item quantity="other">, из них %1$d PGP, в %2$d переписках.</item>
-    </plurals>
     <string name="switch_sign">Подписать</string>
     <string name="switch_lock">Зашифровать</string>
     <string name="cert_show">🔑 Показать сертификат</string>
@@ -153,9 +157,7 @@
     <string name="place_off">Определение местоположения на телефоне выключено.</string>
     <string name="place_seeking">Определение местоположения…</string>
     <string name="place_none">Телефон сейчас не знает, где находится.</string>
-    <string name="backup_all">Резервная копия</string>
-    <string name="backup_one">💾 Сохранить эту переписку</string>
-    <string name="backup_about">Все переписки сохраняются в файл XML. Сообщения PGP остаются такими, какими были в пути: зашифрованными.</string>
+    <string name="backup_one">💾 Сохранить переписку</string>
     <string name="backup_save">Сохранить всё</string>
     <string name="backup_restore">Восстановить из копии</string>
     <string name="backup_working">Выполняется…</string>
@@ -222,19 +224,24 @@
     <string name="listening_play">Воспроизвести</string>
     <string name="listening_pause">Пауза</string>
     <string name="listening_stop">Остановить</string>
-    <string name="conf_mms_size">Использовать предел оператора: %1$d КБ, то есть %2$d КБ полезных</string>
-    <string name="conf_mms_size_note">MMS обычно ограничены %1$d КБ, то есть %2$d КБ полезных. Ваш оператор может позволять больше, но оператор получателя может отклонить столь щедрые MMS.</string>
+    <string name="conf_mms_size">Предел размера MMS</string>
+    <string name="conf_mms_size_note">MMS обычно ограничены %1$d КБ.</string>
+    <string name="conf_mms_size_more">Ваш оператор указывает %1$d КБ, но оператор собеседника может отказать в столь щедрых MMS.</string>
+    <string name="conf_mms_size_theirs">Ваш оператор указывает %1$d КБ.</string>
+    <string name="conf_operator_none">Ваш оператор не указывает свой предел.</string>
+    <string name="conf_mms_size_margin">Из выбранного предела %1$d КБ отводятся под конверт сообщения и шифрование.</string>
+    <string name="conf_kb">%1$d КБ</string>
     <string name="too_heavy_sent">Это сообщение весит %1$d КБ, больше установленных для MMS %2$d КБ: оно не отправлено.</string>
     <string name="watch_turn">Повернуть видео на четверть оборота</string>
+    <string name="picture_turn">Повернуть фото на четверть оборота</string>
+    <string name="picture_close">Закрыть фото</string>
     <string name="video_camera">Задняя или передняя камера</string>
     <string name="video_light">Подсветка</string>
     <string name="video_sound">Только звук (%1$s)</string>
     <!-- The three pages of the list, and what each counts under its name. -->
     <string name="page_talks">Беседы</string>
-    <string name="page_unread">Непрочитанные</string>
-    <string name="page_unread_n">Непрочитанные (%1$d)</string>
-    <string name="page_groups">MMS-группы</string>
     <string name="page_profile">Мой профиль</string>
+    <string name="page_profile_n">Мой профиль (%1$d)</string>
     <string name="me_wizard_title">Какая карточка контакта ваша?</string>
     <string name="me_wizard_text">Укажите foomms, какая карточка контакта ваша: она представляет вас в группах, с вашим номером и сертификатом. Её можно сменить в «Мой профиль».</string>
     <string name="me_wizard_choose">Выбрать мою карточку</string>
@@ -251,11 +258,17 @@
         <item quantity="many">%d непрочитанных сообщений</item>
         <item quantity="other">%d непрочитанного сообщения</item>
     </plurals>
-    <plurals name="groups_n">
-        <item quantity="one">%d группа</item>
-        <item quantity="few">%d группы</item>
-        <item quantity="many">%d групп</item>
-        <item quantity="other">%d группы</item>
+    <plurals name="count_detail_unread_rest">
+        <item quantity="one">, из них %1$d PGP, в %2$d переписке.</item>
+        <item quantity="few">, из них %1$d PGP, в %2$d переписках.</item>
+        <item quantity="many">, из них %1$d PGP, в %2$d переписках.</item>
+        <item quantity="other">, из них %1$d PGP, в %2$d переписках.</item>
+    </plurals>
+    <plurals name="unread_short">
+        <item quantity="one">%d непрочитанное</item>
+        <item quantity="few">%d непрочитанных</item>
+        <item quantity="many">%d непрочитанных</item>
+        <item quantity="other">%d непрочитанного</item>
     </plurals>
     <plurals name="group_members">
         <item quantity="one">%d участник</item>
@@ -304,7 +317,10 @@
         <item quantity="many">%d черновиков</item>
         <item quantity="other">%d черновика</item>
     </plurals>
-    <string name="clear_drafts">Удалить все черновики</string>
+    <string name="clear_drafts">Удалить черновики</string>
+    <string name="clear_draft">Удалить</string>
+    <string name="see_unread">Показать непрочитанные</string>
+    <string name="see_unread_one">Показать</string>
     <plurals name="clear_drafts_ask">
         <item quantity="one">Удалить %d черновик? Его текст пропадёт.</item>
         <item quantity="few">Удалить %d черновика? Их текст пропадёт.</item>
@@ -321,10 +337,14 @@
     <string name="all_contacts">Все контакты (%1$d)</string>
     <string name="conf_group_most">Предел группового MMS</string>
     <string name="conf_group_most_note">MMS обычно ограничены 20 получателями. Некоторые операторы принимают гораздо больше, немногие — только десять.</string>
+    <string name="conf_group_most_operator">Ваш оператор указывает %1$d получателей.</string>
+    <string name="conf_sms_most">Предел длинного текста по SMS</string>
+    <string name="conf_sms_most_note">7 SMS — наибольшая длина, которая проходит почти везде. Некоторые сети принимают гораздо больше, и это зависит также от сети получателя. Сверх этого текст уходит как MMS или, если отправка MMS выключена, foomms сначала спрашивает подтверждение.</string>
+    <string name="conf_sms_most_operator">Ваш оператор указывает %1$d.</string>
     <string name="group_over">В этой группе %1$d участников, включая вас, больше предела %2$d, заданного в настройках: оператор может отклонить сообщение или доставить его каждому по отдельности.</string>
     <string name="group_over_send">Всё равно отправить</string>
     <string name="conf_mms_on">Разрешить отправку MMS</string>
-    <string name="conf_mms_on_note">Позволяет отправлять групповые сообщения, тексты длиннее 8 SMS, голосовые сообщения, фото или короткие видео. Между операторами MMS доходит менее надёжно, чем SMS, а некоторые тарифы его оплачивают отдельно. Другие операторы вовсе не поддерживают MMS, что на руку интернет-мессенджерам, а значит, и глобальной слежке.</string>
+    <string name="conf_mms_on_note">Позволяет отправлять групповые сообщения, длинные тексты, голосовые сообщения, фото или короткие видео. Между операторами MMS доходит менее надёжно, чем SMS, а некоторые тарифы его оплачивают отдельно. Другие операторы вовсе не поддерживают MMS, что на руку интернет-мессенджерам, а значит, и глобальной слежке.</string>
     <string name="mms_off">Отправка MMS не разрешена в настройках: ни вложений, ни голосовых сообщений, ни групповых MMS.</string>
     <string name="many_sms">Это сообщение уйдёт %1$d SMS: некоторые телефоны плохо их склеивают, а оператор может брать плату за каждое.</string>
 </resources>

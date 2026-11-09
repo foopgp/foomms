@@ -20,11 +20,12 @@ class Foodjis(private val context: Context) {
     }
 
     /** foodjis has refused to answer: the person has not let this application in yet. */
-    var shut = false
+    @Volatile var shut = false
         private set
 
-    private val door: String =
-        "content://" + Provider.foodjis(context) + ".directory"
+    /** foodjis's directory, when a foodjis signed as foomms is ([Provider.whom]): none, and nothing is asked. */
+    private val door: String? =
+        Provider.whom(context)?.packageName?.let { "content://$it.directory" }
 
     private val cards = HashMap<String, Cert?>()
     private val faces = HashMap<String, Bitmap?>()
@@ -32,7 +33,7 @@ class Foodjis(private val context: Context) {
     // Held for reading and writing what is known, not while foodjis is asked: several askings go side by side.
     fun card(fingerprint: String): Cert? {
         synchronized(cards) { if (cards.containsKey(fingerprint)) return cards[fingerprint] }
-        val card = asked {
+        val card = tried {
             context.contentResolver.query(Uri.parse("$door/cert/$fingerprint"), null, null, null, null)?.use { rows ->
                 if (!rows.moveToFirst()) null
                 else Cert(
@@ -41,18 +42,21 @@ class Foodjis(private val context: Context) {
                 )
             }
         }
-        if (!shut) synchronized(cards) { cards[fingerprint] = card }
-        return card
+        // Kept only when foodjis answered -- a certificate, or none --: one that could not answer, ended or updating,
+        // is asked again next time rather than held to have said "none".
+        card.onSuccess { found -> synchronized(cards) { cards[fingerprint] = found } }
+        return card.getOrNull()
     }
 
-    fun avatar(fingerprint: String): ByteArray? = asked {
+    fun avatar(fingerprint: String): ByteArray? = tried {
         context.contentResolver.openInputStream(Uri.parse("$door/avatar/$fingerprint"))?.use { it.readBytes() }
-    }
+    }.getOrNull()
 
     fun face(fingerprint: String): Bitmap? {
         synchronized(faces) { if (faces.containsKey(fingerprint)) return faces[fingerprint] }
-        val face = avatar(fingerprint)?.let { Media.thumbnail(it, Media.FACE) }
-        if (!shut) synchronized(faces) { faces[fingerprint] = face }
+        val bytes = tried { context.contentResolver.openInputStream(Uri.parse("$door/avatar/$fingerprint"))?.use { it.readBytes() } }
+        val face = bytes.getOrNull()?.let { Media.thumbnail(it, Media.FACE) }
+        bytes.onSuccess { synchronized(faces) { faces[fingerprint] = face } }
         return face
     }
 
@@ -86,9 +90,9 @@ class Foodjis(private val context: Context) {
     }
 
     companion object {
+        /** One for the application: what foodjis said is asked again when a page comes back ([fresh]). */
         @Volatile private var one: Foodjis? = null
 
-        /** One for the application: what foodjis said is asked again when a page comes back ([fresh]). */
         /**
          * What foodjis said, behind its icon -- in place of words saying who
          * speaks --; its name when the icon cannot be had.
@@ -120,12 +124,15 @@ class Foodjis(private val context: Context) {
         }
     }
 
-    private fun <T> asked(question: () -> T?): T? = try {
-        question().also { shut = false }
+    private fun <T> asked(question: () -> T?): T? = tried(question).getOrNull()
+
+    /** The answer, or why there was none: foodjis not letting this application in, or not there to answer. */
+    private fun <T> tried(question: () -> T?): Result<T?> = if (door == null) Result.failure(IllegalStateException("no foodjis")) else try {
+        Result.success(question().also { shut = false })
     } catch (refused: SecurityException) {
         shut = true
-        null
+        Result.failure(refused)
     } catch (other: Exception) {
-        null
+        Result.failure(other)
     }
 }

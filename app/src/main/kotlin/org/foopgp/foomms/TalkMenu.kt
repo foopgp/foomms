@@ -1,9 +1,11 @@
 package org.foopgp.foomms
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.ContentUris
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.provider.ContactsContract
 import kotlin.concurrent.thread
 
@@ -33,9 +35,10 @@ object TalkMenu {
                 val looking = AlertDialog.Builder(activity).setMessage(R.string.cert_fetching).setPositiveButton(R.string.close, null).show()
                 val provider = Provider(activity)
                 provider.ask(Intent(Provider.GET_KEY).putExtra(Provider.EXTRA_KEY_ID, keyId).putExtra(Provider.EXTRA_REFRESH, refresh), null) { answer ->
-                    looking.dismiss()
                     provider.close()
+                    // The page left while foodjis looked: its window went with it, and closing it now would throw.
                     if (activity.isFinishing || activity.isDestroyed) return@ask
+                    runCatching { looking.dismiss() }
                     when (answer) {
                         is Provider.Answer.Done -> {
                             Foodjis.of(activity).fresh()
@@ -51,6 +54,35 @@ object TalkMenu {
             }
         }
     }
+
+    /** The number waiting for Android's leave to place a call. */
+    private var calling: String? = null
+
+    /** [number] called; asked first, when foomms may not place calls yet. */
+    fun call(activity: Activity, number: String) {
+        if (activity.checkSelfPermission(Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+            runCatching { activity.startActivity(Intent(Intent.ACTION_CALL, android.net.Uri.fromParts("tel", number, null))) }
+                .onFailure { dial(activity, number) }
+            return
+        }
+        calling = number
+        activity.requestPermissions(arrayOf(Manifest.permission.CALL_PHONE), CALL)
+    }
+
+    /** Android's answer, from the page that asked: the call placed, or else the dialler with the number. */
+    fun answered(activity: Activity, request: Int, results: IntArray): Boolean {
+        if (request != CALL) return false
+        val number = calling.also { calling = null } ?: return true
+        if (results.any { it == PackageManager.PERMISSION_GRANTED }) call(activity, number) else dial(activity, number)
+        return true
+    }
+
+    private fun dial(activity: Activity, number: String) {
+        runCatching { activity.startActivity(Intent(Intent.ACTION_DIAL, android.net.Uri.fromParts("tel", number, null))) }
+    }
+
+    /** Asking Android to let foomms place calls: a code no page uses for anything else. */
+    private const val CALL = 7101
 
     fun show(
         activity: Activity,
@@ -76,10 +108,11 @@ object TalkMenu {
         val choices = ArrayList<Pair<String, () -> Unit>>()
         fun add(words: Int, then: () -> Unit) { choices += activity.getString(words) to then }
         if (letIn != null) add(R.string.let_in, letIn)
-        // Calling, where the phone can: the dialler opens with the number, and nothing is dialled without the person.
+        // Calling, where the phone can: the call is placed at once -- the person chose it in this menu --, once
+        // Android has let foomms place calls; refused, the dialler opens with the number, as it did before.
         val dial = Intent(Intent.ACTION_DIAL, android.net.Uri.fromParts("tel", sender, null))
         if (number != null && dial.resolveActivity(activity.packageManager) != null) {
-            choices += activity.getString(R.string.call, sender) to { runCatching { activity.startActivity(dial) } }
+            choices += activity.getString(R.string.call, sender) to { call(activity, sender) }
         }
         if (person != null) {
             // The phone's own card for the contact, shown at once: asking "open with" brought up

@@ -147,6 +147,11 @@ object Drafts {
         }
     }
 
+    /** The conversations holding a draft of foomms's, by their numbers in the phone's list. */
+    fun threads(context: Context): Set<Long> =
+        kept(context).all.keys.filter { it.startsWith("t") }.mapNotNull { it.drop(1).toLongOrNull() }
+            .filter { inThread(context, it) != null }.toSet()
+
     /** Every draft forgotten: the marks in the store, any application's, and their words here. */
     fun forgetAll(context: Context) {
         Keep.unmarkAllDrafts(context)

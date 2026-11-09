@@ -14,7 +14,8 @@ Ce que foomms fait mieux que les messageries servies par des entreprises :
 • un chiffrement de bout en bout sous votre seule clé, que personne d'autre ne détient ;
 • l'interopérabilité : votre correspondant peut utiliser une autre application PGP, rien ne vous enferme dans foomms ;
 • aucun serveur central, rien que le réseau de votre opérateur ;
-• même pas besoin d'Internet.
+• même pas besoin d'Internet ;
+• la sobriété numérique : un message dépasse rarement 300 Ko, photos et vidéos réduites à ce qu'il faut pour être vues.
 
 Approcher votre clé une fois ouvre d'un coup plusieurs messages, qui se referment au bout du temps que vous avez choisi.
 

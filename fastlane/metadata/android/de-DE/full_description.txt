@@ -14,7 +14,8 @@ Was foomms besser macht als Messenger, die von Unternehmen betrieben werden:
 • Ende-zu-Ende-Verschlüsselung allein unter Ihrem Schlüssel, den sonst niemand besitzt;
 • Interoperabilität: Ihr Gegenüber kann eine andere PGP-Anwendung verwenden, nichts bindet Sie an foomms;
 • kein zentraler Server, nur das Netz Ihres Betreibers;
-• nicht einmal Internet nötig.
+• nicht einmal Internet nötig;
+• digitale Genügsamkeit: Eine Nachricht überschreitet selten 300 KB, Fotos und Videos werden auf das verkleinert, was zum Ansehen nötig ist.
 
 Einmal den Schlüssel anhalten öffnet mehrere Nachrichten auf einmal, die sich nach der gewählten Zeit wieder schließen.
 

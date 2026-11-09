@@ -27,20 +27,26 @@ object Media {
         kind + java.text.SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'", java.util.Locale.ROOT)
             .apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }.format(java.util.Date(at)) + "." + extension
 
+    /**
+     * [bytes] as players and readers take a file, read where they are: what was opened from its lock is played,
+     * watched and measured from memory, never laid in a file -- one left behind by a failed playing stayed there.
+     */
+    fun source(bytes: ByteArray): android.media.MediaDataSource = object : android.media.MediaDataSource() {
+        override fun readAt(at: Long, into: ByteArray, offset: Int, size: Int): Int {
+            if (at >= bytes.size) return -1
+            val n = minOf(size.toLong(), bytes.size - at).toInt()
+            System.arraycopy(bytes, at.toInt(), into, offset, n)
+            return n
+        }
+        override fun getSize() = bytes.size.toLong()
+        override fun close() {}
+    }
+
     /** the first picture of a video, made small; null for a sound alone, which has none. */
     fun frame(context: Context, uri: Uri, side: Int): Bitmap? = frame(side) { it.setDataSource(context, uri) }
 
     fun frame(bytes: ByteArray, side: Int): Bitmap? = frame(side) {
-        it.setDataSource(object : android.media.MediaDataSource() {
-            override fun readAt(at: Long, into: ByteArray, offset: Int, size: Int): Int {
-                if (at >= bytes.size) return -1
-                val n = minOf(size.toLong(), bytes.size - at).toInt()
-                System.arraycopy(bytes, at.toInt(), into, offset, n)
-                return n
-            }
-            override fun getSize() = bytes.size.toLong()
-            override fun close() {}
-        })
+        it.setDataSource(source(bytes))
     }
 
     private fun frame(side: Int, source: (android.media.MediaMetadataRetriever) -> Unit): Bitmap? = runCatching {
@@ -68,16 +74,7 @@ object Media {
     fun recorded(bytes: ByteArray): Pair<Long, Boolean>? = runCatching {
         val reader = android.media.MediaMetadataRetriever()
         try {
-            reader.setDataSource(object : android.media.MediaDataSource() {
-                override fun readAt(at: Long, into: ByteArray, offset: Int, size: Int): Int {
-                    if (at >= bytes.size) return -1
-                    val n = minOf(size.toLong(), bytes.size - at).toInt()
-                    System.arraycopy(bytes, at.toInt(), into, offset, n)
-                    return n
-                }
-                override fun getSize() = bytes.size.toLong()
-                override fun close() {}
-            })
+            reader.setDataSource(source(bytes))
             // Written as 20261019T210406.000Z; a file that says none, or the epoch of an unset clock, says nothing.
             val said = reader.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DATE) ?: return@runCatching null
             val at = java.text.SimpleDateFormat("yyyyMMdd'T'HHmmss", java.util.Locale.ROOT)
@@ -97,16 +94,7 @@ object Media {
 
     /** How long a sound lasts, read where it is held: what was opened from its lock stays in memory. */
     fun lasting(bytes: ByteArray): Long? = lasting {
-        it.setDataSource(object : android.media.MediaDataSource() {
-            override fun readAt(at: Long, into: ByteArray, offset: Int, size: Int): Int {
-                if (at >= bytes.size) return -1
-                val n = minOf(size.toLong(), bytes.size - at).toInt()
-                System.arraycopy(bytes, at.toInt(), into, offset, n)
-                return n
-            }
-            override fun getSize() = bytes.size.toLong()
-            override fun close() {}
-        })
+        it.setDataSource(source(bytes))
     }
 
     private fun lasting(source: (android.media.MediaMetadataRetriever) -> Unit): Long? = runCatching {
@@ -130,8 +118,9 @@ object Media {
     /**
      * A picture, as JPEG, no heavier than [most]: made smaller, then lighter,
      * until it fits. Null when it is not a picture one can read.
+     *
+     * [name]: the picture's own, a photograph just taken being named when it was taken ([named]).
      */
-    /** [name]: the picture's own, a photograph just taken being named when it was taken ([named]). */
     fun picture(context: Context, from: Uri, most: Int, name: String = "photo.jpg"): Attachment? {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         context.contentResolver.openInputStream(from)?.use { BitmapFactory.decodeStream(it, null, bounds) }
@@ -140,6 +129,10 @@ object Media {
         while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 2 * LONGEST) sample *= 2
         var bitmap = context.contentResolver.openInputStream(from)
             ?.use { BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = sample }) } ?: return null
+        // Upright before it is made again: the JPEG written here carries no orientation, and a camera that wrote the
+        // pixels lying down and said "turn me" in the EXIF had its photographs sent on their side.
+        val turn = runCatching { context.contentResolver.openInputStream(from)?.use { turnOf(android.media.ExifInterface(it)) } }.getOrNull() ?: 0
+        if (turn != 0) bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, android.graphics.Matrix().apply { postRotate(turn.toFloat()) }, true)
         var longest = LONGEST
         while (true) {
             val scale = longest.toFloat() / maxOf(bitmap.width, bitmap.height)
@@ -152,6 +145,14 @@ object Media {
             if (longest <= 320) return null
             longest = longest * 3 / 4
         }
+    }
+
+    /** The turn a camera wrote in the EXIF for its picture to stand upright: the decoder leaves it to whoever shows it. */
+    fun turnOf(exif: android.media.ExifInterface): Int = when (exif.getAttributeInt(android.media.ExifInterface.TAG_ORIENTATION, 0)) {
+        android.media.ExifInterface.ORIENTATION_ROTATE_90 -> 90
+        android.media.ExifInterface.ORIENTATION_ROTATE_180 -> 180
+        android.media.ExifInterface.ORIENTATION_ROTATE_270 -> 270
+        else -> 0
     }
 
     /** A picture chosen, as it is sent: a JPEG under its own name. */

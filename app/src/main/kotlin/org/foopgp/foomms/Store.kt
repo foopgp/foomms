@@ -47,14 +47,22 @@ object Store {
      * it went to --, each once; read once a message. Received with this
      * phone alone in its "To", whatever number it had then: its sender only.
      */
+    /** One of an MMS's addresses, as the phone keeps them: the number, and whether it is from, to or cc ([FROM], [TO_OR_CC]). */
+    class Address(val number: String, val type: Int)
+
+    /** An MMS's addresses, read once: what six places read each in its own way. */
+    fun addresses(context: Context, message: Long): List<Address> = runCatching {
+        context.contentResolver.query(Uri.parse("content://mms/$message/addr"), arrayOf("address", "type"), null, null, null)?.use { rows ->
+            buildList { while (rows.moveToNext()) rows.getString(0)?.let { add(Address(it, rows.getInt(1))) } }
+        }
+    }.getOrNull().orEmpty()
+
     fun others(context: Context, message: Long): List<String> = synchronized(headers) { headers[message] } ?: run {
         var from: String? = null
         val to = ArrayList<String>()
-        context.contentResolver.query(Uri.parse("content://mms/$message/addr"), arrayOf("address", "type"), null, null, null)?.use { rows ->
-            while (rows.moveToNext()) {
-                val one = rows.getString(0)?.takeIf { Phone.plain(it) != null } ?: continue
-                if (rows.getInt(1) == FROM) from = one else if (rows.getInt(1) in TO_OR_CC) to += one
-            }
+        for (address in addresses(context, message)) {
+            val one = address.number.takeIf { Phone.plain(it) != null } ?: continue
+            if (address.type == FROM) from = one else if (address.type in TO_OR_CC) to += one
         }
         val sender = from
         val found = ArrayList<String>()
@@ -114,7 +122,7 @@ object Store {
     private const val LOOKED_AT = 20
 
     /** How the phone's store tells an MMS's recipients: To and Cc, as the PDU names them (OMA-MMS-ENC, table 12). */
-    private val TO_OR_CC = setOf(0x97, 0x82)
+    internal val TO_OR_CC = setOf(0x97, 0x82)
 
     /**
      * The numbers SMS sent with [body] went to, written at [at] exactly --
@@ -159,9 +167,7 @@ object Store {
 
     /** Everybody an MMS sent went to, as its "To" and "Cc" say. */
     private fun recipients(context: Context, message: Long): List<String> =
-        context.contentResolver.query(Uri.parse("content://mms/$message/addr"), arrayOf("address", "type"), null, null, null)?.use { rows ->
-            buildList { while (rows.moveToNext()) if (rows.getInt(1) in TO_OR_CC) rows.getString(0)?.let { add(it) } }
-        }.orEmpty()
+        addresses(context, message).filter { it.type in TO_OR_CC }.map { it.number }
 
     /** The conversations of several numbers, [number] among them: where sendings to each are filed. */
     private fun eachWith(context: Context, number: String): List<Long> {
@@ -198,11 +204,8 @@ object Store {
             // Received: everybody it went to but its sender, as its "To" says -- this phone once, whatever number it had.
             var from: String? = null
             val to = ArrayList<String>()
-            context.contentResolver.query(Uri.parse("content://mms/${line.id}/addr"), arrayOf("address", "type"), null, null, null)?.use { rows ->
-                while (rows.moveToNext()) {
-                    val one = rows.getString(0) ?: continue
-                    if (rows.getInt(1) == FROM) from = one else if (rows.getInt(1) in TO_OR_CC) to += one
-                }
+            for (address in addresses(context, line.id)) {
+                if (address.type == FROM) from = address.number else if (address.type in TO_OR_CC) to += address.number
             }
             val found = ArrayList<String>()
             var me = false
@@ -252,6 +255,8 @@ object Store {
         val unread: Boolean = false, val thread: Long = -1,
         /** Refused by the network when it was to leave: certainly not sent. Taken, it may still not arrive. */
         val failed: Boolean = false,
+        /** What the network wrote in place of the parts it took out on the way, in its own words. */
+        val stripped: String? = null,
     ) {
         val attachments: Int get() = pieces.size
         val uri: Uri get() = Uri.parse(if (mms) "content://mms/$id" else "content://sms/$id")
@@ -272,6 +277,8 @@ object Store {
         val sentMms get() = mms - receivedMms
 
         fun withTalks(talks: Int) = Counts(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks, persons, drafts, received, sent, receivedSms, receivedMms)
+
+        fun withUnread(unread: Int) = Counts(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks, persons, drafts, received, sent, receivedSms, receivedMms)
 
         /** As kept between two runs, and read back. */
         fun kept(): String = listOf(pgp, all, unreadPgp, unread, sms, mms, talks, unreadTalks, pgpSms, pgpMms, bytes, groups, groupTalks, persons, drafts, received, sent, receivedSms, receivedMms).joinToString(",")
@@ -295,21 +302,30 @@ object Store {
      * Read from the phone's own list of conversations, which is short; going
      * through every message to find the last of each took the time it takes
      * to read years of them.
+     *
+     * [groupsOnly]: only the conversations with several numbers, read for themselves -- a few among hundreds.
+     *
+     * [from]: how many of the latest to pass over -- the list read a block at a time, as it is scrolled.
+     *
+     * [only]: these conversations alone, by their numbers in the phone's list -- the few that hold a draft.
      */
-    /** [groupsOnly]: only the conversations with several numbers, read for themselves -- a few among hundreds. */
-    /** [from]: how many of the latest to pass over -- the list read a block at a time, as it is scrolled. */
-    fun talks(context: Context, most: Int, unreadOnly: Boolean = false, given: () -> Boolean = { false }, groupsOnly: Boolean = false, from: Int = 0): List<Talk> {
+    fun talks(context: Context, most: Int, unreadOnly: Boolean = false, given: () -> Boolean = { false }, groupsOnly: Boolean = false, from: Int = 0, only: Set<Long>? = null): List<Talk> {
         val talks = ArrayList<Talk>()
         // The unread, by their messages ([unreadThreads]).
         val unread = if (unreadOnly) unreadThreads(context).ifEmpty { return talks } else null
+        if (only != null && only.isEmpty()) return talks
         val listed = runCatching {
             // Only those that hold something unread, when that is all that is asked: a hundred to read rather than all.
             context.contentResolver.query(
                 THREADS, arrayOf("_id", "date", "snippet", "recipient_ids", "read"),
-                listOfNotNull(unread?.let { "_id IN (${it.joinToString(",")})" }, "trim(recipient_ids) LIKE '% %'".takeIf { groupsOnly }).joinToString(" AND ").ifEmpty { null },
+                listOfNotNull(
+                    unread?.let { "_id IN (${it.joinToString(",")})" },
+                    only?.let { "_id IN (${it.joinToString(",")})" },
+                    "trim(recipient_ids) LIKE '% %'".takeIf { groupsOnly },
+                ).joinToString(" AND ").ifEmpty { null },
                 null, "date DESC",
             )
-        }.getOrNull() ?: return everyTalk(context).filter { (!unreadOnly || it.unread) && (!groupsOnly || it.group) }.drop(from).take(most)
+        }.getOrNull() ?: return everyTalk(context).filter { (!unreadOnly || it.unread) && (!groupsOnly || it.group) && (only == null || it.thread in only) }.drop(from).take(most)
         listed.use { rows ->
             if (from > 0 && !rows.moveToPosition(from - 1)) return talks
             // [given] up: whoever asked no longer wants the answer, and reading on would only slow what they asked next.
@@ -472,8 +488,8 @@ object Store {
         }
         val parts = parts(context, heads.map { it.id })
         return heads.map { head ->
-            val (words, pieces) = parts[head.id] ?: ("" to emptyList())
-            Line(head.at, head.incoming, words, pieces, id = head.id, mms = true, sentAt = head.sentAt, unread = head.unread, thread = head.thread, failed = head.failed)
+            val (words, pieces, stripped) = parts[head.id] ?: Parts("", emptyList())
+            Line(head.at, head.incoming, words, pieces, id = head.id, mms = true, sentAt = head.sentAt, unread = head.unread, thread = head.thread, failed = head.failed, stripped = stripped)
         }
     }
 
@@ -485,7 +501,6 @@ object Store {
         }
     }.getOrNull().orEmpty()
 
-    /** The conversations holding something not read yet. */
     /** The conversations of the group of [numbers]: with [me] among them or without, newest first. */
     fun groupThreads(context: Context, numbers: List<String>, mine: List<String>): List<Long> = runCatching {
         val key = Phone.group(numbers, mine)
@@ -503,6 +518,8 @@ object Store {
      * The conversations that hold a message not read yet, the latest first:
      * told by their messages, the mark Android keeps on a conversation not
      * following a message moved to another.
+     *
+     * The conversations holding something not read yet.
      */
     fun unreadThreads(context: Context): List<Long> = runCatching {
         val at = HashMap<Long, Long>()
@@ -523,6 +540,27 @@ object Store {
      * holds, since asking the phone for it would make one.
      */
     fun thread(context: Context, number: String): Long? {
+        // The phone's own numbering of the addresses that are [number], however written, then the conversation with
+        // that one alone, the latest: one of MMS only is found too, and the SMS are not all read through.
+        runCatching {
+            val tail = Phone.key(number).takeIf { it.all(Char::isDigit) }
+            val ids = HashSet<String>()
+            val (where, args) = if (tail != null) "address LIKE ?" to arrayOf("%$tail") else "address = ? COLLATE NOCASE" to arrayOf(number)
+            context.contentResolver.query(Uri.parse("content://mms-sms/canonical-addresses"), null, where, args, null)?.use { rows ->
+                val id = rows.getColumnIndex("_id")
+                val address = rows.getColumnIndex("address")
+                while (rows.moveToNext()) {
+                    val one = rows.getString(address).orEmpty()
+                    if (Phone.same(one, number) || one.equals(number, ignoreCase = true)) ids += rows.getLong(id).toString()
+                }
+            }
+            if (ids.isNotEmpty()) {
+                context.contentResolver.query(THREADS, arrayOf("_id", "recipient_ids"), "trim(recipient_ids) NOT LIKE '% %'", null, "date DESC")?.use { rows ->
+                    while (rows.moveToNext()) if (rows.getString(1)?.trim() in ids) return rows.getLong(0)
+                }
+            }
+        }
+        // The long way, for a phone that keeps no such list.
         context.contentResolver.query(SMS, arrayOf("thread_id", "address"), SMS_NOT_DRAFT, null, "date DESC")?.use { rows ->
             val seen = HashSet<Long>()
             while (rows.moveToNext()) {
@@ -546,12 +584,22 @@ object Store {
         return null
     }
 
+    /** An MMS's words, its parts that are something else, and what the network said of those it took out. */
+    private data class Parts(val words: String, val pieces: List<Piece>, val stripped: String? = null)
+
+    /**
+     * The text part an operator puts in place of the parts it took out, too
+     * heavy for the phone it delivers to: no code, a sentence of its own.
+     */
+    private val NOTICES = setOf("mxnotify.txt")
+
     /** The words of an MMS, and its parts that are something else. */
-    private fun parts(context: Context, message: Long): Pair<String, List<Piece>> = parts(context, listOf(message))[message] ?: ("" to emptyList())
+    private fun parts(context: Context, message: Long): Parts = parts(context, listOf(message))[message] ?: Parts("", emptyList())
 
     /** The words and the other parts of several MMS, by message, asked a few hundred at a time. */
-    private fun parts(context: Context, messages: List<Long>): Map<Long, Pair<String, List<Piece>>> {
+    private fun parts(context: Context, messages: List<Long>): Map<Long, Parts> {
         val words = HashMap<Long, StringBuilder>()
+        val stripped = HashMap<Long, String>()
         val pieces = HashMap<Long, ArrayList<Piece>>()
         for (some in messages.chunked(400)) {
             context.contentResolver.query(
@@ -567,14 +615,21 @@ object Store {
                                 context.contentResolver.openInputStream(Uri.withAppendedPath(PARTS, rows.getString(0)))
                                     ?.use { String(it.readBytes(), Charsets.UTF_8) }
                             }.getOrNull()
-                            if (!text.isNullOrEmpty()) words.getOrPut(mid) { StringBuilder() }.let { it.append(if (it.isEmpty()) "" else "\n").append(text) }
+                            if (text.isNullOrEmpty()) continue
+                            if ((rows.getString(3) ?: rows.getString(4)).orEmpty().lowercase() in NOTICES) stripped[mid] = text.trim()
+                            else words.getOrPut(mid) { StringBuilder() }.let { it.append(if (it.isEmpty()) "" else "\n").append(text) }
                         }
                         else -> pieces.getOrPut(mid) { ArrayList() } += Piece(rows.getLong(0), type, rows.getString(3) ?: rows.getString(4))
                     }
                 }
             }
         }
-        return messages.associateWith { (words[it]?.toString().orEmpty()) to pieces[it].orEmpty() }
+        return messages.associateWith { Parts(words[it]?.toString().orEmpty(), pieces[it].orEmpty(), stripped[it]) }
+    }
+
+    /** How many messages are unread, and nothing else: what the way to the profile says, counted at every change. */
+    fun unread(context: Context): Int = listOf(SMS to "read = 0 AND $SMS_NOT_DRAFT", MMS to "read = 0 AND $MMS_NOT_DRAFT").sumOf { (table, where) ->
+        runCatching { context.contentResolver.query(table, arrayOf("_id"), where, null, null)?.use { it.count } }.getOrNull() ?: 0
     }
 
     fun counts(context: Context): Counts {
@@ -699,15 +754,19 @@ object Store {
                 }
             }
         }
-        // The MMS whose words hold it: found by their text parts, then asked where and when they belong.
+        // The MMS whose words hold it: found by their text parts, then asked where and when they belong -- those in
+        // clear by what they say, those PGP by what they said once opened, as for the SMS.
         val found = LinkedHashMap<Long, String>()
         runCatching {
-            context.contentResolver.query(PARTS, arrayOf("mid", "text"), "ct = 'text/plain' AND text LIKE ? ESCAPE '\\'", arrayOf(like), null)?.use { rows ->
-                while (rows.moveToNext()) {
-                    val text = rows.getString(1).orEmpty()
-                    val armor = Pgp.armorIn(text)
-                    val words = if (armor == null) text else Opened.words(armor)?.words?.takeIf { it.contains(asked, ignoreCase = true) } ?: continue
-                    found.putIfAbsent(rows.getLong(0), words)
+            context.contentResolver.query(
+                PARTS, arrayOf("mid", "text"), "ct = 'text/plain' AND text LIKE ? ESCAPE '\\' AND text NOT LIKE '%$BANNER%'", arrayOf(like), "_id DESC",
+            )?.use { rows ->
+                while (rows.moveToNext() && found.size < most) found.putIfAbsent(rows.getLong(0), rows.getString(1).orEmpty())
+            }
+            context.contentResolver.query(PARTS, arrayOf("mid", "text"), "ct = 'text/plain' AND text LIKE '%$BANNER%'", null, "_id DESC")?.use { rows ->
+                while (rows.moveToNext() && found.size < most) {
+                    val words = Pgp.armorIn(rows.getString(1).orEmpty())?.let { Opened.words(it)?.words } ?: continue
+                    if (words.contains(asked, ignoreCase = true)) found.putIfAbsent(rows.getLong(0), words)
                 }
             }
         }
@@ -726,12 +785,7 @@ object Store {
 
     private fun number(context: Context, message: Long, incoming: Boolean): String? {
         val wanted = if (incoming) FROM else TO
-        return context.contentResolver
-            .query(Uri.parse("content://mms/$message/addr"), arrayOf("address", "type"), null, null, null)?.use { rows ->
-                var number: String? = null
-                while (rows.moveToNext()) if (rows.getInt(1) == wanted) number = number ?: rows.getString(0)
-                number
-            }
+        return addresses(context, message).firstOrNull { it.type == wanted }?.number
     }
 
     private val SMS = Uri.parse("content://sms")
@@ -746,6 +800,7 @@ object Store {
     /** Not a draft: what is being written is not a message, sent or received, and is read apart. */
     const val SMS_NOT_DRAFT = "type != ${android.provider.Telephony.Sms.MESSAGE_TYPE_DRAFT}"
     const val MMS_NOT_DRAFT = "msg_box != ${android.provider.Telephony.Mms.MESSAGE_BOX_DRAFTS}"
-    private const val FROM = 137
-    private const val TO = 151
+    /** An MMS address's types, as the phone keeps them (OMA-MMS-ENC header codes): from, and to. */
+    internal const val FROM = 137
+    internal const val TO = 151
 }

@@ -9,6 +9,7 @@
     <string name="sent">Το μήνυμα στάλθηκε.</string>
     <string name="not_sent">Το μήνυμα δεν στάλθηκε (%1$d).</string>
     <string name="refused">⚠ Δεν στάλθηκε: απορρίφθηκε από τον πάροχο</string>
+    <string name="stripped">⚠ Ο πάροχος αφαίρεσε το συνημμένο καθ\' οδόν: «%1$s»</string>
     <string name="no_provider">Το foodjis δεν είναι εγκατεστημένο ή δεν απαντά.</string>
     <string name="failed">%1$s</string>
     <string name="signed_certified">Υπογραφή από %1$s, πιστοποιημένο.</string>
@@ -29,6 +30,7 @@
     <string name="tie_ask">%1$s είναι ο/η %2$s;</string>
     <string name="tie_write">Καταχώριση</string>
     <string name="channel_messages">Μηνύματα</string>
+    <string name="mms_unfetched">Το MMS δεν λήφθηκε. Πατήστε για νέα προσπάθεια.</string>
     <string name="not_default">Η εφαρμογή μηνυμάτων του τηλεφώνου εξακολουθεί να λαμβάνει και να κρατά τα μηνύματα. Το foomms μπορεί να πάρει τη θέση της: το Android θα σας ρωτήσει.</string>
     <string name="become_default">Ορισμός του foomms ως εφαρμογής μηνυμάτων</string>
     <string name="configure">⚙️ Ρυθμίσεις</string>
@@ -40,6 +42,15 @@
     <string name="locked_for">⚿ Κρυπτογραφημένο μήνυμα για</string>
     <string name="piece_for">για</string>
     <string name="share">⤴ Κοινοποίηση</string>
+    <string name="reply">↩ Απάντηση</string>
+    <string name="reply_drop">Να μην απαντηθεί αυτό το μήνυμα</string>
+    <string name="quote_gone">Το μήνυμα που παρατίθεται δεν είναι σε αυτή τη συνομιλία</string>
+    <string name="share_picture">Κοινοποίηση φωτογραφίας</string>
+    <string name="share_video">Κοινοποίηση βίντεο</string>
+    <string name="share_clear_title">Κοινοποίηση χωρίς κρυπτογράφηση;</string>
+    <string name="share_clear_says">Αυτό το αντικείμενο ταξίδεψε κρυπτογραφημένο. Αν το κοινοποιήσετε, θα φύγει χωρίς κρυπτογράφηση προς την εφαρμογή που θα επιλέξετε.</string>
+    <string name="share_clear_says_text">Αυτό το μήνυμα ταξίδεψε κρυπτογραφημένο. Αν το κοινοποιήσετε, θα φύγει χωρίς κρυπτογράφηση προς την εφαρμογή που θα επιλέξετε.</string>
+    <string name="share_clear_go">Κοινοποίηση χωρίς κρυπτογράφηση</string>
     <string name="save">↧ Αποθήκευση</string>
     <string name="saved">Αποθηκεύτηκε.</string>
     <string name="conf_theme">Θέμα</string>
@@ -123,15 +134,10 @@
     <string name="tie_ask_after">. Αυτό θα γραφτεί στο βιβλίο διευθύνσεών σας, όπου η επαφή δεν το αναφέρει ακόμη:</string>
     <string name="whom_hint">Ένα όνομα ή ένας αριθμός τηλεφώνου</string>
     <string name="mark_all_read">○ Σήμανση όλων ως αναγνωσμένα</string>
-    <string name="mark_all_read_ask">Σήμανση των %1$d μη αναγνωσμένων μηνυμάτων ως αναγνωσμένων;</string>
     <string name="mark_read">○ Σήμανση ως αναγνωσμένο</string>
     <string name="mark_unread">● Σήμανση ως μη αναγνωσμένο</string>
     <string name="count_detail">%1$d μηνύματα: %2$d SMS + %3$d MMS\nαπό τα οποία %4$d PGP: %5$d SMS + %6$d MMS\n%9$d ληφθέντα: %13$d SMS + %14$d MMS\n%10$d απεσταλμένα: %15$d SMS + %16$d MMS\n\n%7$d συνομιλίες: %11$d ατομικές + %12$d ομαδικές</string>
     <string name="count_bytes">%1$s byte</string>
-    <plurals name="count_detail_unread_rest">
-        <item quantity="one">, από τα οποία %1$d PGP, σε %2$d συνομιλία.</item>
-        <item quantity="other">, από τα οποία %1$d PGP, σε %2$d συνομιλίες.</item>
-    </plurals>
     <string name="switch_sign">Υπογραφή</string>
     <string name="switch_lock">Κρυπτογράφηση</string>
     <string name="cert_show">🔑 Εμφάνιση του πιστοποιητικού</string>
@@ -151,9 +157,7 @@
     <string name="place_off">Η τοποθεσία του τηλεφώνου είναι απενεργοποιημένη.</string>
     <string name="place_seeking">Εντοπισμός θέσης…</string>
     <string name="place_none">Το τηλέφωνο δεν γνωρίζει αυτή τη στιγμή πού βρίσκεται.</string>
-    <string name="backup_all">Αντίγραφο ασφαλείας</string>
-    <string name="backup_one">💾 Αποθήκευση αυτής της συνομιλίας</string>
-    <string name="backup_about">Όλες οι συνομιλίες αποθηκεύονται σε αρχείο XML. Τα μηνύματα PGP μένουν όπως ταξίδεψαν: κρυπτογραφημένα.</string>
+    <string name="backup_one">💾 Αποθήκευση της συνομιλίας</string>
     <string name="backup_save">Αποθήκευση όλων</string>
     <string name="backup_restore">Επαναφορά αντιγράφου</string>
     <string name="backup_working">Σε εξέλιξη…</string>
@@ -220,19 +224,24 @@
     <string name="listening_play">Αναπαραγωγή</string>
     <string name="listening_pause">Παύση</string>
     <string name="listening_stop">Διακοπή</string>
-    <string name="conf_mms_size">Χρήση του ορίου του παρόχου: %1$d kB, δηλαδή %2$d kB αξιοποιήσιμα</string>
-    <string name="conf_mms_size_note">Τα MMS περιορίζονται συνήθως στα %1$d kB, δηλαδή %2$d kB αξιοποιήσιμα. Ο πάροχός σας μπορεί να προσφέρει περισσότερα, αλλά ο πάροχος του παραλήπτη μπορεί να απορρίψει τόσο γενναιόδωρα MMS.</string>
+    <string name="conf_mms_size">Όριο μεγέθους MMS</string>
+    <string name="conf_mms_size_note">Τα MMS περιορίζονται συνήθως στα %1$d kB.</string>
+    <string name="conf_mms_size_more">Ο πάροχός σας αναφέρει %1$d kB, αλλά ο πάροχος του παραλήπτη μπορεί να απορρίψει τόσο γενναιόδωρα MMS.</string>
+    <string name="conf_mms_size_theirs">Ο πάροχός σας αναφέρει %1$d kB.</string>
+    <string name="conf_operator_none">Ο πάροχός σας δεν αναφέρει το όριό του.</string>
+    <string name="conf_mms_size_margin">Από το όριο που επιλέγετε, %1$d kB δεσμεύονται για τον φάκελο του μηνύματος και την κρυπτογράφηση.</string>
+    <string name="conf_kb">%1$d kB</string>
     <string name="too_heavy_sent">Αυτό το μήνυμα ζυγίζει %1$d kB, περισσότερο από τα %2$d kB που ορίστηκαν για τα MMS: δεν στάλθηκε.</string>
     <string name="watch_turn">Περιστροφή του βίντεο κατά ένα τέταρτο</string>
+    <string name="picture_turn">Περιστροφή της φωτογραφίας κατά ένα τέταρτο</string>
+    <string name="picture_close">Κλείσιμο της φωτογραφίας</string>
     <string name="video_camera">Πίσω ή μπροστινή κάμερα</string>
     <string name="video_light">Φωτισμός</string>
     <string name="video_sound">Μόνο ήχος (%1$s)</string>
     <!-- The three pages of the list, and what each counts under its name. -->
     <string name="page_talks">Συνομιλίες</string>
-    <string name="page_unread">Μη αναγνωσμένα</string>
-    <string name="page_unread_n">Μη αναγνωσμένα (%1$d)</string>
-    <string name="page_groups">Ομάδες MMS</string>
     <string name="page_profile">Το προφίλ μου</string>
+    <string name="page_profile_n">Το προφίλ μου (%1$d)</string>
     <string name="me_wizard_title">Ποια κάρτα επαφής είναι η δική σας;</string>
     <string name="me_wizard_text">Πείτε στο foomms ποια κάρτα επαφής είναι η δική σας: σας εκπροσωπεί στις ομάδες, με τον αριθμό και το πιστοποιητικό σας. Μπορείτε να την αλλάξετε στο «Το προφίλ μου».</string>
     <string name="me_wizard_choose">Επιλογή της κάρτας μου</string>
@@ -245,9 +254,13 @@
         <item quantity="one">%d μη αναγνωσμένο μήνυμα</item>
         <item quantity="other">%d μη αναγνωσμένα μηνύματα</item>
     </plurals>
-    <plurals name="groups_n">
-        <item quantity="one">%d ομάδα</item>
-        <item quantity="other">%d ομάδες</item>
+    <plurals name="count_detail_unread_rest">
+        <item quantity="one">, από τα οποία %1$d PGP, σε %2$d συνομιλία.</item>
+        <item quantity="other">, από τα οποία %1$d PGP, σε %2$d συνομιλίες.</item>
+    </plurals>
+    <plurals name="unread_short">
+        <item quantity="one">%d μη αναγνωσμένο</item>
+        <item quantity="other">%d μη αναγνωσμένα</item>
     </plurals>
     <plurals name="group_members">
         <item quantity="one">%d μέλος</item>
@@ -292,7 +305,10 @@
         <item quantity="one">%d πρόχειρο</item>
         <item quantity="other">%d πρόχειρα</item>
     </plurals>
-    <string name="clear_drafts">Διαγραφή όλων των πρόχειρων</string>
+    <string name="clear_drafts">Διαγραφή προχείρων</string>
+    <string name="clear_draft">Διαγραφή</string>
+    <string name="see_unread">Προβολή μη αναγνωσμένων</string>
+    <string name="see_unread_one">Προβολή</string>
     <plurals name="clear_drafts_ask">
         <item quantity="one">Διαγραφή %d πρόχειρου; Το κείμενό του θα χαθεί.</item>
         <item quantity="other">Διαγραφή των %d πρόχειρων; Το κείμενό τους θα χαθεί.</item>
@@ -305,10 +321,14 @@
     <string name="all_contacts">Όλες οι επαφές (%1$d)</string>
     <string name="conf_group_most">Όριο ομαδικού MMS</string>
     <string name="conf_group_most_note">Τα MMS περιορίζονται συνήθως σε 20 παραλήπτες. Ορισμένοι πάροχοι δέχονται πολύ περισσότερους, λίγοι μόνο δέκα.</string>
+    <string name="conf_group_most_operator">Ο πάροχός σας αναφέρει %1$d παραλήπτες.</string>
+    <string name="conf_sms_most">Όριο μεγάλου κειμένου μέσω SMS</string>
+    <string name="conf_sms_most_note">Τα 7 SMS είναι το μέγιστο μήκος που περνά σχεδόν παντού. Ορισμένα δίκτυα δέχονται πολύ περισσότερα, και εξαρτάται επίσης από το δίκτυο του παραλήπτη. Πέρα από αυτό, το κείμενο φεύγει ως MMS ή, αν η αποστολή MMS είναι απενεργοποιημένη, το foomms ζητά πρώτα επιβεβαίωση.</string>
+    <string name="conf_sms_most_operator">Ο πάροχός σας αναφέρει %1$d.</string>
     <string name="group_over">Αυτή η ομάδα έχει %1$d μέλη, μαζί με εσάς, πάνω από το όριο των %2$d που ορίστηκε στη διαμόρφωση: ο πάροχος μπορεί να απορρίψει το μήνυμα ή να το παραδώσει στον καθένα χωριστά.</string>
     <string name="group_over_send">Αποστολή παρ\' όλα αυτά</string>
     <string name="conf_mms_on">Να επιτρέπεται η αποστολή MMS</string>
-    <string name="conf_mms_on_note">Επιτρέπει την αποστολή ομαδικών μηνυμάτων, κειμένων μεγαλύτερων από 8 SMS, φωνητικών μηνυμάτων, φωτογραφιών ή σύντομων βίντεο. Από πάροχο σε πάροχο, ένα MMS φτάνει λιγότερο σίγουρα από ένα SMS, και ορισμένα προγράμματα το χρεώνουν. Άλλοι πάροχοι δεν υποστηρίζουν καθόλου MMS, κάτι που ευνοεί τις εφαρμογές μηνυμάτων στο Διαδίκτυο και άρα την παγκόσμια επιτήρηση.</string>
+    <string name="conf_mms_on_note">Επιτρέπει την αποστολή ομαδικών μηνυμάτων, μεγάλων κειμένων, φωνητικών μηνυμάτων, φωτογραφιών ή σύντομων βίντεο. Από πάροχο σε πάροχο, ένα MMS φτάνει λιγότερο σίγουρα από ένα SMS, και ορισμένα προγράμματα το χρεώνουν. Άλλοι πάροχοι δεν υποστηρίζουν καθόλου MMS, κάτι που ευνοεί τις εφαρμογές μηνυμάτων στο Διαδίκτυο και άρα την παγκόσμια επιτήρηση.</string>
     <string name="mms_off">Η αποστολή MMS δεν επιτρέπεται στη διαμόρφωση: ούτε συνημμένο, ούτε φωνητικό μήνυμα, ούτε ομαδικό MMS.</string>
     <string name="many_sms">Αυτό το μήνυμα φεύγει σε %1$d SMS: κάποια τηλέφωνα τα ενώνουν άσχημα, και ο πάροχός σας μπορεί να χρεώσει το καθένα.</string>
 </resources>

@@ -1,0 +1,11 @@
+• Reply to a message, citing it.
+• Share photos and videos from full screen.
+• "Call" places the call.
+• Drafts and unread in My profile.
+• Menus on long press.
+• Received photos full screen.
+• Adjustable SMS and MMS limits.
+• Violet and yellow-green: certified, but signed by someone else.
+• Undownloaded MMS reported and asked for again.
+• Encrypted attachments kept whole on the way.
+• Sent attachments shown open.

@@ -1,0 +1,13 @@
+• Profilim: taslaklar ve okunmamışlar, her biri kendi satırında, ilgili konuşmaların listesini açar. Okunmamışlar sayfası kalkar; sayıları «Profilim»in yanında görünür.
+• Bir konuşmaya, gruba ya da üyelerinden birine uzun basmak menüsünü açar.
+• Alınan fotoğraflar tam ekranda açılır: büyütülür, kaydırılır, döndürülür.
+• Ayarlar: bir metnin kaç SMS'e kadar SMS olarak gideceği ve MMS boyutu kaydırıcılarla ayarlanır; operatörün izin verdiği hatırlatılır.
+• Şifreli olan varsayılan olarak 15 dakika açık kalır.
+• Sertifikalı ama konuştuğunuz kişiden başkası tarafından imzalanmış bir mesaj mor, ayrıca şifreliyse sarı-yeşil görünür.
+• Telefonun indiremediği bir MMS bildirilir ve 7 gün boyunca yeniden istenir.
+• Şifreli gönderdiğiniz bir fotoğraf ya da dosya, metni gibi balonunuzda açık görünür.
+• Şifreli bir ek artık yolda operatör tarafından küçültülmez; operatör bir eki kaldırırsa foomms bunu mesajın altında söyler.
+• Bir fotoğraf ya da videoyu tam ekrandan paylaşma; şifreli geldiyse foomms önce şifresiz gideceği konusunda uyarır.
+• Bir mesajı, balonunu sağa kaydırarak ya da uzun basarak yanıtlama: yanıt, onu alıntılayan bir satırla başlar — saati ve ilk sözcükleri —, her telefonda okunur; alıntıya basmak ona götürür.
+• Bir konuşmanın menüsündeki «… numarasını ara», izin verdiğinizde aramayı hemen başlatır; aksi halde numara eskisi gibi tuşlamada görünür.
+• Daha hızlı bir liste ve çok sayıda düzeltme.

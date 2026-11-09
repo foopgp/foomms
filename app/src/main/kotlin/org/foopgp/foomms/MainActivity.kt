@@ -9,7 +9,6 @@ import android.graphics.Bitmap
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.TextUtils
-import android.text.format.DateUtils
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -49,10 +48,10 @@ class MainActivity : AskingActivity() {
         fun standing(now: String?) = Row(talk, person, face, name, verdict, last, now, group, threads, unread, with, crowd, speaker, messages, draft)
 
         /** The line of one of those a sending to each went to: theirs, the sending shown in their conversation, not a conversation of its own. */
-        fun apart() = Row(talk, person, face, name, verdict, last, standing, group, emptyList(), unread, with, crowd, speaker)
+        fun apart() = Row(talk, person, face, name, verdict, last, standing, group, emptyList(), unread, with, crowd, speaker, draft = draft)
 
         /** A group heard from the headers of [messages], filed in their senders' conversations: none of those is its. */
-        fun heard(messages: List<Long>) = Row(talk, person, face, name, verdict, last, standing, group, emptyList(), unread, with, crowd, speaker, messages)
+        fun heard(messages: List<Long>) = Row(talk, person, face, name, verdict, last, standing, group, emptyList(), unread, with, crowd, speaker, messages, draft)
 
         /** Its face of pixels, with no picture: the certificate's, the number's, or the group's. */
         val seed: String? get() = group ?: Look.seed(person?.fingerprint, with)
@@ -91,26 +90,25 @@ class MainActivity : AskingActivity() {
     private lateinit var asking: LinearLayout
     private lateinit var detail: android.widget.TextView
 
-    /** The three pages of the list, in the order of the menu: the conversations between two, the unread, the groups. */
-    /** The conversations, every one; those with something unread; oneself, and the counts. */
-    private enum class Page { TALKS, UNREAD, PROFILE }
+    /** The conversations, every one; oneself, the counts, the drafts and the unread. */
+    private enum class Page { TALKS, PROFILE }
 
     /** Every conversation read so far, and the page shown. */
     private var every: List<Row> = emptyList()
 
     private var page = Page.TALKS
-    private val onlyUnread get() = page == Page.UNREAD
 
     /** Whether [every] holds every conversation, rather than the first ones of a reading cut short. */
     private var everyWhole = false
 
-    /** The unread page's or the groups' conversations, read for themselves; none yet, and they are picked out of [every]. */
-    private var pageRows: List<Row>? = null
     private lateinit var heading: android.widget.TextView
     private lateinit var counted: android.widget.TextView
 
-    /** Under the bar, the ways to the two other pages. */
+    /** Under the bar, the way to the profile's page; from it, the way back is the bar's arrow. */
     private lateinit var others: LinearLayout
+
+    /** In the bar, the way to the configuration, on the conversations' page. */
+    private lateinit var gear: View
 
     /** On the profile's page: oneself, a member of every group -- face and number --, and under it what can be done about it. */
     private lateinit var meBox: LinearLayout
@@ -131,9 +129,9 @@ class MainActivity : AskingActivity() {
     /** The key of the identity foodjis holds, once it has said: the certificate offered first to tie one's contact to. */
     @Volatile private var mineKey: Long? = null
 
-    /** Under the counts in detail: everything read at once. */
-    private lateinit var tools: LinearLayout
-    private lateinit var markAll: android.widget.Button
+    /** On the profile's page, under the drafts: how many are unread, and a way to see them. */
+    private lateinit var unreadLine: LinearLayout
+    private lateinit var seeUnread: android.widget.Button
     private lateinit var draftsLine: LinearLayout
 
     /** On the profile's page: what the messages weigh, saving them all, restoring a saving. */
@@ -142,6 +140,9 @@ class MainActivity : AskingActivity() {
     private lateinit var draftsSaid: android.widget.TextView
     private lateinit var clearDrafts: android.widget.Button
     private lateinit var unreadSaid: android.widget.TextView
+
+    /** The conversations holding something unread, read with the profile's page. */
+    private var unreadRows: List<Row> = emptyList()
     private var rows: List<Row> = emptyList()
 
     override fun onCreate(state: Bundle?) {
@@ -173,8 +174,10 @@ class MainActivity : AskingActivity() {
                 // Pressed: the pages, to go to another.
                 setOnClickListener { pages() }
                 val side = Look.dp(context, 36)
-                // At the far left, the way to the configuration; at the far right, to the search.
-                addView(Look.icon(context, R.drawable.settings, getString(R.string.configure)) { Menus.configure(this@MainActivity) })
+                // At the far left, the way to the configuration -- on the profile's page, the arrow back to the
+                // conversations in its place --; at the far right, to the search.
+                gear = Look.icon(context, R.drawable.settings, getString(R.string.configure)) { Menus.configure(this@MainActivity) }
+                addView(gear)
                 // The page's mark: the application's on the conversations, the unread's and the profile's on theirs.
                 mark = android.widget.ImageView(context).apply { setImageResource(R.drawable.launcher) }
                 addView(mark, LinearLayout.LayoutParams(side, side).apply { marginStart = Look.dp(context, 4) })
@@ -209,7 +212,7 @@ class MainActivity : AskingActivity() {
                     }
                 },
             )
-            setOnItemClickListener { _, _, at, _ -> open(rows[at].talk, threads = rows[at].threads, with = rows[at].with ?: rows[at].talk.number, messages = rows[at].messages) }
+            setOnItemClickListener { _, _, at, _ -> open(rows[at]) }
         }
         others = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -275,26 +278,24 @@ class MainActivity : AskingActivity() {
             addView(clearDrafts)
         }
         column.addView(draftsLine)
-        // On the profile's page, after the counts and the drafts: a rule, then oneself.
+        // The unread, the same way, under the drafts.
+        unreadSaid = Look.words(this, "", size = 14f, muted = true)
+        seeUnread = Look.small(this, getString(R.string.see_unread)) { seeUnread() }
+        unreadLine = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            val side = Look.dp(context, 16)
+            setPadding(side, 0, side, side / 2)
+            visibility = View.GONE
+            addView(unreadSaid, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            addView(seeUnread)
+        }
+        column.addView(unreadLine)
+        // On the profile's page, after the counts, the drafts and the unread: a rule, then oneself.
         meRule = View(this).apply { setBackgroundColor(Look.MUTED) ; visibility = View.GONE }
         column.addView(meRule, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1).apply { val side = Look.dp(this@MainActivity, 16) ; setMargins(side, 0, side, Look.dp(this@MainActivity, 4)) })
         column.addView(meBox)
         column.addView(meActions)
-        unreadSaid = Look.words(this, "", size = 14f, muted = true).apply {
-            val side = Look.dp(context, 16)
-            setPadding(side, 0, side, side / 2)
-            visibility = View.GONE
-        }
-        column.addView(unreadSaid)
-        markAll = Look.small(this, getString(R.string.mark_all_read)) { markAll() }
-        tools = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            val side = Look.dp(context, 16)
-            setPadding(side, 0, side, side / 2)
-            visibility = View.GONE
-            addView(markAll)
-        }
-        column.addView(tools)
         column.addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         val pad = Look.dp(this, 8)
         column.addView(
@@ -344,7 +345,8 @@ class MainActivity : AskingActivity() {
         if (asked?.action != Intent.ACTION_SEND) return
         val text = asked.getStringExtra(Intent.EXTRA_TEXT)
         @Suppress("DEPRECATION")
-        val stream = asked.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)
+        // Never a path, read with our rights: what was opened from its lock lives there.
+        val stream = asked.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM)?.takeUnless(Outbox::path)
         if (text == null && stream == null) return
         // Once: the page made again keeps its intent, and would ask again.
         setIntent(Intent(this, MainActivity::class.java))
@@ -395,17 +397,16 @@ class MainActivity : AskingActivity() {
         }
     }
 
-    /** Another page: the conversations between two, those with something unread and the counts in detail, or the groups. */
+    /** Another page: the conversations, or oneself and the counts. */
     private fun go(to: Page) {
         if (to == page) return
         page = to
-        pageRows = null
         // Called by its own name: inside the bar's code, "show()" was the bar's, which shows the bar.
         redraw()
         readMe()
-        // The unread are read for themselves. The others: what was read is shown at once,
-        // and read again only if nothing was.
-        if (page != Page.TALKS || every.isEmpty()) fill()
+        // What was read is shown at once, and read again only if nothing was; the profile reads its drafts and unread.
+        // Read again in any case: what arrived meanwhile is at the top -- quick, the latest few first ([fill]).
+        fill()
     }
 
     /**
@@ -425,11 +426,11 @@ class MainActivity : AskingActivity() {
                     setPadding(pad * 2, pad, pad * 2, pad)
                     addView(
                         if (one == Page.TALKS) android.widget.ImageView(context).apply { setImageResource(R.drawable.launcher) }
-                        else Look.words(context, glyph(one), size = 20f).apply { gravity = Gravity.CENTER },
+                        else Look.words(context, profileMark, size = 20f).apply { gravity = Gravity.CENTER },
                         LinearLayout.LayoutParams(side, side),
                     )
                     addView(
-                        Look.words(context, named(one), size = 17f).apply {
+                        Look.words(context, named(one, counted = true), size = 17f).apply {
                             setPadding(pad, 0, 0, 0)
                             if (one == Page.TALKS) setTypeface(typeface, Typeface.BOLD)
                             if (one == page) setTextColor(Look.ORANGE)
@@ -467,21 +468,55 @@ class MainActivity : AskingActivity() {
 
     /** A page's name after its mark, the application's own drawn in the text for the conversations, [side] high. */
     private fun marked(of: Page, side: Int): CharSequence {
-        if (of != Page.TALKS) return "${glyph(of)} ${named(of)}"
+        if (of != Page.TALKS) return "$profileMark ${named(of, counted = true)}"
         val mark = getDrawable(R.drawable.launcher)?.apply { setBounds(0, 0, side, side) } ?: return named(of)
         return android.text.SpannableStringBuilder("  ${named(of)}").apply {
             setSpan(android.text.style.ImageSpan(mark, android.text.style.DynamicDrawableSpan.ALIGN_BOTTOM), 0, 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 
-    /** The mark of a page but the conversations', whose mark is the application's. */
-    private fun glyph(of: Page): String = if (of == Page.UNREAD) "📬" else "👤"
+    /** The profile's page's mark: the conversations' is the application's own. */
+    private val profileMark = "👤"
 
-    /** A page's name, the unread's with how many there are. */
-    private fun named(it: Page): String = when (it) {
+    /** A page's name; the profile's, on the way to it, with how many messages are unread, when some are. */
+    private fun named(it: Page, counted: Boolean = false): String = when (it) {
         Page.TALKS -> getString(R.string.page_talks)
-        Page.UNREAD -> counts?.let { known -> getString(R.string.page_unread_n, known.unread) } ?: getString(R.string.page_unread)
-        Page.PROFILE -> getString(R.string.page_profile)
+        Page.PROFILE -> counts?.unread?.takeIf { counted && it > 0 }?.let { getString(R.string.page_profile_n, it) } ?: getString(R.string.page_profile)
+    }
+
+    /** The bar's arrow, and the phone's back, from the profile's page: the conversations. */
+    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
+        if (item.itemId == android.R.id.home && page == Page.PROFILE) {
+            go(Page.TALKS)
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    /**
+     * The phone's back, taken while on the profile's page: from Android 13, through the callback -- with this
+     * target, Android 16 no longer calls [onBackPressed] --, before that through it.
+     */
+    private var backing: Any? = null
+
+    private fun backToTalks(on: Boolean) {
+        if (android.os.Build.VERSION.SDK_INT < 33 || on == (backing != null)) return
+        val dispatcher = onBackInvokedDispatcher
+        if (on) {
+            val callback = android.window.OnBackInvokedCallback { go(Page.TALKS) }
+            dispatcher.registerOnBackInvokedCallback(android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, callback)
+            backing = callback
+        } else {
+            dispatcher.unregisterOnBackInvokedCallback(backing as android.window.OnBackInvokedCallback)
+            backing = null
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (page == Page.PROFILE) return go(Page.TALKS)
+        @Suppress("DEPRECATION")
+        super.onBackPressed()
     }
 
     override fun onActivityResult(request: Int, outcome: Int, data: android.content.Intent?) {
@@ -522,6 +557,8 @@ class MainActivity : AskingActivity() {
         if (Look.wantsDark(this) != dressed) return recreate()
         Look.dress(this)
         Foodjis.of(this).fresh()
+        // The MMS that could not be fetched, asked for again: opened, the phone is likelier to have the network.
+        thread { runCatching { Unfetched.againAll(applicationContext) } }
         // This phone's numbers, from the MMS it has received: once the messages may be read -- on a first start, not yet.
         if (!looked && checkSelfPermission(Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) {
             looked = true
@@ -578,7 +615,9 @@ class MainActivity : AskingActivity() {
         fill()
     }
 
-    override fun onRequestPermissionsResult(request: Int, permissions: Array<String>, results: IntArray) = onResume()
+    override fun onRequestPermissionsResult(request: Int, permissions: Array<String>, results: IntArray) {
+        if (!TalkMenu.answered(this, request, results)) onResume()
+    }
 
     /** Installed from a file, downloaded or not, rather than by a store: Android then restricts the SMS. */
     private fun fromFile(): Boolean = android.os.Build.VERSION.SDK_INT >= 33 && runCatching {
@@ -588,8 +627,17 @@ class MainActivity : AskingActivity() {
         )
     }.getOrDefault(false)
 
+    /**
+     * The list read again once the messages stop changing: a conversation
+     * read marks its messages one by one, and each change began a reading
+     * that the next one dropped, so that nothing was shown for seconds.
+     */
     private val arrivals = object : android.database.ContentObserver(android.os.Handler(android.os.Looper.getMainLooper())) {
-        override fun onChange(self: Boolean) = fill()
+        private val again = Runnable { if (!isFinishing && !isDestroyed) fill() }
+        override fun onChange(self: Boolean) {
+            list.removeCallbacks(again)
+            list.postDelayed(again, SETTLE_MS)
+        }
     }
 
     /**
@@ -682,24 +730,14 @@ class MainActivity : AskingActivity() {
     private fun fill() {
         val contacts = checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
         val turn = ++turns
-        val unreadOnly = onlyUnread
-        // The unread are read for themselves: few among all the conversations. The profile shows no conversation.
-        val apart = page == Page.UNREAD
+        // The profile shows no conversation: only those its drafts and unread are in, in their windows.
         val profile = page == Page.PROFILE
         if (written != Book.written) { synchronized(people) { people.clear() } ; synchronized(lines) { lines.clear() } ; written = Book.written }
         thread {
             val foodjis = Foodjis.of(this)
             // Oneself by name, when one wrote a group's last message.
             val myName: String by lazy { Me.card(this)?.let { Book.own(this, it) }?.name ?: getString(R.string.me_tag) }
-            // Oneself as a small face, last in each group's square: one's contact's picture, else pixels from one's number.
-            val myself: Look.Mini by lazy {
-                val own = Me.card(this)?.let { Book.own(this, it) }
-                val cert = own?.fingerprint?.let { foodjis.card(it) }
-                Look.Mini(
-                    own?.photo?.let { Media.thumbnail(this, it, Media.FACE) } ?: own?.fingerprint?.let { foodjis.face(it) },
-                    cert?.validity, Look.seed(own?.fingerprint, Me.number(this)),
-                )
-            }
+            val myself: Look.Mini by lazy { Me.mini(this, foodjis) }
             fun row(talk: Store.Talk, kept: Boolean = true): Row {
                 // A line kept is kept but for its badge: what foodjis says of the certificate changes there, unseen here.
                 synchronized(lines) { lines[talk.thread] }?.takeIf { kept }?.takeIf { it.talk.at == talk.at && it.talk.unread == talk.unread && it.talk.last == talk.last }?.let { kept ->
@@ -725,7 +763,11 @@ class MainActivity : AskingActivity() {
                 val verdict = when {
                     armor == null -> Verdict.RED
                     // Not opened yet: nothing tells what it is worth, signed or not, before the key does.
-                    else -> Opened.verdict(this, armor) ?: Verdict.GREY
+                    // Received and certified by somebody else than whom the line is with: its own colours.
+                    else -> Opened.words(armor)?.let { read ->
+                        if (!talk.incoming) read.verdict
+                        else Verdict.received(read.verdict, read.signer, listOfNotNull((person ?: talk.from?.takeIf { group != null }?.let(::who))?.fingerprint).mapNotNull { runCatching { Fingerprint.keyId(it) }.getOrNull() })
+                    } ?: Verdict.GREY
                 }
                 val last = when {
                     armor == null -> talk.last
@@ -767,9 +809,14 @@ class MainActivity : AskingActivity() {
                 else talk.members.filterNot { Me.mine(this, it) }.map { one ->
                     row(Store.Talk(talk.thread, one, talk.at, talk.last, talk.incoming, talk.unread, talk.form), kept = false).apart()
                 }
-            fun show(found: List<Row>, whole: Boolean = false) = runOnUiThread {
+            // [counted]: how many conversations [found] was read from, set with it -- a block read meanwhile by
+            // scrolling ([more]) is dropped, rather than counted and lost under what is shown here.
+            fun show(found: List<Row>, whole: Boolean = false, counted: Int? = null) = runOnUiThread {
                 if (isFinishing || isDestroyed || turn != turns) return@runOnUiThread
-                if (apart) pageRows = found else { every = found ; everyWhole = whole }
+                every = found
+                everyWhole = whole
+                counted?.let { read = it }
+                shownAgain++
                 redraw()
                 verifySigned(found)
             }
@@ -784,23 +831,39 @@ class MainActivity : AskingActivity() {
                 runOnUiThread { if (!isFinishing && !isDestroyed) redraw() }
             }
             if (profile) {
-                if (!stale()) count()
-            } else if (apart) {
-                val found = runCatching { Store.talks(this, Int.MAX_VALUE, unreadOnly = unreadOnly, given = stale) }.getOrDefault(emptyList()).flatMap(::rowsOf)
-                show(found.sortedByDescending { it.talk.at })
+                // The conversations holding a draft, for the window that offers to forget them all ([clearDrafts]).
+                val drafted = runCatching { Store.talks(this, Int.MAX_VALUE, given = stale, only = Drafts.threads(this)) }.getOrDefault(emptyList())
+                    .flatMap(::rowsOf).sortedByDescending { it.talk.at }
+                // And those holding something unread, read for themselves: few among all the conversations.
+                val unread = runCatching { Store.talks(this, Int.MAX_VALUE, unreadOnly = true, given = stale) }.getOrDefault(emptyList())
+                    .flatMap(::rowsOf).sortedByDescending { it.talk.at }
+                runOnUiThread { if (!isFinishing && !isDestroyed && turn == turns) { draftRows = drafted ; unreadRows = unread } }
                 if (!stale()) count()
             } else {
                 // The latest first, and no more than were shown already: the rest comes a block at a time, as the list is scrolled ([more]).
                 rowOf = ::rowsOf
                 val asked = maxOf(FIRST, read)
+                // The newest few first, over what was shown: a conversation just read from its notification is at the
+                // top at once, not after all the others the list had read are read again.
+                val quick = runCatching { Store.talks(this, QUICK, given = stale) }.getOrDefault(emptyList())
+                if (quick.isNotEmpty() && !stale()) {
+                    val fresh = quick.map { it.thread }.toSet()
+                    val oldest = quick.last().at
+                    val shown = every
+                    show(quick.flatMap(::rowsOf) + shown.filter { it.talk.thread !in fresh && it.talk.at < oldest }, whole = everyWhole)
+                }
                 val talks = runCatching { Store.talks(this, asked, given = stale) }.getOrDefault(emptyList())
                 val first = talks.flatMap(::rowsOf)
-                read = talks.size
-                show(first, whole = talks.size < asked)
+                show(first, whole = talks.size < asked, counted = talks.size)
                 // The groups only the headers of received MMS tell, merged with the rest by time.
                 val heard = runCatching { Store.heard(this) }.getOrDefault(emptyList()).map { row(it.talk, kept = false).heard(it.messages) }
                 runOnUiThread { if (!isFinishing && !isDestroyed && turn == turns) { heardRows = heard ; redraw() } }
-                if (!stale()) count()
+                // The unread alone, for the way to the profile: the full counts -- every message read through -- are
+                // the profile's, read when it is shown.
+                if (!stale()) counts?.let { known ->
+                    val unread = runCatching { Store.unread(this) }.getOrNull() ?: return@let
+                    if (unread != known.unread) runOnUiThread { if (!isFinishing && !isDestroyed) { counts = known.withUnread(unread) ; redraw() } }
+                } ?: count()
             }
         }
     }
@@ -818,12 +881,12 @@ class MainActivity : AskingActivity() {
                     val oldest = if (everyWhole) Long.MIN_VALUE else every.lastOrNull()?.talk?.at ?: Long.MAX_VALUE
                     (every + heardRows.filter { it.talk.at >= oldest }).sortedByDescending { it.talk.at }
                 }
-                Page.UNREAD -> pageRows ?: every.filter { it.talk.unread }
                 Page.PROFILE -> emptyList()
             },
         )
         talks.notifyDataSetChanged()
-        heading.text = named(page).takeIf { page != Page.UNREAD } ?: getString(R.string.page_unread)
+        // Its own count in the profile's title as well, as on the way to it.
+        heading.text = named(page, counted = true)
         others.removeAllViews()
         for (other in Page.entries.filter { it != page }) {
             others.addView(
@@ -836,17 +899,21 @@ class MainActivity : AskingActivity() {
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
             )
         }
+        // On the profile's page, the arrow every other page has, back to the conversations, where the gear was.
+        actionBar?.setDisplayHomeAsUpEnabled(page == Page.PROFILE)
+        backToTalks(page == Page.PROFILE)
+        gear.visibility = if (page == Page.PROFILE) View.GONE else View.VISIBLE
+        others.visibility = if (page == Page.PROFILE) View.GONE else View.VISIBLE
         meBox.visibility = if (page == Page.PROFILE) View.VISIBLE else View.GONE
         meActions.visibility = meBox.visibility
         meRule.visibility = meBox.visibility
         mark.visibility = if (page == Page.TALKS) View.VISIBLE else View.GONE
         markGlyph.visibility = if (page == Page.TALKS) View.GONE else View.VISIBLE
-        markGlyph.text = glyph(page)
+        markGlyph.text = profileMark
         val known = counts
         if (known != null) {
             counted.text = when (page) {
                 Page.TALKS -> resources.getQuantityString(R.plurals.talks_n, known.persons, known.persons)
-                Page.UNREAD -> resources.getQuantityString(R.plurals.unread_n, known.unread, known.unread)
                 Page.PROFILE -> me?.number ?: ""
             }
             val weight = java.text.NumberFormat.getIntegerInstance().format(known.bytes)
@@ -855,22 +922,23 @@ class MainActivity : AskingActivity() {
                 known.received, known.sent, known.persons, known.groups,
                 known.receivedSms, known.receivedMms, known.sentSms, known.sentMms,
             )
-            draftsSaid.text = resources.getQuantityString(R.plurals.drafts_n, known.drafts, known.drafts)
+            draftsSaid.text = "✎ " + resources.getQuantityString(R.plurals.drafts_n, known.drafts, known.drafts)
+            // "Delete" alone for one, which the line beside it names; "Delete drafts" otherwise, greyed for none.
+            clearDrafts.text = getString(if (known.drafts == 1) R.string.clear_draft else R.string.clear_drafts)
+            seeUnread.text = getString(if (known.unread == 1) R.string.see_unread_one else R.string.see_unread)
             bytesSaid.text = getString(R.string.count_bytes, weight)
-            unreadSaid.text = android.text.SpannableStringBuilder().append(
-                resources.getQuantityString(R.plurals.unread_n, known.unread, known.unread),
+            unreadSaid.text = android.text.SpannableStringBuilder("📬 ").append(
+                resources.getQuantityString(R.plurals.unread_short, known.unread, known.unread),
                 android.text.style.StyleSpan(Typeface.BOLD), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
-            ).append(resources.getQuantityString(R.plurals.count_detail_unread_rest, known.unreadTalks, known.unreadPgp, known.unreadTalks))
+            )
             usable(clearDrafts, known.drafts > 0)
+            usable(seeUnread, known.unread > 0)
         }
-        // The counts and the drafts on the profile's page; on the unread's, how many are unread.
+        // The counts, the drafts and the unread on the profile's page.
         detail.visibility = if (page == Page.PROFILE && known != null) View.VISIBLE else View.GONE
-        draftsLine.visibility = if (page == Page.PROFILE && known != null) View.VISIBLE else View.GONE
-        savingLines.visibility = draftsLine.visibility
-        unreadSaid.visibility = if (onlyUnread && known != null) View.VISIBLE else View.GONE
-        tools.visibility = unreadSaid.visibility
-        // Nothing to do, greyed rather than gone: the line does not jump.
-        usable(markAll, (known?.unread ?: 0) > 0)
+        draftsLine.visibility = detail.visibility
+        unreadLine.visibility = detail.visibility
+        savingLines.visibility = detail.visibility
     }
 
     private fun usable(button: android.widget.Button, on: Boolean) {
@@ -878,32 +946,69 @@ class MainActivity : AskingActivity() {
         button.alpha = if (on) 1f else 0.38f
     }
 
-    /** Every draft forgotten, its mark and its words, once the person has said so. */
+    /** The conversations holding a draft, read with the profile's page. */
+    private var draftRows: List<Row> = emptyList()
+
+    /**
+     * Every draft forgotten, its mark and its words, once the person has said
+     * so -- under the conversations that hold one.
+     */
     private fun clearDrafts() {
         val many = counts?.drafts ?: 0
-        AlertDialog.Builder(this)
-            .setMessage(resources.getQuantityString(R.plurals.clear_drafts_ask, many, many))
-            .setPositiveButton(R.string.clear_drafts) { _, _ ->
-                thread {
-                    Drafts.forgetAll(this)
-                    runOnUiThread { if (!isFinishing && !isDestroyed) fill() }
-                }
+        conversations(resources.getQuantityString(R.plurals.clear_drafts_ask, many, many), draftRows, getString(R.string.clear_drafts)) {
+            thread {
+                Drafts.forgetAll(this)
+                runOnUiThread { if (!isFinishing && !isDestroyed) fill() }
             }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        }
     }
 
-    /** Every message read, locked or not, once the person has said so. */
-    private fun markAll() {
-        AlertDialog.Builder(this)
-            .setMessage(getString(R.string.mark_all_read_ask, counts?.unread ?: 0))
-            .setPositiveButton(R.string.mark_all_read) { _, _ ->
-                thread {
-                    Keep.readAll(this)
-                    Notify.seenAll(this)
-                    runOnUiThread { if (!isFinishing && !isDestroyed) fill() }
-                }
+    /** The conversations holding something unread, and a way to mark it all read. */
+    private fun seeUnread() {
+        val many = counts?.unread ?: 0
+        val known = counts
+        // How many, how many of them PGP, and in how many conversations: the window lists the conversations.
+        val said = android.text.SpannableStringBuilder().append(
+            resources.getQuantityString(R.plurals.unread_n, many, many),
+            android.text.style.StyleSpan(Typeface.BOLD), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+        ).append(resources.getQuantityString(R.plurals.count_detail_unread_rest, known?.unreadTalks ?: 0, known?.unreadPgp ?: 0, known?.unreadTalks ?: 0))
+        conversations(said, unreadRows, getString(R.string.mark_all_read)) {
+            thread {
+                Keep.readAll(this)
+                Notify.seenAll(this)
+                runOnUiThread { if (!isFinishing && !isDestroyed) fill() }
             }
+        }
+    }
+
+    /**
+     * A window of conversations, drawn as in the list -- a press goes into
+     * one, a long press shows its menu --, under [said], with one act on them
+     * all, [named], done by [act].
+     */
+    private fun conversations(said: CharSequence, shown: List<Row>, named: String, act: () -> Unit) {
+        var window: AlertDialog? = null
+        val list = ListView(this).apply {
+            adapter = lines { shown }
+            setOnItemClickListener { _, _, at, _ ->
+                window?.dismiss()
+                open(shown[at])
+            }
+            setOnItemLongClickListener { _, _, at, _ ->
+                window?.dismiss()
+                about(shown[at])
+                true
+            }
+        }
+        // Half the screen at most: a long list scrolls inside it, and the buttons stay in sight under it.
+        val most = resources.displayMetrics.heightPixels / 2
+        val held = android.widget.FrameLayout(this).apply {
+            addView(list, android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, if (shown.size > SHORT_LIST) most else ViewGroup.LayoutParams.WRAP_CONTENT))
+        }
+        window = AlertDialog.Builder(this)
+            .setMessage(said)
+            .apply { if (shown.isNotEmpty()) setView(held) }
+            .setPositiveButton(named) { _, _ -> act() }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
@@ -915,6 +1020,9 @@ class MainActivity : AskingActivity() {
     @Volatile private var read = 0
     private var reading = false
 
+    /** How many times the list was laid anew: a block read before that is no longer the continuation of what is shown. */
+    private var shownAgain = 0
+
     /**
      * The next block of conversations, read when the list comes near the end
      * of what it holds: the oldest are read only by whoever goes down to them.
@@ -924,13 +1032,14 @@ class MainActivity : AskingActivity() {
         val make = rowOf ?: return
         val turn = turns
         val from = read
+        val shown = shownAgain
         reading = true
         thread {
             val talks = runCatching { Store.talks(this, BLOCK, from = from, given = { turn != turns }) }.getOrDefault(emptyList())
             val next = talks.flatMap(make)
             runOnUiThread {
                 reading = false
-                if (isFinishing || isDestroyed || turn != turns || read != from) return@runOnUiThread
+                if (isFinishing || isDestroyed || turn != turns || read != from || shown != shownAgain) return@runOnUiThread
                 every = every + next
                 read = from + talks.size
                 everyWhole = talks.size < BLOCK
@@ -945,14 +1054,32 @@ class MainActivity : AskingActivity() {
 
     /** A conversation's name, and after it what the person said of its sender: not to be announced. */
     private fun marked(row: Row): CharSequence = android.text.SpannableStringBuilder(row.name).apply {
-        if (Marks.muted(this@MainActivity, row.talk.number)) append("  🔕")
+        // A group as it is muted, by its members; one person by whom the line is with.
+        val key = row.group?.let { "group:$it" } ?: row.with ?: row.talk.number
+        if (key != null && Marks.muted(this@MainActivity, key)) append("  🔕")
     }
 
     /** Pressed long, a conversation says what can be done about it and about who it is with. */
     private fun about(row: Row) {
-        // A group's own menu comes with its name.
-        if (row.talk.group) return
-        val sender = row.talk.number ?: return
+        // A group's menu, over the list: its members read first, away from the screen.
+        if (row.talk.group || row.group != null) {
+            val set = row.group ?: Phone.group(row.talk.members, Me.all(this))
+            thread {
+                val members = runCatching { GroupMenu.read(this, row.talk.members) }.getOrDefault(emptyList())
+                runOnUiThread {
+                    if (isFinishing || isDestroyed) return@runOnUiThread
+                    GroupMenu.show(
+                        this, members, set, row.threads, GroupNames.of(this, set) ?: members.joinToString(", ") { it.name },
+                        changed = { fill() }, gone = { fill() },
+                        // Tying is done from the member's conversation, where foodjis shows its list over.
+                        tie = { number -> startActivity(Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, number).putExtra(ThreadActivity.EXTRA_ASK, ThreadActivity.ASK_TIE)) },
+                    )
+                }
+            }
+            return
+        }
+        // Whom it is with, as the line opens it: Android files some conversations between two under no number.
+        val sender = row.with ?: row.talk.number ?: return
         TalkMenu.show(
             this, row.name, sender, row.person, row.talk.thread,
             // Tying is done from the conversation, which is where foodjis shows its list over.
@@ -965,6 +1092,9 @@ class MainActivity : AskingActivity() {
         )
     }
 
+    /** Into a line's conversation, as the list goes into it. */
+    private fun open(row: Row) = open(row.talk, threads = row.threads, with = row.with ?: row.talk.number, messages = row.messages)
+
     private fun open(talk: Store.Talk, ask: String? = null, threads: List<Long> = listOf(talk.thread), with: String? = talk.number, messages: List<Long> = emptyList()) = startActivity(
         Intent(this, ThreadActivity::class.java)
             .putExtra(ThreadActivity.EXTRA_MESSAGES, messages.toLongArray())
@@ -976,13 +1106,16 @@ class MainActivity : AskingActivity() {
             .putExtra(ThreadActivity.EXTRA_ASK, ask),
     )
 
-    private val talks = object : BaseAdapter() {
-        override fun getCount() = rows.size
-        override fun getItem(at: Int) = rows[at]
-        override fun getItemId(at: Int) = rows[at].talk.thread
+    private val talks = lines { rows }
+
+    /** Conversations drawn as the list draws them, from [of]: the list's own, or the drafts' in their window. */
+    private fun lines(of: () -> List<Row>) = object : BaseAdapter() {
+        override fun getCount() = of().size
+        override fun getItem(at: Int) = of()[at]
+        override fun getItemId(at: Int) = of()[at].talk.thread
 
         override fun getView(at: Int, old: View?, parent: ViewGroup): View {
-            val row = rows[at]
+            val row = of()[at]
             val context = this@MainActivity
             val pad = Look.dp(context, 12)
             val names = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
@@ -1000,7 +1133,7 @@ class MainActivity : AskingActivity() {
                 },
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
             )
-            names.addView(Look.words(context, ago(row.talk.at), size = 13f, muted = true))
+            names.addView(Look.words(context, Look.ago(row.talk.at), size = 13f, muted = true))
             val text = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 setPadding(pad, 0, 0, 0)
@@ -1048,9 +1181,6 @@ class MainActivity : AskingActivity() {
         startActivityForResult(ask, ROLE)
     }
 
-    private fun ago(at: Long): CharSequence =
-        DateUtils.getRelativeTimeSpanString(at, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL)
-
     private companion object {
         const val PAGE = "page"
 
@@ -1065,6 +1195,15 @@ class MainActivity : AskingActivity() {
 
         /** How many conversations are shown before the rest is read, and how many more each time the list nears its end. */
         const val FIRST = 20
+
+        /** The newest read first, alone, before the rest is read again ([fill]). */
+        const val QUICK = 6
+
+        /** As many conversations as a window shows whole; more, and it scrolls within half the screen. */
+        const val SHORT_LIST = 4
+
+        /** How long the messages are to stay still before the list is read again. */
+        const val SETTLE_MS = 400L
         const val BLOCK = 30
 
         /** How near the end of what the list holds the next block is asked for: read before it is reached. */

@@ -40,10 +40,20 @@ object Outbox {
     fun operators(context: Context): Int? =
         runCatching { manager(context).carrierConfigValues.getInt(SmsManager.MMS_CONFIG_MAX_MESSAGE_SIZE, 0) }.getOrDefault(0).takeIf { it > 0 }
 
-    /** The heaviest message sent: the lesser of the standard and the operator's, the operator's when the person chose it. */
+    /** How many SMS the operator says a text may leave in before it is an MMS, when it says: a hint, for the person. */
+    fun operatorsSmsMost(context: Context): Int? =
+        runCatching { manager(context).carrierConfigValues.getInt(SmsManager.MMS_CONFIG_SMS_TO_MMS_TEXT_THRESHOLD, -1) }.getOrDefault(-1).takeIf { it > 0 }
+
+    /** How many an MMS may go to, as the operator says, when it says: a hint, for the person -- often a careful one. */
+    fun operatorsGroupMost(context: Context): Int? =
+        runCatching { manager(context).carrierConfigValues.getInt(SmsManager.MMS_CONFIG_RECIPIENT_LIMIT, 0) }.getOrDefault(0).takeIf { it in 1 until Int.MAX_VALUE }
+
+    /** The heaviest message sent: the lesser of the standard and the operator's; where the operator takes more, what the person set within it. */
     fun heaviest(context: Context): Int {
         val theirs = operators(context) ?: return STANDARD
-        return if (theirs > STANDARD && Conf.operatorSize(context)) theirs else minOf(theirs, STANDARD)
+        if (theirs <= STANDARD) return theirs
+        val set = Conf.mmsSize(context)?.let { it * 1024 } ?: if (Conf.operatorSize(context)) theirs else STANDARD
+        return set.coerceIn(STANDARD, theirs)
     }
 
     fun send(context: Context, to: List<String>, pdu: ByteArray, transaction: String, at: Long = System.currentTimeMillis()) {
@@ -52,7 +62,6 @@ object Outbox {
         check(pdu.size <= most) { context.getString(R.string.too_heavy_sent, (pdu.size + 1023) / 1024, most / 1024) }
         File(context.cacheDir, DIR).mkdirs()
         file(context, transaction).writeBytes(pdu)
-        journal(context).edit().putString(transaction, "${System.currentTimeMillis()}\t${to.joinToString(", ")}\t${pdu.size}\t$GOING").apply()
         // The phone keeps what its messaging application tells it to, and nothing of what another sends: written
         // before it leaves, so that a refusal can be marked on it.
         val written = if (Keep.ours(context)) runCatching { Keep.mmsSent(context, to, pdu, at) }.getOrNull() else null
@@ -65,6 +74,7 @@ object Outbox {
         val from = Uri.parse("content://${context.packageName}.pdu/$transaction")
         runCatching { manager(context).sendMultimediaMessage(context, from, null, null, told) }.onFailure { failure ->
             written?.let { runCatching { Keep.mmsFailed(context, it) } }
+            file(context, transaction).delete()
             throw failure
         }
         // To a group, this phone among them: what left kept, to hold what comes back against it.
@@ -78,9 +88,8 @@ object Outbox {
     fun text(context: Context, to: String, words: String, at: Long = System.currentTimeMillis()): Int {
         val manager = manager(context)
         val pieces = manager.divideMessage(words)
-        val transaction = "S" + java.lang.Long.toHexString(System.currentTimeMillis())
-        journal(context).edit()
-            .putString(transaction, "${System.currentTimeMillis()}\t$to\t${words.length}\t$GOING").apply()
+        // By the nanosecond: several sent in one millisecond -- quick answers to a call -- shared their notice.
+        val transaction = "S" + java.lang.Long.toHexString(System.nanoTime())
         // Told once, by the last piece: the others answer nobody.
         // The phone writes what another application sends; its messaging application writes its own.
         val written = if (Keep.ours(context)) runCatching { Keep.smsSent(context, to, words, at) }.getOrNull() else null
@@ -89,26 +98,40 @@ object Outbox {
             Intent(context, Told::class.java).putExtra(EXTRA_TRANSACTION, transaction).putExtra(EXTRA_WRITTEN, written?.toString()),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
-        val answers = ArrayList<PendingIntent?>(pieces.map { null }).apply { this[size - 1] = told }
-        manager.sendMultipartTextMessage(to, null, pieces, answers, null)
+        // Refused at once -- no service, a text of nothing --: kept as not sent, as a refusal by the network is.
+        runCatching {
+            val answers = ArrayList<PendingIntent?>(pieces.map { null }).apply { this[size - 1] = told }
+            manager.sendMultipartTextMessage(to, null, pieces, answers, null)
+        }.onFailure { failure ->
+            written?.let { runCatching { Keep.smsFailed(context, it) } }
+            throw failure
+        }
         return pieces.size
     }
 
-    class Line(val at: Long, val to: String, val weight: Int, val outcome: String)
+    /** A new MMS's transaction, by the nanosecond: two sent in one millisecond -- copies to each -- are two. */
+    fun transaction(): String = "T" + java.lang.Long.toHexString(System.nanoTime())
 
-    fun lines(context: Context): List<Line> = journal(context).all.values.mapNotNull { kept ->
-        val said = (kept as? String)?.split('\t') ?: return@mapNotNull null
-        if (said.size != 4) return@mapNotNull null
-        Line(said[0].toLongOrNull() ?: return@mapNotNull null, said[1], said[2].toIntOrNull() ?: 0, said[3])
-    }.sortedByDescending { it.at }
+    /**
+     * The operator's server told an MMS it announced as [transaction] was fetched ([Pdu.fetched]): sent as an
+     * MMS is, through the phone's service, and said to nobody.
+     */
+    fun acknowledge(context: Context, transaction: String, subscription: Int) {
+        val name = "A" + java.lang.Long.toHexString(System.nanoTime())
+        File(context.cacheDir, DIR).mkdirs()
+        file(context, name).writeBytes(Pdu.fetched(transaction))
+        val told = PendingIntent.getBroadcast(
+            context, name.hashCode(),
+            Intent(context, Told::class.java).putExtra(EXTRA_TRANSACTION, name).putExtra(EXTRA_QUIET, true),
+            PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0),
+        )
+        runCatching {
+            Inbound.manager(context, subscription).sendMultimediaMessage(context, Uri.parse("content://${context.packageName}.pdu/$name"), null, null, told)
+        }.onFailure { file(context, name).delete() }
+    }
 
-    fun forget(context: Context) = journal(context).edit().clear().apply()
+    fun manager(context: Context): SmsManager = Inbound.manager(context, -1)
 
-    fun manager(context: Context): SmsManager =
-        if (Build.VERSION.SDK_INT >= 31) context.getSystemService(SmsManager::class.java)
-        else @Suppress("DEPRECATION") SmsManager.getDefault()
-
-    private fun journal(context: Context) = context.getSharedPreferences("sent", Context.MODE_PRIVATE)
 
     private const val OPENED = "open"
     private const val SHOT = "shot"
@@ -145,6 +168,14 @@ object Outbox {
         return Uri.parse("content://${context.packageName}.pdu/$OPENED/$called") to told.type
     }
 
+    /**
+     * Whether [uri] is a path, read with foomms's own rights -- its files, what was opened from its lock among them
+     * --: never taken as something handed over to send. Applications share by content addresses since Android 7;
+     * a path is nobody's to hand over. What foomms serves itself is: what was opened here, shared back to foomms
+     * to be sent on, is the person's own doing.
+     */
+    fun path(uri: Uri): Boolean = uri.scheme == "file"
+
     /** The file a message waits in, on its way out or on its way in. */
     fun file(context: Context, transaction: String) =
         File(File(context.cacheDir, DIR), transaction.filter { it.isLetterOrDigit() } + ".pdu")
@@ -154,17 +185,15 @@ object Outbox {
         override fun onReceive(context: Context, intent: Intent) {
             val transaction = intent.getStringExtra(EXTRA_TRANSACTION) ?: return
             file(context, transaction).delete()
-            val outcome = if (resultCode == android.app.Activity.RESULT_OK) GONE else "$REFUSED $resultCode"
+            // An answer to the operator's server, not a message: nothing to mark, nothing to say.
+            if (intent.getBooleanExtra(EXTRA_QUIET, false)) return
+            val gone = resultCode == android.app.Activity.RESULT_OK
             // Refused: certainly not sent, and marked so where it is kept. Taken, it is not known to have arrived.
-            if (outcome != GONE) intent.getStringExtra(EXTRA_WRITTEN)?.let { kept ->
+            if (!gone) intent.getStringExtra(EXTRA_WRITTEN)?.let { kept ->
                 val where = Uri.parse(kept)
                 runCatching { if (where.authority == "mms") Keep.mmsFailed(context, where) else Keep.smsFailed(context, where) }
             }
-            val kept = journal(context)
-            kept.getString(transaction, null)?.let { line ->
-                kept.edit().putString(transaction, line.substringBeforeLast('\t') + "\t" + outcome).apply()
-            }
-            val words = if (outcome == GONE) R.string.sent else R.string.not_sent
+            val words = if (gone) R.string.sent else R.string.not_sent
             // An MMS left a file behind; an SMS did not, and deleting nothing is no harm.
             Toast.makeText(context, context.getString(words, resultCode), Toast.LENGTH_LONG).show()
         }
@@ -224,10 +253,8 @@ object Outbox {
         override fun update(uri: Uri, values: ContentValues?, s: String?, a: Array<String>?) = 0
     }
 
-    const val GOING = "going"
-    const val GONE = "gone"
-    const val REFUSED = "refused"
     private const val DIR = "out"
     private const val EXTRA_TRANSACTION = "transaction"
     private const val EXTRA_WRITTEN = "written"
+    private const val EXTRA_QUIET = "quiet"
 }

@@ -9,6 +9,7 @@
     <string name="sent">Mesaj gönderildi.</string>
     <string name="not_sent">Mesaj gönderilmedi (%1$d).</string>
     <string name="refused">⚠ Gönderilmedi: operatör reddetti</string>
+    <string name="stripped">⚠ Operatör eki yolda kaldırdı: “%1$s”</string>
     <string name="no_provider">foodjis yüklü değil ya da yanıt vermiyor.</string>
     <string name="failed">%1$s</string>
     <string name="signed_certified">%1$s tarafından imzalandı, sertifikalı.</string>
@@ -29,6 +30,7 @@
     <string name="tie_ask">%1$s, %2$s mi?</string>
     <string name="tie_write">Kaydet</string>
     <string name="channel_messages">Mesajlar</string>
+    <string name="mms_unfetched">MMS indirilemedi. Yeniden denemek için dokunun.</string>
     <string name="not_default">Telefonun mesajlaşma uygulaması mesajları almaya ve saklamaya devam ediyor. foomms onun yerini alabilir: Android size soracak.</string>
     <string name="become_default">foomms\'u mesajlaşma uygulaması yap</string>
     <string name="configure">⚙️ Ayarlar</string>
@@ -40,6 +42,15 @@
     <string name="locked_for">⚿ Şifreli mesaj, alıcı:</string>
     <string name="piece_for">alıcı:</string>
     <string name="share">⤴ Paylaş</string>
+    <string name="reply">↩ Yanıtla</string>
+    <string name="reply_drop">Bu mesajı yanıtlamaktan vazgeç</string>
+    <string name="quote_gone">Alıntılanan mesaj bu konuşmada yok</string>
+    <string name="share_picture">Fotoğrafı paylaş</string>
+    <string name="share_video">Videoyu paylaş</string>
+    <string name="share_clear_title">Şifresiz paylaşılsın mı?</string>
+    <string name="share_clear_says">Bu öğe şifreli yolculuk etti. Paylaşılırsa seçtiğiniz uygulamaya şifresiz gidecek.</string>
+    <string name="share_clear_says_text">Bu mesaj şifreli yolculuk etti. Paylaşılırsa seçtiğiniz uygulamaya şifresiz gidecek.</string>
+    <string name="share_clear_go">Şifresiz paylaş</string>
     <string name="save">↧ Kaydet</string>
     <string name="saved">Kaydedildi.</string>
     <string name="conf_theme">Tema</string>
@@ -123,15 +134,10 @@
     <string name="tie_ask_after">. Bu, kişide henüz yazmıyorsa adres defterinize kaydedilecek:</string>
     <string name="whom_hint">Bir ad ya da telefon numarası</string>
     <string name="mark_all_read">○ Tümünü okundu olarak işaretle</string>
-    <string name="mark_all_read_ask">%1$d okunmamış mesaj okundu olarak işaretlensin mi?</string>
     <string name="mark_read">○ Okundu olarak işaretle</string>
     <string name="mark_unread">● Okunmadı olarak işaretle</string>
     <string name="count_detail">%1$d mesaj: %2$d SMS + %3$d MMS\nbunların %4$d tanesi PGP: %5$d SMS + %6$d MMS\n%9$d alınan: %13$d SMS + %14$d MMS\n%10$d gönderilen: %15$d SMS + %16$d MMS\n\n%7$d konuşma: %11$d bireysel + %12$d grup</string>
     <string name="count_bytes">%1$s bayt</string>
-    <plurals name="count_detail_unread_rest">
-        <item quantity="one">, bunların %1$d tanesi PGP, %2$d konuşmada.</item>
-        <item quantity="other">, bunların %1$d tanesi PGP, %2$d konuşmada.</item>
-    </plurals>
     <string name="switch_sign">İmzala</string>
     <string name="switch_lock">Şifrele</string>
     <string name="cert_show">🔑 Sertifikayı göster</string>
@@ -151,9 +157,7 @@
     <string name="place_off">Telefonun konum hizmeti kapalı.</string>
     <string name="place_seeking">Konumunuz bulunuyor…</string>
     <string name="place_none">Telefon şu anda nerede olduğunu bilmiyor.</string>
-    <string name="backup_all">Yedekleme</string>
-    <string name="backup_one">💾 Bu konuşmayı kaydet</string>
-    <string name="backup_about">Tüm konuşmalar bir XML dosyasına kaydedilir. PGP mesajları yolculuk ettikleri gibi kalır: şifreli.</string>
+    <string name="backup_one">💾 Konuşmayı kaydet</string>
     <string name="backup_save">Tümünü kaydet</string>
     <string name="backup_restore">Bir yedeği geri yükle</string>
     <string name="backup_working">Sürüyor…</string>
@@ -220,19 +224,24 @@
     <string name="listening_play">Oynat</string>
     <string name="listening_pause">Duraklat</string>
     <string name="listening_stop">Durdur</string>
-    <string name="conf_mms_size">Operatörün sınırını kullan: %1$d kB, yani %2$d kB kullanılabilir</string>
-    <string name="conf_mms_size_note">MMS\'ler genellikle %1$d kB ile sınırlıdır, yani %2$d kB kullanılabilir. Operatörünüz daha fazlasını sunabilir, ama alıcının operatörü bu kadar cömert MMS\'leri reddedebilir.</string>
+    <string name="conf_mms_size">MMS boyut sınırı</string>
+    <string name="conf_mms_size_note">MMS\'ler genellikle %1$d kB ile sınırlıdır.</string>
+    <string name="conf_mms_size_more">Operatörünüz %1$d kB belirtiyor, ancak karşı tarafın operatörü bu kadar cömert MMS\'leri reddedebilir.</string>
+    <string name="conf_mms_size_theirs">Operatörünüz %1$d kB belirtiyor.</string>
+    <string name="conf_operator_none">Operatörünüz sınırını belirtmiyor.</string>
+    <string name="conf_mms_size_margin">Seçilen sınırın %1$d kB\'ı mesaj zarfına ve şifrelemeye ayrılmıştır.</string>
+    <string name="conf_kb">%1$d kB</string>
     <string name="too_heavy_sent">Bu mesaj %1$d kB ağırlığında, MMS için belirlenen %2$d kB\'tan fazla: gönderilmedi.</string>
     <string name="watch_turn">Videoyu çeyrek tur döndür</string>
+    <string name="picture_turn">Fotoğrafı çeyrek tur döndür</string>
+    <string name="picture_close">Fotoğrafı kapat</string>
     <string name="video_camera">Arka ya da ön kamera</string>
     <string name="video_light">Işık</string>
     <string name="video_sound">Yalnızca ses (%1$s)</string>
     <!-- The three pages of the list, and what each counts under its name. -->
     <string name="page_talks">Konuşmalar</string>
-    <string name="page_unread">Okunmamış</string>
-    <string name="page_unread_n">Okunmamış (%1$d)</string>
-    <string name="page_groups">MMS grupları</string>
     <string name="page_profile">Profilim</string>
+    <string name="page_profile_n">Profilim (%1$d)</string>
     <string name="me_wizard_title">Hangi kişi kartı sizin?</string>
     <string name="me_wizard_text">foomms\'a hangi kişi kartının sizin olduğunu söyleyin: gruplarda numaranız ve sertifikanızla sizi temsil eder. «Profilim» bölümünden değiştirebilirsiniz.</string>
     <string name="me_wizard_choose">Kartımı seç</string>
@@ -245,9 +254,13 @@
         <item quantity="one">%d okunmamış mesaj</item>
         <item quantity="other">%d okunmamış mesaj</item>
     </plurals>
-    <plurals name="groups_n">
-        <item quantity="one">%d grup</item>
-        <item quantity="other">%d grup</item>
+    <plurals name="count_detail_unread_rest">
+        <item quantity="one">, bunların %1$d tanesi PGP, %2$d konuşmada.</item>
+        <item quantity="other">, bunların %1$d tanesi PGP, %2$d konuşmada.</item>
+    </plurals>
+    <plurals name="unread_short">
+        <item quantity="one">%d okunmamış</item>
+        <item quantity="other">%d okunmamış</item>
     </plurals>
     <plurals name="group_members">
         <item quantity="one">%d üye</item>
@@ -292,7 +305,10 @@
         <item quantity="one">%d taslak</item>
         <item quantity="other">%d taslak</item>
     </plurals>
-    <string name="clear_drafts">Tüm taslakları sil</string>
+    <string name="clear_drafts">Taslakları sil</string>
+    <string name="clear_draft">Sil</string>
+    <string name="see_unread">Okunmamışları gör</string>
+    <string name="see_unread_one">Gör</string>
     <plurals name="clear_drafts_ask">
         <item quantity="one">%d taslak silinsin mi? Metni kaybolacak.</item>
         <item quantity="other">%d taslak silinsin mi? Metinleri kaybolacak.</item>
@@ -305,10 +321,14 @@
     <string name="all_contacts">Tüm kişiler (%1$d)</string>
     <string name="conf_group_most">Grup MMS\'i sınırı</string>
     <string name="conf_group_most_note">MMS\'ler genellikle 20 alıcıyla sınırlıdır. Bazı operatörler çok daha fazlasını kabul eder, birkaçı yalnızca on.</string>
+    <string name="conf_group_most_operator">Operatörünüz %1$d alıcı belirtiyor.</string>
+    <string name="conf_sms_most">SMS ile uzun metin sınırı</string>
+    <string name="conf_sms_most_note">7 SMS, neredeyse her yerden geçen en büyük uzunluktur. Bazı şebekeler çok daha fazlasını kabul eder; bu, alıcının şebekesine de bağlıdır. Bunun ötesinde metin MMS olarak gider ya da MMS gönderimi kapalıysa foomms önce onay ister.</string>
+    <string name="conf_sms_most_operator">Operatörünüz %1$d belirtiyor.</string>
     <string name="group_over">Bu grubun siz dahil %1$d üyesi var; yapılandırmada belirlenen %2$d sınırının üzerinde: operatör mesajı reddedebilir ya da her birine ayrı ayrı iletebilir.</string>
     <string name="group_over_send">Yine de gönder</string>
     <string name="conf_mms_on">MMS gönderimine izin ver</string>
-    <string name="conf_mms_on_note">Grup mesajları, 8 SMS\'ten uzun metinler, sesli mesajlar, fotoğraflar veya kısa videolar göndermeyi sağlar. Bir operatörden diğerine MMS, SMS kadar güvenle ulaşmaz ve bazı tarifeler ücret alır. Bazı operatörler ise MMS\'i hiç desteklemiyor; bu da internet mesajlaşma uygulamalarına, dolayısıyla küresel gözetime yarıyor.</string>
+    <string name="conf_mms_on_note">Grup mesajları, uzun metinler, sesli mesajlar, fotoğraflar veya kısa videolar göndermeyi sağlar. Bir operatörden diğerine MMS, SMS kadar güvenle ulaşmaz ve bazı tarifeler ücret alır. Bazı operatörler ise MMS\'i hiç desteklemiyor; bu da internet mesajlaşma uygulamalarına, dolayısıyla küresel gözetime yarıyor.</string>
     <string name="mms_off">Yapılandırmada MMS gönderimine izin verilmiyor: ne ek, ne sesli mesaj, ne grup MMS\'i.</string>
     <string name="many_sms">Bu mesaj %1$d SMS olarak gider: bazı telefonlar onları kötü birleştirir ve operatörünüz her birini ayrı ücretlendirebilir.</string>
 </resources>

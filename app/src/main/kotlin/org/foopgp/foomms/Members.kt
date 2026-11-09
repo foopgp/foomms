@@ -1,13 +1,13 @@
 package org.foopgp.foomms
 
 /**
- * What tells an encrypted group, carried in each of its messages: who is
- * in it, one vCard each -- the name, the number, the entity identifier when
- * the certificate gives one, and the address of the certificate, which
- * holds its fingerprint --, encrypted for all of them as
- * the message is. Networks are free to rewrite to whom an MMS went, and
- * some do; this is not rewritten. The keys it is encrypted for, which every
- * message names unencrypted, tell the group before anything is opened.
+ * What tells a group, carried in each of its messages: who is in it, one
+ * vCard each -- the name, the number, the entity identifier when the
+ * certificate gives one, and the address of the certificate, which holds its
+ * fingerprint. In clear, beside the message, encrypted or not: networks are
+ * free to rewrite to whom an MMS went, and some do; this part is not
+ * rewritten, and it is read before anything is opened. In clear and
+ * unsigned, it is a claim, never taken for more than a suggestion.
  */
 object Members {
 
@@ -60,13 +60,9 @@ object Members {
         edit.apply()
     }
 
-    /** The number a members part last gave the certificate [fingerprint]. */
-    fun numberOf(context: android.content.Context, fingerprint: String): String? =
-        kept(context).all.values.mapNotNull { (it as? String)?.split('\t') }.firstOrNull { it.size >= 4 && it[2].equals(fingerprint, ignoreCase = true) }?.get(1)
-
-    /** What a members part last said of [number]. */
+    /** What a members part last said of [number]: of that very number, not of another ending the same way. */
     fun known(context: android.content.Context, number: String): Member? =
-        kept(context).getString(Phone.key(number), null)?.split('\t')?.takeIf { it.size >= 4 }?.let {
+        kept(context).getString(Phone.key(number), null)?.split('\t')?.takeIf { it.size >= 4 && Phone.same(it[1], number) }?.let {
             Member(it[0], it[1], it[2].ifEmpty { null }, it[3].ifEmpty { null })
         }
 

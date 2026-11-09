@@ -1,0 +1,13 @@
+• Mi perfil: los borradores y los no leídos, cada uno en su línea, abren la lista de las conversaciones afectadas. La página de no leídos desaparece; su número aparece junto a «Mi perfil».
+• Una pulsación larga en una conversación, un grupo o uno de sus miembros abre su menú.
+• Las fotos recibidas se abren a pantalla completa: se amplían, se mueven, se giran.
+• Configuración: hasta cuántos SMS un texto sale como SMS, y el tamaño de los MMS, se ajustan con controles deslizantes; se recuerda lo que permite el operador.
+• Lo cifrado queda abierto 15 minutos por defecto.
+• Un mensaje certificado, pero firmado por otra persona que su interlocutor, se muestra en violeta, o en amarillo verdoso si además está cifrado.
+• Un MMS que el teléfono no pudo descargar se señala, y se vuelve a pedir durante 7 días.
+• Una foto o un archivo que envía cifrado se muestra abierto en su burbuja, como su texto.
+• Un adjunto cifrado ya no es reducido por el operador por el camino; si el operador quita un adjunto, foomms lo dice bajo el mensaje.
+• Compartir una foto o un vídeo desde su pantalla completa; si llegó cifrado, foomms avisa primero de que saldrá sin cifrar.
+• Responder a un mensaje deslizando su burbuja a la derecha o con una pulsación larga: la respuesta empieza con una línea que lo cita — su hora y sus primeras palabras —, legible en cualquier teléfono; al pulsar la cita se vuelve a él.
+• «Llamar al …», en el menú de una conversación, inicia la llamada directamente, una vez que lo haya permitido; si no, el número aparece en el marcador, como antes.
+• Una lista más rápida y numerosas correcciones.

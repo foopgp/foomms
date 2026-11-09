@@ -1,0 +1,13 @@
+• Il mio profilo: le bozze e i non letti, ciascuno sulla sua riga, aprono l'elenco delle conversazioni interessate. La pagina dei non letti scompare; il loro numero compare accanto a «Il mio profilo».
+• Una pressione prolungata su una conversazione, un gruppo o uno dei suoi membri ne apre il menu.
+• Le foto ricevute si aprono a schermo intero: si ingrandiscono, si spostano, si ruotano.
+• Configurazione: fino a quanti SMS un testo parte come SMS, e la dimensione degli MMS, si regolano con cursori; viene ricordato ciò che consente l'operatore.
+• Ciò che è cifrato resta aperto 15 minuti per impostazione predefinita.
+• Un messaggio certificato, ma firmato da qualcuno diverso dal vostro interlocutore, appare in viola, o in giallo-verde se è anche cifrato.
+• Un MMS che il telefono non è riuscito a scaricare viene segnalato e richiesto di nuovo per 7 giorni.
+• Una foto o un file che inviate cifrato appare aperto nella vostra bolla, come il suo testo.
+• Un allegato cifrato non viene più ridotto lungo il percorso dall'operatore; se l'operatore rimuove un allegato, foomms lo dice sotto il messaggio.
+• Condividere una foto o un video dallo schermo intero; se è arrivato cifrato, foomms avverte prima che partirà in chiaro.
+• Rispondere a un messaggio facendo scorrere la sua bolla verso destra o con una pressione prolungata: la risposta inizia con una riga che lo cita — l'ora e le prime parole —, leggibile su qualsiasi telefono; toccando la citazione si torna a esso.
+• «Chiama …», nel menu di una conversazione, avvia subito la chiamata, una volta che l'avete permesso; altrimenti il numero compare nel compositore, come prima.
+• Un elenco più veloce e numerose correzioni.

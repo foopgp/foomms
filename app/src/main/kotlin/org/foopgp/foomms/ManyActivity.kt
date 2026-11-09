@@ -122,7 +122,8 @@ class ManyActivity : AskingActivity() {
             AlertDialog.Builder(this)
                 .setMessage(resources.getQuantityString(R.plurals.each_over_drafts, own.size, own.size))
                 .setPositiveButton(R.string.draft_replace, null)
-                .setNegativeButton(android.R.string.cancel) { _, _ -> finish() }
+                // Left as they were: the words handed over are not kept in their place on the way out ([onPause]).
+                .setNegativeButton(android.R.string.cancel) { _, _ -> draftRead = field.text.toString() ; finish() }
                 .setCancelable(false)
                 .show()
         }
@@ -193,7 +194,9 @@ class ManyActivity : AskingActivity() {
     private fun send(plainSaid: Boolean = false) {
         val written = field.text.toString()
         val with = carried
-        if ((written.isBlank() && with == null) || whom.isEmpty()) return
+        if ((written.isBlank() && with == null) || whom.isEmpty() || isFinishing) return
+        // Pressed twice: once. Asked again after a question, it is the same sending.
+        if (!plainSaid && Twice.again(written, with, whom.toList())) return
         if (checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             return requestPermissions(arrayOf(Manifest.permission.SEND_SMS), 1)
         }
@@ -356,7 +359,7 @@ class ManyActivity : AskingActivity() {
             finish()
         }
         // Many SMS: asked first.
-        if (!mms && pieces > Conf.MANY_SMS) {
+        if (!mms && pieces > Conf.smsMost(this)) {
             AlertDialog.Builder(this)
                 .setMessage(getString(R.string.many_sms, pieces))
                 .setPositiveButton(R.string.group_over_send) { _, _ -> go() }

@@ -11,8 +11,9 @@ import org.openintents.openpgp.OpenPgpSignatureResult
 
 /**
  * Saying that a message has arrived: from whom, and its words -- or, for a
- * PGP message, what it is: the words of one are not shown on a locked screen
- * that anybody can read, and cannot be before the security key has opened it.
+ * PGP message, what it is. An encrypted one's words are never said, the key
+ * not having opened it; a signed one's are, once foodjis has verified it,
+ * in the colour of what its signature is worth.
  */
 object Notify {
 
@@ -81,7 +82,10 @@ object Notify {
         if (armor == null || Pgp.isLocked(armor)) return done()
         // Signed only, foodjis reads it without the key: its words follow the glyph, in the colour of what the signature is worth.
         verify(context.applicationContext, armor, done) { read, certified ->
-            show(context.getString(R.string.signed_words, read), Look.colour(if (certified) Verdict.BLUE else Verdict.RED, dark))
+            // Certified by somebody else than whom the number is tied to: violet, as in the conversation.
+            val tied = listOfNotNull(person?.fingerprint).mapNotNull { runCatching { Fingerprint.keyId(it) }.getOrNull() }
+            val worth = if (certified) Verdict.received(Verdict.BLUE, Opened.words(armor)?.signer, tied) else Verdict.RED
+            show(context.getString(R.string.signed_words, read), Look.colour(worth, dark))
         }
     }
 
@@ -96,17 +100,21 @@ object Notify {
             done()
         }
         main.postDelayed(::end, PATIENCE)
-        provider.ask(Intent(Provider.DECRYPT_VERIFY), armor.toByteArray()) { answer ->
+        // Asked from the main thread, as the link to foodjis is made and told there: a message arriving is
+        // received off it.
+        main.post { provider.ask(Intent(Provider.DECRYPT_VERIFY), armor.toByteArray()) { answer ->
             if (answer is Provider.Answer.Done && !over.get()) {
                 // Kept as the conversation would keep it: opened there, it is read already.
                 val signature = runCatching { Signer.keep(context, armor, answer) }.getOrNull()
+                // Encrypted after all, whatever its armor looked like: its words are not for a notification.
+                if (Provider.encrypted(answer, false)) return@ask end()
                 when (signature?.result) {
                     OpenPgpSignatureResult.RESULT_VALID_KEY_CONFIRMED -> then(String(answer.bytes, Charsets.UTF_8), true)
                     OpenPgpSignatureResult.RESULT_VALID_KEY_UNCONFIRMED -> then(String(answer.bytes, Charsets.UTF_8), false)
                 }
             }
             end()
-        }
+        } }
     }
 
     fun seen(context: Context, number: String) {
@@ -116,10 +124,41 @@ object Notify {
     /** Every message's notification taken away: everything was just read. */
     fun seenAll(context: Context) {
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
-        manager.activeNotifications.filter { it.notification.channelId == CHANNEL }.forEach { manager.cancel(it.tag, it.id) }
+        // Not an MMS still to fetch: reading every message does not fetch it.
+        manager.activeNotifications.filter { it.notification.channelId == CHANNEL && it.id != UNFETCHED }.forEach { manager.cancel(it.tag, it.id) }
+    }
+
+    /** An MMS that could not be fetched, said with the way to fetch it again: pressed, it is asked for. */
+    fun unfetched(context: Context, from: String?, name: String) {
+        val manager = context.getSystemService(NotificationManager::class.java) ?: return
+        manager.createNotificationChannel(
+            NotificationChannel(CHANNEL, context.getString(R.string.channel_messages), NotificationManager.IMPORTANCE_HIGH),
+        )
+        val who = from?.let { runCatching { Book.who(context, it) }.getOrNull()?.name ?: it } ?: context.getString(R.string.unknown_number)
+        val again = PendingIntent.getBroadcast(
+            context, name.hashCode(),
+            Intent(context, Unfetched.Again::class.java).putExtra(Unfetched.EXTRA_NAME, name),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        val text = context.getString(R.string.mms_unfetched)
+        val shown = Notification.Builder(context, CHANNEL)
+            .setSmallIcon(R.drawable.mark)
+            .setContentTitle(who)
+            .setContentText(text)
+            .setStyle(Notification.BigTextStyle().bigText(text))
+            .setCategory(Notification.CATEGORY_ERROR)
+            .setContentIntent(again)
+            .setAutoCancel(true)
+            .build()
+        runCatching { manager.notify(name, UNFETCHED, shown) }
+    }
+
+    fun unfetchedGone(context: Context, name: String) {
+        context.getSystemService(NotificationManager::class.java)?.cancel(name, UNFETCHED)
     }
 
     private const val CHANNEL = "messages"
+    private const val UNFETCHED = 2
 
     /** How long foodjis is waited for, in milliseconds: a receiver has ten seconds. */
     private const val PATIENCE = 8_000L

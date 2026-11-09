@@ -12,26 +12,30 @@ import android.view.TextureView
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.SeekBar
-import java.io.File
 
 /**
  * A video a message carries, watched
  * here, the screen upright or on its side, the picture never stretched. A
  * button turns it a quarter at a time: what the file says of which way up it
- * is may be wrong, or missing. One opened from its lock is in memory only:
- * written to the cache while it is watched, and gone with the page.
+ * is may be wrong, or missing; a share above the pause. One opened from its
+ * lock is in memory only, played from there, and gone with the page.
  */
 class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
 
     /** What lies over the picture: whose it is above, the controls below; a press on the picture shows or hides them. */
     private val over = ArrayList<android.view.View>()
 
-    private val watching by lazy { File(cacheDir, "watching.3gp") }
     private lateinit var screen: TextureView
     private lateinit var playing: android.widget.TextView
     private lateinit var where: SeekBar
     private lateinit var elapsed: android.widget.TextView
     private var player: MediaPlayer? = null
+
+    /** What the picture is drawn on: a new one each time the window comes back -- screen off, Home --, the player kept. */
+    private var surface: Surface? = null
+
+    /** The video opened from its lock, taken from [held] once: the page keeps it while it lives, and no longer. */
+    private var opened: ByteArray? = null
     private var wide = 0
     private var high = 0
 
@@ -51,10 +55,12 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
+        opened = held
+        held = null
         Look.fullScreen(this)
         screen = TextureView(this).apply { surfaceTextureListener = this@WatchActivity }
         screen.setOnClickListener { val shown = over.firstOrNull()?.visibility != android.view.View.VISIBLE ; over.forEach { it.visibility = if (shown) android.view.View.VISIBLE else android.view.View.GONE } }
-        playing = knob("❚❚", R.string.listening_pause) { toggle() }
+        playing = knob("❚❚", R.string.listening_pause) { toggle() }.apply { textSize = PAUSE }
         where = SeekBar(this).apply {
             // The very orange of the signs beside it.
             progressTintList = android.content.res.ColorStateList.valueOf(Look.ORANGE)
@@ -99,19 +105,32 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
                     }.also { over += it },
                     FrameLayout.LayoutParams(-1, -2, Gravity.TOP),
                 )
-                // Play or pause, where it is, and stop at the other end: the one way out before the end, besides back.
+                // The share and the stop side by side, centred as on a picture's page -- the one way out before the end,
+                // besides back --; below, play or pause, where it is and out of how long.
                 addView(
                     LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
                         setPadding(pad, pad, pad, Look.dp(context, 32))
                         background = shade(android.graphics.drawable.GradientDrawable.Orientation.BOTTOM_TOP)
-                        // Where it is, out of how long it lasts: above the stop, leaving the bar its width.
                         elapsed = android.widget.TextView(context).apply {
                             textSize = 13f ; setTextColor(android.graphics.Color.WHITE) ; setTypeface(typeface, android.graphics.Typeface.BOLD)
-                            gravity = Gravity.END
-                            setPadding(0, 0, 0, Look.dp(context, 4))
+                            setPadding(Look.dp(context, 4), 0, 0, 0)
                         }
-                        addView(elapsed, LinearLayout.LayoutParams(-1, -2))
+                        addView(
+                            LinearLayout(context).apply {
+                                gravity = Gravity.CENTER_HORIZONTAL
+                                setPadding(0, 0, 0, Look.dp(context, 12))
+                                val round = Look.dp(context, 64)
+                                addView(
+                                    Look.knob(context, R.drawable.share, getString(R.string.share_video)) {
+                                        HandOut.share(this@WatchActivity, opened, intent.data, intent.getStringExtra(EXTRA_NAME) ?: "video", intent.getStringExtra(EXTRA_TYPE), intent.getBooleanExtra(EXTRA_LOCKED, false))
+                                    },
+                                    LinearLayout.LayoutParams(round, round).apply { marginEnd = Look.dp(context, 24) },
+                                )
+                                addView(knob("■", R.string.listening_stop) { finish() }.apply { textSize = 26f }, LinearLayout.LayoutParams(round, round))
+                            },
+                            LinearLayout.LayoutParams(-1, -2),
+                        )
                         addView(
                             LinearLayout(context).apply {
                                 orientation = LinearLayout.HORIZONTAL
@@ -119,7 +138,7 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
                                 val round = Look.dp(context, 52)
                                 addView(playing, LinearLayout.LayoutParams(round, round))
                                 addView(where, LinearLayout.LayoutParams(0, -2, 1f))
-                                addView(knob("■", R.string.listening_stop) { finish() }, LinearLayout.LayoutParams(round, round))
+                                addView(elapsed, LinearLayout.LayoutParams(-2, -2))
                             },
                         )
                     }.also { over += it },
@@ -132,17 +151,21 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
     }
 
     override fun onSurfaceTextureAvailable(texture: SurfaceTexture, width: Int, height: Int) {
-        val opened = held
-        held = null
+        val drawn = Surface(texture)
+        surface = drawn
+        // Back from the screen off or from Home: the same player, on the new surface, where it was.
+        player?.let { it.setSurface(drawn) ; return }
+        val opened = opened
+        val made = MediaPlayer()
         player = runCatching {
-            MediaPlayer().apply {
+            made.apply {
                 if (opened != null) {
-                    watching.writeBytes(opened)
-                    setDataSource(watching.path)
+                    // Watched from memory: what was locked is never laid in a file.
+                    setDataSource(Media.source(opened))
                 } else {
                     setDataSource(this@WatchActivity, intent.data ?: error("nothing to watch"))
                 }
-                setSurface(Surface(texture))
+                setSurface(drawn)
                 // The size as it is to be seen, the file's own turn already taken into account.
                 setOnVideoSizeChangedListener { _, w, h -> wide = w ; high = h ; fit() }
                 // Watched to the end, the page goes: back to the conversation.
@@ -151,13 +174,19 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
                 where.max = duration
                 start()
             }
-        }.getOrElse { finish() ; null }
+        }.getOrElse { made.release() ; finish() ; null }
         where.post(following)
     }
 
     override fun onSurfaceTextureSizeChanged(texture: SurfaceTexture, width: Int, height: Int) = fit()
 
-    override fun onSurfaceTextureDestroyed(texture: SurfaceTexture): Boolean = true
+    override fun onSurfaceTextureDestroyed(texture: SurfaceTexture): Boolean {
+        // Nothing drawn on a surface that is going: the player waits for the next one.
+        runCatching { player?.setSurface(null) }
+        surface?.release()
+        surface = null
+        return true
+    }
 
     override fun onSurfaceTextureUpdated(texture: SurfaceTexture) = Unit
 
@@ -196,18 +225,26 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
     private fun toggle() {
         val player = player ?: return
         if (player.isPlaying) player.pause() else player.start()
-        playing.text = if (player.isPlaying) "❚❚" else "▶"
+        shown(player.isPlaying)
+    }
+
+    /** Pause or play on the knob: the two bars drawn larger than the triangle, so a little smaller. */
+    private fun shown(going: Boolean) {
+        playing.text = if (going) "❚❚" else "▶"
+        playing.textSize = if (going) PAUSE else 20f
     }
 
     override fun onPause() {
         super.onPause()
-        player?.let { if (it.isPlaying) { it.pause() ; playing.text = "▶" } }
+        player?.let { if (it.isPlaying) { it.pause() ; shown(false) } }
     }
 
     override fun onDestroy() {
         player?.release()
         player = null
-        watching.delete()
+        surface?.release()
+        surface = null
+        opened = null
         super.onDestroy()
     }
 
@@ -218,11 +255,18 @@ class WatchActivity : Activity(), TextureView.SurfaceTextureListener {
         private const val EXTRA_TITLE = "title"
         private const val EXTRA_SAID = "said"
 
-        /** [title]: whose conversation; [said]: the video's name and when it came. */
-        fun watch(activity: Activity, bytes: ByteArray?, uri: Uri?, title: String, said: String) {
+        /** The pause's size: as the play's looks, not as its characters are. */
+        private const val PAUSE = 16f
+        private const val EXTRA_NAME = "name"
+        private const val EXTRA_TYPE = "type"
+        private const val EXTRA_LOCKED = "locked"
+
+        /** [title]: whose conversation; [said]: the video's name and when it came; [name], [type], [locked]: to share it. */
+        fun watch(activity: Activity, bytes: ByteArray?, uri: Uri?, title: String, said: String, name: String, type: String?, locked: Boolean) {
             held = bytes
             activity.startActivity(
-                android.content.Intent(activity, WatchActivity::class.java).setData(uri).putExtra(EXTRA_TITLE, title).putExtra(EXTRA_SAID, said),
+                android.content.Intent(activity, WatchActivity::class.java).setData(uri).putExtra(EXTRA_TITLE, title).putExtra(EXTRA_SAID, said)
+                    .putExtra(EXTRA_NAME, name).putExtra(EXTRA_TYPE, type).putExtra(EXTRA_LOCKED, locked),
             )
         }
     }

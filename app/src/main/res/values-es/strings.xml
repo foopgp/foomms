@@ -9,6 +9,7 @@
     <string name="sent">Mensaje enviado.</string>
     <string name="not_sent">Mensaje no enviado (%1$d).</string>
     <string name="refused">⚠ No enviado: rechazado por el operador</string>
+    <string name="stripped">⚠ El operador eliminó el adjunto por el camino: «%1$s»</string>
     <string name="no_provider">foodjis no está instalado o no responde.</string>
     <string name="failed">%1$s</string>
     <string name="signed_certified">Firmado por %1$s, certificado.</string>
@@ -29,6 +30,7 @@
     <string name="tie_ask">¿%1$s es %2$s?</string>
     <string name="tie_write">Escribirlo</string>
     <string name="channel_messages">Mensajes</string>
+    <string name="mms_unfetched">MMS no descargado. Toque para volver a intentarlo.</string>
     <string name="not_default">La aplicación de mensajería del teléfono sigue recibiendo y guardando los mensajes. foomms puede ocupar su lugar: Android se lo preguntará.</string>
     <string name="become_default">Hacer de foomms la aplicación de mensajería</string>
     <string name="configure">⚙️ Configuración</string>
@@ -40,6 +42,15 @@
     <string name="locked_for">⚿ Mensaje cifrado para</string>
     <string name="piece_for">para</string>
     <string name="share">⤴ Compartir</string>
+    <string name="reply">↩ Responder</string>
+    <string name="reply_drop">Dejar de responder a este mensaje</string>
+    <string name="quote_gone">El mensaje citado no está en esta conversación</string>
+    <string name="share_picture">Compartir la foto</string>
+    <string name="share_video">Compartir el vídeo</string>
+    <string name="share_clear_title">¿Compartir sin cifrar?</string>
+    <string name="share_clear_says">Este objeto viajó cifrado. Si lo comparte, saldrá sin cifrar hacia la aplicación elegida.</string>
+    <string name="share_clear_says_text">Este mensaje viajó cifrado. Si lo comparte, saldrá sin cifrar hacia la aplicación elegida.</string>
+    <string name="share_clear_go">Compartir sin cifrar</string>
     <string name="save">↧ Guardar</string>
     <string name="saved">Guardado.</string>
     <string name="conf_theme">Tema</string>
@@ -123,15 +134,10 @@
     <string name="tie_ask_after">. Esto se escribirá en su libreta de direcciones, donde el contacto aún no lo indica:</string>
     <string name="whom_hint">Un nombre o un número de teléfono</string>
     <string name="mark_all_read">○ Marcar todo como leído</string>
-    <string name="mark_all_read_ask">¿Marcar los %1$d mensajes no leídos como leídos?</string>
     <string name="mark_read">○ Marcar como leído</string>
     <string name="mark_unread">● Marcar como no leído</string>
     <string name="count_detail">%1$d mensajes: %2$d SMS + %3$d MMS\nde ellos %4$d PGP: %5$d SMS + %6$d MMS\n%9$d recibidos: %13$d SMS + %14$d MMS\n%10$d enviados: %15$d SMS + %16$d MMS\n\n%7$d conversaciones: %11$d individuales + %12$d de grupo</string>
     <string name="count_bytes">%1$s bytes</string>
-    <plurals name="count_detail_unread_rest">
-        <item quantity="one">, de ellos %1$d PGP, en %2$d conversación.</item>
-        <item quantity="other">, de ellos %1$d PGP, en %2$d conversaciones.</item>
-    </plurals>
     <string name="switch_sign">Firmar</string>
     <string name="switch_lock">Cifrar</string>
     <string name="cert_show">🔑 Mostrar el certificado</string>
@@ -151,9 +157,7 @@
     <string name="place_off">La ubicación del teléfono está desactivada.</string>
     <string name="place_seeking">Buscando dónde está…</string>
     <string name="place_none">El teléfono no sabe ahora dónde está.</string>
-    <string name="backup_all">Copia de seguridad</string>
-    <string name="backup_one">💾 Guardar esta conversación</string>
-    <string name="backup_about">Todas las conversaciones se guardan en un archivo XML. Los mensajes PGP quedan tal como viajaron: cifrados.</string>
+    <string name="backup_one">💾 Guardar la conversación</string>
     <string name="backup_save">Guardarlo todo</string>
     <string name="backup_restore">Restaurar una copia</string>
     <string name="backup_working">En curso…</string>
@@ -220,19 +224,24 @@
     <string name="listening_play">Reproducir</string>
     <string name="listening_pause">Pausa</string>
     <string name="listening_stop">Detener</string>
-    <string name="conf_mms_size">Usar el límite del operador: %1$d kB, es decir %2$d kB útiles</string>
-    <string name="conf_mms_size_note">Los MMS suelen estar limitados a %1$d kB, es decir %2$d kB útiles. Su operador puede ofrecer más, pero el operador de quien los recibe puede rechazar MMS tan generosos.</string>
+    <string name="conf_mms_size">Límite de tamaño MMS</string>
+    <string name="conf_mms_size_note">Los MMS suelen estar limitados a %1$d kB.</string>
+    <string name="conf_mms_size_more">Su operador indica %1$d kB, pero el de su interlocutor puede rechazar MMS tan generosos.</string>
+    <string name="conf_mms_size_theirs">Su operador indica %1$d kB.</string>
+    <string name="conf_operator_none">Su operador no indica su límite.</string>
+    <string name="conf_mms_size_margin">Del límite elegido, %1$d kB se reservan para el sobre del mensaje y el cifrado.</string>
+    <string name="conf_kb">%1$d kB</string>
     <string name="too_heavy_sent">Este mensaje pesa %1$d kB, más que los %2$d kB fijados para los MMS: no se ha enviado.</string>
     <string name="watch_turn">Girar el vídeo un cuarto de vuelta</string>
+    <string name="picture_turn">Girar la foto un cuarto de vuelta</string>
+    <string name="picture_close">Cerrar la foto</string>
     <string name="video_camera">Cámara trasera o delantera</string>
     <string name="video_light">Luz</string>
     <string name="video_sound">Solo audio (%1$s)</string>
     <!-- The three pages of the list, and what each counts under its name. -->
     <string name="page_talks">Conversaciones</string>
-    <string name="page_unread">No leídos</string>
-    <string name="page_unread_n">No leídos (%1$d)</string>
-    <string name="page_groups">Grupos MMS</string>
     <string name="page_profile">Mi perfil</string>
+    <string name="page_profile_n">Mi perfil (%1$d)</string>
     <string name="me_wizard_title">¿Cuál es su ficha de contacto?</string>
     <string name="me_wizard_text">Indique a foomms qué ficha de contacto es la suya: le representa en los grupos, con su número y su certificado. Podrá cambiarla en «Mi perfil».</string>
     <string name="me_wizard_choose">Elegir mi ficha</string>
@@ -245,9 +254,13 @@
         <item quantity="one">%d mensaje sin leer</item>
         <item quantity="other">%d mensajes sin leer</item>
     </plurals>
-    <plurals name="groups_n">
-        <item quantity="one">%d grupo</item>
-        <item quantity="other">%d grupos</item>
+    <plurals name="count_detail_unread_rest">
+        <item quantity="one">, de ellos %1$d PGP, en %2$d conversación.</item>
+        <item quantity="other">, de ellos %1$d PGP, en %2$d conversaciones.</item>
+    </plurals>
+    <plurals name="unread_short">
+        <item quantity="one">%d no leído</item>
+        <item quantity="other">%d no leídos</item>
     </plurals>
     <plurals name="group_members">
         <item quantity="one">%d miembro</item>
@@ -292,7 +305,10 @@
         <item quantity="one">%d borrador</item>
         <item quantity="other">%d borradores</item>
     </plurals>
-    <string name="clear_drafts">Borrar todos los borradores</string>
+    <string name="clear_drafts">Borrar los borradores</string>
+    <string name="clear_draft">Borrar</string>
+    <string name="see_unread">Ver los no leídos</string>
+    <string name="see_unread_one">Ver</string>
     <plurals name="clear_drafts_ask">
         <item quantity="one">¿Borrar %d borrador? Su texto se perderá.</item>
         <item quantity="other">¿Borrar los %d borradores? Su texto se perderá.</item>
@@ -305,10 +321,14 @@
     <string name="all_contacts">Todos los contactos (%1$d)</string>
     <string name="conf_group_most">Límite de grupo MMS</string>
     <string name="conf_group_most_note">Los MMS suelen estar limitados a 20 destinatarios. Algunos operadores aceptan muchos más, unos pocos solo diez.</string>
+    <string name="conf_group_most_operator">Su operador indica %1$d destinatarios.</string>
+    <string name="conf_sms_most">Límite de texto largo por SMS</string>
+    <string name="conf_sms_most_note">7 SMS es la longitud máxima que pasa casi en todas partes. Algunas redes aceptan muchos más, y también depende de la del destinatario. Por encima, el texto sale como MMS o, si el envío de MMS está desactivado, foomms le pide confirmación antes.</string>
+    <string name="conf_sms_most_operator">Su operador indica %1$d.</string>
     <string name="group_over">Este grupo tiene %1$d miembros, usted incluido, por encima del límite de %2$d fijado en la configuración: el operador podría rechazar el mensaje, o entregarlo a cada uno por separado.</string>
     <string name="group_over_send">Enviar de todos modos</string>
     <string name="conf_mms_on">Permitir el envío de MMS</string>
-    <string name="conf_mms_on_note">Permite enviar mensajes de grupo, textos de más de 8 SMS, mensajes de voz, fotos o vídeos cortos. De un operador a otro, un MMS llega con menos seguridad que un SMS, y algunas tarifas lo cobran. Otros operadores no admiten los MMS, lo que favorece a las mensajerías por Internet y, por tanto, a la vigilancia global.</string>
+    <string name="conf_mms_on_note">Permite enviar mensajes de grupo, textos largos, mensajes de voz, fotos o vídeos cortos. De un operador a otro, un MMS llega con menos seguridad que un SMS, y algunas tarifas lo cobran. Otros operadores no admiten los MMS, lo que favorece a las mensajerías por Internet y, por tanto, a la vigilancia global.</string>
     <string name="mms_off">El envío de MMS no está permitido en la configuración: ni adjunto, ni mensaje de voz, ni grupo MMS.</string>
     <string name="many_sms">Este mensaje sale en %1$d SMS: algunos teléfonos los recomponen mal, y su operador puede cobrarlos uno a uno.</string>
 </resources>

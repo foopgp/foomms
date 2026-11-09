@@ -41,9 +41,12 @@ then one of them in bubbles, a field at the bottom.
   certified, for one sent. Not
   signed is not certified. An ordinary SMS is red; a PGP message
   not yet opened is grey, since what it is worth — signed or not — is known
-  only once the key has opened it.
-- **A text stays a text.** A message leaves as SMS while it takes five of
-  them or fewer, as one MMS beyond — or beyond a single SMS, if you set MMS
+  only once the key has opened it. Certified, but signed by somebody other
+  than the person of the conversation, a received message is violet, or
+  yellow-green if it is also encrypted: a forwarded message, for one.
+- **A text stays a text.** A message leaves as SMS while it takes seven of
+  them or fewer — from one to thirty-two, set in the configuration, which
+  recalls what the operator says —, as one MMS beyond — or beyond a single SMS, if you set MMS
   to be preferred; and you can ask to be told before an MMS leaves, which an
   operator may charge for. In both it is text, a PGP message in its armor. Whoever
   receives it without this application sees that it is coded, and can copy it
@@ -51,12 +54,18 @@ then one of them in bubbles, a field at the bottom.
 - **A photo, a picture, a sound, a contact, a file** goes as an MMS: taken,
   chosen or recorded with **+**, which also writes where one is into the
   message (a `geo:` address and the same place on OpenStreetMap); a
-  picture made small enough for the network before it leaves. Locked or
+  picture made small enough for the network before it leaves: 300 kB, or up
+  to what the operator announces, if you set it so. Locked or
   signed, the file becomes a PGP message of its own, under its name and
   `.pgp`, which foodjis opens as it opens any file; the words stay a text in
   armor beside it, and signing both asks for the security key once. Received locked, what a message carries is opened with its words by the same
-  use of the key, and shown as if it had come in clear. Received in clear, a picture is shown small and a sound
-  plays where it stands.
+  use of the key, and shown as if it had come in clear; what you send
+  locked is shown open in your bubble likewise. A picture is shown small, and
+  opens on the whole screen to zoom, move and turn; a sound plays where it
+  stands. An MMS that carries a locked or signed part forbids the network to
+  adapt it (`X-Mms-Adaptation-Allowed: No`, OMA-MMS-ENC 1.3): cut down, the
+  part would be lost. Should an operator take a part out on the way all the
+  same, the bubble says so, in the operator's own words.
 - **Read again what you sent**: a locked message is locked for you too,
   unless you set it not to be.
 - **Push to talk**: the field, while empty, held down records a few words
@@ -72,9 +81,10 @@ then one of them in bubbles, a field at the bottom.
   is — each can see, by the keys it names, who else it was for.
 - **Reading.** A received PGP message says what it is until it is pressed:
   foodjis opens it, with the security key if it is encrypted — and with it,
-  for that one use of the key, the messages shown before it and after it: two
-  on each side unless you set another number, from none to four, in the
-  configuration — PGP or not, they count; foodjis says in its prompt each step
+  for that one use of the key, the messages shown before it and after it:
+  seven on each side unless you set another number, from none to fifteen, in
+  the configuration — PGP or not, they count —, and a few unread messages of
+  the other conversations; foodjis says in its prompt each step
   of what it does. A message still locked says whom it is for, by a small face for each key it
   names. One that does not open — locked for somebody else — can be forwarded
   or saved as it is. Pressed once it is open, a message opens what it carries, or shows its
@@ -106,13 +116,19 @@ then one of them in bubbles, a field at the bottom.
   its certificate is worth.
 - **On the list**, a number tied to a certificate carries the letter the
   contacts page of foodjis gives it, on its colour: C, U, E, R, B.
-- **Counts**, in the bar of the list: how many messages are PGP among all,
-  and among those unread. Pressed, they are spelled out, and the list keeps
-  only the conversations that hold something unread.
+- **Groups**, conversations among several people as in any messaging
+  application, of up to twenty members unless set otherwise. Each message
+  carries a small vCard, `foomms-group.vcf`, naming the members: some
+  operators rewrite the "To" of a group MMS, and the group is recognised by
+  it whatever the way. A group can be named, on your phone only.
+- **My profile**, the second page: the counts of messages and
+  conversations; the drafts and the unread messages, each on its own line,
+  opening onto the list of the conversations concerned; the backup; your
+  "Me" card. The number of unread messages shows next to "My profile".
 - **A new message** begins with a number, or a few letters of a name in the
   address book.
-- **Back up and restore**, from the menu: every message, or those of the
-  conversation at hand, saved to a file — or put back from one — in the XML
+- **Back up and restore**, from My profile for every message, or from a
+  conversation's menu for its own: saved to a file — or put back from one — in the XML
   of "SMS Backup & Restore", which most messaging applications read. PGP
   messages are saved as they travelled: locked.
 - **The look of foodjis**, light or dark as the phone is or as you set it:
@@ -122,49 +138,29 @@ then one of them in bubbles, a field at the bottom.
 **The phone's messaging application**, when you make it so: it receives SMS
 and MMS, writes them in the phone's own store as they travelled — a PGP
 message in its armor —, and announces them; a PGP message is announced for
-what it is, its words are not on a locked screen. Until then the phone's own
+what it is, its words are not on a locked screen. An MMS the phone could
+not download is said, and asked for again for seven days. Until then the phone's own
 application receives, and this one shows and sends.
 
 Permissions: sending and receiving messages and reading those the phone
-holds; announcing them; reading the address book and writing in it. Not the network: the phone's own service
+holds; announcing them; reading the address book and writing in it; placing
+the call one asks for from a conversation. Not the network: the phone's own service
 carries a message, and what is asked of a key server is asked through
 foodjis.
 
 ## State
 
-Version 0.0.1, a trial, tried on one phone against a trial build of foodjis.
+Version 1.4.0, in preparation. 1.2.5 is published on Google Play, and 1.3.3
+is under review there; each version can also be downloaded from
+[foomms.foopgp.org](https://foomms.foopgp.org/), with its fingerprint and its
+signature.
 
-- Done once, for real: a short text locked for a certificate, sent in armor as
-  SMS (312 characters, three SMS), received on another phone and opened there
-  by foodjis from a copy.
-- Seen working: the conversation page and its button of four colours; foodjis
-  asking whether to let the application in; a certificate tied to a made-up
-  number, and the contact written with its address on a key server, its name,
-  its note and its face.
-- Tested off the phone: the MMS itself (`Pdu`, the M-Send.req of OMA-MMS-ENC
-  1.2 in WSP's binary encoding), byte for byte; numbers; fingerprints; telling
-  a PGP message, and a locked one from a signed one; vCard values.
-- Done for real, as the phone's messaging application: an SMS sent and
-  written, received, written and announced; a text too long for five SMS
-  sent as an MMS, announced by the network, fetched, read and written, its
-  text come back identical.
-- Seen: a signed message checked from its bubble, in blue, and its number
-  tied to the signer's certificate from the vCard foodjis makes.
-- **Not seen yet**: an encrypted message opened from its bubble, and several
-  opened by one presentation of the key — the phone it is tried on has no
-  key that speaks over NFC; an MMS
-  with an attachment; an MMS between two operators.
-- **Not seen yet either**: a picture or a sound chosen, sent and received —
-  built, and tried only as far as the choice between the two.
-- **Not built yet**: opening a locked attachment from its bubble; several
-  people in one conversation; deleting a message; a second SIM.
+In use every day on two phones (Android 13 and 16), from one operator to
+another: SMS and MMS, encrypted, signed or in clear, texts, photos, sounds,
+videos and files, one-to-one conversations and groups.
 
-It needs a foodjis with four additions (branch `api-by-phone` of
-foodjis-android, not in a published version): a phone number taken for an
-address; its list of contacts shown to choose from; a door that answers, for
-one fingerprint, the certificate's name, standing, face and vCard; and one
-presentation of the key answering for everything the same application waits
-for — messages to read, or a text and what it carries to sign.
+It needs foodjis, as published on
+[foodjis.foopgp.org](https://foodjis.foopgp.org/) and Google Play.
 
 ## Building
 
@@ -179,26 +175,10 @@ A JDK 17 or newer and the Android SDK (platform 36).
 ## Leads and open questions
 
 - **What operators do to an attachment.** Some rewrite pictures to fit the
-  receiving phone, and may drop or relabel a part of a type they do not know.
-  That is why a message is recognised by its bytes; if `application/pgp-encrypted`
-  does not get through somewhere, the same bytes can travel under another
-  label, or in armor as a text part. To be tried operator by operator, and
-  between two of them.
-- **More than a text.** What is locked is the text alone for now. With a
-  photo or a voice note, the locked content should be a MIME entity, as in
-  encrypted mail (RFC 3156): one attachment, whatever it holds, and any mail
-  tool able to read it. Pictures are to be shrunk before they are locked —
-  a network cannot do it afterwards.
-- **Several people at once.** An MMS goes to several numbers, and a PGP
-  message is locked for several keys: a group needs no more than that, and no
-  group server.
-- **Being the messaging application.** Android lets one application receive
-  MMS, keep them and announce them; the others read what it kept. Being that
-  one would mean: a notification when a PGP message arrives, sent messages
-  kept (locked), and the choice of what is written to the phone's store. It
-  also means carrying every ordinary SMS and MMS properly, which is a large
-  piece of work — and it is what an application store requires of one that
-  asks for these permissions.
+  receiving phone, or take out a part too heavy and put a word in its place.
+  The field `X-Mms-Adaptation-Allowed: No` was enough for a 574 kB locked part
+  to arrive whole from Orange to Free. It remains to be tried with other
+  operators, and from country to country.
 - **Sending one's certificate.** To somebody who has foodjis and not yet your
   certificate: the same MMS, with the certificate as its attachment.
 - **Telling who can receive.** foodjis knows which contacts carry a number;
