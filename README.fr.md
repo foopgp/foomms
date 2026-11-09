@@ -152,7 +152,8 @@ D'ici là c'est l'application du téléphone qui reçoit, et celle-ci montre et
 envoie.
 
 Permissions : envoyer et recevoir des messages et lire ceux que le téléphone
-détient ; les annoncer ; lire le carnet d'adresses et y écrire. Pas le réseau : c'est le service du
+détient ; les annoncer ; lire le carnet d'adresses et y écrire ; passer l'appel
+qu'on demande depuis une conversation. Pas le réseau : c'est le service du
 téléphone qui transporte un message, et ce qui se demande à un serveur de
 clés se demande par foodjis.
 

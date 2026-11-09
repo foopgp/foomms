@@ -25,6 +25,9 @@
     <uses-feature android:name="android.hardware.location" android:required="false" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
+    <!-- "Call" in a conversation's menu places the call the person asked for;
+         without it, the dialler only opens with the number. -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
     <!-- A few words spoken, while a finger stays on the empty field. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- Filming a short video for an MMS. -->

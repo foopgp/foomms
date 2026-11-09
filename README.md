@@ -143,7 +143,8 @@ not download is said, and asked for again for seven days. Until then the phone's
 application receives, and this one shows and sends.
 
 Permissions: sending and receiving messages and reading those the phone
-holds; announcing them; reading the address book and writing in it. Not the network: the phone's own service
+holds; announcing them; reading the address book and writing in it; placing
+the call one asks for from a conversation. Not the network: the phone's own service
 carries a message, and what is asked of a key server is asked through
 foodjis.
 

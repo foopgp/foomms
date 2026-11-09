@@ -9,4 +9,5 @@
 • Un adjunto cifrado ya no es reducido por el operador por el camino; si el operador quita un adjunto, foomms lo dice bajo el mensaje.
 • Compartir una foto o un vídeo desde su pantalla completa; si llegó cifrado, foomms avisa primero de que saldrá sin cifrar.
 • Responder a un mensaje deslizando su burbuja a la derecha o con una pulsación larga: la respuesta empieza con una línea que lo cita — su hora y sus primeras palabras —, legible en cualquier teléfono; al pulsar la cita se vuelve a él.
+• «Llamar al …», en el menú de una conversación, inicia la llamada directamente, una vez que lo haya permitido; si no, el número aparece en el marcador, como antes.
 • Una lista más rápida y numerosas correcciones.

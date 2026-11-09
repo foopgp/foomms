@@ -9,4 +9,5 @@
 • Şifreli bir ek artık yolda operatör tarafından küçültülmez; operatör bir eki kaldırırsa foomms bunu mesajın altında söyler.
 • Bir fotoğraf ya da videoyu tam ekrandan paylaşma; şifreli geldiyse foomms önce şifresiz gideceği konusunda uyarır.
 • Bir mesajı, balonunu sağa kaydırarak ya da uzun basarak yanıtlama: yanıt, onu alıntılayan bir satırla başlar — saati ve ilk sözcükleri —, her telefonda okunur; alıntıya basmak ona götürür.
+• Bir konuşmanın menüsündeki «… numarasını ara», izin verdiğinizde aramayı hemen başlatır; aksi halde numara eskisi gibi tuşlamada görünür.
 • Daha hızlı bir liste ve çok sayıda düzeltme.

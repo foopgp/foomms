@@ -615,7 +615,9 @@ class MainActivity : AskingActivity() {
         fill()
     }
 
-    override fun onRequestPermissionsResult(request: Int, permissions: Array<String>, results: IntArray) = onResume()
+    override fun onRequestPermissionsResult(request: Int, permissions: Array<String>, results: IntArray) {
+        if (!TalkMenu.answered(this, request, results)) onResume()
+    }
 
     /** Installed from a file, downloaded or not, rather than by a store: Android then restricts the SMS. */
     private fun fromFile(): Boolean = android.os.Build.VERSION.SDK_INT >= 33 && runCatching {

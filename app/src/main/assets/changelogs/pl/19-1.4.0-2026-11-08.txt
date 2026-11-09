@@ -9,4 +9,5 @@
 • Zaszyfrowany załącznik nie jest już po drodze zmniejszany przez operatora; jeśli operator usunie załącznik, foomms mówi o tym pod wiadomością.
 • Udostępnianie zdjęcia lub filmu z pełnego ekranu; jeśli dotarło zaszyfrowane, foomms najpierw ostrzega, że wyjdzie bez szyfrowania.
 • Odpowiedź na wiadomość przez przesunięcie jej dymka w prawo lub długie naciśnięcie: odpowiedź zaczyna się od wiersza, który ją cytuje — godzina i pierwsze słowa — czytelnego na każdym telefonie; dotknięcie cytatu prowadzi do niej.
+• „Zadzwoń pod …” w menu rozmowy od razu nawiązuje połączenie, gdy na to pozwolisz; w przeciwnym razie numer pojawia się w wybieraniu, jak dotąd.
 • Szybsza lista i liczne poprawki.

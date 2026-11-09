@@ -9,4 +9,5 @@
 • An encrypted attachment is no longer scaled down on the way by the carrier; if the carrier removes an attachment, foomms says so under the message.
 • Share a photo or a video from its full screen; if it arrived encrypted, foomms first warns that it will leave in clear.
 • Reply to a message, by swiping its bubble to the right or with a long press: the reply begins with a line citing it — its time and its first words —, readable on any phone; pressing the citation goes back to it.
+• "Call …", in a conversation's menu, places the call at once, once you have allowed it; otherwise the number shows in the dialler, as before.
 • A faster list, and many fixes.

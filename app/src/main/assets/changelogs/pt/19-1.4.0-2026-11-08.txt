@@ -9,4 +9,5 @@
 • Um anexo cifrado deixa de ser reduzido pelo caminho pelo operador; se o operador retirar um anexo, o foomms di-lo sob a mensagem.
 • Partilhar uma foto ou um vídeo a partir do ecrã inteiro; se chegou cifrado, o foomms avisa primeiro que sairá sem cifra.
 • Responder a uma mensagem deslizando a sua bolha para a direita ou com um toque longo: a resposta começa por uma linha que a cita — a hora e as primeiras palavras —, legível em qualquer telefone; tocar na citação leva até ela.
+• «Ligar para …», no menu de uma conversa, faz a chamada diretamente, depois de o permitir; caso contrário, o número aparece no marcador, como antes.
 • Uma lista mais rápida e numerosas correções.

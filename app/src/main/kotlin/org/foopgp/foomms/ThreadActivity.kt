@@ -2215,6 +2215,7 @@ class ThreadActivity : AskingActivity() {
     }
 
     override fun onRequestPermissionsResult(request: Int, permissions: Array<String>, results: IntArray) {
+        if (TalkMenu.answered(this, request, results)) return
         if (request == PLACE) {
             if (results.any { it == PackageManager.PERMISSION_GRANTED }) place()
             return
