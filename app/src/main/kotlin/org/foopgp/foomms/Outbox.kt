@@ -197,14 +197,19 @@ object Outbox {
             val http = intent.getIntExtra(SmsManager.EXTRA_MMS_HTTP_STATUS, -1)
             if (!gone && resultCode == SmsManager.MMS_ERROR_HTTP_FAILURE && http !in 500..599 && sent.isFile && Pdu.isWhole(sent.readBytes())) {
                 Whole.refused(context)
-                sent.writeBytes(Pdu.unwhole(sent.readBytes()))
+                // Under another name: the service takes back its right to read the first one once done with it,
+                // and may do so after this second sending began (Murena, 58 ms: "Permission Denial").
+                val resent = transaction + "N"
+                file(context, resent).writeBytes(Pdu.unwhole(sent.readBytes()))
+                sent.delete()
                 val again = PendingIntent.getBroadcast(
-                    context, transaction.hashCode(),
-                    Intent(context, Told::class.java).putExtra(EXTRA_TRANSACTION, transaction).putExtra(EXTRA_WRITTEN, intent.getStringExtra(EXTRA_WRITTEN)),
+                    context, resent.hashCode(),
+                    Intent(context, Told::class.java).putExtra(EXTRA_TRANSACTION, resent).putExtra(EXTRA_WRITTEN, intent.getStringExtra(EXTRA_WRITTEN)),
                     PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0),
                 )
-                val from = Uri.parse("content://${context.packageName}.pdu/$transaction")
+                val from = Uri.parse("content://${context.packageName}.pdu/$resent")
                 if (runCatching { manager(context).sendMultimediaMessage(context, from, null, null, again) }.isSuccess) return
+                file(context, resent).delete()
             }
             sent.delete()
             // An answer to the operator's server, not a message: nothing to mark, nothing to say.
