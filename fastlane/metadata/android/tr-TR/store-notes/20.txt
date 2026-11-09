@@ -1,0 +1,1 @@
+• 1.4.0'dan beri bazı operatörler şifreli ya da imzalı MMS'leri reddediyordu: foomms artık bunu fark ediyor ve onları hemen başka şekilde yeniden gönderiyor.

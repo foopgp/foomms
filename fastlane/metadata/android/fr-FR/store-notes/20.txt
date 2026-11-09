@@ -1,0 +1,1 @@
+• Les MMS chiffrés ou signés étaient refusés par certains opérateurs depuis la 1.4.0 : foomms le remarque désormais, et les renvoie aussitôt autrement.

@@ -62,10 +62,12 @@ then one of them in bubbles, a field at the bottom.
   use of the key, and shown as if it had come in clear; what you send
   locked is shown open in your bubble likewise. A picture is shown small, and
   opens on the whole screen to zoom, move and turn; a sound plays where it
-  stands. An MMS that carries a locked or signed part forbids the network to
+  stands. An MMS that carries a locked or signed part asks the network not to
   adapt it (`X-Mms-Adaptation-Allowed: No`, OMA-MMS-ENC 1.3): cut down, the
-  part would be lost. Should an operator take a part out on the way all the
-  same, the bubble says so, in the operator's own words.
+  part would be lost. A network that refuses the whole MMS for it -- Free
+  does -- is remembered, and the MMS leaves again at once without asking.
+  Should an operator take a part out on the way all the same, the bubble says
+  so, in the operator's own words.
 - **Read again what you sent**: a locked message is locked for you too,
   unless you set it not to be.
 - **Push to talk**: the field, while empty, held down records a few words
@@ -176,9 +178,9 @@ A JDK 17 or newer and the Android SDK (platform 36).
 
 - **What operators do to an attachment.** Some rewrite pictures to fit the
   receiving phone, or take out a part too heavy and put a word in its place.
-  The field `X-Mms-Adaptation-Allowed: No` was enough for a 574 kB locked part
-  to arrive whole from Orange to Free. It remains to be tried with other
-  operators, and from country to country.
+  The field `X-Mms-Adaptation-Allowed: No` (OMA-MMS-ENC 1.3) kept a 574 kB
+  locked part whole from Orange to Free; sent through Free, an MMS carrying it
+  is refused (HTTP 400). It remains to be tried with other operators.
 - **Sending one's certificate.** To somebody who has foodjis and not yet your
   certificate: the same MMS, with the certificate as its attachment.
 - **Telling who can receive.** foodjis knows which contacts carry a number;

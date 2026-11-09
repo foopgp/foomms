@@ -21,7 +21,7 @@ class PduTest {
         val expected = bytes(
             0x8C, 0x80,                         // X-Mms-Message-Type: m-send-req
             0x98, "T1", 0,                      // X-Mms-Transaction-ID
-            0x8D, 0x93,                         // X-Mms-MMS-Version: 1.3
+            0x8D, 0x92,                         // X-Mms-MMS-Version: 1.2
             0x89, 0x01, 0x81,                   // From: insert-address-token
             0x97, "+33600000000/TYPE=PLMN", 0,  // To
             0x8A, 0x80,                         // X-Mms-Message-Class: personal
@@ -59,13 +59,21 @@ class PduTest {
         assertEquals(2, text.split("/TYPE=PLMN").size - 1)
     }
 
-    @Test fun `a sealed part is not to be cut down on the way, a picture in clear may be`() {
-        val refused = byteArrayOf(0xBC.toByte(), 0x81.toByte())
-        fun refuses(made: ByteArray) = made.toList().windowed(2).any { it == refused.toList() }
-        val image = byteArrayOf(1, 2, 3)
-        assertTrue(refuses(Pdu.send("T5", listOf("0600000000"), listOf(Pdu.Part(Pgp.TYPE, "3.pgp", image)))))
-        assertTrue(refuses(Pdu.send("T6", listOf("0600000000"), listOf(Pdu.Part("application/octet-stream", "a.jpg.pgp", image)))))
-        assertFalse(refuses(Pdu.send("T7", listOf("0600000000"), listOf(Pdu.Part("image/jpeg", "a.jpg", image)))))
+    @Test fun `asked to be kept whole and back, byte for byte`() {
+        val made = Pdu.send("T8", listOf("0600000000"), listOf(Pdu.Part(Pgp.TYPE, "3.pgp", byteArrayOf(1, 2, 3))))
+        val whole = Pdu.whole(made)
+        assertTrue(Pdu.isWhole(whole))
+        assertFalse(Pdu.isWhole(made))
+        assertArrayEquals(made, Pdu.unwhole(whole))
+        assertEquals(made.size + 2, whole.size)
+    }
+
+    @Test fun `no MMS asks not to be adapted, which some networks refuse outright`() {
+        val asked = byteArrayOf(0xBC.toByte(), 0x81.toByte())
+        fun asks(made: ByteArray) = made.toList().windowed(2).any { it == asked.toList() }
+        val bytes = byteArrayOf(1, 2, 3)
+        assertFalse(asks(Pdu.send("T5", listOf("0600000000"), listOf(Pdu.Part(Pgp.TYPE, "3.pgp", bytes)))))
+        assertFalse(asks(Pdu.send("T7", listOf("0600000000"), listOf(Pdu.Part("image/jpeg", "a.jpg", bytes)))))
     }
 
     @Test fun `nobody to send to is refused`() {

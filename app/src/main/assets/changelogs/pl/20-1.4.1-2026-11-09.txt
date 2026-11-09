@@ -1,0 +1,1 @@
+• Niektórzy operatorzy odrzucali zaszyfrowane lub podpisane MMS od wersji 1.4.0: foomms teraz to zauważa i od razu wysyła je ponownie inaczej.

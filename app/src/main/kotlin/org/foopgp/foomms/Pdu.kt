@@ -34,7 +34,7 @@ object Pdu {
         val out = ByteArrayOutputStream()
         out.write(MESSAGE_TYPE) ; out.write(M_SEND_REQ)
         out.write(TRANSACTION_ID) ; out.text(transaction)
-        out.write(MMS_VERSION) ; out.write(VERSION_1_3)
+        out.write(MMS_VERSION) ; out.write(VERSION_1_2)
         // "Put my number here yourself": the network knows it better than a phone does.
         out.write(FROM) ; out.write(1) ; out.write(INSERT_ADDRESS)
         for (number in to) {
@@ -48,9 +48,7 @@ object Pdu {
         out.write(PRIORITY) ; out.write(NORMAL)
         out.write(DELIVERY_REPORT) ; out.write(NO)
         out.write(READ_REPORT) ; out.write(NO)
-        // A sealed part not to be cut down on the way (OMA-MMS-ENC 1.3): trimmed, it is lost. A picture in
-        // clear may still be made smaller for a phone that could not take it whole.
-        if (parts.any { it.sealed }) { out.write(ADAPTATION_ALLOWED) ; out.write(NO) }
+        // A version 1.2 message, as every network takes; asked to be kept whole by [whole], where the network allows.
         // Last of the headers, as the encoding wants it: what follows is the body.
         out.write(CONTENT_TYPE) ; out.write(MULTIPART_MIXED)
         out.uintvar(parts.size)
@@ -65,6 +63,36 @@ object Pdu {
             out.write(part.bytes)
         }
         return out.toByteArray()
+    }
+
+    /**
+     * [pdu] made by [send], asked to be kept whole on the way: version 1.3 and X-Mms-Adaptation-Allowed: No
+     * (OMA-MMS-ENC 1.3), set right after the version, where [unwhole] finds them again. A sealed part cut down is
+     * lost; Orange takes the field and the receiving network then keeps the part whole, but Free refuses outright
+     * any MMS that carries it (HTTP 400) -- which is why it can be taken off again.
+     */
+    fun whole(pdu: ByteArray): ByteArray {
+        val at = indexOf(pdu, byteArrayOf(MMS_VERSION.toByte(), VERSION_1_2.toByte()))
+        if (at < 0) return pdu
+        return pdu.copyOfRange(0, at) +
+            byteArrayOf(MMS_VERSION.toByte(), VERSION_1_3.toByte(), ADAPTATION_ALLOWED.toByte(), NO.toByte()) +
+            pdu.copyOfRange(at + 2, pdu.size)
+    }
+
+    /** [pdu] as [send] made it, from what [whole] made of it; any other, as it is. */
+    fun unwhole(pdu: ByteArray): ByteArray {
+        val at = indexOf(pdu, byteArrayOf(MMS_VERSION.toByte(), VERSION_1_3.toByte(), ADAPTATION_ALLOWED.toByte(), NO.toByte()))
+        if (at < 0) return pdu
+        return pdu.copyOfRange(0, at) + byteArrayOf(MMS_VERSION.toByte(), VERSION_1_2.toByte()) + pdu.copyOfRange(at + 4, pdu.size)
+    }
+
+    /** Whether [whole] asked [pdu] to be kept whole. */
+    fun isWhole(pdu: ByteArray): Boolean =
+        indexOf(pdu, byteArrayOf(MMS_VERSION.toByte(), VERSION_1_3.toByte(), ADAPTATION_ALLOWED.toByte(), NO.toByte())) >= 0
+
+    private fun indexOf(haystack: ByteArray, needle: ByteArray): Int {
+        for (i in 0..haystack.size - needle.size) if (needle.indices.all { haystack[i + it] == needle[it] }) return i
+        return -1
     }
 
     /**
