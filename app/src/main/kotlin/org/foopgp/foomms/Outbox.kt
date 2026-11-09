@@ -193,7 +193,9 @@ object Outbox {
             // Refused while asking to be kept whole: this network will not have it. Never asked of it again, and the
             // same message sent at once without asking -- not a refusal for the person to see.
             val sent = file(context, transaction)
-            if (!gone && resultCode == SmsManager.MMS_ERROR_HTTP_FAILURE && sent.isFile && Pdu.isWhole(sent.readBytes())) {
+            // A server out of order (5xx) refuses nothing: not held against the network.
+            val http = intent.getIntExtra(SmsManager.EXTRA_MMS_HTTP_STATUS, -1)
+            if (!gone && resultCode == SmsManager.MMS_ERROR_HTTP_FAILURE && http !in 500..599 && sent.isFile && Pdu.isWhole(sent.readBytes())) {
                 Whole.refused(context)
                 sent.writeBytes(Pdu.unwhole(sent.readBytes()))
                 val again = PendingIntent.getBroadcast(

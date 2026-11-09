@@ -22,6 +22,16 @@ class PgpTest {
         assertTrue(Pgp.isMessage("\n-----BEGIN PGP MESSAGE-----\n\nhF4D".toByteArray()))
     }
 
+    @Test fun `a PGP file travels as one, whatever Android calls it`() {
+        assertEquals(Pgp.TYPE, Pgp.typeOf("essai.pgp", "application/pgp-signature", bytes(0xA3, 0x01)))
+        assertEquals(Pgp.TYPE, Pgp.typeOf("Lettre.GPG", "application/octet-stream", bytes(0xA3, 0x01)))
+        assertEquals(Pgp.TYPE, Pgp.typeOf("lettre", "application/octet-stream", bytes(0x84, 0x5E, 0x03)))
+        assertEquals(Pgp.TYPE, Pgp.typeOf("lettre.asc", "text/plain", "-----BEGIN PGP MESSAGE-----\n".toByteArray()))
+        // A detached signature or a certificate under .asc keeps its type, as does a file of another kind.
+        assertEquals("text/plain", Pgp.typeOf("lettre.asc", "text/plain", "-----BEGIN PGP SIGNATURE-----\n".toByteArray()))
+        assertEquals("application/pdf", Pgp.typeOf("lettre.pdf", "application/pdf", "%PDF-1.7".toByteArray()))
+    }
+
     @Test fun `what is not one is left alone`() {
         assertFalse(Pgp.isMessage(ByteArray(0)))
         // A photo, a certificate (tag 6), a signature (tag 2), a text.

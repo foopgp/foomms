@@ -36,6 +36,15 @@ object Pgp {
         return Media.recorded(opened)?.let { (at, picture) -> Media.named(if (picture) "v" else "a", at, extension) } ?: "file.$extension"
     }
 
+    /**
+     * The type a file travels under: a PGP message by its name or its bytes
+     * goes as [TYPE], whatever [given]. Android's own table gives ".pgp" as
+     * application/pgp-signature, which is a detached signature (RFC 3156,
+     * section 5), and ".gpg" as application/octet-stream.
+     */
+    fun typeOf(name: String, given: String, start: ByteArray): String =
+        if (name.lowercase().let { it.endsWith(".pgp") || it.endsWith(".gpg") } || isMessage(start)) TYPE else given
+
     fun isMessage(start: ByteArray): Boolean {
         if (start.isEmpty()) return false
         val first = start[0].toInt() and 0xFF

@@ -1,6 +1,7 @@
 package org.foopgp.foomms
 
 import android.content.Context
+import android.telephony.SmsManager
 import android.telephony.TelephonyManager
 
 /**
@@ -12,8 +13,13 @@ object Whole {
 
     private fun kept(context: Context) = context.getSharedPreferences("whole", Context.MODE_PRIVATE)
 
-    private fun network(context: Context): String =
-        runCatching { context.getSystemService(TelephonyManager::class.java)?.simOperator }.getOrNull().orEmpty().ifEmpty { "?" }
+    // The SIM card MMS leave by -- the default one for SMS, as [Inbound.manager] sends --, not the default for calls
+    // or data: with two cards, they may differ.
+    private fun network(context: Context): String = runCatching {
+        val telephony = context.getSystemService(TelephonyManager::class.java)
+        val sending = SmsManager.getDefaultSmsSubscriptionId()
+        (if (sending >= 0) telephony?.createForSubscriptionId(sending) else telephony)?.simOperator
+    }.getOrNull().orEmpty().ifEmpty { "?" }
 
     /** Whether to ask this network: not once it refused. */
     fun taken(context: Context): Boolean = !kept(context).getBoolean(network(context), false)
