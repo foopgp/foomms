@@ -125,7 +125,7 @@ object GroupMenu {
                     // Pressed long: the menu of the conversation with them alone, as the list shows it.
                     setOnLongClickListener {
                         shown?.dismiss()
-                        TalkMenu.aside(activity, one.number, one.name, one.person, look = false, changed = changed)
+                        TalkMenu.aside(activity, one.number, one.name, one.person, group = true, look = false, changed = changed)
                         true
                     }
                 },

@@ -102,7 +102,7 @@ class WriteActivity : Activity() {
             // Pressed long, somebody: what can be done about them, as from a group.
             setOnItemLongClickListener { _, _, at, _ ->
                 val one = shown.getOrNull(at)?.takeIf { it.header == null } ?: return@setOnItemLongClickListener false
-                TalkMenu.aside(this@WriteActivity, one.number, one.name.takeUnless { one.typed }, null)
+                TalkMenu.aside(this@WriteActivity, one.number, one.name.takeUnless { one.typed }, null, group = false)
                 true
             }
         }

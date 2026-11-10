@@ -2111,7 +2111,7 @@ class ThreadActivity : AskingActivity() {
                     addView(
                         Look.face(context, 32, null, who?.face, who?.card?.validity, framable = true, seed = who?.seed ?: from?.let(Phone::key)).apply {
                             // Pressed, what can be done about who it is: as from a conversation with them alone, and going to it.
-                            setOnClickListener { from?.let { TalkMenu.aside(this@ThreadActivity, it, who?.name, who?.person, look = false) { load(first = false) } } }
+                            setOnClickListener { from?.let { TalkMenu.aside(this@ThreadActivity, it, who?.name, who?.person, group = true, look = false) { load(first = false) } } }
                         },
                         LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                             gravity = Gravity.TOP ; marginEnd = pad / 2
