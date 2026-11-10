@@ -529,14 +529,17 @@ object Look {
      * faces, in reading order -- beyond nine, eight and how many more --,
      * each framed by what its
      * certificate is worth. The places a smaller group leaves stay empty:
-     * how full the square is says how many it is.
+     * how full the square is says how many it is. [muted], the group's
+     * mark takes the last place: part of what names it.
      */
-    fun crowd(context: Context, side: Int, minis: List<Mini>): View {
+    fun crowd(context: Context, side: Int, minis: List<Mini>, muted: Boolean = false): View {
         val line = 1
         val cell = (side - 6 * line) / 3
         val pad = dp(context, 3)
-        // Beyond nine, eight faces and how many more.
-        val shown: List<Mini?> = if (minis.size <= 9) minis else minis.take(8) + listOf(null)
+        // Beyond the places, one fewer faces and how many more.
+        val places = if (muted) 8 else 9
+        val faces = if (minis.size <= places) minis else minis.take(places - 1)
+        val shown: List<Mini?> = faces + (if (minis.size > places) listOf(null) else emptyList()) + (if (muted) listOf(null) else emptyList())
         val rows = (shown.size + 2) / 3
         return LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
@@ -560,7 +563,7 @@ object Look {
                             addView(
                                 if (one != null) face(context, cell, null, one.face, one.standing, framable = true, seed = one.seed, lineDp = line)
                                 else TextView(context).apply {
-                                    text = "+${minis.size - 8}"
+                                    text = if (muted && at == shown.size - 1) "🔕" else "+${minis.size - faces.size}"
                                     gravity = Gravity.CENTER
                                     setTextColor(MUTED)
                                     setTextSize(TypedValue.COMPLEX_UNIT_DIP, cell * 0.45f)

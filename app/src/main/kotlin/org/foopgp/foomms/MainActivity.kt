@@ -1054,14 +1054,12 @@ class MainActivity : AskingActivity() {
 
     /**
      * A conversation's name, and after it what the person said of its sender: not to be announced. A group's line
-     * is named by who spoke last: muted, that member; the group itself, on the line of the name the person gave it
-     * -- on this one when it has none.
+     * is named by who spoke last: muted, that member; the group itself, by what names it -- the name the person
+     * gave it, or its square of faces.
      */
     private fun marked(row: Row): CharSequence = android.text.SpannableStringBuilder(row.name).apply {
-        val muted = if (row.group != null) {
-            (row.talk.incoming && Marks.muted(this@MainActivity, row.talk.from)) ||
-                (GroupNames.of(this@MainActivity, row.group) == null && groupMuted(row.group))
-        } else Marks.muted(this@MainActivity, row.with ?: row.talk.number)
+        val muted = if (row.group != null) row.talk.incoming && Marks.muted(this@MainActivity, row.talk.from)
+            else Marks.muted(this@MainActivity, row.with ?: row.talk.number)
         if (muted) append("  🔕")
     }
 
@@ -1169,7 +1167,7 @@ class MainActivity : AskingActivity() {
                 // The colour of what the last message travelled as, down the edge of the conversation.
                 addView(View(context).apply { background = Look.rounded(Look.colour(row.talk.form), Look.dp(context, 3)) }, LinearLayout.LayoutParams(Look.dp(context, 6), Look.dp(context, if (row.crowd != null) CROWD else 44)))
                 addView(View(context), LinearLayout.LayoutParams(pad, 1))
-                addView(row.crowd?.let { Look.crowd(context, CROWD, it) } ?: Look.face(context, 44, null, row.face, row.standing, framable = true, seed = row.seed))
+                addView(row.crowd?.let { Look.crowd(context, CROWD, it, muted = row.group != null && GroupNames.of(context, row.group) == null && groupMuted(row.group)) } ?: Look.face(context, 44, null, row.face, row.standing, framable = true, seed = row.seed))
                 addView(text, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
                 // A group's square is tall enough: less room above and below it.
                 val around = if (row.crowd != null) pad / 3 else pad
