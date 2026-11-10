@@ -1052,12 +1052,21 @@ class MainActivity : AskingActivity() {
     /** Which filling is the latest asked for: an older one that finishes late shows nothing. */
     private var turns = 0
 
-    /** A conversation's name, and after it what the person said of its sender: not to be announced. */
+    /**
+     * A conversation's name, and after it what the person said of its sender: not to be announced. A group's line
+     * is named by who spoke last: muted, that member; the group itself, on the line of the name the person gave it
+     * -- on this one when it has none.
+     */
     private fun marked(row: Row): CharSequence = android.text.SpannableStringBuilder(row.name).apply {
-        // A group as it is muted, by its members; one person by whom the line is with.
-        val key = row.group?.let { "group:$it" } ?: row.with ?: row.talk.number
-        if (key != null && Marks.muted(this@MainActivity, key)) append("  🔕")
+        val muted = if (row.group != null) {
+            (row.talk.incoming && Marks.muted(this@MainActivity, row.talk.from)) ||
+                (GroupNames.of(this@MainActivity, row.group) == null && groupMuted(row.group))
+        } else Marks.muted(this@MainActivity, row.with ?: row.talk.number)
+        if (muted) append("  🔕")
     }
+
+    /** A group as it is muted, by its members. */
+    private fun groupMuted(group: String): Boolean = Marks.muted(this, "group:$group")
 
     /** Pressed long, a conversation says what can be done about it and about who it is with. */
     private fun about(row: Row) {
@@ -1141,7 +1150,7 @@ class MainActivity : AskingActivity() {
                 val called = row.group?.let { GroupNames.of(context, it) }
                 if (called != null) {
                     addView(
-                        Look.words(context, called, size = 17f).apply {
+                        Look.words(context, if (groupMuted(row.group)) "$called  🔕" else called, size = 17f).apply {
                             setTypeface(typeface, Typeface.BOLD)
                             maxLines = 1 ; ellipsize = TextUtils.TruncateAt.END
                         },

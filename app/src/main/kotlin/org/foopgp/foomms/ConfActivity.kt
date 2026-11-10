@@ -159,9 +159,6 @@ class ConfActivity : AskingActivity() {
         note(R.string.conf_to_myself_note)
 
         heading(R.string.conf_mms)
-        val on = Conf.mms(this)
-        column.addView(flip(R.string.conf_mms_on, on) { Conf.mms(this, it) ; draw() })
-        note(R.string.conf_mms_on_note)
         // How many SMS a text may leave in: beyond, an MMS, or with MMS off asked first. What the operator says, as a hint.
         subheading(R.string.conf_sms_most)
         note(
@@ -169,6 +166,12 @@ class ConfActivity : AskingActivity() {
                 (Outbox.operatorsSmsMost(this)?.let { getString(R.string.conf_sms_most_operator, it) } ?: getString(R.string.conf_operator_none)),
         )
         slider(Conf.smsMost(this), Conf.SMS_MOST_EVER, Conf.SMS_LEAST) { Conf.smsMost(this, it) }
+        val on = Conf.mms(this)
+        column.addView(
+            flip(R.string.conf_mms_on, on) { Conf.mms(this, it) ; draw() },
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = Look.dp(this@ConfActivity, 12) },
+        )
+        note(R.string.conf_mms_on_note)
         // What MMS may weigh, and how many a group MMS may go to: with MMS on only.
         // Heavier than the standard only where the operator says it takes more: greyed, and off, otherwise.
         if (on) {

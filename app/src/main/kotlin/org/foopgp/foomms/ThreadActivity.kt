@@ -905,7 +905,9 @@ class ThreadActivity : AskingActivity() {
         val name = called ?: found.joinToString(", ") { it.name }
         thread?.let { Opened.title(it, name, number) }
         title = name
-        whoIs.text = name
+        // Muted, said where the group is named: after its name, or after its members' faces.
+        val muted = Marks.muted(this, "group:${groupSet()}")
+        whoIs.text = if (muted) "$name  🔕" else name
         // Faces rather than names, which never fit: ten on a line.
         portrait.visibility = View.GONE
         named.visibility = if (called != null) View.VISIBLE else View.GONE
@@ -915,6 +917,7 @@ class ThreadActivity : AskingActivity() {
         val faces = found.map { Look.Mini(it.face, it.card?.validity, it.seed) } + listOfNotNull(myself)
         for (one in if (faces.size > 9) faces.take(8) else faces) crowd.addView(Look.face(this, 22, null, one.face, one.standing, framable = true, seed = one.seed, lineDp = 2))
         if (faces.size > 9) crowd.addView(Look.words(this, "+${faces.size - 8}", size = 15f).apply { setTextColor(android.graphics.Color.WHITE) ; setPadding(Look.dp(context, 6), 0, 0, 0) })
+        if (muted) crowd.addView(Look.words(this, "🔕", size = 15f).apply { setPadding(Look.dp(context, 6), 0, 0, 0) })
         crowd.addView(android.widget.TextView(this).apply {
             text = "⋮" ; setTextColor(android.graphics.Color.WHITE) ; paint.isFakeBoldText = true
             setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 22f) ; setPadding(Look.dp(context, 6), 0, Look.dp(context, 4), 0)
