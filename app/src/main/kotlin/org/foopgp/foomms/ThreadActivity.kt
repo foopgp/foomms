@@ -295,7 +295,7 @@ class ThreadActivity : AskingActivity() {
             }
             customView.layoutParams = android.app.ActionBar.LayoutParams(android.app.ActionBar.LayoutParams.MATCH_PARENT, android.app.ActionBar.LayoutParams.WRAP_CONTENT)
         }
-        list = Swiped(this) { at -> lines.getOrNull(at)?.let(::reply) }.apply {
+        list = Swiped(this) { at -> lines.getOrNull(at)?.takeIf { it.call == null }?.let(::reply) }.apply {
             divider = null
             transcriptMode = ListView.TRANSCRIPT_MODE_NORMAL
             isStackFromBottom = true
@@ -565,6 +565,13 @@ class ThreadActivity : AskingActivity() {
         foodjis.fresh()
         whoAmI()
         contentResolver.registerContentObserver(MESSAGES, true, arrivals)
+        // foomms+: a call made or missed meanwhile, among the messages.
+        if (!group && Calls.offered && Conf.calls(this)) {
+            val permission = Calls.PERMISSION
+            if (permission != null && checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) Calls.CHANGES?.let { contentResolver.registerContentObserver(it, true, arrivals) }
+            // Asked once, from the first conversation opened; later, from the configuration.
+            else if (permission != null && !Conf.callsAsked(this)) requestPermissions(arrayOf(permission), CALLS)
+        }
         load(first = card == null && person == null)
         closing.removeCallbacks(ticking)
         ticking.run()
@@ -725,10 +732,13 @@ class ThreadActivity : AskingActivity() {
             val found = (given.ifEmpty { listOfNotNull(thread) }).flatMap { runCatching { Store.lines(this, it) }.getOrDefault(emptyList()) }
                 .let { lines -> if (group) lines.filter { it.mms } else lines }
                 .let { if (given.size > 1 || elsewhere.isNotEmpty()) (it + elsewhere).sortedBy { line -> line.at } else it }
+            // foomms+: the calls with the person, at their time among the messages.
+            val calls = if (!group && Calls.offered && Conf.calls(this)) runCatching { Calls.with(this, number) }.getOrDefault(emptyList()) else emptyList()
+            val all = if (calls.isEmpty()) found else (found + calls).sortedBy { it.at }
             // The messages shown at once; signed ones verified from now.
             runOnUiThread {
                 if (isFinishing || isDestroyed || !latest()) return@runOnUiThread
-                lines = found
+                lines = all
                 // An answer begun here before, still to send: cited again.
                 if (replying == null) Replies.of(this, drafted)?.let { key -> found.firstOrNull { it.key == key }?.let(::reply) }
                 hits = null
@@ -737,7 +747,7 @@ class ThreadActivity : AskingActivity() {
                 bubbles.notifyDataSetChanged()
                 verifySigned()
                 if (wanted > 0) {
-                    found.indexOfFirst { it.at == wanted }.takeIf { it >= 0 }?.let { list.setSelection(it) }
+                    all.indexOfFirst { it.at == wanted }.takeIf { it >= 0 }?.let { list.setSelection(it) }
                     wanted = 0
                 }
             }
@@ -1979,6 +1989,7 @@ class ThreadActivity : AskingActivity() {
         override fun getView(at: Int, old: View?, parent: ViewGroup): View {
             val line = lines[at]
             val context = this@ThreadActivity
+            line.call?.let { return called(it, line.at) }
             val armor = armorOf(line)
             val read = armor?.let { Opened.words(it) }
             val sealed = line.pieces.filter(::isSealed)
@@ -2220,8 +2231,37 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
+    /** A call among the messages: one small line in the middle, what it was, how long, and when. */
+    private fun called(call: Called, at: Long): View {
+        val what = getString(
+            when (call.kind) {
+                Called.Kind.IN -> R.string.call_in
+                Called.Kind.OUT -> R.string.call_out
+                Called.Kind.MISSED -> R.string.call_missed
+                Called.Kind.REFUSED -> R.string.call_refused
+            },
+        )
+        val said = StringBuilder(what)
+        if (call.seconds > 0) said.append("  ·  ").append(android.text.format.DateUtils.formatElapsedTime(call.seconds))
+        said.append("  ·  ").append(Look.ago(at))
+        return Look.words(this, said, size = 13f, muted = true).apply {
+            gravity = Gravity.CENTER
+            if (call.kind == Called.Kind.MISSED) setTextColor(Look.ORANGE)
+            val pad = Look.dp(context, 6)
+            setPadding(pad, pad, pad, pad)
+            layoutParams = android.widget.AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+    }
+
     override fun onRequestPermissionsResult(request: Int, permissions: Array<String>, results: IntArray) {
         if (TalkMenu.answered(this, request, results)) return
+        if (request == CALLS) {
+            if (results.any { it == PackageManager.PERMISSION_GRANTED }) {
+                Calls.CHANGES?.let { contentResolver.registerContentObserver(it, true, arrivals) }
+                load()
+            }
+            return
+        }
         if (request == PLACE) {
             if (results.any { it == PackageManager.PERMISSION_GRANTED }) place()
             return
@@ -2282,6 +2322,7 @@ class ThreadActivity : AskingActivity() {
         private const val FILE = 9
         private const val PLACE = 10
         private const val VOICE = 11
+        private const val CALLS = 12
         private const val SAVE_PIECE = 12
         private const val VIDEO = 13
 

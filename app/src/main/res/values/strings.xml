@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">foomms</string>
     <string name="app_title">foomms [PGP]</string>
     <string name="about">SMS and MMS that only the person you write to can read: encrypted for the key their phone number means, signed by yours. No account, no server of ours — the phone network carries them and cannot open them.\n\nThis application holds no key and does no cryptography: it asks foodjis, which must be installed.</string>
     <string name="why_read">To show your conversations, this application needs to read the messages this phone holds, and your contacts to link them.</string>
@@ -335,4 +334,11 @@
     <string name="conf_mms_on_note">Lets you send group messages, long texts, voice messages, photos or short videos. From one operator to another, an MMS arrives less surely than an SMS, and some plans charge for it. Other networks do not support MMS at all, which favours Internet messengers and so global surveillance.</string>
     <string name="mms_off">Sending MMS is not allowed in the configuration: no attachment, voice message or group MMS.</string>
     <string name="many_sms">This message leaves in %1$d SMS: some phones put them back together badly, and your network may charge each one.</string>
+    <string name="conf_calls_heading">Calls</string>
+    <string name="conf_calls">Show calls in conversations</string>
+    <string name="conf_calls_note">The calls with a person appear among the messages, at their time. foomms+ reads the phone\'s call history for this, which never leaves the phone.</string>
+    <string name="call_in">📞 Incoming call</string>
+    <string name="call_out">📞 Outgoing call</string>
+    <string name="call_missed">📞 Missed call</string>
+    <string name="call_refused">📞 Declined call</string>
 </resources>

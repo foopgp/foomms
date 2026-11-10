@@ -257,6 +257,8 @@ object Store {
         val failed: Boolean = false,
         /** What the network wrote in place of the parts it took out on the way, in its own words. */
         val stripped: String? = null,
+        /** Not a message: a call with the person, at its time among them ([Calls]). */
+        val call: Called? = null,
     ) {
         val attachments: Int get() = pieces.size
         val uri: Uri get() = Uri.parse(if (mms) "content://mms/$id" else "content://sms/$id")

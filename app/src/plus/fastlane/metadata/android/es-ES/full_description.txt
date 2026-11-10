@@ -1,0 +1,29 @@
+foomms es una mensajería SMS y MMS que cifra y firma sus mensajes con PGP. No hace ninguna criptografía por sí misma: se la pide a foodjis, que se apoya en su llave de seguridad.
+
+foomms+ es la edición de foomms para F-Droid: la misma mensajería, con las llamadas además. Google Play no permite que una mensajería lea el registro de llamadas; de ahí esta edición aparte.
+
+Lo que puede hacer:
+
+• Escribir a un número: el mensaje se cifra para el certificado de su titular y se firma con su llave. Leer lo que le envían y saber quién lo ha firmado.
+• Escribir a un grupo de hasta veinte personas: cada uno ve quién ha escrito y responde a todos, y la lista de miembros viaja con cada mensaje. O enviar el mismo mensaje a cada uno por separado, cifrado solo para él.
+• Reconocer un mensaje de un vistazo, por los colores de foodjis: verde cifrado y certificado, azul firmado y certificado, amarillo cifrado, rojo en claro y sin certificar, gris cerrado.
+• Vincular un número al certificado de su titular, en su libreta de direcciones.
+• Adjuntar una foto, una imagen, un contacto, su ubicación o un archivo; grabar un mensaje de voz manteniendo pulsado el campo vacío.
+• Buscar en las conversaciones; hacer una copia de seguridad y restaurarla en el formato de «SMS Backup & Restore».
+• Ver las llamadas con cada persona entre sus mensajes, a su hora: recibidas, realizadas, perdidas.
+• Convertirla en la aplicación de mensajería del teléfono.
+
+Lo que foomms hace mejor que las mensajerías ofrecidas por empresas:
+• un cifrado de extremo a extremo bajo su única llave, que nadie más posee;
+• la interoperabilidad: su interlocutor puede usar otra aplicación PGP, nada le encierra en foomms;
+• ningún servidor central, solo la red de su operador;
+• ni siquiera hace falta Internet;
+• la sobriedad digital: un mensaje rara vez supera los 300 KB, fotos y vídeos reducidos a lo necesario para verse.
+
+Acercar su llave una vez abre varios mensajes a la vez, que se vuelven a cerrar tras el tiempo que haya elegido.
+
+La aplicación no pide ninguna cuenta, no pasa por ningún servidor nuestro y no muestra publicidad: es la red del teléfono la que transporta los mensajes. Siempre que el operador transporte los MMS: algunos ya no lo hacen, o nunca lo hicieron, como en Alemania o en Japón. Allí solo quedan mensajerías que pasan por servidores en Internet, lo que facilita la vigilancia global.
+
+Necesita foodjis, una llave de seguridad OpenPGP sin contacto y un teléfono con lector NFC.
+
+Software libre, bajo la licencia GPL-3.0-only: el código fuente se entrega a quien tenga la aplicación y lo pida.

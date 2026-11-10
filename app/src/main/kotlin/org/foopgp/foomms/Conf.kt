@@ -121,4 +121,14 @@ object Conf {
         enumValues<T>().firstOrNull { it.name == name } ?: otherwise
 
     private fun kept(context: Context) = context.getSharedPreferences("configuration", Context.MODE_PRIVATE)
+
+    /** foomms+: the calls with a person shown among the messages, once the call history may be read. */
+    fun calls(context: Context): Boolean = kept(context).getBoolean("calls", true)
+
+    fun calls(context: Context, on: Boolean) = kept(context).edit().putBoolean("calls", on).apply()
+
+    /** foomms+: whether the call history was asked for already, from a conversation: asked there once only. */
+    fun callsAsked(context: Context): Boolean = kept(context).getBoolean("calls_asked", false).also {
+        if (!it) kept(context).edit().putBoolean("calls_asked", true).apply()
+    }
 }

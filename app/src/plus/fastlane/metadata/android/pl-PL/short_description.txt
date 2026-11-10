@@ -1,0 +1,1 @@
+Połączenia z daną osobą między SMS-ami i MMS-ami szyfrowanymi PGP, z foodjis.

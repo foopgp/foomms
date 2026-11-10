@@ -83,6 +83,12 @@ class ConfActivity : AskingActivity() {
     private fun note(words: String) =
         column.addView(Look.words(this, words, size = 14f, muted = true).apply { setPadding(0, 0, 0, Look.dp(context, 8)) })
 
+    /** Refused, the call history: the switch goes back off. */
+    override fun onRequestPermissionsResult(request: Int, permissions: Array<String>, results: IntArray) {
+        if (request != CALLS) return super.onRequestPermissionsResult(request, permissions, results)
+        draw()
+    }
+
     private fun draw() {
         column.removeAllViews()
 
@@ -158,6 +164,21 @@ class ConfActivity : AskingActivity() {
         )
         note(R.string.conf_to_myself_note)
 
+        // foomms+: the calls among the messages, once the call history may be read -- asked for as it is turned on.
+        val permission = Calls.PERMISSION
+        if (Calls.offered && permission != null) {
+            heading(R.string.conf_calls_heading)
+            val allowed = checkSelfPermission(permission) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            column.addView(
+                flip(R.string.conf_calls, Conf.calls(this) && allowed) { on ->
+                    Conf.calls(this, on)
+                    if (on && checkSelfPermission(permission) != android.content.pm.PackageManager.PERMISSION_GRANTED) requestPermissions(arrayOf(permission), CALLS)
+                },
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = Look.dp(this@ConfActivity, 12) },
+            )
+            note(R.string.conf_calls_note)
+        }
+
         heading(R.string.conf_mms)
         // How many SMS a text may leave in: beyond, an MMS, or with MMS off asked first. What the operator says, as a hint.
         subheading(R.string.conf_sms_most)
@@ -227,4 +248,8 @@ class ConfActivity : AskingActivity() {
             Conf.Hold.TWELVE_HOURS -> R.string.hold_twelve_hours
         },
     )
+
+    private companion object {
+        const val CALLS = 1
+    }
 }
