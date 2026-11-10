@@ -84,6 +84,30 @@ object TalkMenu {
     /** Asking Android to let foomms place calls: a code no page uses for anything else. */
     private const val CALL = 7101
 
+    /**
+     * The menu of the conversation with [number] alone, asked from elsewhere -- a group, a list of people: going to
+     * that conversation in place of saving or deleting it. Tying and reading a certificate again are done from it,
+     * where foodjis shows its list over. [person] unknown, it is looked for away from the screen.
+     */
+    fun aside(activity: Activity, number: String, name: String?, person: Book.Person?, look: Boolean = person == null, changed: () -> Unit = {}) {
+        if (look) {
+            thread {
+                val found = Book.who(activity, number)
+                activity.runOnUiThread { if (!activity.isFinishing && !activity.isDestroyed) aside(activity, number, name, found, look = false, changed = changed) }
+            }
+            return
+        }
+        fun opened(ask: String? = null) = activity.startActivity(
+            Intent(activity, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, number).putExtra(ThreadActivity.EXTRA_ASK, ask),
+        )
+        show(
+            activity, person?.name ?: name ?: number, number, person, null,
+            tie = { opened(ThreadActivity.ASK_TIE) }, refresh = { opened(ThreadActivity.ASK_REFRESH) },
+            changed = changed, gone = changed, save = {},
+            alone = { opened() },
+        )
+    }
+
     fun show(
         activity: Activity,
         name: String,

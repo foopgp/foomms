@@ -20,7 +20,7 @@
     <string name="signed_unknown">Signed by a key foodjis does not hold.</string>
     <string name="signed_broken">The signature does not hold.</string>
     <string name="close">Close</string>
-    <string name="write">✎ New message</string>
+    <string name="write">💬 New conversation</string>
     <string name="locked_message">⚿ Encrypted message</string>
     <string name="signed_message">✍ Signed message</string>
     <string name="signed_words" translatable="false">✍ %1$s</string>
@@ -147,7 +147,7 @@
     <string name="cert_refresh">⟳ Refresh the certificate</string>
     <string name="cert_refreshed">Certificate refreshed.</string>
     <string name="cert_forget">⌫ Forget the certificate</string>
-    <string name="whom_write">✎ Write</string>
+    <string name="whom_write">💬 Talk</string>
     <string name="many_title">For %1$d people</string>
     <string name="many_sent">Handed to the phone, for %1$d people.</string>
     <string name="many_failed">Not sent to: %1$s</string>
@@ -198,7 +198,7 @@
     <string name="about_third_party_home">See the openpgp-api page</string>
     <string name="no_foodjis">foomms does no cryptography itself: it needs %1$s, which is not installed on this phone.</string>
     <string name="install_foodjis">Install %1$s</string>
-    <string name="write_to">Write to %1$s</string>
+    <string name="write_to">Talk with %1$s</string>
     <string name="decrypt_this">⚿ Decrypt this message</string>
     <string name="search_contacts">🔍 Search the contacts</string>
     <string name="attach_text">📋 Some text</string>

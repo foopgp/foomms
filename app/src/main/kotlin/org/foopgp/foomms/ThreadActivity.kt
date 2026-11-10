@@ -934,18 +934,6 @@ class ThreadActivity : AskingActivity() {
         bubbles.notifyDataSetChanged()
     }
 
-    /** What can be done about a member who wrote in the group: as their own conversation's menu says, and going to it. */
-    private fun memberAbout(number: String, who: Member?) {
-        fun opened(ask: String? = null) = startActivity(Intent(this, ThreadActivity::class.java).putExtra(EXTRA_NUMBER, number).putExtra(EXTRA_ASK, ask))
-        TalkMenu.show(
-            this, who?.name ?: number, number, who?.person, null,
-            // Tying and reading a certificate again are done from their conversation, where foodjis shows its list over.
-            tie = { opened(ASK_TIE) }, refresh = { opened(ASK_REFRESH) },
-            changed = { load(first = false) }, gone = {}, save = {},
-            alone = { opened() },
-        )
-    }
-
     /** A group's menu, over its conversation ([GroupMenu]). */
     private fun groupMenu() = GroupMenu.show(
         this, members, groupSet(), given.ifEmpty { listOfNotNull(thread) }, title?.toString(),
@@ -2123,7 +2111,7 @@ class ThreadActivity : AskingActivity() {
                     addView(
                         Look.face(context, 32, null, who?.face, who?.card?.validity, framable = true, seed = who?.seed ?: from?.let(Phone::key)).apply {
                             // Pressed, what can be done about who it is: as from a conversation with them alone, and going to it.
-                            setOnClickListener { from?.let { memberAbout(it, who) } }
+                            setOnClickListener { from?.let { TalkMenu.aside(this@ThreadActivity, it, who?.name, who?.person, look = false) { load(first = false) } } }
                         },
                         LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                             gravity = Gravity.TOP ; marginEnd = pad / 2

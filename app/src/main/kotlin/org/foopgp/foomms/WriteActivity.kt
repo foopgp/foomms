@@ -91,15 +91,20 @@ class WriteActivity : Activity() {
         // Whom it is for so far, one small button each: pressed, that one is taken off.
         picked = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
         go = Look.button(this, getString(R.string.whom_write)) { write(group = false) }
-        // The pencil of "Write", which these two take the place of.
-        val pencil = getString(R.string.whom_write).substringBefore(' ')
-        toEach = Look.button(this, "$pencil ${getString(R.string.send_each)}") { write(group = false) }
-        toGroup = Look.button(this, "$pencil ${getString(R.string.send_group)}") { write(group = true) }
+        // In place of "Talk": one message written for each, with a pencil; a group's conversation, with what "Talk" has.
+        toEach = Look.button(this, "✎ ${getString(R.string.send_each)}") { write(group = false) }
+        toGroup = Look.button(this, "${getString(R.string.whom_write).substringBefore(' ')} ${getString(R.string.send_group)}") { write(group = true) }
         howSaid = Look.words(this, "", size = 13f, muted = true).apply { setPadding(Look.dp(context, 4), Look.dp(context, 4), Look.dp(context, 4), Look.dp(context, 4)) }
         list = ListView(this).apply {
             divider = null
             adapter = rows
             setOnItemClickListener { _, _, at, _ -> shown.getOrNull(at)?.takeIf { it.header == null }?.let { toggle(it) } }
+            // Pressed long, somebody: what can be done about them, as from a group.
+            setOnItemLongClickListener { _, _, at, _ ->
+                val one = shown.getOrNull(at)?.takeIf { it.header == null } ?: return@setOnItemLongClickListener false
+                TalkMenu.aside(this@WriteActivity, one.number, one.name.takeUnless { one.typed }, null)
+                true
+            }
         }
         setContentView(
             LinearLayout(this).apply {

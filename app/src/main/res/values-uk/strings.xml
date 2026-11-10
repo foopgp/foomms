@@ -18,7 +18,7 @@
     <string name="signed_unknown">Підписано ключем, якого немає у foodjis.</string>
     <string name="signed_broken">Підпис недійсний.</string>
     <string name="close">Закрити</string>
-    <string name="write">✎ Нове повідомлення</string>
+    <string name="write">💬 Нове листування</string>
     <string name="locked_message">⚿ Зашифроване повідомлення</string>
     <string name="signed_message">✍ Підписане повідомлення</string>
     <string name="signed_press">✍ Підписане повідомлення — торкніться, щоб перевірити</string>
@@ -144,7 +144,7 @@
     <string name="cert_refresh">⟳ Оновити сертифікат</string>
     <string name="cert_refreshed">Сертифікат оновлено.</string>
     <string name="cert_forget">⌫ Забути сертифікат</string>
-    <string name="whom_write">✎ Написати</string>
+    <string name="whom_write">💬 Листування</string>
     <string name="many_title">Для %1$d осіб</string>
     <string name="many_sent">Передано телефону, для %1$d осіб.</string>
     <string name="many_failed">Не надіслано: %1$s</string>
@@ -195,7 +195,7 @@
     <string name="about_third_party_home">Відкрити сторінку openpgp-api</string>
     <string name="no_foodjis">foomms сам не займається криптографією: йому потрібен %1$s, який не встановлено на цьому телефоні.</string>
     <string name="install_foodjis">Встановити %1$s</string>
-    <string name="write_to">Написати на %1$s</string>
+    <string name="write_to">Листування з %1$s</string>
     <string name="decrypt_this">⚿ Розшифрувати це повідомлення</string>
     <string name="search_contacts">🔍 Пошук у контактах</string>
     <string name="attach_text">📋 Текст</string>

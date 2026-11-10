@@ -18,7 +18,7 @@
     <string name="signed_unknown">Signé par une clé que foodjis ne détient pas.</string>
     <string name="signed_broken">La signature ne tient pas.</string>
     <string name="close">Fermer</string>
-    <string name="write">✎ Nouveau message</string>
+    <string name="write">💬 Nouvelle conversation</string>
     <string name="locked_message">⚿ Message chiffré</string>
     <string name="signed_message">✍ Message signé</string>
     <string name="signed_press">✍ Message signé — appuyez pour le vérifier</string>
@@ -144,7 +144,7 @@
     <string name="cert_refresh">⟳ Rafraîchir le certificat</string>
     <string name="cert_refreshed">Certificat rafraîchi.</string>
     <string name="cert_forget">⌫ Oublier le certificat</string>
-    <string name="whom_write">✎ Écrire</string>
+    <string name="whom_write">💬 Converser</string>
     <string name="many_title">Pour %1$d personnes</string>
     <string name="many_sent">Confié au téléphone, pour %1$d personnes.</string>
     <string name="many_failed">Non envoyé à : %1$s</string>
@@ -195,7 +195,7 @@
     <string name="about_third_party_home">Voir la page d\'openpgp-api</string>
     <string name="no_foodjis">foomms ne fait lui-même aucune cryptographie : il a besoin de %1$s, qui n\'est pas installé sur ce téléphone.</string>
     <string name="install_foodjis">Installer %1$s</string>
-    <string name="write_to">Écrire au %1$s</string>
+    <string name="write_to">Converser avec le %1$s</string>
     <string name="decrypt_this">⚿ Déchiffrer ce message</string>
     <string name="search_contacts">🔍 Rechercher dans les contacts</string>
     <string name="attach_text">📋 Du texte</string>

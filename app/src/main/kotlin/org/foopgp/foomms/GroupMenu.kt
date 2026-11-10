@@ -125,7 +125,7 @@ object GroupMenu {
                     // Pressed long: the menu of the conversation with them alone, as the list shows it.
                     setOnLongClickListener {
                         shown?.dismiss()
-                        memberMenu(activity, one, changed)
+                        TalkMenu.aside(activity, one.number, one.name, one.person, look = false, changed = changed)
                         true
                     }
                 },
@@ -172,20 +172,6 @@ object GroupMenu {
             .setNegativeButton(android.R.string.cancel, null)
             .show()
             .also { field.requestFocus() ; it.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE) }
-    }
-
-    /** The menu of the conversation with [one] alone, as a group asks it: going to that conversation, not saving or deleting it. */
-    private fun memberMenu(activity: Activity, one: ThreadActivity.Member, changed: () -> Unit) {
-        fun opened(ask: String? = null) = activity.startActivity(
-            Intent(activity, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, one.number).putExtra(ThreadActivity.EXTRA_ASK, ask),
-        )
-        TalkMenu.show(
-            activity, one.name, one.number, one.person, null,
-            // Tying and reading a certificate again are done from the conversation, where foodjis shows its list over.
-            tie = { opened(ThreadActivity.ASK_TIE) }, refresh = { opened(ThreadActivity.ASK_REFRESH) },
-            changed = changed, gone = changed, save = {},
-            alone = { opened() },
-        )
     }
 
     /** Every message of the group's conversations, once the person has said so; [gone] once they are. */

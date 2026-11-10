@@ -18,7 +18,7 @@
     <string name="signed_unknown">foodjis\'te bulunmayan bir anahtarla imzalanmış.</string>
     <string name="signed_broken">İmza geçersiz.</string>
     <string name="close">Kapat</string>
-    <string name="write">✎ Yeni mesaj</string>
+    <string name="write">💬 Yeni konuşma</string>
     <string name="locked_message">⚿ Şifreli mesaj</string>
     <string name="signed_message">✍ İmzalı mesaj</string>
     <string name="signed_press">✍ İmzalı mesaj — doğrulamak için dokunun</string>
@@ -144,7 +144,7 @@
     <string name="cert_refresh">⟳ Sertifikayı yenile</string>
     <string name="cert_refreshed">Sertifika yenilendi.</string>
     <string name="cert_forget">⌫ Sertifikayı unut</string>
-    <string name="whom_write">✎ Yaz</string>
+    <string name="whom_write">💬 Konuş</string>
     <string name="many_title">%1$d kişi için</string>
     <string name="many_sent">Telefona teslim edildi, %1$d kişi için.</string>
     <string name="many_failed">Gönderilemedi: %1$s</string>
@@ -195,7 +195,7 @@
     <string name="about_third_party_home">openpgp-api sayfasını gör</string>
     <string name="no_foodjis">foomms kendisi şifreleme yapmaz: bu telefonda yüklü olmayan %1$s uygulamasına ihtiyaç duyar.</string>
     <string name="install_foodjis">%1$s uygulamasını yükle</string>
-    <string name="write_to">%1$s numarasına yaz</string>
+    <string name="write_to">%1$s ile konuş</string>
     <string name="decrypt_this">⚿ Bu mesajın şifresini çöz</string>
     <string name="search_contacts">🔍 Kişilerde ara</string>
     <string name="attach_text">📋 Metin</string>

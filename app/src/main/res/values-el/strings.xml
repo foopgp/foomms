@@ -18,7 +18,7 @@
     <string name="signed_unknown">Υπογραφή με κλειδί που δεν έχει το foodjis.</string>
     <string name="signed_broken">Η υπογραφή δεν είναι έγκυρη.</string>
     <string name="close">Κλείσιμο</string>
-    <string name="write">✎ Νέο μήνυμα</string>
+    <string name="write">💬 Νέα συνομιλία</string>
     <string name="locked_message">⚿ Κρυπτογραφημένο μήνυμα</string>
     <string name="signed_message">✍ Υπογεγραμμένο μήνυμα</string>
     <string name="signed_press">✍ Υπογεγραμμένο μήνυμα — πατήστε για έλεγχο</string>
@@ -144,7 +144,7 @@
     <string name="cert_refresh">⟳ Ενημέρωση του πιστοποιητικού</string>
     <string name="cert_refreshed">Το πιστοποιητικό ενημερώθηκε.</string>
     <string name="cert_forget">⌫ Λήθη του πιστοποιητικού</string>
-    <string name="whom_write">✎ Σύνταξη</string>
+    <string name="whom_write">💬 Συνομιλία</string>
     <string name="many_title">Για %1$d άτομα</string>
     <string name="many_sent">Παραδόθηκε στο τηλέφωνο, για %1$d άτομα.</string>
     <string name="many_failed">Δεν στάλθηκε σε: %1$s</string>
@@ -195,7 +195,7 @@
     <string name="about_third_party_home">Η σελίδα του openpgp-api</string>
     <string name="no_foodjis">Το foomms δεν κάνει το ίδιο κρυπτογραφία: χρειάζεται το %1$s, που δεν είναι εγκατεστημένο σε αυτό το τηλέφωνο.</string>
     <string name="install_foodjis">Εγκατάσταση του %1$s</string>
-    <string name="write_to">Γράψτε στο %1$s</string>
+    <string name="write_to">Συνομιλία με %1$s</string>
     <string name="decrypt_this">⚿ Αποκρυπτογράφηση αυτού του μηνύματος</string>
     <string name="search_contacts">🔍 Αναζήτηση στις επαφές</string>
     <string name="attach_text">📋 Κείμενο</string>

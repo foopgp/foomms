@@ -87,6 +87,12 @@ class SearchActivity : Activity() {
                 if (each != null) return@setOnItemClickListener chooseAmong(each, hit.at)
                 hit.number?.let { open(it, hit.at) }
             }
+            // Pressed long, a contact: what can be done about them, as from a group.
+            setOnItemLongClickListener { _, _, at, _ ->
+                val one = people.getOrNull(at)?.takeIf { inContacts } ?: return@setOnItemLongClickListener false
+                TalkMenu.aside(this@SearchActivity, one.number, one.name.takeUnless { one.typed }, null)
+                true
+            }
         }
         val pad = Look.dp(this, 12)
         setContentView(
