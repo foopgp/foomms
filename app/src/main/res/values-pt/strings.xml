@@ -158,6 +158,7 @@
     <string name="place_seeking">A procurar onde está…</string>
     <string name="place_none">O telemóvel não sabe onde está neste momento.</string>
     <string name="backup_one">💾 Guardar a conversa</string>
+    <string name="talk_alone">💬 Conversar individualmente</string>
     <string name="backup_save">Guardar tudo</string>
     <string name="backup_restore">Restaurar uma cópia</string>
     <string name="backup_working">Em curso…</string>

@@ -102,6 +102,8 @@ object TalkMenu {
         save: () -> Unit,
         /** foodjis keeps its door shut: ask to be let in. */
         letIn: (() -> Unit)? = null,
+        /** Asked from a group: no saving or deleting of a conversation, but going to the one with [sender] alone. */
+        alone: (() -> Unit)? = null,
     ) {
         val number = Phone.plain(sender)
         val muted = Marks.muted(activity, sender)
@@ -162,8 +164,9 @@ object TalkMenu {
             add(R.string.tie, tie)
         }
         add(if (muted) R.string.unmute else R.string.mute) { Marks.mute(activity, sender, !muted) ; changed() }
-        if (thread != null) add(R.string.backup_one, save)
-        if (thread != null) {
+        if (alone != null) add(R.string.talk_alone, alone)
+        if (thread != null && alone == null) add(R.string.backup_one, save)
+        if (thread != null && alone == null) {
             add(R.string.forget_talk) {
                 AlertDialog.Builder(activity)
                     .setMessage(activity.getString(R.string.forget_talk_ask, name))

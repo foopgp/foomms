@@ -158,6 +158,7 @@
     <string name="place_seeking">Εντοπισμός θέσης…</string>
     <string name="place_none">Το τηλέφωνο δεν γνωρίζει αυτή τη στιγμή πού βρίσκεται.</string>
     <string name="backup_one">💾 Αποθήκευση της συνομιλίας</string>
+    <string name="talk_alone">💬 Ατομική συνομιλία</string>
     <string name="backup_save">Αποθήκευση όλων</string>
     <string name="backup_restore">Επαναφορά αντιγράφου</string>
     <string name="backup_working">Σε εξέλιξη…</string>

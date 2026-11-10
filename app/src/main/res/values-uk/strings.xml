@@ -158,6 +158,7 @@
     <string name="place_seeking">Визначення місцезнаходження…</string>
     <string name="place_none">Телефон зараз не знає, де він.</string>
     <string name="backup_one">💾 Зберегти листування</string>
+    <string name="talk_alone">💬 Листуватися особисто</string>
     <string name="backup_save">Зберегти все</string>
     <string name="backup_restore">Відновити з копії</string>
     <string name="backup_working">Виконується…</string>

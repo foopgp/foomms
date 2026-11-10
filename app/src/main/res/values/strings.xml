@@ -161,6 +161,7 @@
     <string name="place_seeking">Finding where you are…</string>
     <string name="place_none">The phone does not know where it is just now.</string>
     <string name="backup_one">💾 Save the conversation</string>
+    <string name="talk_alone">💬 Talk one to one</string>
     <string name="backup_save">Save everything</string>
     <string name="backup_restore">Restore a backup</string>
     <string name="backup_working">Working…</string>

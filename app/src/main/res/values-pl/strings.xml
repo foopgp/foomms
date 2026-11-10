@@ -158,6 +158,7 @@
     <string name="place_seeking">Ustalanie położenia…</string>
     <string name="place_none">Telefon nie wie teraz, gdzie jest.</string>
     <string name="backup_one">💾 Zapisz rozmowę</string>
+    <string name="talk_alone">💬 Rozmawiać indywidualnie</string>
     <string name="backup_save">Zapisz wszystko</string>
     <string name="backup_restore">Przywróć kopię</string>
     <string name="backup_working">W toku…</string>

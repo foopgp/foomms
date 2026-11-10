@@ -158,6 +158,7 @@
     <string name="place_seeking">Standort wird ermittelt…</string>
     <string name="place_none">Das Telefon kennt seinen Standort gerade nicht.</string>
     <string name="backup_one">💾 Die Unterhaltung sichern</string>
+    <string name="talk_alone">💬 Einzeln schreiben</string>
     <string name="backup_save">Alles sichern</string>
     <string name="backup_restore">Eine Sicherung wiederherstellen</string>
     <string name="backup_working">In Arbeit…</string>
