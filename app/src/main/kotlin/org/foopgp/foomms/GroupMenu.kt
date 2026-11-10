@@ -59,7 +59,7 @@ object GroupMenu {
         )
         val called = GroupNames.of(this, set)
         action(if (called == null) R.string.group_name else R.string.group_rename) { name(activity, set, called, changed) }
-        action(if (muted) R.string.unmute else R.string.mute) { Marks.mute(this, key, !muted) }
+        action(if (muted) R.string.unmute else R.string.mute) { Marks.mute(this, key, !muted) ; changed() }
         threads.firstOrNull()?.let { one -> action(R.string.backup_one) { Saving.save(this, one, title) } }
         action(R.string.forget_talk) { forget(activity, threads, title, gone) }
         // Then the members, below a line and their count.

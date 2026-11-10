@@ -1054,8 +1054,7 @@ class MainActivity : AskingActivity() {
 
     /**
      * A conversation's name, and after it what the person said of its sender: not to be announced. A group's line
-     * is named by who spoke last: muted, that member; the group itself, by what names it -- the name the person
-     * gave it, or its square of faces.
+     * is named by who spoke last: muted, that member; the group itself, on the line of its name above.
      */
     private fun marked(row: Row): CharSequence = android.text.SpannableStringBuilder(row.name).apply {
         val muted = if (row.group != null) row.talk.incoming && Marks.muted(this@MainActivity, row.talk.from)
@@ -1144,11 +1143,12 @@ class MainActivity : AskingActivity() {
             val text = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 setPadding(pad, 0, 0, 0)
-                // On the groups' page, a group the person named: its name first, a line of its own above who spoke.
-                val called = row.group?.let { GroupNames.of(context, it) }
-                if (called != null) {
+                // A group: the name the person gave it first, a line of its own above who spoke -- the line kept with
+                // no name, empty or saying the group is muted: every group's line three high.
+                if (row.group != null) {
+                    val called = GroupNames.of(context, row.group).orEmpty()
                     addView(
-                        Look.words(context, if (groupMuted(row.group)) "$called  🔕" else called, size = 17f).apply {
+                        Look.words(context, if (groupMuted(row.group)) "$called  🔕".trimStart() else called.ifEmpty { " " }, size = 17f).apply {
                             setTypeface(typeface, Typeface.BOLD)
                             maxLines = 1 ; ellipsize = TextUtils.TruncateAt.END
                         },
@@ -1167,7 +1167,7 @@ class MainActivity : AskingActivity() {
                 // The colour of what the last message travelled as, down the edge of the conversation.
                 addView(View(context).apply { background = Look.rounded(Look.colour(row.talk.form), Look.dp(context, 3)) }, LinearLayout.LayoutParams(Look.dp(context, 6), Look.dp(context, if (row.crowd != null) CROWD else 44)))
                 addView(View(context), LinearLayout.LayoutParams(pad, 1))
-                addView(row.crowd?.let { Look.crowd(context, CROWD, it, muted = row.group != null && GroupNames.of(context, row.group) == null && groupMuted(row.group)) } ?: Look.face(context, 44, null, row.face, row.standing, framable = true, seed = row.seed))
+                addView(row.crowd?.let { Look.crowd(context, CROWD, it) } ?: Look.face(context, 44, null, row.face, row.standing, framable = true, seed = row.seed))
                 addView(text, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
                 // A group's square is tall enough: less room above and below it.
                 val around = if (row.crowd != null) pad / 3 else pad
