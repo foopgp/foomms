@@ -1,0 +1,3 @@
+• In einer Gruppe bietet ein Tippen auf das Gesicht eines Mitglieds, oder langes Drücken auf es im Gruppenmenü, an, einzeln mit ihm zu schreiben.
+• Eine Gruppe mit ausgeschalteten Benachrichtigungen ist in der Liste und in der Titelleiste zu erkennen, auch ohne Namen.
+• In der Kontaktsuche öffnet ein Tippen auf einen Kontakt sein Menü.

@@ -1,0 +1,4 @@
+• Połączenia z daną osobą pojawiają się między jej wiadomościami, po stronie tego, kto dzwonił; przełącznik w ustawieniach je ukrywa.
+• W grupie dotknięcie twarzy członka, lub długie przytrzymanie go w menu grupy, proponuje rozmowę z nim indywidualnie.
+• Grupę z wyłączonymi powiadomieniami widać na liście i na pasku tytułu, nawet bez nazwy.
+• W wyszukiwaniu kontaktów dotknięcie kontaktu otwiera jego menu.

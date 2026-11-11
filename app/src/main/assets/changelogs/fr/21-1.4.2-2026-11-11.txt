@@ -1,0 +1,3 @@
+• Dans un groupe, un appui sur le visage d'un membre, ou un appui long sur lui dans le menu du groupe, propose de converser avec lui individuellement.
+• Un groupe aux notifications désactivées se reconnaît dans la liste et dans la barre de titre, même sans nom.
+• Dans la recherche de contacts, un appui sur un contact ouvre son menu.

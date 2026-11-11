@@ -1,0 +1,3 @@
+• Num grupo, tocar no rosto de um membro, ou mantê-lo premido no menu do grupo, propõe conversar com ele individualmente.
+• Um grupo com as notificações desativadas reconhece-se na lista e na barra de título, mesmo sem nome.
+• Na pesquisa de contactos, tocar num contacto abre o seu menu.

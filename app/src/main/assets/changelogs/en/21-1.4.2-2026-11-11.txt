@@ -1,0 +1,3 @@
+• In a group, pressing a member's face, or pressing them long in the group's menu, offers to talk with them one to one.
+• A group with notifications off shows it in the list and in the title bar, even without a name.
+• In the contacts' search, pressing a contact opens its menu.

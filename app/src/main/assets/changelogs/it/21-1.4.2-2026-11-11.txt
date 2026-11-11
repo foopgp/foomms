@@ -1,0 +1,3 @@
+• In un gruppo, toccare il volto di un membro, o tenerlo premuto nel menu del gruppo, propone di conversare con lui individualmente.
+• Un gruppo con le notifiche disattivate si riconosce nell'elenco e nella barra del titolo, anche senza nome.
+• Nella ricerca dei contatti, toccare un contatto apre il suo menu.
