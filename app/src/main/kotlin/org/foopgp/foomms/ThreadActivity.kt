@@ -2245,10 +2245,15 @@ class ThreadActivity : AskingActivity() {
         if (call.seconds > 0) said.append("  ·  ").append(android.text.format.DateUtils.formatElapsedTime(call.seconds))
         said.append("  ·  ").append(Look.ago(at))
         return Look.words(this, said, size = 13f, muted = true).apply {
-            gravity = Gravity.CENTER
+            // On the side of whoever called, as the bubbles are: one placed from here on the right, the others on the
+            // left, their words in line with a bubble's own.
+            val placed = call.kind == Called.Kind.OUT
+            gravity = if (placed) Gravity.RIGHT else Gravity.LEFT
             if (call.kind == Called.Kind.MISSED) setTextColor(Look.ORANGE)
             val pad = Look.dp(context, 6)
-            setPadding(pad, pad, pad, pad)
+            val near = Look.dp(context, 30)
+            val far = Look.dp(context, 50)
+            if (placed) setPadding(far, pad, near, pad) else setPadding(near, pad, far, pad)
             layoutParams = android.widget.AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         }
     }
