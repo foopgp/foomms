@@ -18,7 +18,7 @@
     <string name="signed_unknown">Подписано ключом, которого нет в foodjis.</string>
     <string name="signed_broken">Подпись недействительна.</string>
     <string name="close">Закрыть</string>
-    <string name="write">✎ Новое сообщение</string>
+    <string name="write">💬 Новое сообщение</string>
     <string name="locked_message">⚿ Зашифрованное сообщение</string>
     <string name="signed_message">✍ Подписанное сообщение</string>
     <string name="signed_press">✍ Подписанное сообщение — нажмите, чтобы проверить</string>
@@ -67,7 +67,7 @@
     <string name="hold_half_minute">30 секунд</string>
     <string name="hold_twelve_hours">12 часов</string>
     <string name="close_now">Закрыть сейчас</string>
-    <string name="closes_in">⚿ Закроются через %1$s</string>
+    <string name="open_here">⚷ %1$s — %2$s</string>
     <string name="hold_two_minutes">2 минуты</string>
     <string name="hold_five_minutes">5 минут</string>
     <string name="hold_fifteen_minutes">15 минут</string>
@@ -144,7 +144,7 @@
     <string name="cert_refresh">⟳ Обновить сертификат</string>
     <string name="cert_refreshed">Сертификат обновлён.</string>
     <string name="cert_forget">⌫ Забыть сертификат</string>
-    <string name="whom_write">✎ Написать</string>
+    <string name="whom_write">💬 Переписка</string>
     <string name="many_title">Для %1$d человек</string>
     <string name="many_sent">Передано телефону, для %1$d человек.</string>
     <string name="many_failed">Не отправлено: %1$s</string>
@@ -158,6 +158,7 @@
     <string name="place_seeking">Определение местоположения…</string>
     <string name="place_none">Телефон сейчас не знает, где находится.</string>
     <string name="backup_one">💾 Сохранить переписку</string>
+    <string name="talk_alone">💬 Переписываться лично</string>
     <string name="backup_save">Сохранить всё</string>
     <string name="backup_restore">Восстановить из копии</string>
     <string name="backup_working">Выполняется…</string>
@@ -190,11 +191,12 @@
     <string name="about_licence_apache">Прочитать лицензию Apache 2.0</string>
     <string name="conf_title">Настройка</string>
     <string name="close_all">Закрыть все</string>
-    <string name="closes_talk">⚿ %1$s — %2$s</string>
+    <string name="open_talk">⚷ %1$s · %2$s — %3$s</string>
+    <string name="open_talks">%1$s ⚷ %2$s — %3$s</string>
     <string name="about_third_party_home">Открыть страницу openpgp-api</string>
     <string name="no_foodjis">foomms сам не занимается криптографией: ему нужен %1$s, который не установлен на этом телефоне.</string>
     <string name="install_foodjis">Установить %1$s</string>
-    <string name="write_to">Написать на %1$s</string>
+    <string name="write_to">Переписка с %1$s</string>
     <string name="decrypt_this">⚿ Расшифровать это сообщение</string>
     <string name="search_contacts">🔍 Поиск по контактам</string>
     <string name="attach_text">📋 Текст</string>
@@ -347,4 +349,17 @@
     <string name="conf_mms_on_note">Позволяет отправлять групповые сообщения, длинные тексты, голосовые сообщения, фото или короткие видео. Между операторами MMS доходит менее надёжно, чем SMS, а некоторые тарифы его оплачивают отдельно. Другие операторы вовсе не поддерживают MMS, что на руку интернет-мессенджерам, а значит, и глобальной слежке.</string>
     <string name="mms_off">Отправка MMS не разрешена в настройках: ни вложений, ни голосовых сообщений, ни групповых MMS.</string>
     <string name="many_sms">Это сообщение уйдёт %1$d SMS: некоторые телефоны плохо их склеивают, а оператор может брать плату за каждое.</string>
+    <string name="conf_calls_heading">Звонки</string>
+    <string name="conf_calls">Показывать звонки в переписке</string>
+    <string name="conf_calls_note">Звонки с человеком отображаются между сообщениями, в своё время. Для этого foomms+ читает журнал звонков телефона, который никогда не покидает телефон.</string>
+    <string name="call_in">📞 Входящий звонок</string>
+    <string name="call_out">📞 Исходящий звонок</string>
+    <string name="call_missed">📞 Пропущенный звонок</string>
+    <string name="call_refused">📞 Отклонённый звонок</string>
+    <plurals name="open_messages">
+        <item quantity="one">%d сообщение</item>
+        <item quantity="few">%d сообщения</item>
+        <item quantity="many">%d сообщений</item>
+        <item quantity="other">%d сообщения</item>
+    </plurals>
 </resources>

@@ -1,0 +1,29 @@
+foomms ist ein SMS- und MMS-Messenger, der Ihre Nachrichten mit PGP verschlüsselt und signiert. Er betreibt selbst keine Kryptografie: Er bittet foodjis darum, das sich auf Ihren Sicherheitsschlüssel stützt.
+
+foomms+ ist die F-Droid-Ausgabe von foomms: dieselbe Nachrichten-App, dazu die Anrufe. Google Play erlaubt einer Nachrichten-App nicht, die Anrufliste zu lesen, daher diese eigene Ausgabe.
+
+Was Sie tun können:
+
+• An eine Nummer schreiben: Die Nachricht wird für das Zertifikat ihres Inhabers verschlüsselt und mit Ihrem Schlüssel signiert. Lesen, was man Ihnen schickt, und wissen, wer es signiert hat.
+• An eine Gruppe von bis zu zwanzig Personen schreiben: Alle sehen, wer geschrieben hat, und antworten allen; die Mitgliederliste reist mit jeder Nachricht. Oder dieselbe Nachricht jedem einzeln senden, nur für ihn verschlüsselt.
+• Eine Nachricht auf einen Blick erkennen, an den Farben von foodjis: grün verschlüsselt und beglaubigt, blau signiert und beglaubigt, gelb verschlüsselt, rot unverschlüsselt und nicht beglaubigt, grau geschlossen.
+• Eine Nummer im Adressbuch mit dem Zertifikat ihres Inhabers verknüpfen.
+• Ein Foto, ein Bild, einen Kontakt, Ihren Standort oder eine Datei anhängen; eine Sprachnachricht aufnehmen, indem Sie das leere Feld gedrückt halten.
+• In den Unterhaltungen suchen; sie im Format von „SMS Backup & Restore“ sichern und wiederherstellen.
+• Die Anrufe mit jeder Person zwischen ihren Nachrichten sehen, zu ihrer Zeit: eingehend, ausgehend, verpasst.
+• Sie zur Nachrichten-App des Telefons machen.
+
+Was foomms besser macht als Messenger, die von Unternehmen betrieben werden:
+• Ende-zu-Ende-Verschlüsselung allein unter Ihrem Schlüssel, den sonst niemand besitzt;
+• Interoperabilität: Ihr Gegenüber kann eine andere PGP-Anwendung verwenden, nichts bindet Sie an foomms;
+• kein zentraler Server, nur das Netz Ihres Betreibers;
+• nicht einmal Internet nötig;
+• digitale Genügsamkeit: Eine Nachricht überschreitet selten 300 KB, Fotos und Videos werden auf das verkleinert, was zum Ansehen nötig ist.
+
+Einmal den Schlüssel anhalten öffnet mehrere Nachrichten auf einmal, die sich nach der gewählten Zeit wieder schließen.
+
+Die App verlangt kein Konto, läuft über keinen Server von uns und zeigt keine Werbung: Das Telefonnetz transportiert die Nachrichten. Vorausgesetzt, der Betreiber transportiert MMS: Manche tun es nicht mehr oder haben es nie getan, wie in Deutschland oder Japan. Dort bleiben nur Messenger, die über Server im Internet laufen, was die globale Überwachung erleichtert.
+
+Sie brauchen foodjis, einen kontaktlosen OpenPGP-Sicherheitsschlüssel und ein Telefon mit NFC-Leser.
+
+Freie Software unter der Lizenz GPL-3.0-only: Der Quellcode wird jedem übergeben, der die App besitzt und danach fragt.

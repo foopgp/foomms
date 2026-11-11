@@ -1,0 +1,5 @@
+• Num grupo, tocar no rosto de um membro propõe conversar com ele individualmente.
+• Um grupo com as notificações desativadas reconhece-se, mesmo sem nome.
+• Na pesquisa de contactos, tocar num contacto abre o seu menu.
+• As contagens decrescentes dizem quantas mensagens cifradas continuam abertas, e onde.
+• As mensagens de voz já não passam por vídeos no telefone que as recebe.

@@ -295,7 +295,7 @@ class ThreadActivity : AskingActivity() {
             }
             customView.layoutParams = android.app.ActionBar.LayoutParams(android.app.ActionBar.LayoutParams.MATCH_PARENT, android.app.ActionBar.LayoutParams.WRAP_CONTENT)
         }
-        list = Swiped(this) { at -> lines.getOrNull(at)?.let(::reply) }.apply {
+        list = Swiped(this) { at -> lines.getOrNull(at)?.takeIf { it.call == null }?.let(::reply) }.apply {
             divider = null
             transcriptMode = ListView.TRANSCRIPT_MODE_NORMAL
             isStackFromBottom = true
@@ -438,7 +438,13 @@ class ThreadActivity : AskingActivity() {
 
     private fun tick() {
         val closes = shownHere().mapNotNull { Opened.closesAt(it) }.maxOrNull()
-        if (closes != null) remaining.text = getString(R.string.closes_in, Media.clock(maxOf(0L, closes - System.currentTimeMillis() + 999)))
+        if (closes != null) {
+            val count = shownHere().sumOf { Opened.count(it) }
+            remaining.text = getString(
+                R.string.open_here, resources.getQuantityString(R.plurals.open_messages, count, count),
+                Media.clock(maxOf(0L, closes - System.currentTimeMillis() + 999)),
+            )
+        }
         closing.visibility = if (closes != null) View.VISIBLE else View.GONE
         // Closed now: the bubbles show it, and the pictures opened from locked parts go with the rest.
         if (closes == null && wasOpen) {
@@ -565,6 +571,13 @@ class ThreadActivity : AskingActivity() {
         foodjis.fresh()
         whoAmI()
         contentResolver.registerContentObserver(MESSAGES, true, arrivals)
+        // foomms+: a call made or missed meanwhile, among the messages.
+        if (!group && Calls.offered && Conf.calls(this)) {
+            val permission = Calls.PERMISSION
+            if (permission != null && checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) Calls.CHANGES?.let { contentResolver.registerContentObserver(it, true, arrivals) }
+            // Asked once, from the first conversation opened; later, from the configuration.
+            else if (permission != null && !Conf.callsAsked(this)) requestPermissions(arrayOf(permission), CALLS)
+        }
         load(first = card == null && person == null)
         closing.removeCallbacks(ticking)
         ticking.run()
@@ -725,10 +738,13 @@ class ThreadActivity : AskingActivity() {
             val found = (given.ifEmpty { listOfNotNull(thread) }).flatMap { runCatching { Store.lines(this, it) }.getOrDefault(emptyList()) }
                 .let { lines -> if (group) lines.filter { it.mms } else lines }
                 .let { if (given.size > 1 || elsewhere.isNotEmpty()) (it + elsewhere).sortedBy { line -> line.at } else it }
+            // foomms+: the calls with the person, at their time among the messages.
+            val calls = if (!group && Calls.offered && Conf.calls(this)) runCatching { Calls.with(this, number) }.getOrDefault(emptyList()) else emptyList()
+            val all = if (calls.isEmpty()) found else (found + calls).sortedBy { it.at }
             // The messages shown at once; signed ones verified from now.
             runOnUiThread {
                 if (isFinishing || isDestroyed || !latest()) return@runOnUiThread
-                lines = found
+                lines = all
                 // An answer begun here before, still to send: cited again.
                 if (replying == null) Replies.of(this, drafted)?.let { key -> found.firstOrNull { it.key == key }?.let(::reply) }
                 hits = null
@@ -737,7 +753,7 @@ class ThreadActivity : AskingActivity() {
                 bubbles.notifyDataSetChanged()
                 verifySigned()
                 if (wanted > 0) {
-                    found.indexOfFirst { it.at == wanted }.takeIf { it >= 0 }?.let { list.setSelection(it) }
+                    all.indexOfFirst { it.at == wanted }.takeIf { it >= 0 }?.let { list.setSelection(it) }
                     wanted = 0
                 }
             }
@@ -905,16 +921,21 @@ class ThreadActivity : AskingActivity() {
         val name = called ?: found.joinToString(", ") { it.name }
         thread?.let { Opened.title(it, name, number) }
         title = name
-        whoIs.text = name
+        // Muted, said where the group is named: after its name, or after its members' faces.
+        val muted = Marks.muted(this, "group:${groupSet()}")
+        whoIs.text = if (muted) "$name  🔕" else name
         // Faces rather than names, which never fit: ten on a line.
         portrait.visibility = View.GONE
         named.visibility = if (called != null) View.VISIBLE else View.GONE
         crowd.visibility = if (called != null) View.GONE else View.VISIBLE
         crowd.removeAllViews()
-        // Oneself last, as in the list's square; beyond nine, eight faces and how many more.
+        // Oneself last, as in the list's square; beyond nine places, one fewer faces and how many more. Muted, the
+        // mark takes a face's place: part of what names the group.
         val faces = found.map { Look.Mini(it.face, it.card?.validity, it.seed) } + listOfNotNull(myself)
-        for (one in if (faces.size > 9) faces.take(8) else faces) crowd.addView(Look.face(this, 22, null, one.face, one.standing, framable = true, seed = one.seed, lineDp = 2))
-        if (faces.size > 9) crowd.addView(Look.words(this, "+${faces.size - 8}", size = 15f).apply { setTextColor(android.graphics.Color.WHITE) ; setPadding(Look.dp(context, 6), 0, 0, 0) })
+        val places = if (muted) 8 else 9
+        for (one in if (faces.size > places) faces.take(places - 1) else faces) crowd.addView(Look.face(this, 22, null, one.face, one.standing, framable = true, seed = one.seed, lineDp = 2))
+        if (faces.size > places) crowd.addView(Look.words(this, "+${faces.size - places + 1}", size = 15f).apply { setTextColor(android.graphics.Color.WHITE) ; setPadding(Look.dp(context, 6), 0, 0, 0) })
+        if (muted) crowd.addView(Look.words(this, "🔕", size = 17f).apply { setPadding(Look.dp(context, 6), 0, 0, 0) })
         crowd.addView(android.widget.TextView(this).apply {
             text = "⋮" ; setTextColor(android.graphics.Color.WHITE) ; paint.isFakeBoldText = true
             setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 22f) ; setPadding(Look.dp(context, 6), 0, Look.dp(context, 4), 0)
@@ -1103,9 +1124,11 @@ class ThreadActivity : AskingActivity() {
             val transaction = Outbox.transaction()
             runCatching { Outbox.send(this, targets(), Pdu.send(transaction, targets(), parts), transaction, sealed = parts.any { it.sealed }) }
                 .onFailure { return@withMembers say(getString(R.string.failed, it.message)) }
-            if (verdict != null && words != null) Opened.keep(this, words, written, null, verdict, thread = here())
+            // Its words and what it carries: one message, though the store has not numbered it yet.
+            val message = "t$transaction"
+            if (verdict != null && words != null) Opened.keep(this, words, written, null, verdict, thread = here(), message = message)
             // What it carries, open as its words are, for as long.
-            if (verdict != null) Opened.keepSent(this, piece.bytes, with.type, with.name, with.bytes, verdict, here())
+            if (verdict != null) Opened.keepSent(this, piece.bytes, with.type, with.name, with.bytes, verdict, here(), message)
             field.setText("")
             reply(null)
             forgetDraft()
@@ -1367,7 +1390,10 @@ class ThreadActivity : AskingActivity() {
 
     /** A locked part, opened: kept with what it is, and a picture made small to sit in its bubble. */
     private fun got(piece: Store.Piece, answer: Provider.Answer.Done) {
-        val told = Unlocking.keepPiece(this, piece, answer, pieceLocked[piece.id] != false, here())
+        val told = Unlocking.keepPiece(
+            this, piece, answer, pieceLocked[piece.id] != false, here(),
+            lines.firstOrNull { line -> line.pieces.any { it.id == piece.id } }?.let(Opened::message),
+        )
         if (told.type.startsWith("audio/") || told.type == "video/3gpp") Media.lasting(answer.bytes)?.let { lasts[piece.id] = it }
         if (told.type == "video/3gpp" || told.type.startsWith("video/")) Media.frame(answer.bytes, Look.dp(this, 200))?.let { frames[piece.id] = it }
         if (told.type.startsWith("image/")) openedThumbs[piece.id] = thumbnail(answer.bytes)
@@ -1775,7 +1801,8 @@ class ThreadActivity : AskingActivity() {
     private var offered = false
 
     private fun opened(armor: String, answer: Provider.Answer.Done, offer: Boolean) {
-        val signature = Signer.keep(this, armor, answer, here())
+        val line = lines.firstOrNull { line -> armorOf(line)?.let { it == armor || Opened.inner(it) == armor } == true }
+        val signature = Signer.keep(this, armor, answer, here(), line?.let(Opened::message))
         bubbles.notifyDataSetChanged()
         // Opened onto another message: signed only, it is read at once, as any signed message is; locked, a press opens it.
         verifySoon()
@@ -1974,6 +2001,7 @@ class ThreadActivity : AskingActivity() {
         override fun getView(at: Int, old: View?, parent: ViewGroup): View {
             val line = lines[at]
             val context = this@ThreadActivity
+            line.call?.let { return called(it, line.at) }
             val armor = armorOf(line)
             val read = armor?.let { Opened.words(it) }
             val sealed = line.pieces.filter(::isSealed)
@@ -2101,11 +2129,12 @@ class ThreadActivity : AskingActivity() {
                 addView(mark, stripe)
                 // In a group, who wrote it: their face beside what they wrote, framed by what their certificate is worth.
                 if (group && line.incoming) {
-                    val who = memberOf(line.address ?: senders[line.id])
+                    val from = line.address ?: senders[line.id]
+                    val who = memberOf(from)
                     addView(
-                        Look.face(context, 32, null, who?.face, who?.card?.validity, framable = true, seed = who?.seed ?: (line.address ?: senders[line.id])?.let(Phone::key)).apply {
-                            // Pressed, who it is.
-                            setOnClickListener { Toast.makeText(context, who?.let { if (it.name != it.number) "${it.name} — ${it.number}" else it.number } ?: (line.address ?: senders[line.id]).orEmpty(), Toast.LENGTH_SHORT).show() }
+                        Look.face(context, 32, null, who?.face, who?.card?.validity, framable = true, seed = who?.seed ?: from?.let(Phone::key)).apply {
+                            // Pressed, what can be done about who it is: as from a conversation with them alone, and going to it.
+                            setOnClickListener { from?.let { TalkMenu.aside(this@ThreadActivity, it, who?.name, who?.person, group = true, look = false) { load(first = false) } } }
                         },
                         LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                             gravity = Gravity.TOP ; marginEnd = pad / 2
@@ -2214,8 +2243,51 @@ class ThreadActivity : AskingActivity() {
         }
     }
 
+    /** A call among the messages: one small line in the middle, what it was, how long, and when. */
+    private fun called(call: Called, at: Long): View {
+        val what = getString(
+            when (call.kind) {
+                Called.Kind.IN -> R.string.call_in
+                Called.Kind.OUT -> R.string.call_out
+                Called.Kind.MISSED -> R.string.call_missed
+                Called.Kind.REFUSED -> R.string.call_refused
+            },
+        )
+        val said = StringBuilder(what)
+        if (call.seconds > 0) said.append("  ·  ").append(android.text.format.DateUtils.formatElapsedTime(call.seconds))
+        said.append("  ·  ").append(Look.ago(at))
+        return Look.words(this, said, size = 13f, muted = true).apply {
+            // On the side of whoever called, as the bubbles are: one placed from here on the right, the others on the
+            // left, their words in line with a bubble's own.
+            val placed = call.kind == Called.Kind.OUT
+            gravity = if (placed) Gravity.RIGHT else Gravity.LEFT
+            // A call that took place is in clear, as a message is: the red of a bubble in clear, deep enough to be
+            // read, until a call can be worth more. One that did not stays grey, the missed one in the page's own
+            // ink, the refused one paler.
+            setTextColor(
+                when (call.kind) {
+                    Called.Kind.IN, Called.Kind.OUT -> if (Look.dark) android.graphics.Color.rgb(0xC9, 0x86, 0x93) else android.graphics.Color.rgb(0x9B, 0x4A, 0x5A)
+                    Called.Kind.MISSED -> Look.INK
+                    Called.Kind.REFUSED -> Look.MUTED
+                },
+            )
+            val pad = Look.dp(context, 6)
+            val near = Look.dp(context, 30)
+            val far = Look.dp(context, 50)
+            if (placed) setPadding(far, pad, near, pad) else setPadding(near, pad, far, pad)
+            layoutParams = android.widget.AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+    }
+
     override fun onRequestPermissionsResult(request: Int, permissions: Array<String>, results: IntArray) {
         if (TalkMenu.answered(this, request, results)) return
+        if (request == CALLS) {
+            if (results.any { it == PackageManager.PERMISSION_GRANTED }) {
+                Calls.CHANGES?.let { contentResolver.registerContentObserver(it, true, arrivals) }
+                load()
+            }
+            return
+        }
         if (request == PLACE) {
             if (results.any { it == PackageManager.PERMISSION_GRANTED }) place()
             return
@@ -2276,6 +2348,7 @@ class ThreadActivity : AskingActivity() {
         private const val FILE = 9
         private const val PLACE = 10
         private const val VOICE = 11
+        private const val CALLS = 12
         private const val SAVE_PIECE = 12
         private const val VIDEO = 13
 

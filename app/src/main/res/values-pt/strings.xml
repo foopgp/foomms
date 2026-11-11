@@ -18,7 +18,7 @@
     <string name="signed_unknown">Assinado com uma chave que o foodjis não tem.</string>
     <string name="signed_broken">A assinatura não é válida.</string>
     <string name="close">Fechar</string>
-    <string name="write">✎ Nova mensagem</string>
+    <string name="write">💬 Nova mensagem</string>
     <string name="locked_message">⚿ Mensagem cifrada</string>
     <string name="signed_message">✍ Mensagem assinada</string>
     <string name="signed_press">✍ Mensagem assinada — toque para a verificar</string>
@@ -67,7 +67,7 @@
     <string name="hold_half_minute">30 segundos</string>
     <string name="hold_twelve_hours">12 horas</string>
     <string name="close_now">Fechar agora</string>
-    <string name="closes_in">⚿ Fecham dentro de %1$s</string>
+    <string name="open_here">⚷ %1$s — %2$s</string>
     <string name="hold_two_minutes">2 minutos</string>
     <string name="hold_five_minutes">5 minutos</string>
     <string name="hold_fifteen_minutes">15 minutos</string>
@@ -144,7 +144,7 @@
     <string name="cert_refresh">⟳ Atualizar o certificado</string>
     <string name="cert_refreshed">Certificado atualizado.</string>
     <string name="cert_forget">⌫ Esquecer o certificado</string>
-    <string name="whom_write">✎ Escrever</string>
+    <string name="whom_write">💬 Conversar</string>
     <string name="many_title">Para %1$d pessoas</string>
     <string name="many_sent">Entregue ao telemóvel, para %1$d pessoas.</string>
     <string name="many_failed">Não enviado para: %1$s</string>
@@ -158,6 +158,7 @@
     <string name="place_seeking">A procurar onde está…</string>
     <string name="place_none">O telemóvel não sabe onde está neste momento.</string>
     <string name="backup_one">💾 Guardar a conversa</string>
+    <string name="talk_alone">💬 Conversar individualmente</string>
     <string name="backup_save">Guardar tudo</string>
     <string name="backup_restore">Restaurar uma cópia</string>
     <string name="backup_working">Em curso…</string>
@@ -190,11 +191,12 @@
     <string name="about_licence_apache">Ler a licença Apache 2.0</string>
     <string name="conf_title">Configuração</string>
     <string name="close_all">Fechar tudo</string>
-    <string name="closes_talk">⚿ %1$s — %2$s</string>
+    <string name="open_talk">⚷ %1$s · %2$s — %3$s</string>
+    <string name="open_talks">%1$s ⚷ %2$s — %3$s</string>
     <string name="about_third_party_home">Ver a página do openpgp-api</string>
     <string name="no_foodjis">O foomms não faz criptografia por si: precisa do %1$s, que não está instalado neste telemóvel.</string>
     <string name="install_foodjis">Instalar o %1$s</string>
-    <string name="write_to">Escrever para %1$s</string>
+    <string name="write_to">Conversar com %1$s</string>
     <string name="decrypt_this">⚿ Decifrar esta mensagem</string>
     <string name="search_contacts">🔍 Pesquisar nos contactos</string>
     <string name="attach_text">📋 Um texto</string>
@@ -331,4 +333,15 @@
     <string name="conf_mms_on_note">Permite enviar mensagens de grupo, textos longos, mensagens de voz, fotografias ou vídeos curtos. De um operador para outro, um MMS chega com menos segurança do que um SMS, e alguns tarifários cobram-no. Outros operadores não suportam MMS, o que favorece as mensagens pela Internet e, portanto, a vigilância global.</string>
     <string name="mms_off">O envio de MMS não está permitido na configuração: nem anexo, nem mensagem de voz, nem grupo MMS.</string>
     <string name="many_sms">Esta mensagem parte em %1$d SMS: alguns telefones juntam-nos mal, e o seu operador pode cobrá-los um a um.</string>
+    <string name="conf_calls_heading">Chamadas</string>
+    <string name="conf_calls">Mostrar as chamadas nas conversas</string>
+    <string name="conf_calls_note">As chamadas com uma pessoa aparecem entre as mensagens, à sua hora. Para isso o foomms+ lê o registo de chamadas do telefone, que nunca sai do telefone.</string>
+    <string name="call_in">📞 Chamada recebida</string>
+    <string name="call_out">📞 Chamada efetuada</string>
+    <string name="call_missed">📞 Chamada perdida</string>
+    <string name="call_refused">📞 Chamada recusada</string>
+    <plurals name="open_messages">
+        <item quantity="one">%d mensagem</item>
+        <item quantity="other">%d mensagens</item>
+    </plurals>
 </resources>

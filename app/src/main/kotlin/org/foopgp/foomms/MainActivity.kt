@@ -641,39 +641,69 @@ class MainActivity : AskingActivity() {
     }
 
     /**
-     * Under the bar while encrypted messages are open somewhere: the
-     * conversation whose countdown is the longest -- the last one opened in
-     * --, when it closes, and a button to close everything now.
+     * Under the bar while encrypted messages are open somewhere: in one conversation, which, how many messages and
+     * when they close; in several, how many in all and the longest countdown, unrolled onto each conversation's own
+     * line. A button closes everything now.
      */
     private val closing by lazy {
         LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            val pad = Look.dp(context, 12)
-            setPadding(pad, pad / 3, pad, pad / 3)
+            orientation = LinearLayout.VERTICAL
             setBackgroundColor(Look.pale(Verdict.YELLOW))
             visibility = View.GONE
-            addView(remaining, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-            addView(Look.small(context, getString(R.string.close_all)) {
-                Opened.closeAll()
-                Outbox.shut(this@MainActivity)
-                tick()
-                fill()
+            val pad = Look.dp(context, 12)
+            addView(LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(pad, pad / 3, pad, pad / 3)
+                addView(remaining, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                addView(Look.small(context, getString(R.string.close_all)) {
+                    Opened.closeAll()
+                    Outbox.shut(this@MainActivity)
+                    tick()
+                    fill()
+                })
             })
+            addView(unrolled, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         }
     }
     private val remaining by lazy {
         Look.words(this, "", size = 14f).apply {
-            maxLines = 1
-            ellipsize = android.text.TextUtils.TruncateAt.MIDDLE
-            // Pressed, the conversation it names opens.
-            setOnClickListener { goToLatest() }
+            // On two lines rather than cut: what it counts is read whole. Rewritten each second, it could not scroll.
+            maxLines = 2
+            // Pressed: the one conversation opens; several, their lines unroll or roll up.
+            setOnClickListener {
+                val all = Opened.all()
+                if (all.size == 1) goTo(all[0].first) else { rolledOut = !rolledOut ; tick() }
+            }
         }
     }
 
-    /** The conversation whose countdown the strip shows. */
-    private fun goToLatest() {
-        val (thread, _, _) = Opened.latest() ?: return
+    /** Whether the lines of each conversation open are shown under the strip. */
+    private var rolledOut = false
+
+    /** The lines of each conversation open, scrolling within half the screen. */
+    private val openRows by lazy { LinearLayout(this).apply { orientation = LinearLayout.VERTICAL } }
+    private val unrolled by lazy {
+        object : android.widget.ScrollView(this) {
+            override fun onMeasure(width: Int, height: Int) =
+                super.onMeasure(width, MeasureSpec.makeMeasureSpec(resources.displayMetrics.heightPixels / 2, MeasureSpec.AT_MOST))
+        }.apply { visibility = View.GONE ; addView(openRows) }
+    }
+
+    /** A conversation open: its name underlined, as what a press opens, how many messages, and when they close. */
+    private fun openIn(thread: Long, title: String?, closes: Long, now: Long): CharSequence {
+        val count = Opened.count(thread, now)
+        val said = getString(
+            R.string.open_talk, title.orEmpty(), resources.getQuantityString(R.plurals.open_messages, count, count),
+            Media.clock(maxOf(0L, closes - now + 999)),
+        )
+        return android.text.SpannableString(said).apply {
+            val at = if (title.isNullOrEmpty()) -1 else said.indexOf(title)
+            if (at >= 0) setSpan(android.text.style.UnderlineSpan(), at, at + title!!.length, 0)
+        }
+    }
+
+    private fun goTo(thread: Long) {
         val number = Opened.number(thread) ?: return
         startActivity(
             Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, number).putExtra(ThreadActivity.EXTRA_THREAD, thread),
@@ -690,16 +720,37 @@ class MainActivity : AskingActivity() {
     private var wasOpen = false
 
     private fun tick() {
-        val latest = Opened.latest()
-        if (latest != null) {
-            val (_, title, closes) = latest
-            val said = getString(R.string.closes_talk, title.orEmpty(), Media.clock(maxOf(0L, closes - System.currentTimeMillis() + 999)))
-            // The name underlined: it is what a press opens.
-            remaining.text = android.text.SpannableString(said).apply {
-                val at = if (title.isNullOrEmpty()) -1 else said.indexOf(title)
-                if (at >= 0) setSpan(android.text.style.UnderlineSpan(), at, at + title!!.length, 0)
+        val now = System.currentTimeMillis()
+        val all = Opened.all(now)
+        val latest = all.firstOrNull()
+        if (all.size == 1) {
+            val (thread, title, closes) = all[0]
+            remaining.text = openIn(thread, title, closes, now)
+            unrolled.visibility = View.GONE
+        } else if (all.size > 1) {
+            val count = all.sumOf { Opened.count(it.first, now) }
+            remaining.text = getString(
+                R.string.open_talks, if (rolledOut) "▾" else "▸", resources.getQuantityString(R.plurals.open_messages, count, count),
+                Media.clock(maxOf(0L, all[0].third - now + 999)),
+            )
+            unrolled.visibility = if (rolledOut) View.VISIBLE else View.GONE
+            if (rolledOut) {
+                val pad = Look.dp(this, 12)
+                // Kept from one second to the next: only their words change.
+                while (openRows.childCount > all.size) openRows.removeViewAt(openRows.childCount - 1)
+                for ((at, one) in all.withIndex()) {
+                    val row = (openRows.getChildAt(at) as? android.widget.TextView) ?: Look.words(this, "", size = 14f).apply {
+                        maxLines = 1
+                        ellipsize = android.text.TextUtils.TruncateAt.MIDDLE
+                        setPadding(pad * 2, pad / 3, pad, pad / 3)
+                        openRows.addView(this)
+                    }
+                    row.text = openIn(one.first, one.second, one.third, now)
+                    row.setOnClickListener { goTo(one.first) }
+                }
             }
         }
+        if (all.isEmpty()) rolledOut = false
         closing.visibility = if (latest != null) View.VISIBLE else View.GONE
         // Closed now: the last lines shown open are shown closed again.
         if (latest == null && wasOpen) { if (!Opened.anyOpen()) Outbox.shut(this) ; fill() }
@@ -1052,12 +1103,18 @@ class MainActivity : AskingActivity() {
     /** Which filling is the latest asked for: an older one that finishes late shows nothing. */
     private var turns = 0
 
-    /** A conversation's name, and after it what the person said of its sender: not to be announced. */
+    /**
+     * A conversation's name, and after it what the person said of its sender: not to be announced. A group's line
+     * is named by who spoke last: muted, that member; the group itself, on the line of its name above.
+     */
     private fun marked(row: Row): CharSequence = android.text.SpannableStringBuilder(row.name).apply {
-        // A group as it is muted, by its members; one person by whom the line is with.
-        val key = row.group?.let { "group:$it" } ?: row.with ?: row.talk.number
-        if (key != null && Marks.muted(this@MainActivity, key)) append("  🔕")
+        val muted = if (row.group != null) row.talk.incoming && Marks.muted(this@MainActivity, row.talk.from)
+            else Marks.muted(this@MainActivity, row.with ?: row.talk.number)
+        if (muted) append("  🔕")
     }
+
+    /** A group as it is muted, by its members. */
+    private fun groupMuted(group: String): Boolean = Marks.muted(this, "group:$group")
 
     /** Pressed long, a conversation says what can be done about it and about who it is with. */
     private fun about(row: Row) {
@@ -1137,11 +1194,12 @@ class MainActivity : AskingActivity() {
             val text = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 setPadding(pad, 0, 0, 0)
-                // On the groups' page, a group the person named: its name first, a line of its own above who spoke.
-                val called = row.group?.let { GroupNames.of(context, it) }
-                if (called != null) {
+                // A group: the name the person gave it first, a line of its own above who spoke -- the line kept with
+                // no name, empty or saying the group is muted: every group's line three high.
+                if (row.group != null) {
+                    val called = GroupNames.of(context, row.group).orEmpty()
                     addView(
-                        Look.words(context, called, size = 17f).apply {
+                        Look.words(context, if (groupMuted(row.group)) "$called  🔕".trimStart() else called.ifEmpty { " " }, size = 17f).apply {
                             setTypeface(typeface, Typeface.BOLD)
                             maxLines = 1 ; ellipsize = TextUtils.TruncateAt.END
                         },

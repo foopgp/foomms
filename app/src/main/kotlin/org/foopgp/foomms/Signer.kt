@@ -59,7 +59,10 @@ object Signer {
     fun said(context: android.content.Context, signature: OpenPgpSignatureResult?): String = words(context, of(signature)).toString()
 
     /** A message foodjis opened or verified, kept with what its signature says; the signature, for whoever asks more. */
-    fun keep(context: android.content.Context, armor: String, answer: Provider.Answer.Done, thread: Long = Opened.NO_THREAD): OpenPgpSignatureResult? {
+    fun keep(
+        context: android.content.Context, armor: String, answer: Provider.Answer.Done, thread: Long = Opened.NO_THREAD,
+        message: String? = null,
+    ): OpenPgpSignatureResult? {
         answer.says.setExtrasClassLoader(OpenPgpSignatureResult::class.java.classLoader)
         @Suppress("DEPRECATION")
         val signature = answer.says.getParcelableExtra<OpenPgpSignatureResult>(Provider.RESULT_SIGNATURE)
@@ -67,7 +70,7 @@ object Signer {
         val signer = signature?.takeIf { it.result != OpenPgpSignatureResult.RESULT_NO_SIGNATURE }
         Opened.keep(
             context, armor, String(answer.bytes, Charsets.UTF_8), of(signature), Verdict.of(Provider.encrypted(answer, Pgp.isLocked(armor)), certified),
-            signer = signer?.keyId, eid = signer?.let { eid(it) }, thread = thread,
+            signer = signer?.keyId, eid = signer?.let { eid(it) }, thread = thread, message = message,
         )
         return signature
     }

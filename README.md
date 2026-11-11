@@ -71,7 +71,8 @@ then one of them in bubbles, a field at the bottom.
 - **Read again what you sent**: a locked message is locked for you too,
   unless you set it not to be.
 - **Push to talk**: the field, while empty, held down records a few words
-  for as long as it is held — AMR, low quality, which every phone plays —,
+  for as long as it is held — AMR, low quality, which every phone plays, as
+  a `.amr` and not wrapped in 3GP, which Android takes for a video —,
   attached to the next message like any sound.
 - **How the next message leaves** is said by two switches above the field,
   *Sign* and *Encrypt*, each grey when it cannot be; the line they stand on,
@@ -95,7 +96,9 @@ then one of them in bubbles, a field at the bottom.
   what it carries, forward it, see its details, delete it. The words of
   an opened message are held in memory for the time you set — fifteen minutes
   unless said otherwise — and never written down; its colour goes with them,
-  and closed again it is grey again.
+  and closed again it is grey again. A strip under the bar counts the
+  messages open and the time left, in the conversation and on the list;
+  several conversations open, it unrolls onto a line for each.
 - **The address book says whose key a number means.** *Tie a certificate to
   this number* shows foodjis's own list of contacts, over the conversation:
   a line to filter by, then each contact as a face and a name on the colour
@@ -122,13 +125,16 @@ then one of them in bubbles, a field at the bottom.
   application, of up to twenty members unless set otherwise. Each message
   carries a small vCard, `foomms-group.vcf`, naming the members: some
   operators rewrite the "To" of a group MMS, and the group is recognised by
-  it whatever the way. A group can be named, on your phone only.
+  it whatever the way. A group can be named, on your phone only, and
+  silenced: the list and the head of the conversation then say so, a group
+  with no name too. A member's face in a bubble, or the member pressed long
+  in the group's menu, offers to talk with them alone.
 - **My profile**, the second page: the counts of messages and
   conversations; the drafts and the unread messages, each on its own line,
   opening onto the list of the conversations concerned; the backup; your
   "Me" card. The number of unread messages shows next to "My profile".
 - **A new message** begins with a number, or a few letters of a name in the
-  address book.
+  address book; a contact pressed there says what can be done about it.
 - **Back up and restore**, from My profile for every message, or from a
   conversation's menu for its own: saved to a file — or put back from one — in the XML
   of "SMS Backup & Restore", which most messaging applications read. PGP
@@ -146,16 +152,23 @@ application receives, and this one shows and sends.
 
 Permissions: sending and receiving messages and reading those the phone
 holds; announcing them; reading the address book and writing in it; placing
-the call one asks for from a conversation. Not the network: the phone's own service
+the call one asks for from a conversation; in foomms+, reading the call log. Not the network: the phone's own service
 carries a message, and what is asked of a key server is asked through
 foodjis.
 
+**foomms+**, an edition of its own (`org.foopgp.foomms.plus`), meant for
+F-Droid: the calls with a person slip in among their messages, on the side
+of whoever called, those that took place in the red of a message in clear,
+missed and refused ones in grey; a switch in the settings takes them out.
+Google Play does not let a messaging application read the call log, hence
+an edition apart; the rest is the same.
+
 ## State
 
-Version 1.4.0, in preparation. 1.2.5 is published on Google Play, and 1.3.3
-is under review there; each version can also be downloaded from
-[foomms.foopgp.org](https://foomms.foopgp.org/), with its fingerprint and its
-signature.
+Version 1.4.2, for foomms+ on F-Droid. 1.3.3 is published on Google Play,
+and 1.4.1 is under review there; each version of foomms can also be
+downloaded from [foomms.foopgp.org](https://foomms.foopgp.org/), with its
+fingerprint and its signature.
 
 In use every day on two phones (Android 13 and 16), from one operator to
 another: SMS and MMS, encrypted, signed or in clear, texts, photos, sounds,
@@ -169,9 +182,10 @@ It needs foodjis, as published on
 A JDK 17 or newer and the Android SDK (platform 36).
 
 ```sh
-./gradlew :app:testDebugUnitTest
-./gradlew :app:assembleDebug     # org.foopgp.foomms.dev, which speaks to foodjis-dev
-./gradlew :app:assembleRelease   # org.foopgp.foomms, which speaks to foodjis
+./gradlew :app:testStandardDebugUnitTest
+./gradlew :app:assembleStandardDebug    # org.foopgp.foomms.dev, which speaks to foodjis-dev
+./gradlew :app:bundleStandardRelease    # org.foopgp.foomms, for Google Play
+./gradlew :app:assemblePlusRelease      # org.foopgp.foomms.plus, foomms+ for F-Droid
 ```
 
 ## Leads and open questions

@@ -18,7 +18,7 @@
     <string name="signed_unknown">foodjis\'te bulunmayan bir anahtarla imzalanmış.</string>
     <string name="signed_broken">İmza geçersiz.</string>
     <string name="close">Kapat</string>
-    <string name="write">✎ Yeni mesaj</string>
+    <string name="write">💬 Yeni mesaj</string>
     <string name="locked_message">⚿ Şifreli mesaj</string>
     <string name="signed_message">✍ İmzalı mesaj</string>
     <string name="signed_press">✍ İmzalı mesaj — doğrulamak için dokunun</string>
@@ -67,7 +67,7 @@
     <string name="hold_half_minute">30 saniye</string>
     <string name="hold_twelve_hours">12 saat</string>
     <string name="close_now">Şimdi kapat</string>
-    <string name="closes_in">⚿ %1$s içinde kapanacak</string>
+    <string name="open_here">⚷ %1$s — %2$s</string>
     <string name="hold_two_minutes">2 dakika</string>
     <string name="hold_five_minutes">5 dakika</string>
     <string name="hold_fifteen_minutes">15 dakika</string>
@@ -144,7 +144,7 @@
     <string name="cert_refresh">⟳ Sertifikayı yenile</string>
     <string name="cert_refreshed">Sertifika yenilendi.</string>
     <string name="cert_forget">⌫ Sertifikayı unut</string>
-    <string name="whom_write">✎ Yaz</string>
+    <string name="whom_write">💬 Konuş</string>
     <string name="many_title">%1$d kişi için</string>
     <string name="many_sent">Telefona teslim edildi, %1$d kişi için.</string>
     <string name="many_failed">Gönderilemedi: %1$s</string>
@@ -158,6 +158,7 @@
     <string name="place_seeking">Konumunuz bulunuyor…</string>
     <string name="place_none">Telefon şu anda nerede olduğunu bilmiyor.</string>
     <string name="backup_one">💾 Konuşmayı kaydet</string>
+    <string name="talk_alone">💬 Bireysel sohbet et</string>
     <string name="backup_save">Tümünü kaydet</string>
     <string name="backup_restore">Bir yedeği geri yükle</string>
     <string name="backup_working">Sürüyor…</string>
@@ -190,11 +191,12 @@
     <string name="about_licence_apache">Apache 2.0 lisansını oku</string>
     <string name="conf_title">Ayarlar</string>
     <string name="close_all">Tümünü kapat</string>
-    <string name="closes_talk">⚿ %1$s — %2$s</string>
+    <string name="open_talk">⚷ %1$s · %2$s — %3$s</string>
+    <string name="open_talks">%1$s ⚷ %2$s — %3$s</string>
     <string name="about_third_party_home">openpgp-api sayfasını gör</string>
     <string name="no_foodjis">foomms kendisi şifreleme yapmaz: bu telefonda yüklü olmayan %1$s uygulamasına ihtiyaç duyar.</string>
     <string name="install_foodjis">%1$s uygulamasını yükle</string>
-    <string name="write_to">%1$s numarasına yaz</string>
+    <string name="write_to">%1$s ile konuş</string>
     <string name="decrypt_this">⚿ Bu mesajın şifresini çöz</string>
     <string name="search_contacts">🔍 Kişilerde ara</string>
     <string name="attach_text">📋 Metin</string>
@@ -331,4 +333,15 @@
     <string name="conf_mms_on_note">Grup mesajları, uzun metinler, sesli mesajlar, fotoğraflar veya kısa videolar göndermeyi sağlar. Bir operatörden diğerine MMS, SMS kadar güvenle ulaşmaz ve bazı tarifeler ücret alır. Bazı operatörler ise MMS\'i hiç desteklemiyor; bu da internet mesajlaşma uygulamalarına, dolayısıyla küresel gözetime yarıyor.</string>
     <string name="mms_off">Yapılandırmada MMS gönderimine izin verilmiyor: ne ek, ne sesli mesaj, ne grup MMS\'i.</string>
     <string name="many_sms">Bu mesaj %1$d SMS olarak gider: bazı telefonlar onları kötü birleştirir ve operatörünüz her birini ayrı ücretlendirebilir.</string>
+    <string name="conf_calls_heading">Aramalar</string>
+    <string name="conf_calls">Aramaları konuşmalarda göster</string>
+    <string name="conf_calls_note">Bir kişiyle yapılan aramalar, zamanlarında mesajların arasında görünür. foomms+ bunun için telefonun arama kaydını okur; bu kayıt telefondan hiç çıkmaz.</string>
+    <string name="call_in">📞 Gelen arama</string>
+    <string name="call_out">📞 Giden arama</string>
+    <string name="call_missed">📞 Cevapsız arama</string>
+    <string name="call_refused">📞 Reddedilen arama</string>
+    <plurals name="open_messages">
+        <item quantity="one">%d mesaj</item>
+        <item quantity="other">%d mesaj</item>
+    </plurals>
 </resources>

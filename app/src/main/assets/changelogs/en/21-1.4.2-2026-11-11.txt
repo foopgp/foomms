@@ -1,0 +1,5 @@
+• In a group, pressing a member's face offers to talk with them one to one.
+• A group with notifications off shows it, even without a name.
+• In the contacts' search, pressing a contact opens its menu.
+• The countdowns tell how many encrypted messages are still open, and where.
+• Voice messages no longer pass for videos on the receiving phone.

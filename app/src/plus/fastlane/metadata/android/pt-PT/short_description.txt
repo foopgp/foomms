@@ -1,0 +1,1 @@
+Chamadas com uma pessoa entre os seus SMS e MMS cifrados com PGP, pelo foodjis.

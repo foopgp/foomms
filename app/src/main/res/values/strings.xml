@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">foomms</string>
     <string name="app_title">foomms [PGP]</string>
     <string name="about">SMS and MMS that only the person you write to can read: encrypted for the key their phone number means, signed by yours. No account, no server of ours — the phone network carries them and cannot open them.\n\nThis application holds no key and does no cryptography: it asks foodjis, which must be installed.</string>
     <string name="why_read">To show your conversations, this application needs to read the messages this phone holds, and your contacts to link them.</string>
@@ -20,7 +19,7 @@
     <string name="signed_unknown">Signed by a key foodjis does not hold.</string>
     <string name="signed_broken">The signature does not hold.</string>
     <string name="close">Close</string>
-    <string name="write">✎ New message</string>
+    <string name="write">💬 New message</string>
     <string name="locked_message">⚿ Encrypted message</string>
     <string name="signed_message">✍ Signed message</string>
     <string name="signed_words" translatable="false">✍ %1$s</string>
@@ -70,7 +69,7 @@
     <string name="hold_half_minute">30 seconds</string>
     <string name="hold_twelve_hours">12 hours</string>
     <string name="close_now">Close now</string>
-    <string name="closes_in">⚿ Closing in %1$s</string>
+    <string name="open_here">⚷ %1$s — %2$s</string>
     <string name="hold_two_minutes">2 minutes</string>
     <string name="hold_five_minutes">5 minutes</string>
     <string name="hold_fifteen_minutes">15 minutes</string>
@@ -147,7 +146,7 @@
     <string name="cert_refresh">⟳ Refresh the certificate</string>
     <string name="cert_refreshed">Certificate refreshed.</string>
     <string name="cert_forget">⌫ Forget the certificate</string>
-    <string name="whom_write">✎ Write</string>
+    <string name="whom_write">💬 Talk</string>
     <string name="many_title">For %1$d people</string>
     <string name="many_sent">Handed to the phone, for %1$d people.</string>
     <string name="many_failed">Not sent to: %1$s</string>
@@ -161,6 +160,7 @@
     <string name="place_seeking">Finding where you are…</string>
     <string name="place_none">The phone does not know where it is just now.</string>
     <string name="backup_one">💾 Save the conversation</string>
+    <string name="talk_alone">💬 Talk one to one</string>
     <string name="backup_save">Save everything</string>
     <string name="backup_restore">Restore a backup</string>
     <string name="backup_working">Working…</string>
@@ -193,11 +193,12 @@
     <string name="about_licence_apache">Read the Apache 2.0 licence</string>
     <string name="conf_title">Configuration</string>
     <string name="close_all">Close all</string>
-    <string name="closes_talk">⚿ %1$s — %2$s</string>
+    <string name="open_talk">⚷ %1$s · %2$s — %3$s</string>
+    <string name="open_talks">%1$s ⚷ %2$s — %3$s</string>
     <string name="about_third_party_home">See the openpgp-api page</string>
     <string name="no_foodjis">foomms does no cryptography itself: it needs %1$s, which is not installed on this phone.</string>
     <string name="install_foodjis">Install %1$s</string>
-    <string name="write_to">Write to %1$s</string>
+    <string name="write_to">Talk with %1$s</string>
     <string name="decrypt_this">⚿ Decrypt this message</string>
     <string name="search_contacts">🔍 Search the contacts</string>
     <string name="attach_text">📋 Some text</string>
@@ -334,4 +335,15 @@
     <string name="conf_mms_on_note">Lets you send group messages, long texts, voice messages, photos or short videos. From one operator to another, an MMS arrives less surely than an SMS, and some plans charge for it. Other networks do not support MMS at all, which favours Internet messengers and so global surveillance.</string>
     <string name="mms_off">Sending MMS is not allowed in the configuration: no attachment, voice message or group MMS.</string>
     <string name="many_sms">This message leaves in %1$d SMS: some phones put them back together badly, and your network may charge each one.</string>
+    <string name="conf_calls_heading">Calls</string>
+    <string name="conf_calls">Show calls in conversations</string>
+    <string name="conf_calls_note">The calls with a person appear among the messages, at their time. foomms+ reads the phone\'s call history for this, which never leaves the phone.</string>
+    <string name="call_in">📞 Incoming call</string>
+    <string name="call_out">📞 Outgoing call</string>
+    <string name="call_missed">📞 Missed call</string>
+    <string name="call_refused">📞 Declined call</string>
+    <plurals name="open_messages">
+        <item quantity="one">%d message</item>
+        <item quantity="other">%d messages</item>
+    </plurals>
 </resources>

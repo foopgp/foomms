@@ -350,7 +350,10 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
         }
     }
 
-    /** A sound alone: the microphone, in the AAC of the videos, under the same size. */
+    /**
+     * A sound alone: the microphone, in the AAC of the videos, under the same size -- as it is, with no 3GP around
+     * it: a ".3gp" is a video for Android, and the receiving phone may take it for one.
+     */
     private fun listen() {
         val out = file(this).apply { delete() }
         runCatching {
@@ -358,7 +361,7 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
             recorder = MediaRecorder()
             recorder!!.apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
-                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                 setAudioSamplingRate(16_000)
                 setAudioChannels(1)
@@ -387,8 +390,8 @@ class VideoActivity : Activity(), SurfaceHolder.Callback {
         runCatching { camera?.lock() }
         if (keep && ok && file(this).length() > 0) setResult(
             RESULT_OK,
-            android.content.Intent().putExtra(EXTRA_NAME, Media.named(shape.kind, began, "3gp"))
-                .putExtra(EXTRA_TYPE, if (shape == Shape.SOUND) "audio/3gpp" else "video/3gpp"),
+            android.content.Intent().putExtra(EXTRA_NAME, Media.named(shape.kind, began, if (shape == Shape.SOUND) "aac" else "3gp"))
+                .putExtra(EXTRA_TYPE, if (shape == Shape.SOUND) "audio/aac" else "video/3gpp"),
         )
         finish()
     }

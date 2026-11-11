@@ -59,7 +59,7 @@ object GroupMenu {
         )
         val called = GroupNames.of(this, set)
         action(if (called == null) R.string.group_name else R.string.group_rename) { name(activity, set, called, changed) }
-        action(if (muted) R.string.unmute else R.string.mute) { Marks.mute(this, key, !muted) }
+        action(if (muted) R.string.unmute else R.string.mute) { Marks.mute(this, key, !muted) ; changed() }
         threads.firstOrNull()?.let { one -> action(R.string.backup_one) { Saving.save(this, one, title) } }
         action(R.string.forget_talk) { forget(activity, threads, title, gone) }
         // Then the members, below a line and their count.
@@ -125,7 +125,7 @@ object GroupMenu {
                     // Pressed long: the menu of the conversation with them alone, as the list shows it.
                     setOnLongClickListener {
                         shown?.dismiss()
-                        memberMenu(activity, one, changed)
+                        TalkMenu.aside(activity, one.number, one.name, one.person, group = true, look = false, changed = changed)
                         true
                     }
                 },
@@ -172,26 +172,6 @@ object GroupMenu {
             .setNegativeButton(android.R.string.cancel, null)
             .show()
             .also { field.requestFocus() ; it.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE) }
-    }
-
-    /** The menu of the conversation with [one] alone, its conversation looked for away from the screen. */
-    private fun memberMenu(activity: Activity, one: ThreadActivity.Member, changed: () -> Unit) {
-        thread {
-            val alone = runCatching { Store.thread(activity, one.number) }.getOrNull()
-            activity.runOnUiThread {
-                if (activity.isFinishing || activity.isDestroyed) return@runOnUiThread
-                fun opened(ask: String) = activity.startActivity(
-                    Intent(activity, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, one.number).putExtra(ThreadActivity.EXTRA_ASK, ask),
-                )
-                TalkMenu.show(
-                    activity, one.name, one.number, one.person, alone,
-                    // Tying and reading a certificate again are done from the conversation, where foodjis shows its list over.
-                    tie = { opened(ThreadActivity.ASK_TIE) }, refresh = { opened(ThreadActivity.ASK_REFRESH) },
-                    changed = changed, gone = changed,
-                    save = { alone?.let { Saving.save(activity, it, one.name) } },
-                )
-            }
-        }
     }
 
     /** Every message of the group's conversations, once the person has said so; [gone] once they are. */

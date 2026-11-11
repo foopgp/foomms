@@ -85,8 +85,14 @@ object Opened {
     /** [signer]: the key that signed, and [eid] the identifier its certificate carries, when it said so. */
     class Read(
         val words: String, val signed: Signer.Said?, val at: Long, val verdict: Verdict,
-        val signer: Long? = null, val eid: String? = null, val thread: Long = NO_THREAD,
+        val signer: Long? = null, val eid: String? = null, val thread: Long = NO_THREAD, val message: String? = null,
     )
+
+    /**
+     * Which message of the phone's store something opened belongs to, to count messages rather than what they
+     * carry: a text in armor and the parts of the same MMS make one. Unknown, each counts alone.
+     */
+    fun message(line: Store.Line): String = (if (line.mms) "m" else "s") + line.id
 
     /** Opened outside any conversation known: what a message to several held, as it left. */
     const val NO_THREAD = -1L
@@ -124,12 +130,28 @@ object Opened {
         return if (thread in open()) synchronized(lastOpened) { lastOpened[thread] }?.plus(holdFor) else null
     }
 
-    /** The conversation whose countdown is the longest, its title, and when it closes; nothing open, null. */
-    fun latest(now: Long = System.currentTimeMillis()): Triple<Long, String?, Long>? {
+    /**
+     * How many messages are open in [thread]: those whose store number is known once each, the others one by one,
+     * an armor opened onto another counted with it.
+     */
+    fun count(thread: Long, now: Long = System.currentTimeMillis()): Int {
         expire(now)
-        val thread = open().filter { it != NO_THREAD }.maxByOrNull { synchronized(lastOpened) { lastOpened[it] } ?: 0L } ?: return null
-        val at = synchronized(lastOpened) { lastOpened[thread] } ?: return null
-        return Triple(thread, synchronized(titles) { titles[thread] }, at + holdFor)
+        val words = synchronized(read) {
+            read.values.filter { it.verdict.encrypted && it.thread == thread }
+                .filterNot { it.message == null && Pgp.armorIn(it.words)?.let { inner -> read.containsKey(key(inner)) } == true }
+        }
+        val parts = synchronized(pieces) { pieces.values.filter { it.verdict.encrypted && it.thread == thread } }
+        val known = (words.mapNotNull { it.message } + parts.mapNotNull { it.message }).toSet()
+        return known.size + words.count { it.message == null } + parts.count { it.message == null }
+    }
+
+    /** Every conversation holding something encrypted open, its title and when it closes, the longest first. */
+    fun all(now: Long = System.currentTimeMillis()): List<Triple<Long, String?, Long>> {
+        expire(now)
+        return open().filter { it != NO_THREAD }.mapNotNull { thread ->
+            val at = synchronized(lastOpened) { lastOpened[thread] } ?: return@mapNotNull null
+            Triple(thread, synchronized(titles) { titles[thread] }, at + holdFor)
+        }.sortedByDescending { it.third }
     }
 
     /** Whether anything encrypted is open anywhere. */
@@ -177,10 +199,11 @@ object Opened {
 
     fun keep(
         context: Context, armor: String, words: String, signed: Signer.Said?, verdict: Verdict,
-        signer: Long? = null, eid: String? = null, thread: Long = NO_THREAD, now: Long = System.currentTimeMillis(),
+        signer: Long? = null, eid: String? = null, thread: Long = NO_THREAD, message: String? = null,
+        now: Long = System.currentTimeMillis(),
     ) {
         expire(now)
-        synchronized(read) { read[key(armor)] = Read(words, signed, now, verdict, signer, eid, thread) }
+        synchronized(read) { read[key(armor)] = Read(words, signed, now, verdict, signer, eid, thread, message) }
         if (verdict.encrypted) synchronized(lastOpened) { lastOpened[thread] = now }
         forgetOld(context)
     }
@@ -209,6 +232,7 @@ object Opened {
     class Piece(
         val type: String, val name: String, val bytes: ByteArray, val at: Long, val verdict: Verdict,
         val signed: Signer.Said? = null, val signer: Long? = null, val eid: String? = null, val thread: Long = NO_THREAD,
+        val message: String? = null,
     )
 
     private val pieces = HashMap<Long, Piece>()
@@ -222,10 +246,10 @@ object Opened {
     fun keepPiece(
         context: Context, part: Long, type: String, name: String, bytes: ByteArray, verdict: Verdict,
         signed: Signer.Said? = null, signer: Long? = null, eid: String? = null, thread: Long = NO_THREAD,
-        now: Long = System.currentTimeMillis(),
+        message: String? = null, now: Long = System.currentTimeMillis(),
     ) {
         expire(now)
-        synchronized(pieces) { pieces[part] = Piece(type, name, bytes, now, verdict, signed, signer, eid, thread) }
+        synchronized(pieces) { pieces[part] = Piece(type, name, bytes, now, verdict, signed, signer, eid, thread, message) }
         if (verdict.encrypted) synchronized(lastOpened) { lastOpened[thread] = now }
         forgetOld(context)
     }
@@ -238,10 +262,10 @@ object Opened {
      */
     fun keepSent(
         context: Context, sealed: ByteArray, type: String, name: String, bytes: ByteArray, verdict: Verdict,
-        thread: Long = NO_THREAD, now: Long = System.currentTimeMillis(),
+        thread: Long = NO_THREAD, message: String? = null, now: Long = System.currentTimeMillis(),
     ) {
         val waiting = synchronized(sent) { sent.getOrPut(digest(sealed)) { --unnumbered } }
-        keepPiece(context, waiting, type, name, bytes, verdict, thread = thread, now = now)
+        keepPiece(context, waiting, type, name, bytes, verdict, thread = thread, message = message, now = now)
     }
 
     /** The part [part] of the store, if it is what was just sent ([sealed]): open under its number from now. */

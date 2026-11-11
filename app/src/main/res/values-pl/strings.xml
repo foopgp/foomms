@@ -18,7 +18,7 @@
     <string name="signed_unknown">Podpisane kluczem, którego foodjis nie ma.</string>
     <string name="signed_broken">Podpis jest nieważny.</string>
     <string name="close">Zamknij</string>
-    <string name="write">✎ Nowa wiadomość</string>
+    <string name="write">💬 Nowa wiadomość</string>
     <string name="locked_message">⚿ Wiadomość zaszyfrowana</string>
     <string name="signed_message">✍ Wiadomość podpisana</string>
     <string name="signed_press">✍ Wiadomość podpisana — dotknij, aby ją sprawdzić</string>
@@ -67,7 +67,7 @@
     <string name="hold_half_minute">30 sekund</string>
     <string name="hold_twelve_hours">12 godzin</string>
     <string name="close_now">Zamknij teraz</string>
-    <string name="closes_in">⚿ Zamknięcie za %1$s</string>
+    <string name="open_here">⚷ %1$s — %2$s</string>
     <string name="hold_two_minutes">2 minuty</string>
     <string name="hold_five_minutes">5 minut</string>
     <string name="hold_fifteen_minutes">15 minut</string>
@@ -144,7 +144,7 @@
     <string name="cert_refresh">⟳ Odśwież certyfikat</string>
     <string name="cert_refreshed">Certyfikat odświeżony.</string>
     <string name="cert_forget">⌫ Zapomnij certyfikat</string>
-    <string name="whom_write">✎ Napisz</string>
+    <string name="whom_write">💬 Rozmawiaj</string>
     <string name="many_title">Do %1$d osób</string>
     <string name="many_sent">Przekazano telefonowi, dla %1$d osób.</string>
     <string name="many_failed">Nie wysłano do: %1$s</string>
@@ -158,6 +158,7 @@
     <string name="place_seeking">Ustalanie położenia…</string>
     <string name="place_none">Telefon nie wie teraz, gdzie jest.</string>
     <string name="backup_one">💾 Zapisz rozmowę</string>
+    <string name="talk_alone">💬 Rozmawiać indywidualnie</string>
     <string name="backup_save">Zapisz wszystko</string>
     <string name="backup_restore">Przywróć kopię</string>
     <string name="backup_working">W toku…</string>
@@ -190,11 +191,12 @@
     <string name="about_licence_apache">Przeczytaj licencję Apache 2.0</string>
     <string name="conf_title">Konfiguracja</string>
     <string name="close_all">Zamknij wszystko</string>
-    <string name="closes_talk">⚿ %1$s — %2$s</string>
+    <string name="open_talk">⚷ %1$s · %2$s — %3$s</string>
+    <string name="open_talks">%1$s ⚷ %2$s — %3$s</string>
     <string name="about_third_party_home">Zobacz stronę openpgp-api</string>
     <string name="no_foodjis">foomms sam nie zajmuje się kryptografią: potrzebuje %1$s, którego nie ma w tym telefonie.</string>
     <string name="install_foodjis">Zainstaluj %1$s</string>
-    <string name="write_to">Napisz do %1$s</string>
+    <string name="write_to">Rozmawiaj z %1$s</string>
     <string name="decrypt_this">⚿ Odszyfruj tę wiadomość</string>
     <string name="search_contacts">🔍 Szukaj w kontaktach</string>
     <string name="attach_text">📋 Tekst</string>
@@ -347,4 +349,17 @@
     <string name="conf_mms_on_note">Pozwala wysyłać wiadomości grupowe, długie teksty, wiadomości głosowe, zdjęcia lub krótkie filmy. Między operatorami MMS dociera mniej pewnie niż SMS, a niektóre taryfy go dodatkowo naliczają. Inni operatorzy w ogóle nie obsługują MMS-ów, co sprzyja komunikatorom internetowym, a więc globalnej inwigilacji.</string>
     <string name="mms_off">Wysyłanie MMS nie jest dozwolone w konfiguracji: ani załącznika, ani wiadomości głosowej, ani grupowego MMS.</string>
     <string name="many_sms">Ta wiadomość pójdzie w %1$d SMS-ach: niektóre telefony źle je składają, a operator może naliczyć każdy osobno.</string>
+    <string name="conf_calls_heading">Połączenia</string>
+    <string name="conf_calls">Pokazuj połączenia w rozmowach</string>
+    <string name="conf_calls_note">Połączenia z daną osobą pojawiają się między wiadomościami, w swoim czasie. foomms+ odczytuje w tym celu rejestr połączeń telefonu, który nigdy nie opuszcza telefonu.</string>
+    <string name="call_in">📞 Połączenie przychodzące</string>
+    <string name="call_out">📞 Połączenie wychodzące</string>
+    <string name="call_missed">📞 Połączenie nieodebrane</string>
+    <string name="call_refused">📞 Połączenie odrzucone</string>
+    <plurals name="open_messages">
+        <item quantity="one">%d wiadomość</item>
+        <item quantity="few">%d wiadomości</item>
+        <item quantity="many">%d wiadomości</item>
+        <item quantity="other">%d wiadomości</item>
+    </plurals>
 </resources>

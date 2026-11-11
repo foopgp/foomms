@@ -80,12 +80,19 @@ class SearchActivity : Activity() {
             divider = null
             adapter = found
             setOnItemClickListener { _, _, at, _ ->
-                if (inContacts) return@setOnItemClickListener people.getOrNull(at)?.let { write(it.number) } ?: Unit
+                // A contact: what can be done about them -- "Talk" among it, as on its button.
+                if (inContacts) return@setOnItemClickListener people.getOrNull(at)?.let { about(it) } ?: Unit
                 val hit = hits[at]
                 // Sent to each of several: whom to, and pressed, the conversation with that one.
                 val each = alongside[hit]
                 if (each != null) return@setOnItemClickListener chooseAmong(each, hit.at)
                 hit.number?.let { open(it, hit.at) }
+            }
+            // Pressed long, the same.
+            setOnItemLongClickListener { _, _, at, _ ->
+                val one = people.getOrNull(at)?.takeIf { inContacts } ?: return@setOnItemLongClickListener false
+                about(one)
+                true
             }
         }
         val pad = Look.dp(this, 12)
@@ -129,6 +136,8 @@ class SearchActivity : Activity() {
             .setNegativeButton(R.string.close, null)
             .show()
     }
+
+    private fun about(one: Whom) = TalkMenu.aside(this, one.number, one.name.takeUnless { one.typed }, null, group = false)
 
     private fun write(to: String) =
         startActivity(Intent(this, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, to))

@@ -5,8 +5,8 @@ plugins {
 }
 
 // One per build that leaves this machine.
-val appVersionCode = 20
-val appVersionName = "1.4.1"
+val appVersionCode = 21
+val appVersionName = "1.4.2"
 
 // A build made only to be tried on a phone: -Ptry=d1 gives 0.0.1d1.
 val trial = (findProperty("try") as String?).orEmpty()
@@ -25,6 +25,17 @@ android {
         targetSdk = 36
         versionCode = appVersionCode
         versionName = demo.ifEmpty { appVersionName + trial }
+    }
+    // Two editions of one foomms. "standard", as Google Play has it. "plus", for F-Droid: Play lets a messaging
+    // application read neither calls nor their history, which "plus" shows among the messages -- an application
+    // of its own, foomms+, beside foomms or in its place.
+    flavorDimensions += "edition"
+    productFlavors {
+        create("standard") { dimension = "edition" }
+        create("plus") {
+            dimension = "edition"
+            applicationIdSuffix = ".plus"
+        }
     }
     buildFeatures {
         // The provider's door is an AIDL interface, which the Android plugin
@@ -56,10 +67,9 @@ android {
     buildTypes {
         // An application of its own, which speaks to foodjis-dev: the two
         // trial applications sit on a phone beside the two published ones.
+        // Its name says so, as foodjis-dev's does: see androidComponents below.
         getByName("debug") {
             applicationIdSuffix = ".dev"
-            // It says so in its name, as foodjis-dev does.
-            resValue("string", "app_name", if (demo.isEmpty()) "foomms-dev" else "foomms")
         }
         getByName("release") {
             signingConfig = signingConfigs.findByName("distribution")
@@ -70,6 +80,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            // Built again by F-Droid from the published commit, the APK must come out byte for byte as ours: no
+            // commit id inside, which differs between the working branch and the published one.
+            vcsInfo { include = false }
         }
         // The release as it ships -- shrunk and obfuscated -- but installed as foomms-dev and signed with
         // the debug key, so that what R8 did can be tried on a phone that also holds the store's foomms.
@@ -78,12 +91,26 @@ android {
             applicationIdSuffix = ".dev"
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += listOf("release")
-            resValue("string", "app_name", "foomms-dev")
         }
+    }
+    // No dependency list sealed for Google in the APK's signing block: F-Droid refuses what it cannot read.
+    // The bundle sent to Play keeps it.
+    dependenciesInfo {
+        includeInApk = false
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+// Each build's name: foomms or foomms+, and "-dev" after it for a trial one -- unless dressed as the
+// published one (demo).
+androidComponents {
+    onVariants { variant ->
+        val edition = if (variant.flavorName == "plus") "foomms+" else "foomms"
+        val name = if (variant.buildType == "release" || demo.isNotEmpty()) edition else "$edition-dev"
+        variant.resValues.put(variant.makeResValueKey("string", "app_name"), com.android.build.api.variant.ResValue(name))
     }
 }
 

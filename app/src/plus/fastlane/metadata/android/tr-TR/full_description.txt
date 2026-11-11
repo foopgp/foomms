@@ -1,0 +1,29 @@
+foomms, mesajlarınızı PGP ile şifreleyen ve imzalayan bir SMS ve MMS uygulamasıdır. Kendisi hiçbir kriptografi yapmaz: bunu, güvenlik anahtarınıza dayanan foodjis'ten ister.
+
+foomms+, foomms'un F-Droid sürümüdür: aynı mesajlaşma uygulaması, üstüne aramalar. Google Play bir mesajlaşma uygulamasının arama kaydını okumasına izin vermez; bu ayrı sürüm bundandır.
+
+Neler yapabilirsiniz:
+
+• Bir numaraya yazmak: mesaj, numara sahibinin sertifikası için şifrelenir ve anahtarınızla imzalanır. Size gönderileni okumak ve onu kimin imzaladığını bilmek.
+• Yirmi kişiye kadar bir gruba yazmak: herkes kimin yazdığını görür ve herkese yanıt verir; üye listesi her mesajla birlikte gider. Ya da aynı mesajı herkese ayrı ayrı, yalnızca onun için şifreli göndermek.
+• Bir mesajı foodjis renklerinden bir bakışta tanımak: yeşil şifreli ve sertifikalı, mavi imzalı ve sertifikalı, sarı şifreli, kırmızı açık metin ve sertifikasız, gri kapalı.
+• Adres defterinizde bir numarayı sahibinin sertifikasına bağlamak.
+• Fotoğraf, resim, kişi, konumunuz ya da dosya eklemek; boş alanı basılı tutarak sesli mesaj kaydetmek.
+• Konuşmalarda arama yapmak; bunları «SMS Backup & Restore» biçiminde yedeklemek ve geri yüklemek.
+• Her kişiyle yapılan aramaları mesajlarının arasında, zamanlarında görmek: gelen, giden, cevapsız.
+• Onu telefonun mesajlaşma uygulaması yapmak.
+
+foomms'un şirketlerin sunduğu mesajlaşma uygulamalarından daha iyi yaptıkları:
+• yalnızca sizin anahtarınızla, başka kimsenin sahip olmadığı uçtan uca şifreleme;
+• birlikte çalışabilirlik: yazıştığınız kişi başka bir PGP uygulaması kullanabilir, hiçbir şey sizi foomms'a bağlamaz;
+• merkezi sunucu yok, yalnızca operatörünüzün şebekesi;
+• İnternet'e bile gerek yok;
+• dijital sadelik: bir mesaj nadiren 300 KB'ı aşar, fotoğraf ve videolar görülmeleri için gereken boyuta küçültülür.
+
+Anahtarınızı bir kez yaklaştırmak birkaç mesajı birden açar; bunlar seçtiğiniz süre sonunda yeniden kapanır.
+
+Uygulama hiçbir hesap istemez, hiçbir sunucumuzdan geçmez ve reklam göstermez: mesajları telefon şebekesi taşır. Yeter ki operatör MMS'leri taşısın: bazıları artık taşımıyor ya da hiç taşımadı, Almanya'da ya da Japonya'da olduğu gibi. Orada yalnızca İnternet'teki sunuculardan geçen mesajlaşma uygulamaları kalıyor; bu da küresel gözetimi kolaylaştırıyor.
+
+foodjis'e, temassız bir OpenPGP güvenlik anahtarına ve NFC okuyuculu bir telefona ihtiyacınız var.
+
+GPL-3.0-only lisanslı özgür yazılım: kaynak kodu, uygulamaya sahip olan ve isteyen herkese verilir.

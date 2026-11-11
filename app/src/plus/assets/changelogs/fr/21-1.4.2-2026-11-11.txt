@@ -1,0 +1,6 @@
+• Les appels avec une personne s'insèrent entre ses messages, du côté de qui a appelé.
+• Dans un groupe, un appui sur le visage d'un membre propose de converser avec lui individuellement.
+• Un groupe aux notifications désactivées se reconnaît, même sans nom.
+• Dans la recherche de contacts, un appui sur un contact ouvre son menu.
+• Les comptes à rebours disent combien de messages chiffrés restent ouverts, et où.
+• Les messages vocaux ne passent plus pour des vidéos chez qui les reçoit.

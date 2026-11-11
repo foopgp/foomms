@@ -16,6 +16,11 @@ class KindTest {
         assertEquals("audio/mp4", Kind.of(ByteArray(4) + "ftypM4A ".toByteArray(), null).type)
         assertEquals("video/3gpp", Kind.of(ByteArray(4) + "ftyp3gp4".toByteArray(), null).type)
         assertEquals("audio/3gpp", Kind.of(ByteArray(4) + "ftyp3gp4".toByteArray(), "audio/3gpp").type)
+        assertEquals("audio/amr", Kind.of("#!AMR\n".toByteArray(), null).type)
+        assertEquals("audio/amr-wb", Kind.of("#!AMR-WB\n".toByteArray(), null).type)
+        assertEquals("audio/aac", Kind.of(bytes(0xFF, 0xF1, 0x50, 0x80), null).type)
+        assertEquals("audio/aac", Kind.of(bytes(0xFF, 0xF9, 0x50, 0x80), null).type)
+        assertEquals("audio/mpeg", Kind.of(bytes(0xFF, 0xFB, 0x90, 0x00), null).type)
         assertEquals("text/x-vcard", Kind.of("BEGIN:VCARD\r\n".toByteArray(), null).type)
         assertEquals(Pgp.TYPE, Kind.of(bytes(0x84, 0x5E, 0x03), null).type)
     }

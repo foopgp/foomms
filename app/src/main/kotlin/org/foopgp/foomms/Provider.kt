@@ -176,10 +176,16 @@ class Provider(private val context: Context) {
             if (context.packageName.endsWith(".dev")) listOf(FOODJIS_DEV, FOODJIS) else listOf(FOODJIS)
 
         /**
+         * The certificate Google Play signs foodjis with (SHA-256), as the APK it hands out shows it: foomms+, from
+         * F-Droid, is signed with another key, and still speaks to the foodjis of Play.
+         */
+        private val PUBLISHED = setOf("e3e821b545c5a770092a646cead316248b98b87aa25a005f3c8c6d78ff0580eb")
+
+        /**
          * The foodjis to speak to: of those this build would rather, the ones signed by the very key foomms is
-         * signed with -- the same, by the stores' rules -- and no other. A package name is anyone's to take: an
-         * application installed under foodjis's would otherwise be handed the texts to lock, and could answer
-         * "certified" for whatever it liked.
+         * signed with -- the same, by the stores' rules -- or by Play's for foodjis ([PUBLISHED]), and no other.
+         * A package name is anyone's to take: an application installed under foodjis's would otherwise be handed
+         * the texts to lock, and could answer "certified" for whatever it liked.
          */
         fun whom(context: Context): ComponentName? {
             val preferred = preferred(context)
@@ -187,10 +193,26 @@ class Provider(private val context: Context) {
             return manager.queryIntentServices(Intent(SERVICE), 0)
                 .map { it.serviceInfo }
                 .filter { it.packageName in preferred }
-                .filter { manager.checkSignatures(context.packageName, it.packageName) == android.content.pm.PackageManager.SIGNATURE_MATCH }
+                .filter {
+                    manager.checkSignatures(context.packageName, it.packageName) == android.content.pm.PackageManager.SIGNATURE_MATCH ||
+                        signers(manager, it.packageName).let { held -> held.isNotEmpty() && held.all { one -> one in PUBLISHED } }
+                }
                 .minByOrNull { preferred.indexOf(it.packageName) }
                 ?.let { ComponentName(it.packageName, it.name) }
         }
+
+        /** The SHA-256 of the certificates [name] is signed with now: all of them, or none read. */
+        private fun signers(manager: android.content.pm.PackageManager, name: String): Set<String> = runCatching {
+            val signatures = if (android.os.Build.VERSION.SDK_INT >= 28) {
+                val info = manager.getPackageInfo(name, android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES).signingInfo ?: return emptySet()
+                // One key rotated over time: the latest is the one it is signed with now.
+                if (info.hasMultipleSigners()) info.apkContentsSigners.toList() else listOfNotNull(info.signingCertificateHistory.lastOrNull())
+            } else {
+                @Suppress("DEPRECATION")
+                manager.getPackageInfo(name, android.content.pm.PackageManager.GET_SIGNATURES).signatures?.toList().orEmpty()
+            }
+            signatures.map { one -> java.security.MessageDigest.getInstance("SHA-256").digest(one.toByteArray()).joinToString("") { "%02x".format(it) } }.toSet()
+        }.getOrDefault(emptySet())
 
         /** The package of the foodjis spoken to: the one found, or the one this build would rather have. */
         fun foodjis(context: Context): String = whom(context)?.packageName ?: preferred(context).first()
