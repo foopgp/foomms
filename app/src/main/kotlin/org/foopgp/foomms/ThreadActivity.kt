@@ -438,7 +438,13 @@ class ThreadActivity : AskingActivity() {
 
     private fun tick() {
         val closes = shownHere().mapNotNull { Opened.closesAt(it) }.maxOrNull()
-        if (closes != null) remaining.text = getString(R.string.closes_in, Media.clock(maxOf(0L, closes - System.currentTimeMillis() + 999)))
+        if (closes != null) {
+            val count = shownHere().sumOf { Opened.count(it) }
+            remaining.text = getString(
+                R.string.open_here, resources.getQuantityString(R.plurals.open_messages, count, count),
+                Media.clock(maxOf(0L, closes - System.currentTimeMillis() + 999)),
+            )
+        }
         closing.visibility = if (closes != null) View.VISIBLE else View.GONE
         // Closed now: the bubbles show it, and the pictures opened from locked parts go with the rest.
         if (closes == null && wasOpen) {
@@ -1118,9 +1124,11 @@ class ThreadActivity : AskingActivity() {
             val transaction = Outbox.transaction()
             runCatching { Outbox.send(this, targets(), Pdu.send(transaction, targets(), parts), transaction, sealed = parts.any { it.sealed }) }
                 .onFailure { return@withMembers say(getString(R.string.failed, it.message)) }
-            if (verdict != null && words != null) Opened.keep(this, words, written, null, verdict, thread = here())
+            // Its words and what it carries: one message, though the store has not numbered it yet.
+            val message = "t$transaction"
+            if (verdict != null && words != null) Opened.keep(this, words, written, null, verdict, thread = here(), message = message)
             // What it carries, open as its words are, for as long.
-            if (verdict != null) Opened.keepSent(this, piece.bytes, with.type, with.name, with.bytes, verdict, here())
+            if (verdict != null) Opened.keepSent(this, piece.bytes, with.type, with.name, with.bytes, verdict, here(), message)
             field.setText("")
             reply(null)
             forgetDraft()
@@ -1382,7 +1390,10 @@ class ThreadActivity : AskingActivity() {
 
     /** A locked part, opened: kept with what it is, and a picture made small to sit in its bubble. */
     private fun got(piece: Store.Piece, answer: Provider.Answer.Done) {
-        val told = Unlocking.keepPiece(this, piece, answer, pieceLocked[piece.id] != false, here())
+        val told = Unlocking.keepPiece(
+            this, piece, answer, pieceLocked[piece.id] != false, here(),
+            lines.firstOrNull { line -> line.pieces.any { it.id == piece.id } }?.let(Opened::message),
+        )
         if (told.type.startsWith("audio/") || told.type == "video/3gpp") Media.lasting(answer.bytes)?.let { lasts[piece.id] = it }
         if (told.type == "video/3gpp" || told.type.startsWith("video/")) Media.frame(answer.bytes, Look.dp(this, 200))?.let { frames[piece.id] = it }
         if (told.type.startsWith("image/")) openedThumbs[piece.id] = thumbnail(answer.bytes)
@@ -1790,7 +1801,8 @@ class ThreadActivity : AskingActivity() {
     private var offered = false
 
     private fun opened(armor: String, answer: Provider.Answer.Done, offer: Boolean) {
-        val signature = Signer.keep(this, armor, answer, here())
+        val line = lines.firstOrNull { line -> armorOf(line)?.let { it == armor || Opened.inner(it) == armor } == true }
+        val signature = Signer.keep(this, armor, answer, here(), line?.let(Opened::message))
         bubbles.notifyDataSetChanged()
         // Opened onto another message: signed only, it is read at once, as any signed message is; locked, a press opens it.
         verifySoon()

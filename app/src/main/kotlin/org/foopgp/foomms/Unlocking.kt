@@ -105,13 +105,15 @@ object Unlocking {
     /** What the key opened in a conversation not on screen, kept for it as its page keeps it. */
     fun keep(context: Context, job: Job, answer: Provider.Answer.Done) {
         when (job) {
-            is Job.Words -> Signer.keep(context, job.armor, answer, job.line.thread)
-            is Job.Part -> keepPiece(context, job.piece, answer, Pgp.isLocked(job.bytes), job.line.thread)
+            is Job.Words -> Signer.keep(context, job.armor, answer, job.line.thread, Opened.message(job.line))
+            is Job.Part -> keepPiece(context, job.piece, answer, Pgp.isLocked(job.bytes), job.line.thread, Opened.message(job.line))
         }
     }
 
     /** A locked part, opened: kept with what it is, which is told back. */
-    fun keepPiece(context: Context, piece: Store.Piece, answer: Provider.Answer.Done, locked: Boolean, thread: Long): Kind.Told {
+    fun keepPiece(
+        context: Context, piece: Store.Piece, answer: Provider.Answer.Done, locked: Boolean, thread: Long, message: String? = null,
+    ): Kind.Told {
         answer.says.setExtrasClassLoader(OpenPgpSignatureResult::class.java.classLoader)
         @Suppress("DEPRECATION")
         val signature = answer.says.getParcelableExtra<OpenPgpSignatureResult>(Provider.RESULT_SIGNATURE)
@@ -125,6 +127,7 @@ object Unlocking {
         Opened.keepPiece(
             context, piece.id, told.type, name, answer.bytes, Verdict.of(Provider.encrypted(answer, locked), certified),
             signed = Signer.of(signature), signer = signer?.keyId, eid = signer?.let { Signer.eid(it) }, thread = thread,
+            message = message,
         )
         return told
     }
