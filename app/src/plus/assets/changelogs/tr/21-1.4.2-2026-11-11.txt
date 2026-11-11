@@ -1,4 +1,6 @@
-• Bir kişiyle yapılan aramalar, arayanın tarafında, onun mesajlarının arasına girer; ayarlardaki bir anahtar onları kaldırır.
-• Bir grupta bir üyenin yüzüne dokunmak ya da grup menüsünde ona uzun basmak, onunla bireysel sohbet etmeyi önerir.
-• Bildirimleri kapalı bir grup, adı olmasa bile listede ve başlık çubuğunda tanınır.
+• Bir kişiyle yapılan aramalar, arayanın tarafında, onun mesajlarının arasına girer.
+• Bir grupta bir üyenin yüzüne dokunmak, onunla bireysel sohbet etmeyi önerir.
+• Bildirimleri kapalı bir grup, adı olmasa bile tanınır.
 • Kişi aramasında bir kişiye dokunmak onun menüsünü açar.
+• Geri sayımlar, kaç şifreli mesajın hâlâ açık olduğunu ve nerede olduğunu söyler.
+• Sesli mesajlar, alan telefonda artık video sanılmaz.

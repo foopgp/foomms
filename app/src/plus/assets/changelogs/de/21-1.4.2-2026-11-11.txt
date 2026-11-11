@@ -1,4 +1,6 @@
-• Die Anrufe mit einer Person erscheinen zwischen ihren Nachrichten, auf der Seite dessen, der angerufen hat; ein Schalter in den Einstellungen blendet sie aus.
-• In einer Gruppe bietet ein Tippen auf das Gesicht eines Mitglieds, oder langes Drücken auf es im Gruppenmenü, an, einzeln mit ihm zu schreiben.
-• Eine Gruppe mit ausgeschalteten Benachrichtigungen ist in der Liste und in der Titelleiste zu erkennen, auch ohne Namen.
+• Die Anrufe mit einer Person erscheinen zwischen ihren Nachrichten, auf der Seite des Anrufers.
+• In einer Gruppe bietet ein Tippen auf das Gesicht eines Mitglieds an, einzeln mit ihm zu schreiben.
+• Eine Gruppe mit ausgeschalteten Benachrichtigungen ist erkennbar, auch ohne Namen.
 • In der Kontaktsuche öffnet ein Tippen auf einen Kontakt sein Menü.
+• Die Countdowns zeigen, wie viele verschlüsselte Nachrichten wo noch offen sind.
+• Sprachnachrichten gelten beim Empfänger nicht mehr als Videos.

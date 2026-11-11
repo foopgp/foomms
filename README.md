@@ -71,7 +71,8 @@ then one of them in bubbles, a field at the bottom.
 - **Read again what you sent**: a locked message is locked for you too,
   unless you set it not to be.
 - **Push to talk**: the field, while empty, held down records a few words
-  for as long as it is held — AMR, low quality, which every phone plays —,
+  for as long as it is held — AMR, low quality, which every phone plays, as
+  a `.amr` and not wrapped in 3GP, which Android takes for a video —,
   attached to the next message like any sound.
 - **How the next message leaves** is said by two switches above the field,
   *Sign* and *Encrypt*, each grey when it cannot be; the line they stand on,
@@ -95,7 +96,9 @@ then one of them in bubbles, a field at the bottom.
   what it carries, forward it, see its details, delete it. The words of
   an opened message are held in memory for the time you set — fifteen minutes
   unless said otherwise — and never written down; its colour goes with them,
-  and closed again it is grey again.
+  and closed again it is grey again. A strip under the bar counts the
+  messages open and the time left, in the conversation and on the list;
+  several conversations open, it unrolls onto a line for each.
 - **The address book says whose key a number means.** *Tie a certificate to
   this number* shows foodjis's own list of contacts, over the conversation:
   a line to filter by, then each contact as a face and a name on the colour

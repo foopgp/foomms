@@ -1,3 +1,5 @@
-• En un grupo, tocar la cara de un miembro, o mantenerlo pulsado en el menú del grupo, propone conversar con él individualmente.
-• Un grupo con las notificaciones desactivadas se reconoce en la lista y en la barra de título, incluso sin nombre.
+• En un grupo, tocar la cara de un miembro propone conversar con él individualmente.
+• Un grupo con las notificaciones desactivadas se reconoce, incluso sin nombre.
 • En la búsqueda de contactos, tocar un contacto abre su menú.
+• Las cuentas atrás dicen cuántos mensajes cifrados siguen abiertos, y dónde.
+• Los mensajes de voz ya no pasan por vídeos en el teléfono que los recibe.
