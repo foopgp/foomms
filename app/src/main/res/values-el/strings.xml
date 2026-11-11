@@ -67,7 +67,7 @@
     <string name="hold_half_minute">30 δευτερόλεπτα</string>
     <string name="hold_twelve_hours">12 ώρες</string>
     <string name="close_now">Κλείσιμο τώρα</string>
-    <string name="open_here">○ %1$s — %2$s</string>
+    <string name="open_here">○⚷ %1$s — %2$s</string>
     <string name="hold_two_minutes">2 λεπτά</string>
     <string name="hold_five_minutes">5 λεπτά</string>
     <string name="hold_fifteen_minutes">15 λεπτά</string>
@@ -191,8 +191,8 @@
     <string name="about_licence_apache">Ανάγνωση της άδειας Apache 2.0</string>
     <string name="conf_title">Ρυθμίσεις</string>
     <string name="close_all">Κλείσιμο όλων</string>
-    <string name="open_talk">○ %1$s · %2$s — %3$s</string>
-    <string name="open_talks">%1$s ○ %2$s %3$s — %4$s</string>
+    <string name="open_talk">○⚷ %1$s · %2$s — %3$s</string>
+    <string name="open_talks">%1$s ○⚷ %2$s %3$s — %4$s</string>
     <string name="about_third_party_home">Η σελίδα του openpgp-api</string>
     <string name="no_foodjis">Το foomms δεν κάνει το ίδιο κρυπτογραφία: χρειάζεται το %1$s, που δεν είναι εγκατεστημένο σε αυτό το τηλέφωνο.</string>
     <string name="install_foodjis">Εγκατάσταση του %1$s</string>

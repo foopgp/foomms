@@ -668,8 +668,8 @@ class MainActivity : AskingActivity() {
     }
     private val remaining by lazy {
         Look.words(this, "", size = 14f).apply {
-            maxLines = 1
-            ellipsize = android.text.TextUtils.TruncateAt.MIDDLE
+            // On two lines rather than cut: what it counts is read whole. Rewritten each second, it could not scroll.
+            maxLines = 2
             // Pressed: the one conversation opens; several, their lines unroll or roll up.
             setOnClickListener {
                 val all = Opened.all()
