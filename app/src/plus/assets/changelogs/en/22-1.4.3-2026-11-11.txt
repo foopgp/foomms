@@ -1,0 +1,1 @@
+• First version on F-Droid; nothing changes in use since 1.4.2.
