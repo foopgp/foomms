@@ -18,7 +18,7 @@
     <string name="signed_unknown">Υπογραφή με κλειδί που δεν έχει το foodjis.</string>
     <string name="signed_broken">Η υπογραφή δεν είναι έγκυρη.</string>
     <string name="close">Κλείσιμο</string>
-    <string name="write">💬 Νέα συνομιλία</string>
+    <string name="write">💬 Νέο μήνυμα</string>
     <string name="locked_message">⚿ Κρυπτογραφημένο μήνυμα</string>
     <string name="signed_message">✍ Υπογεγραμμένο μήνυμα</string>
     <string name="signed_press">✍ Υπογεγραμμένο μήνυμα — πατήστε για έλεγχο</string>

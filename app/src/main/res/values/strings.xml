@@ -19,7 +19,7 @@
     <string name="signed_unknown">Signed by a key foodjis does not hold.</string>
     <string name="signed_broken">The signature does not hold.</string>
     <string name="close">Close</string>
-    <string name="write">💬 New conversation</string>
+    <string name="write">💬 New message</string>
     <string name="locked_message">⚿ Encrypted message</string>
     <string name="signed_message">✍ Signed message</string>
     <string name="signed_words" translatable="false">✍ %1$s</string>

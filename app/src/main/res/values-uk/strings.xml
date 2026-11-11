@@ -18,7 +18,7 @@
     <string name="signed_unknown">Підписано ключем, якого немає у foodjis.</string>
     <string name="signed_broken">Підпис недійсний.</string>
     <string name="close">Закрити</string>
-    <string name="write">💬 Нове листування</string>
+    <string name="write">💬 Нове повідомлення</string>
     <string name="locked_message">⚿ Зашифроване повідомлення</string>
     <string name="signed_message">✍ Підписане повідомлення</string>
     <string name="signed_press">✍ Підписане повідомлення — торкніться, щоб перевірити</string>

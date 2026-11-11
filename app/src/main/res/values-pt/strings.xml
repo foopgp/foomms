@@ -18,7 +18,7 @@
     <string name="signed_unknown">Assinado com uma chave que o foodjis não tem.</string>
     <string name="signed_broken">A assinatura não é válida.</string>
     <string name="close">Fechar</string>
-    <string name="write">💬 Nova conversa</string>
+    <string name="write">💬 Nova mensagem</string>
     <string name="locked_message">⚿ Mensagem cifrada</string>
     <string name="signed_message">✍ Mensagem assinada</string>
     <string name="signed_press">✍ Mensagem assinada — toque para a verificar</string>

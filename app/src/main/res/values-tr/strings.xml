@@ -18,7 +18,7 @@
     <string name="signed_unknown">foodjis\'te bulunmayan bir anahtarla imzalanmış.</string>
     <string name="signed_broken">İmza geçersiz.</string>
     <string name="close">Kapat</string>
-    <string name="write">💬 Yeni konuşma</string>
+    <string name="write">💬 Yeni mesaj</string>
     <string name="locked_message">⚿ Şifreli mesaj</string>
     <string name="signed_message">✍ İmzalı mesaj</string>
     <string name="signed_press">✍ İmzalı mesaj — doğrulamak için dokunun</string>
