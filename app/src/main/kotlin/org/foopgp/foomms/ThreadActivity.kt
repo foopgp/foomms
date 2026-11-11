@@ -2249,7 +2249,15 @@ class ThreadActivity : AskingActivity() {
             // left, their words in line with a bubble's own.
             val placed = call.kind == Called.Kind.OUT
             gravity = if (placed) Gravity.RIGHT else Gravity.LEFT
-            if (call.kind == Called.Kind.MISSED) setTextColor(Look.ORANGE)
+            // A call that took place is in clear, as a message is, red until a call can be worth more; one that
+            // did not stays grey, the missed one in the page's own ink, the refused one paler.
+            setTextColor(
+                when (call.kind) {
+                    Called.Kind.IN, Called.Kind.OUT -> Look.colour(Verdict.RED)
+                    Called.Kind.MISSED -> Look.INK
+                    Called.Kind.REFUSED -> Look.MUTED
+                },
+            )
             val pad = Look.dp(context, 6)
             val near = Look.dp(context, 30)
             val far = Look.dp(context, 50)
