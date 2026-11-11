@@ -20,7 +20,7 @@ object Media {
     /**
      * The name of what was made here: what it is -- `audio`, `video`,
      * `photo` --, and when it began, in ISO 8601's basic form and in UTC:
-     * `audio20261019T145503Z.3gp`. Sorted by name, they sort by time, and
+     * `audio20261019T145503Z.amr`. Sorted by name, they sort by time, and
      * two from different phones do not take each other's name.
      */
     fun named(kind: String, at: Long, extension: String): String =

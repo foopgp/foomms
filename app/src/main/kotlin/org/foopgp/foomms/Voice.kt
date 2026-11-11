@@ -34,7 +34,7 @@ class Voice(private val context: Context) {
     /** Nothing was heard for part of the time. */
     var partlySilent = false
         private set
-    private val file = File(File(context.cacheDir, "voice").apply { mkdirs() }, "voice.3gp")
+    private val file = File(File(context.cacheDir, "voice").apply { mkdirs() }, "voice.amr")
 
     val recording: Boolean get() = recorder != null
 
@@ -51,7 +51,9 @@ class Voice(private val context: Context) {
             @Suppress("DEPRECATION")
             val recording = (if (Build.VERSION.SDK_INT >= 31) MediaRecorder(context) else MediaRecorder()).also { made = it }
             recording.setAudioSource(MediaRecorder.AudioSource.MIC)
-            recording.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+            // AMR as it is, with no 3GP around it: a ".3gp" is a video for Android, and the receiving phone may
+            // take it for one.
+            recording.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB)
             recording.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
             recording.setAudioSamplingRate(8000)
             recording.setAudioEncodingBitRate(12200)
@@ -83,7 +85,7 @@ class Voice(private val context: Context) {
         partlySilent = !silent && mutes >= 4
         val bytes = runCatching { file.readBytes() }.getOrNull() ?: return null
         file.delete()
-        return Media.Attachment("audio/3gpp", Media.named("audio", started, "3gp"), bytes, long)
+        return Media.Attachment("audio/amr", Media.named("audio", started, "amr"), bytes, long)
     }
 
     /**

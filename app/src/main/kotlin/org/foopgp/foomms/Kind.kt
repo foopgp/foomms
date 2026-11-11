@@ -20,7 +20,10 @@ object Kind {
             word(0, "RIFF") && word(8, "WAVE") -> Told("audio/wav", "wav")
             word(0, "OggS") -> Told("audio/ogg", "ogg")
             word(0, "ID3") || at(0, 0xFF, 0xFB) -> Told("audio/mpeg", "mp3")
+            word(0, "#!AMR-WB") -> Told("audio/amr-wb", "awb")
             word(0, "#!AMR") -> Told("audio/amr", "amr")
+            // AAC as it is (ADTS): twelve bits set, then a layer of 00 -- an MP3's is not.
+            at(0, 0xFF) && (start.getOrNull(1)?.toInt()?.and(0xF6)) == 0xF0 -> Told("audio/aac", "aac")
             word(4, "ftyp") && (word(8, "M4A") || word(8, "mp42") && labelled?.startsWith("audio/") == true) -> Told("audio/mp4", "m4a")
             word(4, "ftyp") && word(8, "3gp") -> Told(if (labelled?.startsWith("audio/") == true) "audio/3gpp" else "video/3gpp", "3gp")
             word(4, "ftyp") -> Told("video/mp4", "mp4")

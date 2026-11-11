@@ -25,7 +25,7 @@ object Pgp {
     /**
      * The name of what a PGP part held, once opened. Under its size alone, the
      * name is found inside: a sound or a video says when it was recorded, and
-     * whether it has a picture -- `v20261019T210406Z.3gp`, `a….3gp`; anything
+     * whether it has a picture -- `v20261019T210406Z.3gp`, `a….aac`; anything
      * else is named by its kind. Under an older name, that name less ".pgp".
      */
     fun innerName(outer: String?, opened: ByteArray, extension: String): String {
