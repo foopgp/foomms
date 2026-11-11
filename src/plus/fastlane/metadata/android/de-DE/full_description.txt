@@ -24,6 +24,6 @@ Einmal den Schlüssel anhalten öffnet mehrere Nachrichten auf einmal, die sich 
 
 Die App verlangt kein Konto, läuft über keinen Server von uns und zeigt keine Werbung: Das Telefonnetz transportiert die Nachrichten. Vorausgesetzt, der Betreiber transportiert MMS: Manche tun es nicht mehr oder haben es nie getan, wie in Deutschland oder Japan. Dort bleiben nur Messenger, die über Server im Internet laufen, was die globale Überwachung erleichtert.
 
-Sie brauchen foodjis, einen kontaktlosen OpenPGP-Sicherheitsschlüssel und ein Telefon mit NFC-Leser.
+Sie brauchen foodjis (auf foodjis.foopgp.org), einen kontaktlosen OpenPGP-Sicherheitsschlüssel und ein Telefon mit NFC-Leser.
 
-Freie Software unter der Lizenz GPL-3.0-only: Der Quellcode wird jedem übergeben, der die App besitzt und danach fragt.
+Freie Software unter der Lizenz GPL-3.0-only; Quellcode auf GitHub: github.com/foopgp/foomms
