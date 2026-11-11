@@ -77,7 +77,8 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   sauf si vous réglez que non.
 - **Appuyer pour parler** : le champ, tant qu'il est vide, maintenu enregistre
   quelques mots aussi longtemps qu'on le tient — AMR, basse qualité, que tout
-  téléphone lit —, joints au prochain message comme n'importe quel son.
+  téléphone lit, en `.amr` et non dans une enveloppe 3GP, qu'Android prend
+  pour une vidéo —, joints au prochain message comme n'importe quel son.
 - **Comment part le prochain message** se lit sur deux interrupteurs au-dessus
   du champ, *Signer* et *Chiffrer*, chacun grisé quand il ne peut pas servir ;
   la ligne qui les porte, et le bouton d'envoi, prennent la couleur qu'aura le
@@ -100,7 +101,9 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   qu'il porte, le transférer, voir ses détails, le supprimer. Le texte d'un message
   ouvert est gardé en mémoire vive le temps que vous réglez — quinze minutes
   sauf autre choix — et n'est jamais écrit ; sa couleur part avec lui, et
-  refermé il redevient gris.
+  refermé il redevient gris. Un bandeau sous la barre compte les messages
+  ouverts et le temps qui reste, dans la conversation et dans la liste ;
+  plusieurs conversations ouvertes, il se déroule en une ligne pour chacune.
 - **Le carnet d'adresses dit quelle clé désigne un numéro.** *Relier un
   certificat à ce numéro* montre la liste de contacts de foodjis, par-dessus
   la conversation : une ligne pour filtrer, puis chaque contact en un visage
@@ -128,13 +131,17 @@ téléphone détient, puis l'une d'elles en bulles, un champ en bas.
   une petite vCard, `foomms-group.vcf`, qui nomme les membres : certains
   opérateurs réécrivent le « À » d'un MMS de groupe, et le groupe se reconnaît
   à elle quel que soit le chemin. Un groupe se nomme, sur votre téléphone
-  seulement.
+  seulement, et se met en sourdine : la liste et l'en-tête de la conversation
+  le disent alors, pour un groupe sans nom aussi. Le visage d'un membre dans
+  une bulle, ou un appui long sur le membre dans le menu du groupe, propose
+  de converser avec lui seul.
 - **Mon profil**, la seconde page : les décomptes des messages et des
   conversations ; les brouillons et les non-lus, chacun sur sa ligne, qui
   s'ouvrent sur la liste des conversations concernées ; la sauvegarde ; votre
   fiche « Moi ». Le nombre de non-lus s'affiche à côté de « Mon profil ».
 - **Un nouveau message** commence par un numéro, ou quelques lettres d'un
-  nom du carnet d'adresses.
+  nom du carnet d'adresses ; un appui sur un contact y dit ce qu'on peut en
+  faire.
 - **Sauvegarder et restaurer**, depuis Mon profil pour tous les messages, ou
   depuis le menu d'une conversation pour les siens : enregistrés dans un fichier — ou remis depuis
   un fichier — dans le XML de « SMS Backup & Restore », que lisent la plupart
@@ -155,20 +162,29 @@ envoie.
 
 Permissions : envoyer et recevoir des messages et lire ceux que le téléphone
 détient ; les annoncer ; lire le carnet d'adresses et y écrire ; passer l'appel
-qu'on demande depuis une conversation. Pas le réseau : c'est le service du
-téléphone qui transporte un message, et ce qui se demande à un serveur de
-clés se demande par foodjis.
+qu'on demande depuis une conversation ; dans foomms+, lire le journal des
+appels. Pas le réseau : c'est le service du téléphone qui transporte un
+message, et ce qui se demande à un serveur de clés se demande par foodjis.
+
+**foomms+**, une édition à part (`org.foopgp.foomms.plus`), destinée à
+F-Droid : les appels avec une personne se glissent entre ses messages, du
+côté de qui a appelé, ceux qui ont eu lieu dans le rouge d'un message en
+clair, les manqués et les refusés en gris ; un interrupteur dans les
+réglages les retire. Google Play ne laisse pas une application de messagerie
+lire le journal des appels, d'où une édition à part ; le reste est le même.
 
 ## État
 
-Version 1.4.0, en préparation. La 1.2.5 est publiée sur Google Play, la
-1.3.3 y est en cours d'examen ; chaque version se télécharge aussi depuis
-[foomms.foopgp.org](https://foomms.foopgp.org/), avec son empreinte et sa
-signature.
+En usage tous les jours comme application de SMS principale, d'un opérateur
+à l'autre et d'une version d'Android à l'autre : SMS et MMS, chiffrés,
+signés ou en clair, textes, photos, sons, vidéos et fichiers, conversations
+à deux et groupes.
 
-En usage tous les jours sur deux téléphones (Android 13 et 16), d'un
-opérateur à l'autre : SMS et MMS, chiffrés, signés ou en clair, textes,
-photos, sons, vidéos et fichiers, conversations à deux et groupes.
+foomms est publiée sur Google Play, foomms+ est destinée à F-Droid ; toutes
+deux se téléchargent aussi depuis
+[foomms.foopgp.org](https://foomms.foopgp.org/), avec leur empreinte et leur
+signature. Ce qu'apporte chaque version est dans ses notes,
+`app/src/main/assets/changelogs/`.
 
 Il faut foodjis, tel qu'il est publié sur
 [foodjis.foopgp.org](https://foodjis.foopgp.org/) et Google Play.
@@ -178,9 +194,10 @@ Il faut foodjis, tel qu'il est publié sur
 Un JDK 17 ou plus récent et le SDK Android (plateforme 36).
 
 ```sh
-./gradlew :app:testDebugUnitTest
-./gradlew :app:assembleDebug     # org.foopgp.foomms.dev, qui parle à foodjis-dev
-./gradlew :app:assembleRelease   # org.foopgp.foomms, qui parle à foodjis
+./gradlew :app:testStandardDebugUnitTest
+./gradlew :app:assembleStandardDebug    # org.foopgp.foomms.dev, qui parle à foodjis-dev
+./gradlew :app:bundleStandardRelease    # org.foopgp.foomms, pour Google Play
+./gradlew :app:assemblePlusRelease      # org.foopgp.foomms.plus, foomms+ pour F-Droid
 ```
 
 ## Pistes et questions ouvertes

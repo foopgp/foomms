@@ -165,14 +165,15 @@ an edition apart; the rest is the same.
 
 ## State
 
-Version 1.4.2, for foomms+ on F-Droid. 1.3.3 is published on Google Play,
-and 1.4.1 is under review there; each version of foomms can also be
-downloaded from [foomms.foopgp.org](https://foomms.foopgp.org/), with its
-fingerprint and its signature.
+In use every day as the main SMS application, from one operator to another
+and from one version of Android to another: SMS and MMS, encrypted, signed
+or in clear, texts, photos, sounds, videos and files, one-to-one
+conversations and groups.
 
-In use every day on two phones (Android 13 and 16), from one operator to
-another: SMS and MMS, encrypted, signed or in clear, texts, photos, sounds,
-videos and files, one-to-one conversations and groups.
+foomms is published on Google Play, foomms+ is meant for F-Droid; both can
+also be downloaded from [foomms.foopgp.org](https://foomms.foopgp.org/),
+with their fingerprint and their signature. What each version brings is in
+its notes, `app/src/main/assets/changelogs/`.
 
 It needs foodjis, as published on
 [foodjis.foopgp.org](https://foodjis.foopgp.org/) and Google Play.
