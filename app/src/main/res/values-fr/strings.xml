@@ -67,7 +67,7 @@
     <string name="hold_half_minute">30 secondes</string>
     <string name="hold_twelve_hours">12 heures</string>
     <string name="close_now">Refermer maintenant</string>
-    <string name="open_here">○⚷ %1$s — %2$s</string>
+    <string name="open_here">⚷ %1$s — %2$s</string>
     <string name="hold_two_minutes">2 minutes</string>
     <string name="hold_five_minutes">5 minutes</string>
     <string name="hold_fifteen_minutes">15 minutes</string>
@@ -191,8 +191,8 @@
     <string name="about_licence_apache">Lire la licence Apache 2.0</string>
     <string name="conf_title">Configuration</string>
     <string name="close_all">Tout refermer</string>
-    <string name="open_talk">○⚷ %1$s · %2$s — %3$s</string>
-    <string name="open_talks">%1$s ○⚷ %2$s %3$s — %4$s</string>
+    <string name="open_talk">⚷ %1$s · %2$s — %3$s</string>
+    <string name="open_talks">%1$s ⚷ %2$s — %3$s</string>
     <string name="about_third_party_home">Voir la page d\'openpgp-api</string>
     <string name="no_foodjis">foomms ne fait lui-même aucune cryptographie : il a besoin de %1$s, qui n\'est pas installé sur ce téléphone.</string>
     <string name="install_foodjis">Installer %1$s</string>
@@ -343,9 +343,5 @@
     <plurals name="open_messages">
         <item quantity="one">%d message</item>
         <item quantity="other">%d messages</item>
-    </plurals>
-    <plurals name="in_talks">
-        <item quantity="one">dans %d conversation</item>
-        <item quantity="other">dans %d conversations</item>
     </plurals>
 </resources>

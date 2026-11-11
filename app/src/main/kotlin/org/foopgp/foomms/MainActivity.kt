@@ -731,7 +731,7 @@ class MainActivity : AskingActivity() {
             val count = all.sumOf { Opened.count(it.first, now) }
             remaining.text = getString(
                 R.string.open_talks, if (rolledOut) "▾" else "▸", resources.getQuantityString(R.plurals.open_messages, count, count),
-                resources.getQuantityString(R.plurals.in_talks, all.size, all.size), Media.clock(maxOf(0L, all[0].third - now + 999)),
+                Media.clock(maxOf(0L, all[0].third - now + 999)),
             )
             unrolled.visibility = if (rolledOut) View.VISIBLE else View.GONE
             if (rolledOut) {

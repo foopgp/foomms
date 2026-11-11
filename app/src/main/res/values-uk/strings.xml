@@ -67,7 +67,7 @@
     <string name="hold_half_minute">30 секунд</string>
     <string name="hold_twelve_hours">12 годин</string>
     <string name="close_now">Закрити зараз</string>
-    <string name="open_here">○⚷ %1$s — %2$s</string>
+    <string name="open_here">⚷ %1$s — %2$s</string>
     <string name="hold_two_minutes">2 хвилини</string>
     <string name="hold_five_minutes">5 хвилин</string>
     <string name="hold_fifteen_minutes">15 хвилин</string>
@@ -191,8 +191,8 @@
     <string name="about_licence_apache">Прочитати ліцензію Apache 2.0</string>
     <string name="conf_title">Налаштування</string>
     <string name="close_all">Закрити все</string>
-    <string name="open_talk">○⚷ %1$s · %2$s — %3$s</string>
-    <string name="open_talks">%1$s ○⚷ %2$s %3$s — %4$s</string>
+    <string name="open_talk">⚷ %1$s · %2$s — %3$s</string>
+    <string name="open_talks">%1$s ⚷ %2$s — %3$s</string>
     <string name="about_third_party_home">Відкрити сторінку openpgp-api</string>
     <string name="no_foodjis">foomms сам не займається криптографією: йому потрібен %1$s, який не встановлено на цьому телефоні.</string>
     <string name="install_foodjis">Встановити %1$s</string>
@@ -361,11 +361,5 @@
         <item quantity="few">%d повідомлення</item>
         <item quantity="many">%d повідомлень</item>
         <item quantity="other">%d повідомлення</item>
-    </plurals>
-    <plurals name="in_talks">
-        <item quantity="one">у %d розмові</item>
-        <item quantity="few">у %d розмовах</item>
-        <item quantity="many">у %d розмовах</item>
-        <item quantity="other">у %d розмовах</item>
     </plurals>
 </resources>
