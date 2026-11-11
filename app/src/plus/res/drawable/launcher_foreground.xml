@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- foomms+: the foreground of drawable/launcher, without the indigo square, scaled from its 48 units into the 66
+     of the 108 that every launcher's mask keeps in sight. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <group android:translateX="21" android:translateY="21" android:scaleX="1.375" android:scaleY="1.375">
+        <path android:fillColor="#FFFFFFFF" android:pathData="M17,8h14a11,11 0,0 1,11 11v4a11,11 0,0 1,-11 11h-9l-9,8v-9.2a11,11 0,0 1,-7 -9.8v-4a11,11 0,0 1,11 -11z" />
+        <group android:pivotX="24.5" android:pivotY="24" android:scaleX="0.82" android:scaleY="0.82" android:translateX="-0.5" android:translateY="0">
+            <path android:fillColor="#FFFF8012" android:fillType="evenOdd" android:pathData="M17,16a8,8 0,1 0,7.7 10h4.3v4h4v-4h3v4h4v-8h-15.3a8,8 0,0 0,-7.7 -6zM17,21a3,3 0,1 1,0 6a3,3 0,0 1,0 -6z" />
+        </group>
+        <path android:fillColor="#FFFF8012" android:pathData="M31.36,9.5h3.28v2.36h2.36v3.28h-2.36v2.36h-3.28v-2.36h-2.36v-3.28h2.36z" />
+    </group>
+</vector>
