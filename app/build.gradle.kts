@@ -80,6 +80,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            // Built again by F-Droid from the published commit, the APK must come out byte for byte as ours: no
+            // commit id inside, which differs between the working branch and the published one.
+            vcsInfo { include = false }
         }
         // The release as it ships -- shrunk and obfuscated -- but installed as foomms-dev and signed with
         // the debug key, so that what R8 did can be tried on a phone that also holds the store's foomms.
@@ -89,6 +92,11 @@ android {
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += listOf("release")
         }
+    }
+    // No dependency list sealed for Google in the APK's signing block: F-Droid refuses what it cannot read.
+    // The bundle sent to Play keeps it.
+    dependenciesInfo {
+        includeInApk = false
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
