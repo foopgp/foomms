@@ -55,7 +55,10 @@ object Notify {
         val face = person?.let { runCatching { Book.face(context, it) }.getOrNull() }
         // Against the notifications' own background: the phone's theme, not this application's.
         val dark = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
-        fun show(text: String, colour: Int) {
+        val id = group?.hashCode() ?: number.hashCode()
+        // [again]: said anew once verified -- not if it was read meanwhile, its notification gone.
+        fun show(text: String, colour: Int, again: Boolean = false) {
+            if (again && manager.activeNotifications.none { it.id == id && it.tag == null }) return
             val open = PendingIntent.getActivity(
                 context, group?.hashCode() ?: number.hashCode(),
                 Intent(context, ThreadActivity::class.java).putExtra(ThreadActivity.EXTRA_NUMBER, number)
@@ -75,8 +78,10 @@ object Notify {
                 .setOnlyAlertOnce(true)
                 .setColor(colour)
                 .apply { face?.let { setLargeIcon(it) } }
+                // Whom and which conversation it tells of, for [seen] to know it whatever way the number is written.
+                .addExtras(android.os.Bundle().apply { putString(EXTRA_FROM, number) ; group?.let { putLong(EXTRA_GROUP, it) } })
                 .build()
-            runCatching { manager.notify(group?.hashCode() ?: number.hashCode(), shown) }
+            runCatching { manager.notify(id, shown) }
         }
         show(words, Look.colour(form, dark))
         if (armor == null || Pgp.isLocked(armor)) return done()
@@ -85,7 +90,7 @@ object Notify {
             // Certified by somebody else than whom the number is tied to: violet, as in the conversation.
             val tied = listOfNotNull(person?.fingerprint).mapNotNull { runCatching { Fingerprint.keyId(it) }.getOrNull() }
             val worth = if (certified) Verdict.received(Verdict.BLUE, Opened.words(armor)?.signer, tied) else Verdict.RED
-            show(context.getString(R.string.signed_words, read), Look.colour(worth, dark))
+            show(context.getString(R.string.signed_words, read), Look.colour(worth, dark), again = true)
         }
     }
 
@@ -117,8 +122,21 @@ object Notify {
         } }
     }
 
-    fun seen(context: Context, number: String) {
-        context.getSystemService(NotificationManager::class.java)?.cancel(number.hashCode())
+    /**
+     * The notifications of a conversation taken away, it being read: a group's by its [threads], a person's by
+     * [number] -- written as the conversation has it, "06…" where the message came from "+336…".
+     */
+    fun seen(context: Context, number: String, threads: List<Long> = emptyList(), group: Boolean = false) {
+        val manager = context.getSystemService(NotificationManager::class.java) ?: return
+        manager.activeNotifications.filter { it.notification.channelId == CHANNEL && it.tag == null }.forEach { one ->
+            val extras = one.notification.extras
+            val of = if (extras.containsKey(EXTRA_GROUP)) extras.getLong(EXTRA_GROUP) else null
+            val from = extras.getString(EXTRA_FROM)
+            val its = if (group) of != null && of in threads else of == null && from != null && (from == number || Phone.same(from, number))
+            if (its) manager.cancel(one.id)
+        }
+        // One said before its number was kept with it.
+        if (!group) manager.cancel(number.hashCode())
     }
 
     /** Every message's notification taken away: everything was just read. */
@@ -158,6 +176,8 @@ object Notify {
     }
 
     private const val CHANNEL = "messages"
+    private const val EXTRA_FROM = "org.foopgp.foomms.from"
+    private const val EXTRA_GROUP = "org.foopgp.foomms.group"
     private const val UNFETCHED = 2
 
     /** How long foodjis is waited for, in milliseconds: a receiver has ten seconds. */

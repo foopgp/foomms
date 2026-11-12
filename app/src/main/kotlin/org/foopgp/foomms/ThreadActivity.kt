@@ -764,7 +764,7 @@ class ThreadActivity : AskingActivity() {
                     val upTo = found.filter { it.thread == one }.maxOfOrNull { it.at } ?: continue
                     Keep.read(this, one, found.filter { line -> line.thread == one && (lockedAndClosed(line) || line.key in keptUnread) }, upTo)
                 }
-                Notify.seen(this, number)
+                Notify.seen(this, number, given.ifEmpty { listOfNotNull(thread) }, group)
             }
             // A group's: who sent each MMS, for its face beside it. One sent from this phone and come back -- kept before
             // copies delivered one recipient at a time were known for such --: gone, being there already as sent.
