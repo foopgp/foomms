@@ -23,4 +23,4 @@ Die App verlangt kein Konto, läuft über keinen Server von uns und zeigt keine 
 
 Sie brauchen foodjis, einen kontaktlosen OpenPGP-Sicherheitsschlüssel und ein Telefon mit NFC-Leser.
 
-Freie Software unter der Lizenz GPL-3.0-only: Der Quellcode wird jedem übergeben, der die App besitzt und danach fragt.
+Freie Software unter der Lizenz GPL-3.0-only; Quellcode auf GitHub: github.com/foopgp/foomms

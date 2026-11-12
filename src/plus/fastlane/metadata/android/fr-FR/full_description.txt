@@ -24,6 +24,6 @@ Approcher votre clé une fois ouvre d'un coup plusieurs messages, qui se referme
 
 L'application ne demande aucun compte, ne passe par aucun serveur à nous et n'affiche aucune publicité : c'est le réseau du téléphone qui transporte les messages. Encore faut-il que l'opérateur transporte les MMS : certains ne le font plus, ou ne l'ont jamais fait, comme en Allemagne ou au Japon. Il n'y reste alors que des messageries qui passent par des serveurs sur Internet, ce qui facilite la surveillance globale.
 
-Il vous faut foodjis, une clé de sécurité OpenPGP sans contact et un téléphone doté d'un lecteur NFC.
+Il vous faut foodjis (sur foodjis.foopgp.org), une clé de sécurité OpenPGP sans contact et un téléphone doté d'un lecteur NFC.
 
-Logiciel libre, sous licence GPL-3.0-only : le code source est remis à quiconque détient l'application et le demande.
+Logiciel libre, sous licence GPL-3.0-only ; code source sur GitHub : github.com/foopgp/foomms

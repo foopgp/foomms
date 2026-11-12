@@ -24,6 +24,6 @@ Aproximar a sua chave uma vez abre várias mensagens de uma só vez, que se volt
 
 A aplicação não pede nenhuma conta, não passa por nenhum servidor nosso e não mostra publicidade: é a rede do telemóvel que transporta as mensagens. Desde que o operador transporte os MMS: alguns já não o fazem, ou nunca o fizeram, como na Alemanha ou no Japão. Aí restam apenas mensagens que passam por servidores na Internet, o que facilita a vigilância global.
 
-Precisa do foodjis, de uma chave de segurança OpenPGP sem contacto e de um telefone com leitor NFC.
+Precisa do foodjis (em foodjis.foopgp.org), de uma chave de segurança OpenPGP sem contacto e de um telefone com leitor NFC.
 
-Software livre, sob a licença GPL-3.0-only: o código-fonte é entregue a quem tenha a aplicação e o peça.
+Software livre, sob a licença GPL-3.0-only; código-fonte no GitHub: github.com/foopgp/foomms

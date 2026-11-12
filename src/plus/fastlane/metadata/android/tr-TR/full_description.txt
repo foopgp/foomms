@@ -24,6 +24,6 @@ Anahtarınızı bir kez yaklaştırmak birkaç mesajı birden açar; bunlar seç
 
 Uygulama hiçbir hesap istemez, hiçbir sunucumuzdan geçmez ve reklam göstermez: mesajları telefon şebekesi taşır. Yeter ki operatör MMS'leri taşısın: bazıları artık taşımıyor ya da hiç taşımadı, Almanya'da ya da Japonya'da olduğu gibi. Orada yalnızca İnternet'teki sunuculardan geçen mesajlaşma uygulamaları kalıyor; bu da küresel gözetimi kolaylaştırıyor.
 
-foodjis'e, temassız bir OpenPGP güvenlik anahtarına ve NFC okuyuculu bir telefona ihtiyacınız var.
+foodjis'e (foodjis.foopgp.org adresinde), temassız bir OpenPGP güvenlik anahtarına ve NFC okuyuculu bir telefona ihtiyacınız var.
 
-GPL-3.0-only lisanslı özgür yazılım: kaynak kodu, uygulamaya sahip olan ve isteyen herkese verilir.
+GPL-3.0-only lisanslı özgür yazılım; kaynak kodu GitHub'da: github.com/foopgp/foomms

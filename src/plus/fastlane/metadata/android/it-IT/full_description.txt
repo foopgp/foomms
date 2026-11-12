@@ -24,6 +24,6 @@ Avvicinare la chiave una volta apre più messaggi insieme, che si richiudono dop
 
 L'applicazione non chiede alcun account, non passa da alcun nostro server e non mostra pubblicità: è la rete del telefono a trasportare i messaggi. Sempre che l'operatore trasporti gli MMS: alcuni non lo fanno più, o non l'hanno mai fatto, come in Germania o in Giappone. Lì restano solo messaggistiche che passano da server su Internet, il che facilita la sorveglianza globale.
 
-Vi servono foodjis, una chiave di sicurezza OpenPGP contactless e un telefono dotato di lettore NFC.
+Vi servono foodjis (su foodjis.foopgp.org), una chiave di sicurezza OpenPGP contactless e un telefono dotato di lettore NFC.
 
-Software libero, con licenza GPL-3.0-only: il codice sorgente viene consegnato a chiunque detenga l'applicazione e lo chieda.
+Software libero, con licenza GPL-3.0-only; codice sorgente su GitHub: github.com/foopgp/foomms

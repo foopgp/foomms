@@ -24,6 +24,6 @@ Holding your key to the phone once opens several messages at a time, which close
 
 The application asks for no account, goes through no server of ours and shows no advertising: the phone network carries the messages. Provided the operator still carries MMS: some no longer do, or never did, as in Germany or Japan. All that is left there are messengers that go through servers on the Internet, which makes global surveillance easier.
 
-You need foodjis, a contactless OpenPGP security key and a phone with an NFC reader.
+You need foodjis (on foodjis.foopgp.org), a contactless OpenPGP security key and a phone with an NFC reader.
 
-Free software, under the GPL-3.0-only licence: the source code is given to anyone who holds the application and asks for it.
+Free software, under the GPL-3.0-only licence; source code on GitHub: github.com/foopgp/foomms

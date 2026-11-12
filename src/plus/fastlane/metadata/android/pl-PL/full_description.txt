@@ -24,6 +24,6 @@ Jedno przyłożenie klucza otwiera naraz kilka wiadomości, które zamykają si�
 
 Aplikacja nie wymaga konta, nie korzysta z żadnego naszego serwera i nie wyświetla reklam: wiadomości przenosi sieć telefoniczna. O ile operator przenosi MMS-y: niektórzy już tego nie robią lub nigdy nie robili, jak w Niemczech czy w Japonii. Zostają tam tylko komunikatory przechodzące przez serwery w Internecie, co ułatwia globalną inwigilację.
 
-Potrzebujesz foodjis, bezstykowego klucza bezpieczeństwa OpenPGP i telefonu z czytnikiem NFC.
+Potrzebujesz foodjis (na foodjis.foopgp.org), bezstykowego klucza bezpieczeństwa OpenPGP i telefonu z czytnikiem NFC.
 
-Wolne oprogramowanie na licencji GPL-3.0-only: kod źródłowy jest przekazywany każdemu, kto posiada aplikację i o niego poprosi.
+Wolne oprogramowanie na licencji GPL-3.0-only; kod źródłowy na GitHubie: github.com/foopgp/foomms
