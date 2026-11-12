@@ -23,4 +23,4 @@ Uygulama hiçbir hesap istemez, hiçbir sunucumuzdan geçmez ve reklam gösterme
 
 foodjis'e, temassız bir OpenPGP güvenlik anahtarına ve NFC okuyuculu bir telefona ihtiyacınız var.
 
-GPL-3.0-only lisanslı özgür yazılım: kaynak kodu, uygulamaya sahip olan ve isteyen herkese verilir.
+GPL-3.0-only lisanslı özgür yazılım; kaynak kodu GitHub'da: github.com/foopgp/foomms

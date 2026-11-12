@@ -23,4 +23,4 @@ The application asks for no account, goes through no server of ours and shows no
 
 You need foodjis, a contactless OpenPGP security key and a phone with an NFC reader.
 
-Free software, under the GPL-3.0-only licence: the source code is given to anyone who holds the application and asks for it.
+Free software, under the GPL-3.0-only licence; source code on GitHub: github.com/foopgp/foomms

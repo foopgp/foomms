@@ -23,4 +23,4 @@ Aplikacja nie wymaga konta, nie korzysta z żadnego naszego serwera i nie wyświ
 
 Potrzebujesz foodjis, bezstykowego klucza bezpieczeństwa OpenPGP i telefonu z czytnikiem NFC.
 
-Wolne oprogramowanie na licencji GPL-3.0-only: kod źródłowy jest przekazywany każdemu, kto posiada aplikację i o niego poprosi.
+Wolne oprogramowanie na licencji GPL-3.0-only; kod źródłowy na GitHubie: github.com/foopgp/foomms
