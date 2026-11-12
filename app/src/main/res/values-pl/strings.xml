@@ -349,9 +349,6 @@
     <string name="conf_mms_on_note">Pozwala wysyłać wiadomości grupowe, długie teksty, wiadomości głosowe, zdjęcia lub krótkie filmy. Między operatorami MMS dociera mniej pewnie niż SMS, a niektóre taryfy go dodatkowo naliczają. Inni operatorzy w ogóle nie obsługują MMS-ów, co sprzyja komunikatorom internetowym, a więc globalnej inwigilacji.</string>
     <string name="mms_off">Wysyłanie MMS nie jest dozwolone w konfiguracji: ani załącznika, ani wiadomości głosowej, ani grupowego MMS.</string>
     <string name="many_sms">Ta wiadomość pójdzie w %1$d SMS-ach: niektóre telefony źle je składają, a operator może naliczyć każdy osobno.</string>
-    <string name="conf_calls_heading">Połączenia</string>
-    <string name="conf_calls">Pokazuj połączenia w rozmowach</string>
-    <string name="conf_calls_note">Połączenia z daną osobą pojawiają się między wiadomościami, w swoim czasie. foomms+ odczytuje w tym celu rejestr połączeń telefonu, który nigdy nie opuszcza telefonu.</string>
     <string name="call_in">📞 Połączenie przychodzące</string>
     <string name="call_out">📞 Połączenie wychodzące</string>
     <string name="call_missed">📞 Połączenie nieodebrane</string>

@@ -333,9 +333,6 @@
     <string name="conf_mms_on_note">Permet d\'envoyer des messages de groupe, des textes longs, des messages vocaux, des photos ou de petites vidéos. D\'un opérateur à l\'autre, un MMS arrive moins sûrement qu\'un SMS, et certains forfaits le facturent. D\'autres opérateurs ne supportent pas les MMS, ce qui profite aux messageries sur Internet et donc à la surveillance globale.</string>
     <string name="mms_off">L\'envoi de MMS n\'est pas autorisé dans la configuration : ni pièce jointe, ni message vocal, ni groupe MMS.</string>
     <string name="many_sms">Ce message part en %1$d SMS : certains téléphones les recollent mal, et votre opérateur peut les facturer un par un.</string>
-    <string name="conf_calls_heading">Appels</string>
-    <string name="conf_calls">Montrer les appels dans les conversations</string>
-    <string name="conf_calls_note">Les appels avec une personne s\'affichent entre les messages, à leur heure. foomms+ lit pour cela le journal d\'appels du téléphone, qui n\'en sort pas.</string>
     <string name="call_in">📞 Appel reçu</string>
     <string name="call_out">📞 Appel passé</string>
     <string name="call_missed">📞 Appel manqué</string>

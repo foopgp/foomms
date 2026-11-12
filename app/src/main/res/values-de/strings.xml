@@ -333,9 +333,6 @@
     <string name="conf_mms_on_note">Ermöglicht Gruppennachrichten, lange Texte, Sprachnachrichten, Fotos oder kurze Videos. Von einem Betreiber zum anderen kommt eine MMS weniger sicher an als eine SMS, und manche Tarife berechnen sie. Andere Netzbetreiber unterstützen gar keine MMS, was Internet-Messengern und damit der globalen Überwachung zugutekommt.</string>
     <string name="mms_off">Das Senden von MMS ist in der Konfiguration nicht erlaubt: weder Anhang noch Sprachnachricht noch Gruppen-MMS.</string>
     <string name="many_sms">Diese Nachricht geht als %1$d SMS: Manche Telefone setzen sie schlecht zusammen, und Ihr Netz kann jede einzeln berechnen.</string>
-    <string name="conf_calls_heading">Anrufe</string>
-    <string name="conf_calls">Anrufe in Unterhaltungen zeigen</string>
-    <string name="conf_calls_note">Die Anrufe mit einer Person erscheinen zwischen den Nachrichten, zu ihrer Zeit. foomms+ liest dafür die Anrufliste des Telefons, die das Telefon nie verlässt.</string>
     <string name="call_in">📞 Eingehender Anruf</string>
     <string name="call_out">📞 Ausgehender Anruf</string>
     <string name="call_missed">📞 Verpasster Anruf</string>

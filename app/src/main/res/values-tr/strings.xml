@@ -333,9 +333,6 @@
     <string name="conf_mms_on_note">Grup mesajları, uzun metinler, sesli mesajlar, fotoğraflar veya kısa videolar göndermeyi sağlar. Bir operatörden diğerine MMS, SMS kadar güvenle ulaşmaz ve bazı tarifeler ücret alır. Bazı operatörler ise MMS\'i hiç desteklemiyor; bu da internet mesajlaşma uygulamalarına, dolayısıyla küresel gözetime yarıyor.</string>
     <string name="mms_off">Yapılandırmada MMS gönderimine izin verilmiyor: ne ek, ne sesli mesaj, ne grup MMS\'i.</string>
     <string name="many_sms">Bu mesaj %1$d SMS olarak gider: bazı telefonlar onları kötü birleştirir ve operatörünüz her birini ayrı ücretlendirebilir.</string>
-    <string name="conf_calls_heading">Aramalar</string>
-    <string name="conf_calls">Aramaları konuşmalarda göster</string>
-    <string name="conf_calls_note">Bir kişiyle yapılan aramalar, zamanlarında mesajların arasında görünür. foomms+ bunun için telefonun arama kaydını okur; bu kayıt telefondan hiç çıkmaz.</string>
     <string name="call_in">📞 Gelen arama</string>
     <string name="call_out">📞 Giden arama</string>
     <string name="call_missed">📞 Cevapsız arama</string>

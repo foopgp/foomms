@@ -572,10 +572,10 @@ class ThreadActivity : AskingActivity() {
         whoAmI()
         contentResolver.registerContentObserver(MESSAGES, true, arrivals)
         // foomms+: a call made or missed meanwhile, among the messages.
-        if (!group && Calls.offered && Conf.calls(this)) {
+        if (!group && Calls.offered) {
             val permission = Calls.PERMISSION
             if (permission != null && checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) Calls.CHANGES?.let { contentResolver.registerContentObserver(it, true, arrivals) }
-            // Asked once, from the first conversation opened; later, from the configuration.
+            // Asked once, from the first conversation opened; later, from Android's settings for foomms+.
             else if (permission != null && !Conf.callsAsked(this)) requestPermissions(arrayOf(permission), CALLS)
         }
         load(first = card == null && person == null)
@@ -739,7 +739,7 @@ class ThreadActivity : AskingActivity() {
                 .let { lines -> if (group) lines.filter { it.mms } else lines }
                 .let { if (given.size > 1 || elsewhere.isNotEmpty()) (it + elsewhere).sortedBy { line -> line.at } else it }
             // foomms+: the calls with the person, at their time among the messages.
-            val calls = if (!group && Calls.offered && Conf.calls(this)) runCatching { Calls.with(this, number) }.getOrDefault(emptyList()) else emptyList()
+            val calls = if (!group && Calls.offered) runCatching { Calls.with(this, number) }.getOrDefault(emptyList()) else emptyList()
             val all = if (calls.isEmpty()) found else (found + calls).sortedBy { it.at }
             // The messages shown at once; signed ones verified from now.
             runOnUiThread {
