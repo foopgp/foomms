@@ -51,17 +51,18 @@ object GroupMenu {
         val key = "group:" + set
         val muted = Marks.muted(this, key)
         val pad = Look.dp(this, 10)
-        fun action(words: Int, then: () -> Unit) = head.addView(
+        // [usable] false: there in a moment -- the conversation still being read --, so greyed where it will be.
+        fun action(words: Int, usable: Boolean = true, then: () -> Unit) = head.addView(
             Look.words(this, getString(words), size = 16f).apply {
                 setPadding(0, pad, 0, pad)
-                setOnClickListener { shown?.dismiss() ; then() }
+                if (usable) setOnClickListener { shown?.dismiss() ; then() } else alpha = 0.38f
             },
         )
         val called = GroupNames.of(this, set)
         action(if (called == null) R.string.group_name else R.string.group_rename) { name(activity, set, called, changed) }
         action(if (muted) R.string.unmute else R.string.mute) { Marks.mute(this, key, !muted) ; changed() }
-        threads.firstOrNull()?.let { one -> action(R.string.backup_one) { Saving.save(this, one, title) } }
-        action(R.string.forget_talk) { forget(activity, threads, title, gone) }
+        action(R.string.backup_one, usable = threads.isNotEmpty()) { threads.firstOrNull()?.let { one -> Saving.save(this, one, title) } }
+        action(R.string.forget_talk, usable = threads.isNotEmpty()) { forget(activity, threads, title, gone) }
         // Then the members, below a line and their count.
         head.addView(View(this).apply { setBackgroundColor(Look.MUTED) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1))
         head.addView(

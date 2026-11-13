@@ -134,7 +134,10 @@ object TalkMenu {
         val number = Phone.plain(sender)
         val muted = Marks.muted(activity, sender)
         val choices = ArrayList<Pair<String, () -> Unit>>()
+        // Greyed: there in a moment -- the conversation still being read --, so shown where it will be.
+        val greyed = HashSet<Int>()
         fun add(words: Int, then: () -> Unit) { choices += activity.getString(words) to then }
+        fun later(words: Int) { greyed += choices.size ; choices += activity.getString(words) to {} }
         if (letIn != null) add(R.string.let_in, letIn)
         // Calling, where the phone can: the call is placed at once -- the person chose it in this menu --, once
         // Android has let foomms place calls; refused, the dialler opens with the number, as it did before.
@@ -199,6 +202,7 @@ object TalkMenu {
             }
         }
         if (alone != null) add(aloneWords, alone)
+        if (thread == null && alone == null) { later(R.string.backup_one) ; later(R.string.forget_talk) }
         if (thread != null && alone == null) add(R.string.backup_one, save)
         if (thread != null && alone == null) {
             add(R.string.forget_talk) {
@@ -220,9 +224,18 @@ object TalkMenu {
                     .show()
             }
         }
-        AlertDialog.Builder(activity)
+        // Android's own list, as every menu here; the greyed lines faded, and pressing them does nothing.
+        val shown = AlertDialog.Builder(activity)
             .setTitle(name)
-            .setItems(choices.map { it.first }.toTypedArray()) { _, which -> choices[which].second() }
+            .setItems(choices.map { it.first }.toTypedArray()) { _, which -> if (which !in greyed) choices[which].second() }
             .show()
+        if (greyed.isEmpty()) return
+        val list = shown.listView ?: return
+        list.viewTreeObserver.addOnGlobalLayoutListener {
+            for (at in 0 until list.childCount) {
+                val greyedOne = list.firstVisiblePosition + at in greyed
+                list.getChildAt(at)?.apply { alpha = if (greyedOne) 0.38f else 1f ; isEnabled = !greyedOne }
+            }
+        }
     }
 }
