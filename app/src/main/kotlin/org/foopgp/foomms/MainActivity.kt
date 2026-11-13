@@ -398,7 +398,7 @@ class MainActivity : AskingActivity() {
             LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
         )
         meActions.removeAllViews()
-        chasing?.let { meActions.removeCallbacks(it) }
+        chasing?.cancel()
         chasing = null
         val side = Look.dp(this, 16)
         for ((words, then) in MeMenu.actions(this, known) { meChanged() }) {
@@ -414,22 +414,43 @@ class MainActivity : AskingActivity() {
     }
 
     /** What lights the choices of oneself in turn, while there is no contact of one's own: none otherwise. */
-    private var chasing: Runnable? = null
+    private var chasing: android.animation.ValueAnimator? = null
 
-    /** Each choice of oneself lit in orange in turn, the others in the ink of the theme -- white, or black. */
+    /**
+     * An orange light going down the choices of oneself, over and over: each lit as the light passes it, from the
+     * ink of the theme -- white, or black -- to orange and back.
+     */
     private fun chase() {
-        var lit = 0
-        val step = object : Runnable {
-            override fun run() {
+        val blend = android.animation.ArgbEvaluator()
+        chasing = android.animation.ValueAnimator.ofFloat(0f, 1f).apply {
+            interpolator = android.view.animation.LinearInterpolator()
+            repeatCount = android.animation.ValueAnimator.INFINITE
+            addUpdateListener { going ->
                 val count = meActions.childCount
-                if (count == 0) return
-                for (at in 0 until count) (meActions.getChildAt(at) as? android.widget.TextView)?.setTextColor(if (at == lit) Look.ORANGE else Look.INK)
-                lit = (lit + 1) % count
-                meActions.postDelayed(this, CHASE_MS)
+                if (count == 0) return@addUpdateListener
+                val first = meActions.getChildAt(0)
+                val last = meActions.getChildAt(count - 1)
+                // The light's reach: about one choice, above and below its middle.
+                val reach = (last.bottom - first.top).toFloat() / count
+                if (reach <= 0f) return@addUpdateListener
+                // From above the first to below the last, so that each is lit and left alike.
+                val at = first.top - reach + (going.animatedValue as Float) * (last.bottom - first.top + 2 * reach)
+                for (one in 0 until count) {
+                    val choice = meActions.getChildAt(one) as? android.widget.TextView ?: continue
+                    val middle = (choice.top + choice.bottom) / 2f
+                    val lit = (1f - kotlin.math.abs(middle - at) / reach).coerceIn(0f, 1f)
+                    choice.setTextColor(blend.evaluate(lit, Look.INK, Look.ORANGE) as Int)
+                }
             }
         }
-        chasing = step
-        meActions.post(step)
+        chasing?.duration = CHASE_MS * (meActions.childCount + 2)
+        chasing?.start()
+    }
+
+    override fun onDestroy() {
+        // An animator going on for ever holds the page it lights.
+        chasing?.cancel()
+        super.onDestroy()
     }
 
     /** Another page: the conversations, or oneself and the counts. */
@@ -437,7 +458,7 @@ class MainActivity : AskingActivity() {
         if (to == page) return
         page = to
         // Off the profile's page, nothing of it to light.
-        chasing?.let { meActions.removeCallbacks(it) }
+        chasing?.cancel()
         chasing = null
         // Called by its own name: inside the bar's code, "show()" was the bar's, which shows the bar.
         redraw()
@@ -1293,8 +1314,8 @@ class MainActivity : AskingActivity() {
         /** How long the messages are to stay still before the list is read again. */
         const val SETTLE_MS = 400L
 
-        /** How long each choice of oneself stays lit before the next. */
-        const val CHASE_MS = 250L
+        /** How long the orange light takes to go down one choice of oneself. */
+        const val CHASE_MS = 300L
         const val BLOCK = 30
 
         /** How near the end of what the list holds the next block is asked for: read before it is reached. */
