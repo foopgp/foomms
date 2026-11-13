@@ -244,10 +244,6 @@
     <string name="page_talks">Unterhaltungen</string>
     <string name="page_profile">Mein Profil</string>
     <string name="page_profile_n">Mein Profil (%1$d)</string>
-    <string name="me_wizard_title">Welche Kontaktkarte ist Ihre?</string>
-    <string name="me_wizard_text">Sagen Sie foomms, welche Kontaktkarte Ihre ist: Sie steht in Gruppen für Sie, mit Ihrer Nummer und Ihrem Zertifikat. Sie können sie unter „Mein Profil“ ändern.</string>
-    <string name="me_wizard_choose">Meine Karte wählen</string>
-    <string name="me_wizard_later">Später</string>
     <plurals name="talks_n">
         <item quantity="one">%d Unterhaltung</item>
         <item quantity="other">%d Unterhaltungen</item>

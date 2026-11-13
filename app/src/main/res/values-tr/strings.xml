@@ -244,10 +244,6 @@
     <string name="page_talks">Konuşmalar</string>
     <string name="page_profile">Profilim</string>
     <string name="page_profile_n">Profilim (%1$d)</string>
-    <string name="me_wizard_title">Hangi kişi kartı sizin?</string>
-    <string name="me_wizard_text">foomms\'a hangi kişi kartının sizin olduğunu söyleyin: gruplarda numaranız ve sertifikanızla sizi temsil eder. «Profilim» bölümünden değiştirebilirsiniz.</string>
-    <string name="me_wizard_choose">Kartımı seç</string>
-    <string name="me_wizard_later">Daha sonra</string>
     <plurals name="talks_n">
         <item quantity="one">%d konuşma</item>
         <item quantity="other">%d konuşma</item>

@@ -115,6 +115,9 @@ class MainActivity : AskingActivity() {
     private lateinit var meActions: LinearLayout
     private lateinit var meRule: View
 
+    /** The profile's page, scrolling in the list's place: what it holds may be taller than the screen. */
+    private lateinit var profile: android.widget.ScrollView
+
     /** In the bar, the page's mark: the application's, or a glyph. */
     private lateinit var mark: android.widget.ImageView
     private lateinit var markGlyph: android.widget.TextView
@@ -122,6 +125,9 @@ class MainActivity : AskingActivity() {
     /** The groups only the headers of received MMS tell, filed in their senders' conversations: among all the conversations. */
     private var heardRows: List<Row> = emptyList()
     @Volatile private var me: MeMenu.State? = null
+
+    /** Whether foodjis is still to be asked, this start, to let foomms in: once a start, after what comes first. */
+    private var consentToAsk = false
 
     /** Whether this phone's numbers were read from the MMS it received, since the application started. */
     private var looked = false
@@ -159,6 +165,7 @@ class MainActivity : AskingActivity() {
         // A new start reads the address book again: a name may have changed since the application last ran.
         if (state == null) { synchronized(people) { people.clear() } ; synchronized(lines) { lines.clear() } }
         page = Page.entries.getOrNull(state?.getInt(PAGE) ?: 0) ?: Page.TALKS
+        consentToAsk = state == null
         // Nothing encrypted open: what was laid out for other applications from a lock has no business staying.
         // Not when the page is opened to receive one of them: forwarding a part hands it here, laid out for others.
         if (!Opened.anyOpen() && intent?.action != Intent.ACTION_SEND) Outbox.shut(this)
@@ -231,12 +238,16 @@ class MainActivity : AskingActivity() {
         meActions = Look.column(this).apply { visibility = View.GONE }
         column.addView(closing)
         column.addView(asking)
+        // The profile's page, under the bar and what is asked: one column that scrolls, however much it holds.
+        val profileColumn = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        profile = android.widget.ScrollView(this).apply { visibility = View.GONE ; addView(profileColumn) }
+        column.addView(profile, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         detail = Look.words(this, "", size = 14f, muted = true).apply {
             val pad = Look.dp(context, 16)
             setPadding(pad, pad / 2, pad, pad / 2)
             visibility = View.GONE
         }
-        column.addView(detail)
+        profileColumn.addView(detail)
         // On the profile's page, under the counts: what it all weighs and saving it all, then restoring a saving --
         // what the configuration's page offers, where the counts are.
         bytesSaid = Look.words(this, "", size = 14f, muted = true)
@@ -264,7 +275,7 @@ class MainActivity : AskingActivity() {
                 },
             )
         }
-        column.addView(savingLines)
+        profileColumn.addView(savingLines)
         // The drafts, and a way to be rid of them all, on a line before the unread.
         draftsSaid = Look.words(this, "", size = 14f, muted = true)
         clearDrafts = Look.small(this, getString(R.string.clear_drafts)) { clearDrafts() }
@@ -277,7 +288,7 @@ class MainActivity : AskingActivity() {
             addView(draftsSaid, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
             addView(clearDrafts)
         }
-        column.addView(draftsLine)
+        profileColumn.addView(draftsLine)
         // The unread, the same way, under the drafts.
         unreadSaid = Look.words(this, "", size = 14f, muted = true)
         seeUnread = Look.small(this, getString(R.string.see_unread)) { seeUnread() }
@@ -290,12 +301,12 @@ class MainActivity : AskingActivity() {
             addView(unreadSaid, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
             addView(seeUnread)
         }
-        column.addView(unreadLine)
+        profileColumn.addView(unreadLine)
         // On the profile's page, after the counts, the drafts and the unread: a rule, then oneself.
         meRule = View(this).apply { setBackgroundColor(Look.MUTED) ; visibility = View.GONE }
-        column.addView(meRule, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1).apply { val side = Look.dp(this@MainActivity, 16) ; setMargins(side, 0, side, Look.dp(this@MainActivity, 4)) })
-        column.addView(meBox)
-        column.addView(meActions)
+        profileColumn.addView(meRule, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1).apply { val side = Look.dp(this@MainActivity, 16) ; setMargins(side, 0, side, Look.dp(this@MainActivity, 4)) })
+        profileColumn.addView(meBox)
+        profileColumn.addView(meActions)
         column.addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         val pad = Look.dp(this, 8)
         column.addView(
@@ -305,7 +316,8 @@ class MainActivity : AskingActivity() {
         setContentView(column)
         Edges.fit(this)
         shared(intent)
-        if (state == null) offerMe()
+        // Oneself not said yet: a start opens on the profile's page, where it is said.
+        if (state == null && Me.card(this) == null) go(Page.PROFILE)
     }
 
     private var dressed = false
@@ -392,8 +404,26 @@ class MainActivity : AskingActivity() {
                 Look.words(this, words, size = 16f).apply {
                     setPadding(side, pad, side, pad)
                     setOnClickListener { then() }
+                    // No contact of one's own yet: what ties or makes one blinks, until one is.
+                    if (own == null) blink(this)
                 },
             )
+        }
+    }
+
+    /** Faded and back, over and over, while it is shown: dropped with the view when the page is drawn again. */
+    private fun blink(view: View) {
+        android.animation.ObjectAnimator.ofFloat(view, View.ALPHA, 1f, 0.25f).apply {
+            duration = BLINK_MS
+            repeatMode = android.animation.ValueAnimator.REVERSE
+            repeatCount = android.animation.ValueAnimator.INFINITE
+            view.addOnAttachStateChangeListener(
+                object : View.OnAttachStateChangeListener {
+                    override fun onViewAttachedToWindow(v: View) = Unit
+                    override fun onViewDetachedFromWindow(v: View) = cancel()
+                },
+            )
+            start()
         }
     }
 
@@ -441,29 +471,6 @@ class MainActivity : AskingActivity() {
             )
         }
         shown = AlertDialog.Builder(this).setView(column).show()
-    }
-
-    /**
-     * Oneself not said yet: asked once a start, with a way to put it off. Only once foomms is the messaging
-     * application and may read the contacts -- what is asked first, and what the asking needs.
-     */
-    private fun offerMe() {
-        if (checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) return
-        if (android.provider.Telephony.Sms.getDefaultSmsPackage(this) != packageName) return
-        if (Me.card(this) != null) return
-        thread {
-            val known = runCatching { MeMenu.read(this, mineKey) }.getOrNull() ?: return@thread
-            if (known.own != null) return@thread
-            runOnUiThread {
-                if (isFinishing || isDestroyed) return@runOnUiThread
-                AlertDialog.Builder(this)
-                    .setTitle(R.string.me_wizard_title)
-                    .setMessage(R.string.me_wizard_text)
-                    .setPositiveButton(R.string.me_wizard_choose) { _, _ -> MeMenu.choose(this, known) { meChanged() } }
-                    .setNegativeButton(R.string.me_wizard_later, null)
-                    .show()
-            }
-        }
     }
 
     /** A page's name after its mark, the application's own drawn in the text for the conversations, [side] high. */
@@ -605,6 +612,19 @@ class MainActivity : AskingActivity() {
             asking.visibility = View.VISIBLE
             asking.addView(Look.words(this, getString(R.string.old_foodjis, name, held, Provider.NEEDED_NAME), size = 14f, muted = true).apply { setPadding(0, 0, 0, Look.dp(context, 8)) })
             asking.addView(Look.button(this, getString(R.string.update_foodjis, name)) { Provider.install(this) })
+        }
+        // foodjis there and recent enough, but not letting foomms in: its own page asks the person, once a start. Its
+        // two answers come straight back here; only that page is shown -- not making an identity, which foomms
+        // does without.
+        if (consentToAsk && Provider.whom(this) != null && Provider.outdated(this) == null) {
+            consentToAsk = false
+            thread {
+                if (Foodjis.of(applicationContext).letIn() != false) return@thread
+                runOnUiThread {
+                    if (isFinishing || isDestroyed) return@runOnUiThread
+                    ask(Intent(Provider.GET_SIGN_KEY_ID), null, failed = {}, screened = { true }) {}
+                }
+            }
         }
         // Not the phone's messaging application yet: it can be asked for, and until then another receives.
         if (!Keep.ours(this)) {
@@ -958,6 +978,8 @@ class MainActivity : AskingActivity() {
         meBox.visibility = if (page == Page.PROFILE) View.VISIBLE else View.GONE
         meActions.visibility = meBox.visibility
         meRule.visibility = meBox.visibility
+        profile.visibility = meBox.visibility
+        list.visibility = if (page == Page.PROFILE) View.GONE else View.VISIBLE
         mark.visibility = if (page == Page.TALKS) View.VISIBLE else View.GONE
         markGlyph.visibility = if (page == Page.TALKS) View.GONE else View.VISIBLE
         markGlyph.text = profileMark
@@ -1262,6 +1284,9 @@ class MainActivity : AskingActivity() {
 
         /** How long the messages are to stay still before the list is read again. */
         const val SETTLE_MS = 400L
+
+        /** Half a blink of what is to be pressed: faded, then back. */
+        const val BLINK_MS = 600L
         const val BLOCK = 30
 
         /** How near the end of what the list holds the next block is asked for: read before it is reached. */

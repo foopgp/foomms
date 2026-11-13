@@ -244,10 +244,6 @@
     <string name="page_talks">Conversazioni</string>
     <string name="page_profile">Il mio profilo</string>
     <string name="page_profile_n">Il mio profilo (%1$d)</string>
-    <string name="me_wizard_title">Qual è la tua scheda contatto?</string>
-    <string name="me_wizard_text">Indica a foomms quale scheda contatto è la tua: ti rappresenta nei gruppi, con il tuo numero e il tuo certificato. Potrai cambiarla in «Il mio profilo».</string>
-    <string name="me_wizard_choose">Scegli la mia scheda</string>
-    <string name="me_wizard_later">Più tardi</string>
     <plurals name="talks_n">
         <item quantity="one">%d conversazione</item>
         <item quantity="other">%d conversazioni</item>

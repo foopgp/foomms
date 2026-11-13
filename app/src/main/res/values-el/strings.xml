@@ -244,10 +244,6 @@
     <string name="page_talks">Συνομιλίες</string>
     <string name="page_profile">Το προφίλ μου</string>
     <string name="page_profile_n">Το προφίλ μου (%1$d)</string>
-    <string name="me_wizard_title">Ποια κάρτα επαφής είναι η δική σας;</string>
-    <string name="me_wizard_text">Πείτε στο foomms ποια κάρτα επαφής είναι η δική σας: σας εκπροσωπεί στις ομάδες, με τον αριθμό και το πιστοποιητικό σας. Μπορείτε να την αλλάξετε στο «Το προφίλ μου».</string>
-    <string name="me_wizard_choose">Επιλογή της κάρτας μου</string>
-    <string name="me_wizard_later">Αργότερα</string>
     <plurals name="talks_n">
         <item quantity="one">%d συνομιλία</item>
         <item quantity="other">%d συνομιλίες</item>

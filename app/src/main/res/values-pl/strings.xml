@@ -244,10 +244,6 @@
     <string name="page_talks">Rozmowy</string>
     <string name="page_profile">Mój profil</string>
     <string name="page_profile_n">Mój profil (%1$d)</string>
-    <string name="me_wizard_title">Która wizytówka jest twoja?</string>
-    <string name="me_wizard_text">Wskaż foomms, która wizytówka kontaktu jest twoja: reprezentuje cię w grupach, z twoim numerem i certyfikatem. Możesz ją zmienić w „Mój profil”.</string>
-    <string name="me_wizard_choose">Wybierz moją wizytówkę</string>
-    <string name="me_wizard_later">Później</string>
     <plurals name="talks_n">
         <item quantity="one">%d rozmowa</item>
         <item quantity="few">%d rozmowy</item>

@@ -244,10 +244,6 @@
     <string name="page_talks">Беседы</string>
     <string name="page_profile">Мой профиль</string>
     <string name="page_profile_n">Мой профиль (%1$d)</string>
-    <string name="me_wizard_title">Какая карточка контакта ваша?</string>
-    <string name="me_wizard_text">Укажите foomms, какая карточка контакта ваша: она представляет вас в группах, с вашим номером и сертификатом. Её можно сменить в «Мой профиль».</string>
-    <string name="me_wizard_choose">Выбрать мою карточку</string>
-    <string name="me_wizard_later">Позже</string>
     <plurals name="talks_n">
         <item quantity="one">%d беседа</item>
         <item quantity="few">%d беседы</item>

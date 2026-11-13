@@ -246,10 +246,6 @@
     <string name="page_talks">Conversations</string>
     <string name="page_profile">My profile</string>
     <string name="page_profile_n">My profile (%1$d)</string>
-    <string name="me_wizard_title">Which contact card is yours?</string>
-    <string name="me_wizard_text">Tell foomms which contact card is yours: it stands for you in groups, with your number and your certificate. You can change it in “My profile”.</string>
-    <string name="me_wizard_choose">Choose my card</string>
-    <string name="me_wizard_later">Later</string>
     <plurals name="talks_n">
         <item quantity="one">%d conversation</item>
         <item quantity="other">%d conversations</item>
