@@ -289,10 +289,33 @@ object Look {
      * cross, both as tall and with as much room on each side; the cross,
      * red and bold, alone takes it off. Neither shows while the field records.
      */
-    class Carried(val row: LinearLayout, val words: TextView, val clip: TextView, val cross: TextView) {
+    class Carried(
+        val row: LinearLayout, val words: TextView, val clip: TextView, val cross: TextView,
+        /** In the paper clip's place, what is attached shown small -- a picture, a film's first picture under ▶. */
+        val picture: android.widget.FrameLayout, private val sign: String,
+    ) {
+        private var small = false
+        private var on = true
+
         fun attached(on: Boolean) {
-            clip.visibility = if (on) View.VISIBLE else View.GONE
-            cross.visibility = clip.visibility
+            this.on = on
+            clip.visibility = if (on && !small) View.VISIBLE else View.GONE
+            picture.visibility = if (on && small) View.VISIBLE else View.GONE
+            cross.visibility = if (on) View.VISIBLE else View.GONE
+        }
+
+        /**
+         * What is attached, to be checked before it leaves: [shown] small with ▶ over it when [plays], or ▶ alone
+         * in the clip's place for a sound, or the clip; [pressed] looks at it or listens to it.
+         */
+        fun shows(shown: android.graphics.Bitmap?, plays: Boolean, pressed: (() -> Unit)?) {
+            small = shown != null
+            (picture.getChildAt(0) as android.widget.ImageView).setImageBitmap(shown)
+            picture.getChildAt(1).visibility = if (plays) View.VISIBLE else View.GONE
+            picture.setOnClickListener(pressed?.let { then -> View.OnClickListener { then() } })
+            clip.text = if (plays && shown == null) "▶" else sign
+            clip.setOnClickListener(if (shown == null) pressed?.let { then -> View.OnClickListener { then() } } else null)
+            attached(on)
         }
     }
 
@@ -312,6 +335,15 @@ object Look {
             contentDescription = context.getString(dropSaid)
             setOnClickListener { drop() }
         }
+        val side = dp(context, 56)
+        val picture = android.widget.FrameLayout(context).apply {
+            visibility = View.GONE
+            addView(android.widget.ImageView(context).apply { scaleType = android.widget.ImageView.ScaleType.CENTER_CROP }, android.widget.FrameLayout.LayoutParams(side, side))
+            addView(
+                words(context, "▶", size = 22f).apply { setTextColor(Color.WHITE) ; setShadowLayer(6f, 0f, 0f, Color.BLACK) },
+                android.widget.FrameLayout.LayoutParams(-2, -2, Gravity.CENTER),
+            )
+        }
         val row = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -319,10 +351,11 @@ object Look {
             visibility = View.GONE
             // The words take what the two leave, so that the cross never goes past the edge.
             addView(clip)
+            addView(picture, LinearLayout.LayoutParams(side, side).apply { marginStart = pad * 2 ; marginEnd = pad * 2 })
             addView(said, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
             addView(cross)
         }
-        return Carried(row, said, clip, cross)
+        return Carried(row, said, clip, cross, picture, sign)
     }
 
     /**

@@ -686,6 +686,7 @@ class ThreadActivity : AskingActivity() {
 
     override fun onPause() {
         shown = false
+        Preview.stop()
         keepDraft()
         Listening.onChange = null
         playingPiece = null
@@ -1165,6 +1166,8 @@ class ThreadActivity : AskingActivity() {
         carried = what
         chipRow.visibility = if (what == null) View.GONE else View.VISIBLE
         carriedRow.attached(true)
+        // Shown small, to be checked before it leaves: looked at, watched or listened to when pressed.
+        Preview.show(this, carriedRow, what, person?.name ?: number)
         chip.text = what?.let {
             val weight = it.bytes.size / 1024 + 1
             it.millis?.let { long -> getString(R.string.carrying_long, it.name, Media.clock(long), weight) } ?: getString(R.string.carrying, it.name, weight)

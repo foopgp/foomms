@@ -44,11 +44,13 @@ class ManyActivity : AskingActivity() {
     private var carried: Media.Attachment? = null
     private lateinit var chip: android.widget.TextView
     private lateinit var chipRow: LinearLayout
+    private lateinit var carriedShown: Look.Carried
 
     /** The draft as it was read when the page opened: kept again only once it has changed. */
     private var draftRead = ""
 
     override fun onPause() {
+        Preview.stop()
         // Closed before anything was laid out -- fewer than two numbers --: nothing written to keep.
         if (::field.isInitialized) {
             val words = field.text.toString()
@@ -90,7 +92,8 @@ class ManyActivity : AskingActivity() {
                 orientation = LinearLayout.VERTICAL
                 addView(ScrollView(context).apply { addView(people) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
                 // What is attached, said above the field; only its cross takes it off.
-                val shown = Look.carried(context) { carried = null ; chipRow.visibility = View.GONE }
+                val shown = Look.carried(context) { carried = null ; chipRow.visibility = View.GONE ; Preview.show(this@ManyActivity, carriedShown, null, title.toString()) }
+                carriedShown = shown
                 chip = shown.words
                 chipRow = shown.row
                 writing = LinearLayout(context).apply {
@@ -140,6 +143,7 @@ class ManyActivity : AskingActivity() {
                     carried = made
                     chip.text = getString(R.string.carrying, made.name, made.bytes.size / 1024 + 1)
                     chipRow.visibility = View.VISIBLE
+                    Preview.show(this, carriedShown, made, title.toString())
                 }
             }
         }
