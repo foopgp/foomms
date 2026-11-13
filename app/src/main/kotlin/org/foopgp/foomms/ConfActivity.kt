@@ -158,6 +158,11 @@ class ConfActivity : AskingActivity() {
         )
         note(R.string.conf_to_myself_note)
 
+        // The senders blocked, from a conversation's menu: Android keeps them, on a page of its own.
+        heading(R.string.conf_blocked)
+        note(R.string.conf_blocked_note)
+        column.addView(Look.button(this, getString(R.string.conf_blocked_open)) { Blocked.manage(this) })
+
         heading(R.string.conf_mms)
         // How many SMS a text may leave in: beyond, an MMS, or with MMS off asked first. What the operator says, as a hint.
         subheading(R.string.conf_sms_most)

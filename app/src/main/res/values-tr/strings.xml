@@ -337,4 +337,9 @@
         <item quantity="one">%d mesaj</item>
         <item quantity="other">%d mesaj</item>
     </plurals>
+    <string name="block">🚫 Bu göndereni engelle</string>
+    <string name="unblock">✅ Bu gönderenin engelini kaldır</string>
+    <string name="conf_blocked">Engellenen gönderenler</string>
+    <string name="conf_blocked_note">Listeyi Android tutar; mesajlar ve aramalar için ortaktır. Bir gönderen, bir konuşmanın menüsünden engellenir.</string>
+    <string name="conf_blocked_open">Android engellerini gör</string>
 </resources>

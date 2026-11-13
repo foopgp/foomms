@@ -339,4 +339,9 @@
         <item quantity="one">%d message</item>
         <item quantity="other">%d messages</item>
     </plurals>
+    <string name="block">🚫 Block this sender</string>
+    <string name="unblock">✅ Unblock this sender</string>
+    <string name="conf_blocked">Blocked senders</string>
+    <string name="conf_blocked_note">Android keeps the list, shared by messages and calls. Senders are blocked from a conversation\'s menu.</string>
+    <string name="conf_blocked_open">Open Android\'s blocked list</string>
 </resources>

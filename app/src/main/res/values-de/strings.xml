@@ -337,4 +337,9 @@
         <item quantity="one">%d Nachricht</item>
         <item quantity="other">%d Nachrichten</item>
     </plurals>
+    <string name="block">🚫 Diesen Absender blockieren</string>
+    <string name="unblock">✅ Diesen Absender freigeben</string>
+    <string name="conf_blocked">Blockierte Absender</string>
+    <string name="conf_blocked_note">Android führt die Liste, gemeinsam für Nachrichten und Anrufe. Ein Absender wird im Menü einer Unterhaltung blockiert.</string>
+    <string name="conf_blocked_open">Android-Sperren anzeigen</string>
 </resources>

@@ -337,4 +337,9 @@
         <item quantity="one">%d μήνυμα</item>
         <item quantity="other">%d μηνύματα</item>
     </plurals>
+    <string name="block">🚫 Αποκλεισμός αυτού του αποστολέα</string>
+    <string name="unblock">✅ Άρση αποκλεισμού αυτού του αποστολέα</string>
+    <string name="conf_blocked">Αποκλεισμένοι αποστολείς</string>
+    <string name="conf_blocked_note">Το Android τηρεί τη λίστα, κοινή για μηνύματα και κλήσεις. Ένας αποστολέας αποκλείεται από το μενού μιας συνομιλίας.</string>
+    <string name="conf_blocked_open">Προβολή αποκλεισμών Android</string>
 </resources>

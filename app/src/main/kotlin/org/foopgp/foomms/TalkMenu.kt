@@ -190,6 +190,14 @@ object TalkMenu {
             add(R.string.tie, tie)
         }
         add(if (muted) R.string.unmute else R.string.mute) { Marks.mute(activity, sender, !muted) ; changed() }
+        // Blocked by Android, a name as well as a number: only as the phone's messaging application, which alone may.
+        if (Blocked.can(activity)) {
+            if (Blocked.of(activity, sender)) {
+                add(R.string.unblock) { Blocked.set(activity, sender, false) }
+            } else {
+                add(R.string.block) { Blocked.set(activity, sender, true) }
+            }
+        }
         if (alone != null) add(aloneWords, alone)
         if (thread != null && alone == null) add(R.string.backup_one, save)
         if (thread != null && alone == null) {

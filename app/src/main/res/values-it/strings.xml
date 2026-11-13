@@ -337,4 +337,9 @@
         <item quantity="one">%d messaggio</item>
         <item quantity="other">%d messaggi</item>
     </plurals>
+    <string name="block">🚫 Blocca questo mittente</string>
+    <string name="unblock">✅ Sblocca questo mittente</string>
+    <string name="conf_blocked">Mittenti bloccati</string>
+    <string name="conf_blocked_note">Android tiene l\'elenco, comune a messaggi e chiamate. Un mittente si blocca dal menu di una conversazione.</string>
+    <string name="conf_blocked_open">Vedi i blocchi di Android</string>
 </resources>

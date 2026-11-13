@@ -355,4 +355,9 @@
         <item quantity="many">%d повідомлень</item>
         <item quantity="other">%d повідомлення</item>
     </plurals>
+    <string name="block">🚫 Заблокувати цього відправника</string>
+    <string name="unblock">✅ Розблокувати цього відправника</string>
+    <string name="conf_blocked">Заблоковані відправники</string>
+    <string name="conf_blocked_note">Список веде Android, спільний для повідомлень і дзвінків. Відправника блокують із меню розмови.</string>
+    <string name="conf_blocked_open">Переглянути блокування Android</string>
 </resources>

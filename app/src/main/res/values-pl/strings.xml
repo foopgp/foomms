@@ -355,4 +355,9 @@
         <item quantity="many">%d wiadomości</item>
         <item quantity="other">%d wiadomości</item>
     </plurals>
+    <string name="block">🚫 Zablokuj tego nadawcę</string>
+    <string name="unblock">✅ Odblokuj tego nadawcę</string>
+    <string name="conf_blocked">Zablokowani nadawcy</string>
+    <string name="conf_blocked_note">Listę prowadzi Android, wspólną dla wiadomości i połączeń. Nadawcę blokuje się z menu rozmowy.</string>
+    <string name="conf_blocked_open">Zobacz blokady Androida</string>
 </resources>
