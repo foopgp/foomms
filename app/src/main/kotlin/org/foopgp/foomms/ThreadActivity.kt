@@ -1044,7 +1044,14 @@ class ThreadActivity : AskingActivity() {
         // MMS off: no part, no group -- said before anything else.
         if ((with != null || group) && !Conf.mms(this)) return say(getString(R.string.mms_off))
         // To a group, this phone gets it back: not without its number, which one's own contact gives.
-        if (group && Me.number(this) == null) return say(getString(R.string.group_needs_me))
+        if (group && Me.number(this) == null) {
+            // The way to it, on the profile's page opened over this one: back from it, the message is still here.
+            AlertDialog.Builder(this).setMessage(R.string.group_needs_me)
+                .setPositiveButton(R.string.page_profile) { _, _ -> Menus.profile(this) }
+                .setNegativeButton(R.string.close, null)
+                .show()
+            return
+        }
         // More than the limit set, oneself included: networks may refuse it, or deliver it to each alone. Asked.
         if (group && !manySaid && members.size + 1 > Conf.groupMost(this)) {
             AlertDialog.Builder(this)

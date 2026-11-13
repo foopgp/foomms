@@ -11,6 +11,12 @@ object Menus {
 
     fun configure(activity: Activity) = activity.startActivity(Intent(activity, ConfActivity::class.java))
 
+    /** The profile's page, opened over the page asking -- where one's contact is tied: back from it, that page again. */
+    fun profile(activity: Activity) = activity.startActivity(Intent(activity, MainActivity::class.java).putExtra(PROFILE, true))
+
+    /** Said to the list's page: open on the profile's page. */
+    const val PROFILE = "org.foopgp.foomms.profile"
+
     /**
      * A new message: its page, where whom it is for is chosen ([WriteActivity]),
      * with what was shared from another application.

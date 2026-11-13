@@ -317,7 +317,7 @@ class MainActivity : AskingActivity() {
         Edges.fit(this)
         shared(intent)
         // Oneself not said yet: a start opens on the profile's page, where it is said.
-        if (state == null && Me.card(this) == null) go(Page.PROFILE)
+        if (state == null && (Me.card(this) == null || intent?.getBooleanExtra(Menus.PROFILE, false) == true)) go(Page.PROFILE)
     }
 
     private var dressed = false
