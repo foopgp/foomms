@@ -1,0 +1,5 @@
+• Dopóki „Mój profil” nie jest ustawiony, foomms otwiera się na nim i pokazuje, jak powiązać swoją kartę.
+• Blokowanie nadawcy, także podpisanego nazwą, z menu jego rozmowy.
+• Załączone zdjęcie, wideo lub dźwięk można sprawdzić przed wysłaniem.
+• Zapisz wszystko: w jednym pliku lub po jednym na rozmowę; kilka kopii przywraca się naraz.
+• Zapis nie zawodzi już przy niektórych SMS ani przy wielu załącznikach.

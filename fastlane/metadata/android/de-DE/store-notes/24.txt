@@ -1,0 +1,5 @@
+• Solange „Mein Profil“ nicht festgelegt ist, öffnet sich foomms darauf und zeigt, wie Sie Ihre Kontaktkarte verknüpfen.
+• Einen Absender blockieren, auch einen mit Namen, über das Menü seiner Unterhaltung.
+• Ein angehängtes Foto, Video oder Tonstück lässt sich vor dem Senden prüfen.
+• Alles sichern: in einer Datei oder einer pro Unterhaltung; mehrere Sicherungen lassen sich auf einmal wiederherstellen.
+• Das Sichern scheitert nicht mehr an manchen SMS oder an vielen Anhängen.

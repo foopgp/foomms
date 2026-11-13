@@ -1,0 +1,6 @@
+• Tant que « Mon profil » n'est pas défini, foomms s'ouvre dessus et montre comment relier sa fiche.
+• Bloquer un expéditeur, même désigné par un nom, depuis le menu de sa conversation.
+• Une photo, une vidéo ou un son joints se vérifient avant l'envoi.
+• Tout sauvegarder : en un fichier ou un par conversation ; plusieurs sauvegardes se restaurent d'un coup.
+• La sauvegarde n'échoue plus sur certains SMS, ni avec beaucoup de pièces jointes.
+• foodjis demande dès le démarrage d'autoriser foomms, s'il ne l'a pas encore fait.

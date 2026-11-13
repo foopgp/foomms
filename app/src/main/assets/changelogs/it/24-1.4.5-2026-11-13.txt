@@ -1,0 +1,6 @@
+• Finché «Il mio profilo» non è definito, foomms si apre su di esso e mostra come collegare la propria scheda.
+• Bloccare un mittente, anche indicato da un nome, dal menu della sua conversazione.
+• Una foto, un video o un suono allegati si possono verificare prima dell'invio.
+• Salvare tutto: in un file o uno per conversazione; più salvataggi si ripristinano in una volta.
+• Il salvataggio non fallisce più su certi SMS, né con molti allegati.
+• foodjis chiede all'avvio di autorizzare foomms, se non l'ha ancora fatto.

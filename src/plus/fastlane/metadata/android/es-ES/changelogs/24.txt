@@ -1,0 +1,5 @@
+• Mientras «Mi perfil» no esté definido, foomms se abre en él y muestra cómo vincular su ficha.
+• Bloquear un remitente, incluso uno designado por un nombre, desde el menú de su conversación.
+• Una foto, un vídeo o un sonido adjuntos se pueden comprobar antes de enviarlos.
+• Guardarlo todo: en un archivo o uno por conversación; varias copias se restauran de una vez.
+• La copia ya no falla con algunos SMS ni con muchos adjuntos.

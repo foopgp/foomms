@@ -1,0 +1,5 @@
+• “Profilim” belirlenmediği sürece foomms onunla açılır ve kişi kartınızı nasıl bağlayacağınızı gösterir.
+• Bir göndereni, adla görünse bile, konuşmasının menüsünden engelleyin.
+• Eklenen fotoğraf, video veya ses göndermeden önce kontrol edilebilir.
+• Her şeyi kaydet: tek dosyada ya da konuşma başına bir dosyada; birden çok yedek tek seferde geri yüklenir.
+• Kaydetme artık bazı SMS'lerde ve çok sayıda ekte başarısız olmuyor.
