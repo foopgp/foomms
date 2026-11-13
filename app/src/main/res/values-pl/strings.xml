@@ -360,4 +360,15 @@
     <string name="conf_blocked">Zablokowani nadawcy</string>
     <string name="conf_blocked_note">Listę prowadzi Android, wspólną dla wiadomości i połączeń. Nadawcę blokuje się z menu rozmowy.</string>
     <string name="conf_blocked_open">Zobacz blokady Androida</string>
+    <string name="backup_all_ask">Zapisać wszystko w jednym pliku, o rozmiarze około %1$s? Czy po jednym pliku na rozmowę?</string>
+    <string name="backup_all_ask_unknown">Zapisać wszystko w jednym pliku? Czy po jednym pliku na rozmowę?</string>
+    <string name="backup_all_one">Jeden plik</string>
+    <string name="backup_all_each">Jeden na rozmowę</string>
+    <plurals name="backup_saved_each">
+        <item quantity="one">Zapisano: %1$d plik, %2$d SMS i %3$d MMS.</item>
+        <item quantity="few">Zapisano: %1$d pliki, %2$d SMS i %3$d MMS.</item>
+        <item quantity="many">Zapisano: %1$d plików, %2$d SMS i %3$d MMS.</item>
+        <item quantity="other">Zapisano: %1$d pliku, %2$d SMS i %3$d MMS.</item>
+    </plurals>
+    <string name="backup_restored_all">Przywracanie zakończone.</string>
 </resources>

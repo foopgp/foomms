@@ -360,4 +360,15 @@
     <string name="conf_blocked">Заблокированные отправители</string>
     <string name="conf_blocked_note">Список ведёт Android, общий для сообщений и звонков. Отправителя блокируют из меню разговора.</string>
     <string name="conf_blocked_open">Посмотреть блокировки Android</string>
+    <string name="backup_all_ask">Сохранить всё в одном файле, примерно %1$s? Или по файлу на каждый разговор?</string>
+    <string name="backup_all_ask_unknown">Сохранить всё в одном файле? Или по файлу на каждый разговор?</string>
+    <string name="backup_all_one">Один файл</string>
+    <string name="backup_all_each">По одному на разговор</string>
+    <plurals name="backup_saved_each">
+        <item quantity="one">Сохранено: %1$d файл, %2$d SMS и %3$d MMS.</item>
+        <item quantity="few">Сохранено: %1$d файла, %2$d SMS и %3$d MMS.</item>
+        <item quantity="many">Сохранено: %1$d файлов, %2$d SMS и %3$d MMS.</item>
+        <item quantity="other">Сохранено: %1$d файла, %2$d SMS и %3$d MMS.</item>
+    </plurals>
+    <string name="backup_restored_all">Восстановление завершено.</string>
 </resources>

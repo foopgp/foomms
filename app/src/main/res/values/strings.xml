@@ -344,4 +344,13 @@
     <string name="conf_blocked">Blocked senders</string>
     <string name="conf_blocked_note">Android keeps the list, shared by messages and calls. Senders are blocked from a conversation\'s menu.</string>
     <string name="conf_blocked_open">Open Android\'s blocked list</string>
+    <string name="backup_all_ask">Save everything in one file, of about %1$s? Or one file per conversation?</string>
+    <string name="backup_all_ask_unknown">Save everything in one file? Or one file per conversation?</string>
+    <string name="backup_all_one">One file</string>
+    <string name="backup_all_each">One per conversation</string>
+    <plurals name="backup_saved_each">
+        <item quantity="one">Saved: %1$d file, %2$d SMS and %3$d MMS.</item>
+        <item quantity="other">Saved: %1$d files, %2$d SMS and %3$d MMS.</item>
+    </plurals>
+    <string name="backup_restored_all">Restoring done.</string>
 </resources>

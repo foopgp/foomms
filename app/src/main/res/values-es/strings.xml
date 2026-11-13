@@ -342,4 +342,13 @@
     <string name="conf_blocked">Remitentes bloqueados</string>
     <string name="conf_blocked_note">Android lleva la lista, común a mensajes y llamadas. Un remitente se bloquea desde el menú de una conversación.</string>
     <string name="conf_blocked_open">Ver los bloqueos de Android</string>
+    <string name="backup_all_ask">¿Guardarlo todo en un solo archivo, de unos %1$s? ¿O un archivo por conversación?</string>
+    <string name="backup_all_ask_unknown">¿Guardarlo todo en un solo archivo? ¿O un archivo por conversación?</string>
+    <string name="backup_all_one">Un solo archivo</string>
+    <string name="backup_all_each">Uno por conversación</string>
+    <plurals name="backup_saved_each">
+        <item quantity="one">Guardado: %1$d archivo, %2$d SMS y %3$d MMS.</item>
+        <item quantity="other">Guardado: %1$d archivos, %2$d SMS y %3$d MMS.</item>
+    </plurals>
+    <string name="backup_restored_all">Restauración terminada.</string>
 </resources>

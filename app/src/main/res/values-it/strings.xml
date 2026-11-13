@@ -342,4 +342,13 @@
     <string name="conf_blocked">Mittenti bloccati</string>
     <string name="conf_blocked_note">Android tiene l\'elenco, comune a messaggi e chiamate. Un mittente si blocca dal menu di una conversazione.</string>
     <string name="conf_blocked_open">Vedi i blocchi di Android</string>
+    <string name="backup_all_ask">Salvare tutto in un solo file, di circa %1$s? Oppure un file per conversazione?</string>
+    <string name="backup_all_ask_unknown">Salvare tutto in un solo file? Oppure un file per conversazione?</string>
+    <string name="backup_all_one">Un solo file</string>
+    <string name="backup_all_each">Uno per conversazione</string>
+    <plurals name="backup_saved_each">
+        <item quantity="one">Salvato: %1$d file, %2$d SMS e %3$d MMS.</item>
+        <item quantity="other">Salvato: %1$d file, %2$d SMS e %3$d MMS.</item>
+    </plurals>
+    <string name="backup_restored_all">Ripristino terminato.</string>
 </resources>

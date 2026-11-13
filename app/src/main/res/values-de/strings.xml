@@ -342,4 +342,13 @@
     <string name="conf_blocked">Blockierte Absender</string>
     <string name="conf_blocked_note">Android führt die Liste, gemeinsam für Nachrichten und Anrufe. Ein Absender wird im Menü einer Unterhaltung blockiert.</string>
     <string name="conf_blocked_open">Android-Sperren anzeigen</string>
+    <string name="backup_all_ask">Alles in einer einzigen Datei von etwa %1$s sichern? Oder eine Datei pro Unterhaltung?</string>
+    <string name="backup_all_ask_unknown">Alles in einer einzigen Datei sichern? Oder eine Datei pro Unterhaltung?</string>
+    <string name="backup_all_one">Eine Datei</string>
+    <string name="backup_all_each">Eine pro Unterhaltung</string>
+    <plurals name="backup_saved_each">
+        <item quantity="one">Gesichert: %1$d Datei, %2$d SMS und %3$d MMS.</item>
+        <item quantity="other">Gesichert: %1$d Dateien, %2$d SMS und %3$d MMS.</item>
+    </plurals>
+    <string name="backup_restored_all">Wiederherstellung beendet.</string>
 </resources>

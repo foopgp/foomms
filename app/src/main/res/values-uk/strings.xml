@@ -360,4 +360,15 @@
     <string name="conf_blocked">Заблоковані відправники</string>
     <string name="conf_blocked_note">Список веде Android, спільний для повідомлень і дзвінків. Відправника блокують із меню розмови.</string>
     <string name="conf_blocked_open">Переглянути блокування Android</string>
+    <string name="backup_all_ask">Зберегти все в одному файлі, приблизно %1$s? Чи по файлу на кожну розмову?</string>
+    <string name="backup_all_ask_unknown">Зберегти все в одному файлі? Чи по файлу на кожну розмову?</string>
+    <string name="backup_all_one">Один файл</string>
+    <string name="backup_all_each">По одному на розмову</string>
+    <plurals name="backup_saved_each">
+        <item quantity="one">Збережено: %1$d файл, %2$d SMS і %3$d MMS.</item>
+        <item quantity="few">Збережено: %1$d файли, %2$d SMS і %3$d MMS.</item>
+        <item quantity="many">Збережено: %1$d файлів, %2$d SMS і %3$d MMS.</item>
+        <item quantity="other">Збережено: %1$d файлу, %2$d SMS і %3$d MMS.</item>
+    </plurals>
+    <string name="backup_restored_all">Відновлення завершено.</string>
 </resources>

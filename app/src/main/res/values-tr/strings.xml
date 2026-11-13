@@ -342,4 +342,13 @@
     <string name="conf_blocked">Engellenen gönderenler</string>
     <string name="conf_blocked_note">Listeyi Android tutar; mesajlar ve aramalar için ortaktır. Bir gönderen, bir konuşmanın menüsünden engellenir.</string>
     <string name="conf_blocked_open">Android engellerini gör</string>
+    <string name="backup_all_ask">Her şey yaklaşık %1$s boyutunda tek bir dosyaya mı kaydedilsin? Yoksa konuşma başına bir dosya mı?</string>
+    <string name="backup_all_ask_unknown">Her şey tek bir dosyaya mı kaydedilsin? Yoksa konuşma başına bir dosya mı?</string>
+    <string name="backup_all_one">Tek dosya</string>
+    <string name="backup_all_each">Konuşma başına bir</string>
+    <plurals name="backup_saved_each">
+        <item quantity="one">Kaydedildi: %1$d dosya, %2$d SMS ve %3$d MMS.</item>
+        <item quantity="other">Kaydedildi: %1$d dosya, %2$d SMS ve %3$d MMS.</item>
+    </plurals>
+    <string name="backup_restored_all">Geri yükleme tamamlandı.</string>
 </resources>

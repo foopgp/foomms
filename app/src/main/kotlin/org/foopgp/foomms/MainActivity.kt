@@ -260,7 +260,7 @@ class MainActivity : AskingActivity() {
                     orientation = LinearLayout.HORIZONTAL
                     gravity = Gravity.CENTER_VERTICAL
                     addView(bytesSaid, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-                    addView(Look.small(context, getString(R.string.backup_save)) { Saving.save(this@MainActivity) })
+                    addView(Look.small(context, getString(R.string.backup_save)) { Saving.saveAll(this@MainActivity, counts?.bytes) })
                 },
             )
             addView(

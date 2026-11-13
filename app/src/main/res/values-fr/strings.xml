@@ -342,4 +342,13 @@
     <string name="conf_blocked">Expéditeurs bloqués</string>
     <string name="conf_blocked_note">Android tient la liste, commune aux messages et aux appels. On bloque un expéditeur depuis le menu d\'une conversation.</string>
     <string name="conf_blocked_open">Voir les blocages Android</string>
+    <string name="backup_all_ask">Tout sauvegarder dans un seul fichier, d\'environ %1$s ? Ou un fichier par conversation ?</string>
+    <string name="backup_all_ask_unknown">Tout sauvegarder dans un seul fichier ? Ou un fichier par conversation ?</string>
+    <string name="backup_all_one">Un seul fichier</string>
+    <string name="backup_all_each">Un par conversation</string>
+    <plurals name="backup_saved_each">
+        <item quantity="one">Enregistré : %1$d fichier, %2$d SMS et %3$d MMS.</item>
+        <item quantity="other">Enregistré : %1$d fichiers, %2$d SMS et %3$d MMS.</item>
+    </plurals>
+    <string name="backup_restored_all">Restauration terminée.</string>
 </resources>
