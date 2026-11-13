@@ -124,6 +124,15 @@ class Foodjis(private val context: Context) {
         }
     }
 
+    /**
+     * Whether foodjis lets this application in, asked with a question that
+     * costs it nothing: null when it could not answer, or is not there.
+     */
+    fun letIn(): Boolean? {
+        val answer = tried { context.contentResolver.query(Uri.parse("$door/cert/${"0".repeat(40)}"), null, null, null, null)?.close() }
+        return if (answer.isSuccess) true else if (shut) false else null
+    }
+
     private fun <T> asked(question: () -> T?): T? = tried(question).getOrNull()
 
     /** The answer, or why there was none: foodjis not letting this application in, or not there to answer. */

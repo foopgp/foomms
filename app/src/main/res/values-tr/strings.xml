@@ -244,10 +244,6 @@
     <string name="page_talks">Konuşmalar</string>
     <string name="page_profile">Profilim</string>
     <string name="page_profile_n">Profilim (%1$d)</string>
-    <string name="me_wizard_title">Hangi kişi kartı sizin?</string>
-    <string name="me_wizard_text">foomms\'a hangi kişi kartının sizin olduğunu söyleyin: gruplarda numaranız ve sertifikanızla sizi temsil eder. «Profilim» bölümünden değiştirebilirsiniz.</string>
-    <string name="me_wizard_choose">Kartımı seç</string>
-    <string name="me_wizard_later">Daha sonra</string>
     <plurals name="talks_n">
         <item quantity="one">%d konuşma</item>
         <item quantity="other">%d konuşma</item>
@@ -275,7 +271,7 @@
     <string name="send_each_note">Herkes kendi mesajını alır ve yalnızca size yanıt verir.</string>
     <string name="send_group_note">Herkes için tek bir MMS; herkes grupta kimin olduğunu ve herkesin yanıtlarını görür.</string>
     <string name="send_group_most">Grup MMS\'i 2 ile %1$d alıcı arasına gider.</string>
-    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <!-- Oneself, on the profile's page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Kişi kartını değiştir</string>
     <string name="me_create">✚ Kişi kartımı oluştur</string>
     <string name="me_tie_mine">Sertifikama bağla: %1$s</string>
@@ -284,7 +280,7 @@
     <string name="me_default">☎ Varsayılan numarayı belirle</string>
     <string name="me_link">“%1$s” ile bağla (%2$s)</string>
     <string name="me_choose_for">Ben, %1$s numarasında:</string>
-    <string name="me_no_number">Bu kişi kartında telefon numarası yok: burada sizinki olamaz. Bu telefonun numarasını ekleyin, sonra “Ben” bölümünden bağlayın.</string>
+    <string name="me_no_number">Bu kişi kartında telefon numarası yok: burada sizinki olamaz. Bu telefonun numarasını ekleyin, sonra “Profilim” sayfasından bağlayın.</string>
     <string name="me_tag">(ben)</string>
     <string name="me_unknown">numara bilinmiyor</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
@@ -292,7 +288,7 @@
     <string name="name_contact">Kişi kartındakini koru:</string>
     <string name="name_certificate">Sertifikadakini al:</string>
     <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">Grup MMS\'i size de, numaranıza gider: önce MMS grupları sayfasındaki “Ben” bölümünden kişi kartınızı bağlayın.</string>
+    <string name="group_needs_me">Grup MMS\'i size de, numaranıza gider: önce “Profilim” sayfasından kişi kartınızı bağlayın.</string>
     <string name="altered_title">Grup mesajı değiştirilmiş</string>
     <string name="altered">Gönderdiğiniz bir grup mesajı size farklı döndü: yolda büyük olasılıkla tüm alıcılar için değiştirildi.</string>
     <string name="channel_altered">Değiştirilmiş mesajlar</string>
@@ -333,9 +329,6 @@
     <string name="conf_mms_on_note">Grup mesajları, uzun metinler, sesli mesajlar, fotoğraflar veya kısa videolar göndermeyi sağlar. Bir operatörden diğerine MMS, SMS kadar güvenle ulaşmaz ve bazı tarifeler ücret alır. Bazı operatörler ise MMS\'i hiç desteklemiyor; bu da internet mesajlaşma uygulamalarına, dolayısıyla küresel gözetime yarıyor.</string>
     <string name="mms_off">Yapılandırmada MMS gönderimine izin verilmiyor: ne ek, ne sesli mesaj, ne grup MMS\'i.</string>
     <string name="many_sms">Bu mesaj %1$d SMS olarak gider: bazı telefonlar onları kötü birleştirir ve operatörünüz her birini ayrı ücretlendirebilir.</string>
-    <string name="conf_calls_heading">Aramalar</string>
-    <string name="conf_calls">Aramaları konuşmalarda göster</string>
-    <string name="conf_calls_note">Bir kişiyle yapılan aramalar, zamanlarında mesajların arasında görünür. foomms+ bunun için telefonun arama kaydını okur; bu kayıt telefondan hiç çıkmaz.</string>
     <string name="call_in">📞 Gelen arama</string>
     <string name="call_out">📞 Giden arama</string>
     <string name="call_missed">📞 Cevapsız arama</string>
@@ -344,4 +337,18 @@
         <item quantity="one">%d mesaj</item>
         <item quantity="other">%d mesaj</item>
     </plurals>
+    <string name="block">🚫 Bu göndereni engelle</string>
+    <string name="unblock">✅ Bu gönderenin engelini kaldır</string>
+    <string name="conf_blocked">Engellenen gönderenler</string>
+    <string name="conf_blocked_note">Listeyi Android tutar; mesajlar ve aramalar için ortaktır. Bir gönderen, bir konuşmanın menüsünden engellenir.</string>
+    <string name="conf_blocked_open">Android engellerini gör</string>
+    <string name="backup_all_ask">Her şey yaklaşık %1$s boyutunda tek bir dosyaya mı kaydedilsin? Yoksa konuşma başına bir dosya mı?</string>
+    <string name="backup_all_ask_unknown">Her şey tek bir dosyaya mı kaydedilsin? Yoksa konuşma başına bir dosya mı?</string>
+    <string name="backup_all_one">Tek dosya</string>
+    <string name="backup_all_each">Konuşma başına bir</string>
+    <plurals name="backup_saved_each">
+        <item quantity="one">Kaydedildi: %1$d dosya, %2$d SMS ve %3$d MMS.</item>
+        <item quantity="other">Kaydedildi: %1$d dosya, %2$d SMS ve %3$d MMS.</item>
+    </plurals>
+    <string name="backup_restored_all">Geri yükleme tamamlandı.</string>
 </resources>

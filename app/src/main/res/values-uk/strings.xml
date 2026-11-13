@@ -244,10 +244,6 @@
     <string name="page_talks">Розмови</string>
     <string name="page_profile">Мій профіль</string>
     <string name="page_profile_n">Мій профіль (%1$d)</string>
-    <string name="me_wizard_title">Яка картка контакту ваша?</string>
-    <string name="me_wizard_text">Вкажіть foomms, яка картка контакту ваша: вона представляє вас у групах, з вашим номером і сертифікатом. Ви зможете змінити її в «Мій профіль».</string>
-    <string name="me_wizard_choose">Вибрати мою картку</string>
-    <string name="me_wizard_later">Пізніше</string>
     <plurals name="talks_n">
         <item quantity="one">%d розмова</item>
         <item quantity="few">%d розмови</item>
@@ -285,7 +281,7 @@
     <string name="send_each_note">Кожен отримує своє повідомлення й відповідає лише вам.</string>
     <string name="send_group_note">Один MMS для всіх, у якому кожен бачить, хто в групі, і відповіді всіх.</string>
     <string name="send_group_most">Групове MMS — від 2 до %1$d одержувачів.</string>
-    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <!-- Oneself, on the profile's page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Змінити картку контакту</string>
     <string name="me_create">✚ Створити мою картку контакту</string>
     <string name="me_tie_mine">Пов\'язати з моїм сертифікатом: %1$s</string>
@@ -294,7 +290,7 @@
     <string name="me_default">☎ Вибрати типовий номер</string>
     <string name="me_link">Пов\'язати з «%1$s» (%2$s)</string>
     <string name="me_choose_for">Я, за номером %1$s:</string>
-    <string name="me_no_number">У цій картці контакту немає номера телефона: тут вона не може бути вашою. Додайте до неї номер цього телефона, потім пов\'яжіть її в розділі «Я».</string>
+    <string name="me_no_number">У цій картці контакту немає номера телефона: тут вона не може бути вашою. Додайте до неї номер цього телефона, потім пов\'яжіть її на сторінці «Мій профіль».</string>
     <string name="me_tag">(я)</string>
     <string name="me_unknown">номер невідомий</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
@@ -302,7 +298,7 @@
     <string name="name_contact">Залишити ім\'я з контакту:</string>
     <string name="name_certificate">Узяти ім\'я із сертифіката:</string>
     <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">Групове MMS надходить і вам, на ваш номер: спершу пов\'яжіть свою картку контакту в розділі «Я» на сторінці «MMS-групи».</string>
+    <string name="group_needs_me">Групове MMS надходить і вам, на ваш номер: спершу пов\'яжіть свою картку контакту на сторінці «Мій профіль».</string>
     <string name="altered_title">Групове повідомлення змінено</string>
     <string name="altered">Надіслане вами групове повідомлення повернулося іншим: імовірно, його змінили в дорозі, для всіх одержувачів.</string>
     <string name="channel_altered">Змінені повідомлення</string>
@@ -349,9 +345,6 @@
     <string name="conf_mms_on_note">Дає змогу надсилати групові повідомлення, довгі тексти, голосові повідомлення, фото чи короткі відео. Між операторами MMS доходить менш надійно, ніж SMS, а деякі тарифи його оплачують окремо. Інші оператори зовсім не підтримують MMS, що вигідно інтернет-месенджерам, а отже, глобальному стеженню.</string>
     <string name="mms_off">Надсилання MMS не дозволено в налаштуваннях: ні вкладень, ні голосових повідомлень, ні групових MMS.</string>
     <string name="many_sms">Це повідомлення піде %1$d SMS: деякі телефони погано їх складають, а оператор може брати плату за кожне.</string>
-    <string name="conf_calls_heading">Дзвінки</string>
-    <string name="conf_calls">Показувати дзвінки в листуванні</string>
-    <string name="conf_calls_note">Дзвінки з людиною з\'являються між повідомленнями, у свій час. Для цього foomms+ читає журнал дзвінків телефону, який ніколи не залишає телефон.</string>
     <string name="call_in">📞 Вхідний дзвінок</string>
     <string name="call_out">📞 Вихідний дзвінок</string>
     <string name="call_missed">📞 Пропущений дзвінок</string>
@@ -362,4 +355,20 @@
         <item quantity="many">%d повідомлень</item>
         <item quantity="other">%d повідомлення</item>
     </plurals>
+    <string name="block">🚫 Заблокувати цього відправника</string>
+    <string name="unblock">✅ Розблокувати цього відправника</string>
+    <string name="conf_blocked">Заблоковані відправники</string>
+    <string name="conf_blocked_note">Список веде Android, спільний для повідомлень і дзвінків. Відправника блокують із меню розмови.</string>
+    <string name="conf_blocked_open">Переглянути блокування Android</string>
+    <string name="backup_all_ask">Зберегти все в одному файлі, приблизно %1$s? Чи по файлу на кожну розмову?</string>
+    <string name="backup_all_ask_unknown">Зберегти все в одному файлі? Чи по файлу на кожну розмову?</string>
+    <string name="backup_all_one">Один файл</string>
+    <string name="backup_all_each">По одному на розмову</string>
+    <plurals name="backup_saved_each">
+        <item quantity="one">Збережено: %1$d файл, %2$d SMS і %3$d MMS.</item>
+        <item quantity="few">Збережено: %1$d файли, %2$d SMS і %3$d MMS.</item>
+        <item quantity="many">Збережено: %1$d файлів, %2$d SMS і %3$d MMS.</item>
+        <item quantity="other">Збережено: %1$d файлу, %2$d SMS і %3$d MMS.</item>
+    </plurals>
+    <string name="backup_restored_all">Відновлення завершено.</string>
 </resources>

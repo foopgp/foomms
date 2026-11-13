@@ -23,6 +23,19 @@ object Backup {
 
     class Done(val sms: Int, val mms: Int, val skipped: Int = 0)
 
+    /** Every conversation with a message in it, drafts aside: what saving each in its own file goes through. */
+    fun threads(context: Context): List<Long> {
+        val found = sortedSetOf<Long>()
+        for ((table, where) in listOf("content://sms" to Store.SMS_NOT_DRAFT, "content://mms" to Store.MMS_NOT_DRAFT)) {
+            runCatching {
+                context.contentResolver.query(Uri.parse(table), arrayOf("thread_id"), where, null, null)?.use { rows ->
+                    while (rows.moveToNext()) found += rows.getLong(0)
+                }
+            }
+        }
+        return found.toList()
+    }
+
     /** Write every message, or those of one conversation, to [out]. */
     fun write(context: Context, out: OutputStream, thread: Long?): Done {
         val resolver = context.contentResolver
@@ -33,9 +46,7 @@ object Backup {
             val also = alsoSent.filter { it.mms == mms }.map { it.id }
             "thread_id = $mine" + if (also.isEmpty()) "" else " OR _id IN (${also.joinToString(",")})"
         }
-        val xml = Xml.newSerializer()
-        xml.setOutput(out, "UTF-8")
-        xml.startDocument("UTF-8", true)
+        val xml = Writer(out)
         // Drafts are not kept: foomms's are a mark in the conversation, their words held by foomms alone.
         val sms = resolver.query(Uri.parse("content://sms"), null, within(false)?.let { "($it) AND ${Store.SMS_NOT_DRAFT}" } ?: Store.SMS_NOT_DRAFT, null, "date ASC")
         val mms = resolver.query(Uri.parse("content://mms"), null, within(true)?.let { "($it) AND ${Store.MMS_NOT_DRAFT}" } ?: Store.MMS_NOT_DRAFT, null, "date ASC")
@@ -87,10 +98,8 @@ object Backup {
                         // The text column holds plain text and SMIL only: any other part -- a vCard, a group's members, a
                         // calendar -- is in its file, and saved from there, or it came back empty.
                         if (type != "text/plain" && type != "application/smil") {
-                            val bytes = runCatching {
-                                resolver.openInputStream(Uri.parse("content://mms/part/" + p.getLong(p.getColumnIndexOrThrow("_id"))))?.use { it.readBytes() }
-                            }.getOrNull()
-                            if (bytes != null) xml.attribute(null, "data", Base64.encodeToString(bytes, Base64.NO_WRAP))
+                            runCatching { resolver.openInputStream(Uri.parse("content://mms/part/" + p.getLong(p.getColumnIndexOrThrow("_id")))) }
+                                .getOrNull()?.use { xml.data(it) }
                         }
                         xml.endTag(null, "part")
                     }
@@ -110,9 +119,78 @@ object Backup {
             }
         }
         xml.endTag(null, "smses")
-        xml.endDocument()
         xml.flush()
         return Done(smsCount, mmsCount)
+    }
+
+    /**
+     * The XML written as it goes, a part's file streamed through Base64 rather than held whole -- a film of an
+     * MMS, Base64'd in memory, ended a backup of a phone full of them --, and any character XML 1.0 forbids -- a
+     * control character a network left in an SMS -- left out ([escaped]).
+     */
+    private class Writer(private val out: OutputStream) {
+        private val text = java.io.BufferedWriter(java.io.OutputStreamWriter(out, Charsets.UTF_8), 1 shl 16)
+        private var open = false
+
+        init { text.write("<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n") }
+
+        fun startTag(@Suppress("UNUSED_PARAMETER") ns: String?, name: String) {
+            close()
+            text.write("<") ; text.write(name)
+            open = true
+        }
+
+        fun attribute(@Suppress("UNUSED_PARAMETER") ns: String?, name: String, value: String) {
+            text.write(" ") ; text.write(name) ; text.write("=\"") ; text.write(escaped(value)) ; text.write("\"")
+        }
+
+        /** A part's bytes as the "data" attribute, in Base64, streamed. */
+        fun data(from: InputStream) {
+            text.write(" data=\"")
+            text.flush()
+            android.util.Base64OutputStream(object : java.io.FilterOutputStream(out) {
+                override fun write(b: ByteArray, off: Int, len: Int) = out.write(b, off, len)
+                // The file goes on: only the Base64 stream ends.
+                override fun close() = flush()
+            }, Base64.NO_WRAP).use { from.copyTo(it, 1 shl 16) }
+            text.write("\"")
+        }
+
+        fun endTag(@Suppress("UNUSED_PARAMETER") ns: String?, name: String) {
+            if (open) { text.write(" />") ; open = false } else { text.write("</") ; text.write(name) ; text.write(">") }
+        }
+
+        private fun close() { if (open) { text.write(">") ; open = false } }
+
+        fun flush() = text.flush()
+    }
+
+    /**
+     * [value] as an XML attribute holds it: the five marks escaped, line ends and tabs as numbers -- an attribute
+     * keeps them only so --; a control character, which XML forbids even as a number and which says nothing,
+     * left out, and half a surrogate pair, which no file can hold, as the replacement character.
+     */
+    fun escaped(value: String): String {
+        if (value.all { it >= ' ' && it != '&' && it != '<' && it != '>' && it != '"' && it != '\'' && !it.isSurrogate() }) return value
+        val said = StringBuilder(value.length + 16)
+        var at = 0
+        while (at < value.length) {
+            val c = value[at]
+            when {
+                c == '&' -> said.append("&amp;")
+                c == '<' -> said.append("&lt;")
+                c == '>' -> said.append("&gt;")
+                c == '"' -> said.append("&quot;")
+                c == '\'' -> said.append("&apos;")
+                c == '\n' || c == '\r' || c == '\t' -> said.append("&#").append(c.code).append(';')
+                c < ' ' -> Unit
+                c.isHighSurrogate() && at + 1 < value.length && value[at + 1].isLowSurrogate() -> { said.append(c).append(value[at + 1]) ; at++ }
+                c.isSurrogate() -> said.append('\uFFFD')
+                else -> said.append(c)
+            }
+            at++
+        }
+        return said.toString()
     }
 
     /**

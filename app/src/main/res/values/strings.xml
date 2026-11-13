@@ -246,10 +246,6 @@
     <string name="page_talks">Conversations</string>
     <string name="page_profile">My profile</string>
     <string name="page_profile_n">My profile (%1$d)</string>
-    <string name="me_wizard_title">Which contact card is yours?</string>
-    <string name="me_wizard_text">Tell foomms which contact card is yours: it stands for you in groups, with your number and your certificate. You can change it in “My profile”.</string>
-    <string name="me_wizard_choose">Choose my card</string>
-    <string name="me_wizard_later">Later</string>
     <plurals name="talks_n">
         <item quantity="one">%d conversation</item>
         <item quantity="other">%d conversations</item>
@@ -277,7 +273,7 @@
     <string name="send_each_note">Each gets their own message, and answers you alone.</string>
     <string name="send_group_note">One MMS for all, where everyone sees who is in the group and everyone\'s replies.</string>
     <string name="send_group_most">A group MMS goes to 2 to %1$d people.</string>
-    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <!-- Oneself, on the profile's page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Change contact card</string>
     <string name="me_create">✚ Create my contact card</string>
     <string name="me_tie_mine">Tie to my certificate: %1$s</string>
@@ -286,7 +282,7 @@
     <string name="me_default">☎ Set the default number</string>
     <string name="me_link">Tie to “%1$s” (%2$s)</string>
     <string name="me_choose_for">Me, at %1$s:</string>
-    <string name="me_no_number">This contact card carries no phone number: it cannot be yours here. Add this phone\'s number to it, then tie it from “Me”.</string>
+    <string name="me_no_number">This contact card carries no phone number: it cannot be yours here. Add this phone\'s number to it, then tie it from “My profile”.</string>
     <string name="me_tag">(me)</string>
     <string name="me_unknown">number unknown</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
@@ -294,7 +290,7 @@
     <string name="name_contact">Keep the contact\'s:</string>
     <string name="name_certificate">Take the certificate\'s:</string>
     <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">A group MMS goes to you too, at your number: tie your own contact card first, under “Me” on the MMS groups page.</string>
+    <string name="group_needs_me">A group MMS goes to you too, at your number: tie your own contact card first, on the “My profile” page.</string>
     <string name="altered_title">Group message altered</string>
     <string name="altered">A group message you sent came back different: it was most likely changed on its way, for everyone it went to.</string>
     <string name="channel_altered">Altered messages</string>
@@ -335,9 +331,6 @@
     <string name="conf_mms_on_note">Lets you send group messages, long texts, voice messages, photos or short videos. From one operator to another, an MMS arrives less surely than an SMS, and some plans charge for it. Other networks do not support MMS at all, which favours Internet messengers and so global surveillance.</string>
     <string name="mms_off">Sending MMS is not allowed in the configuration: no attachment, voice message or group MMS.</string>
     <string name="many_sms">This message leaves in %1$d SMS: some phones put them back together badly, and your network may charge each one.</string>
-    <string name="conf_calls_heading">Calls</string>
-    <string name="conf_calls">Show calls in conversations</string>
-    <string name="conf_calls_note">The calls with a person appear among the messages, at their time. foomms+ reads the phone\'s call history for this, which never leaves the phone.</string>
     <string name="call_in">📞 Incoming call</string>
     <string name="call_out">📞 Outgoing call</string>
     <string name="call_missed">📞 Missed call</string>
@@ -346,4 +339,18 @@
         <item quantity="one">%d message</item>
         <item quantity="other">%d messages</item>
     </plurals>
+    <string name="block">🚫 Block this sender</string>
+    <string name="unblock">✅ Unblock this sender</string>
+    <string name="conf_blocked">Blocked senders</string>
+    <string name="conf_blocked_note">Android keeps the list, shared by messages and calls. Senders are blocked from a conversation\'s menu.</string>
+    <string name="conf_blocked_open">Open Android\'s blocked list</string>
+    <string name="backup_all_ask">Save everything in one file, of about %1$s? Or one file per conversation?</string>
+    <string name="backup_all_ask_unknown">Save everything in one file? Or one file per conversation?</string>
+    <string name="backup_all_one">One file</string>
+    <string name="backup_all_each">One per conversation</string>
+    <plurals name="backup_saved_each">
+        <item quantity="one">Saved: %1$d file, %2$d SMS and %3$d MMS.</item>
+        <item quantity="other">Saved: %1$d files, %2$d SMS and %3$d MMS.</item>
+    </plurals>
+    <string name="backup_restored_all">Restoring done.</string>
 </resources>

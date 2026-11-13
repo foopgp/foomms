@@ -1,0 +1,5 @@
+• While “My profile” is not set, foomms opens on it and shows how to tie your contact card.
+• Block a sender, even one known by a name, from its conversation's menu.
+• An attached photo, video or sound can be checked before sending.
+• Save everything: in one file or one per conversation; several backups restore at once.
+• Saving no longer fails on some SMS, nor with many attachments.

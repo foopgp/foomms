@@ -244,10 +244,6 @@
     <string name="page_talks">Conversations</string>
     <string name="page_profile">Mon profil</string>
     <string name="page_profile_n">Mon profil (%1$d)</string>
-    <string name="me_wizard_title">Quelle fiche est la vôtre ?</string>
-    <string name="me_wizard_text">Dites à foomms quelle fiche contact est la vôtre : elle vous représente dans les groupes, avec votre numéro et votre certificat. Vous pourrez la changer dans « Mon profil ».</string>
-    <string name="me_wizard_choose">Choisir ma fiche</string>
-    <string name="me_wizard_later">Plus tard</string>
     <plurals name="talks_n">
         <item quantity="one">%d conversation</item>
         <item quantity="other">%d conversations</item>
@@ -275,7 +271,7 @@
     <string name="send_each_note">Chacun reçoit son propre message, et ne répond qu\'à vous.</string>
     <string name="send_group_note">Un seul MMS pour tous, où chacun voit qui fait partie du groupe et les réponses de tous.</string>
     <string name="send_group_most">Un groupe MMS va de 2 à %1$d destinataires.</string>
-    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <!-- Oneself, on the profile's page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Changer de fiche contact</string>
     <string name="me_create">✚ Créer ma fiche contact</string>
     <string name="me_tie_mine">Relier à mon certificat : %1$s</string>
@@ -284,7 +280,7 @@
     <string name="me_default">☎ Définir le numéro par défaut</string>
     <string name="me_link">Relier à « %1$s » (%2$s)</string>
     <string name="me_choose_for">Moi, au %1$s :</string>
-    <string name="me_no_number">Cette fiche contact ne porte aucun numéro de téléphone : elle ne peut pas être la vôtre ici. Ajoutez-y le numéro de ce téléphone, puis reliez-la depuis « Moi ».</string>
+    <string name="me_no_number">Cette fiche contact ne porte aucun numéro de téléphone : elle ne peut pas être la vôtre ici. Ajoutez-y le numéro de ce téléphone, puis reliez-la depuis « Mon profil ».</string>
     <string name="me_tag">(moi)</string>
     <string name="me_unknown">numéro inconnu</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
@@ -292,7 +288,7 @@
     <string name="name_contact">Garder celui de la fiche :</string>
     <string name="name_certificate">Prendre celui du certificat :</string>
     <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">Un MMS de groupe vous est aussi envoyé, à votre numéro : reliez d\'abord votre fiche contact, dans l\'encart « Moi » de la page Groupes MMS.</string>
+    <string name="group_needs_me">Un MMS de groupe vous est aussi envoyé, à votre numéro : reliez d\'abord votre fiche contact, sur la page « Mon profil ».</string>
     <string name="altered_title">Message de groupe altéré</string>
     <string name="altered">Un message de groupe que vous avez envoyé vous est revenu différent : il a probablement été altéré en route, pour tous ses destinataires.</string>
     <string name="channel_altered">Messages altérés</string>
@@ -333,9 +329,6 @@
     <string name="conf_mms_on_note">Permet d\'envoyer des messages de groupe, des textes longs, des messages vocaux, des photos ou de petites vidéos. D\'un opérateur à l\'autre, un MMS arrive moins sûrement qu\'un SMS, et certains forfaits le facturent. D\'autres opérateurs ne supportent pas les MMS, ce qui profite aux messageries sur Internet et donc à la surveillance globale.</string>
     <string name="mms_off">L\'envoi de MMS n\'est pas autorisé dans la configuration : ni pièce jointe, ni message vocal, ni groupe MMS.</string>
     <string name="many_sms">Ce message part en %1$d SMS : certains téléphones les recollent mal, et votre opérateur peut les facturer un par un.</string>
-    <string name="conf_calls_heading">Appels</string>
-    <string name="conf_calls">Montrer les appels dans les conversations</string>
-    <string name="conf_calls_note">Les appels avec une personne s\'affichent entre les messages, à leur heure. foomms+ lit pour cela le journal d\'appels du téléphone, qui n\'en sort pas.</string>
     <string name="call_in">📞 Appel reçu</string>
     <string name="call_out">📞 Appel passé</string>
     <string name="call_missed">📞 Appel manqué</string>
@@ -344,4 +337,18 @@
         <item quantity="one">%d message</item>
         <item quantity="other">%d messages</item>
     </plurals>
+    <string name="block">🚫 Bloquer cet expéditeur</string>
+    <string name="unblock">✅ Débloquer cet expéditeur</string>
+    <string name="conf_blocked">Expéditeurs bloqués</string>
+    <string name="conf_blocked_note">Android tient la liste, commune aux messages et aux appels. On bloque un expéditeur depuis le menu d\'une conversation.</string>
+    <string name="conf_blocked_open">Voir les blocages Android</string>
+    <string name="backup_all_ask">Tout sauvegarder dans un seul fichier, d\'environ %1$s ? Ou un fichier par conversation ?</string>
+    <string name="backup_all_ask_unknown">Tout sauvegarder dans un seul fichier ? Ou un fichier par conversation ?</string>
+    <string name="backup_all_one">Un seul fichier</string>
+    <string name="backup_all_each">Un par conversation</string>
+    <plurals name="backup_saved_each">
+        <item quantity="one">Enregistré : %1$d fichier, %2$d SMS et %3$d MMS.</item>
+        <item quantity="other">Enregistré : %1$d fichiers, %2$d SMS et %3$d MMS.</item>
+    </plurals>
+    <string name="backup_restored_all">Restauration terminée.</string>
 </resources>

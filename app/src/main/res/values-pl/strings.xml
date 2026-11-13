@@ -244,10 +244,6 @@
     <string name="page_talks">Rozmowy</string>
     <string name="page_profile">Mój profil</string>
     <string name="page_profile_n">Mój profil (%1$d)</string>
-    <string name="me_wizard_title">Która wizytówka jest twoja?</string>
-    <string name="me_wizard_text">Wskaż foomms, która wizytówka kontaktu jest twoja: reprezentuje cię w grupach, z twoim numerem i certyfikatem. Możesz ją zmienić w „Mój profil”.</string>
-    <string name="me_wizard_choose">Wybierz moją wizytówkę</string>
-    <string name="me_wizard_later">Później</string>
     <plurals name="talks_n">
         <item quantity="one">%d rozmowa</item>
         <item quantity="few">%d rozmowy</item>
@@ -285,7 +281,7 @@
     <string name="send_each_note">Każdy dostaje własną wiadomość i odpowiada tylko Tobie.</string>
     <string name="send_group_note">Jeden MMS dla wszystkich, w którym każdy widzi, kto należy do grupy, i odpowiedzi wszystkich.</string>
     <string name="send_group_most">MMS grupowy trafia do 2–%1$d odbiorców.</string>
-    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <!-- Oneself, on the profile's page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Zmień kartę kontaktu</string>
     <string name="me_create">✚ Utwórz moją kartę kontaktu</string>
     <string name="me_tie_mine">Powiąż z moim certyfikatem: %1$s</string>
@@ -294,7 +290,7 @@
     <string name="me_default">☎ Ustaw numer domyślny</string>
     <string name="me_link">Powiąż z „%1$s” (%2$s)</string>
     <string name="me_choose_for">Ja, pod %1$s:</string>
-    <string name="me_no_number">Ta karta kontaktu nie ma numeru telefonu: tu nie może być Twoja. Dodaj do niej numer tego telefonu, a potem powiąż ją w „Ja”.</string>
+    <string name="me_no_number">Ta karta kontaktu nie ma numeru telefonu: tu nie może być Twoja. Dodaj do niej numer tego telefonu, a potem powiąż ją na stronie „Mój profil”.</string>
     <string name="me_tag">(ja)</string>
     <string name="me_unknown">numer nieznany</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
@@ -302,7 +298,7 @@
     <string name="name_contact">Zachowaj nazwę z kontaktu:</string>
     <string name="name_certificate">Weź nazwę z certyfikatu:</string>
     <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">MMS grupowy trafia też do Ciebie, na Twój numer: najpierw powiąż swoją kartę kontaktu w „Ja” na stronie Grupy MMS.</string>
+    <string name="group_needs_me">MMS grupowy trafia też do Ciebie, na Twój numer: najpierw powiąż swoją kartę kontaktu na stronie „Mój profil”.</string>
     <string name="altered_title">Zmieniona wiadomość grupowa</string>
     <string name="altered">Wysłana przez Ciebie wiadomość grupowa wróciła inna: prawdopodobnie zmieniono ją po drodze, dla wszystkich odbiorców.</string>
     <string name="channel_altered">Zmienione wiadomości</string>
@@ -349,9 +345,6 @@
     <string name="conf_mms_on_note">Pozwala wysyłać wiadomości grupowe, długie teksty, wiadomości głosowe, zdjęcia lub krótkie filmy. Między operatorami MMS dociera mniej pewnie niż SMS, a niektóre taryfy go dodatkowo naliczają. Inni operatorzy w ogóle nie obsługują MMS-ów, co sprzyja komunikatorom internetowym, a więc globalnej inwigilacji.</string>
     <string name="mms_off">Wysyłanie MMS nie jest dozwolone w konfiguracji: ani załącznika, ani wiadomości głosowej, ani grupowego MMS.</string>
     <string name="many_sms">Ta wiadomość pójdzie w %1$d SMS-ach: niektóre telefony źle je składają, a operator może naliczyć każdy osobno.</string>
-    <string name="conf_calls_heading">Połączenia</string>
-    <string name="conf_calls">Pokazuj połączenia w rozmowach</string>
-    <string name="conf_calls_note">Połączenia z daną osobą pojawiają się między wiadomościami, w swoim czasie. foomms+ odczytuje w tym celu rejestr połączeń telefonu, który nigdy nie opuszcza telefonu.</string>
     <string name="call_in">📞 Połączenie przychodzące</string>
     <string name="call_out">📞 Połączenie wychodzące</string>
     <string name="call_missed">📞 Połączenie nieodebrane</string>
@@ -362,4 +355,20 @@
         <item quantity="many">%d wiadomości</item>
         <item quantity="other">%d wiadomości</item>
     </plurals>
+    <string name="block">🚫 Zablokuj tego nadawcę</string>
+    <string name="unblock">✅ Odblokuj tego nadawcę</string>
+    <string name="conf_blocked">Zablokowani nadawcy</string>
+    <string name="conf_blocked_note">Listę prowadzi Android, wspólną dla wiadomości i połączeń. Nadawcę blokuje się z menu rozmowy.</string>
+    <string name="conf_blocked_open">Zobacz blokady Androida</string>
+    <string name="backup_all_ask">Zapisać wszystko w jednym pliku, o rozmiarze około %1$s? Czy po jednym pliku na rozmowę?</string>
+    <string name="backup_all_ask_unknown">Zapisać wszystko w jednym pliku? Czy po jednym pliku na rozmowę?</string>
+    <string name="backup_all_one">Jeden plik</string>
+    <string name="backup_all_each">Jeden na rozmowę</string>
+    <plurals name="backup_saved_each">
+        <item quantity="one">Zapisano: %1$d plik, %2$d SMS i %3$d MMS.</item>
+        <item quantity="few">Zapisano: %1$d pliki, %2$d SMS i %3$d MMS.</item>
+        <item quantity="many">Zapisano: %1$d plików, %2$d SMS i %3$d MMS.</item>
+        <item quantity="other">Zapisano: %1$d pliku, %2$d SMS i %3$d MMS.</item>
+    </plurals>
+    <string name="backup_restored_all">Przywracanie zakończone.</string>
 </resources>

@@ -244,10 +244,6 @@
     <string name="page_talks">Conversas</string>
     <string name="page_profile">O meu perfil</string>
     <string name="page_profile_n">O meu perfil (%1$d)</string>
-    <string name="me_wizard_title">Qual é a sua ficha de contacto?</string>
-    <string name="me_wizard_text">Indique ao foomms qual ficha de contacto é a sua: representa-o nos grupos, com o seu número e o seu certificado. Pode mudá-la em «O meu perfil».</string>
-    <string name="me_wizard_choose">Escolher a minha ficha</string>
-    <string name="me_wizard_later">Mais tarde</string>
     <plurals name="talks_n">
         <item quantity="one">%d conversa</item>
         <item quantity="other">%d conversas</item>
@@ -275,7 +271,7 @@
     <string name="send_each_note">Cada um recebe a sua própria mensagem e responde só a si.</string>
     <string name="send_group_note">Um só MMS para todos, em que cada um vê quem faz parte do grupo e as respostas de todos.</string>
     <string name="send_group_most">Um MMS de grupo vai de 2 a %1$d destinatários.</string>
-    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <!-- Oneself, on the profile's page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Mudar de ficha de contacto</string>
     <string name="me_create">✚ Criar a minha ficha de contacto</string>
     <string name="me_tie_mine">Ligar ao meu certificado: %1$s</string>
@@ -284,7 +280,7 @@
     <string name="me_default">☎ Definir o número predefinido</string>
     <string name="me_link">Ligar a «%1$s» (%2$s)</string>
     <string name="me_choose_for">Eu, no %1$s:</string>
-    <string name="me_no_number">Esta ficha de contacto não tem número de telefone: aqui não pode ser a sua. Acrescente-lhe o número deste telefone e depois ligue-a a partir de «Eu».</string>
+    <string name="me_no_number">Esta ficha de contacto não tem número de telefone: aqui não pode ser a sua. Acrescente-lhe o número deste telefone e depois ligue-a a partir de «O meu perfil».</string>
     <string name="me_tag">(eu)</string>
     <string name="me_unknown">número desconhecido</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
@@ -292,7 +288,7 @@
     <string name="name_contact">Manter o do contacto:</string>
     <string name="name_certificate">Usar o do certificado:</string>
     <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">Um MMS de grupo também lhe é enviado, para o seu número: ligue primeiro a sua ficha de contacto, em «Eu» na página Grupos MMS.</string>
+    <string name="group_needs_me">Um MMS de grupo também lhe é enviado, para o seu número: ligue primeiro a sua ficha de contacto, na página «O meu perfil».</string>
     <string name="altered_title">Mensagem de grupo alterada</string>
     <string name="altered">Uma mensagem de grupo que enviou voltou diferente: foi provavelmente alterada pelo caminho, para todos os destinatários.</string>
     <string name="channel_altered">Mensagens alteradas</string>
@@ -333,9 +329,6 @@
     <string name="conf_mms_on_note">Permite enviar mensagens de grupo, textos longos, mensagens de voz, fotografias ou vídeos curtos. De um operador para outro, um MMS chega com menos segurança do que um SMS, e alguns tarifários cobram-no. Outros operadores não suportam MMS, o que favorece as mensagens pela Internet e, portanto, a vigilância global.</string>
     <string name="mms_off">O envio de MMS não está permitido na configuração: nem anexo, nem mensagem de voz, nem grupo MMS.</string>
     <string name="many_sms">Esta mensagem parte em %1$d SMS: alguns telefones juntam-nos mal, e o seu operador pode cobrá-los um a um.</string>
-    <string name="conf_calls_heading">Chamadas</string>
-    <string name="conf_calls">Mostrar as chamadas nas conversas</string>
-    <string name="conf_calls_note">As chamadas com uma pessoa aparecem entre as mensagens, à sua hora. Para isso o foomms+ lê o registo de chamadas do telefone, que nunca sai do telefone.</string>
     <string name="call_in">📞 Chamada recebida</string>
     <string name="call_out">📞 Chamada efetuada</string>
     <string name="call_missed">📞 Chamada perdida</string>
@@ -344,4 +337,18 @@
         <item quantity="one">%d mensagem</item>
         <item quantity="other">%d mensagens</item>
     </plurals>
+    <string name="block">🚫 Bloquear este remetente</string>
+    <string name="unblock">✅ Desbloquear este remetente</string>
+    <string name="conf_blocked">Remetentes bloqueados</string>
+    <string name="conf_blocked_note">O Android mantém a lista, comum a mensagens e chamadas. Um remetente bloqueia-se a partir do menu de uma conversa.</string>
+    <string name="conf_blocked_open">Ver os bloqueios do Android</string>
+    <string name="backup_all_ask">Guardar tudo num só ficheiro, de cerca de %1$s? Ou um ficheiro por conversa?</string>
+    <string name="backup_all_ask_unknown">Guardar tudo num só ficheiro? Ou um ficheiro por conversa?</string>
+    <string name="backup_all_one">Um só ficheiro</string>
+    <string name="backup_all_each">Um por conversa</string>
+    <plurals name="backup_saved_each">
+        <item quantity="one">Guardado: %1$d ficheiro, %2$d SMS e %3$d MMS.</item>
+        <item quantity="other">Guardado: %1$d ficheiros, %2$d SMS e %3$d MMS.</item>
+    </plurals>
+    <string name="backup_restored_all">Restauro concluído.</string>
 </resources>

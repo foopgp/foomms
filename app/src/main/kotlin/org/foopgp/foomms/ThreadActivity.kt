@@ -572,10 +572,10 @@ class ThreadActivity : AskingActivity() {
         whoAmI()
         contentResolver.registerContentObserver(MESSAGES, true, arrivals)
         // foomms+: a call made or missed meanwhile, among the messages.
-        if (!group && Calls.offered && Conf.calls(this)) {
+        if (!group && Calls.offered) {
             val permission = Calls.PERMISSION
             if (permission != null && checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) Calls.CHANGES?.let { contentResolver.registerContentObserver(it, true, arrivals) }
-            // Asked once, from the first conversation opened; later, from the configuration.
+            // Asked once, from the first conversation opened; later, from Android's settings for foomms+.
             else if (permission != null && !Conf.callsAsked(this)) requestPermissions(arrayOf(permission), CALLS)
         }
         load(first = card == null && person == null)
@@ -686,6 +686,7 @@ class ThreadActivity : AskingActivity() {
 
     override fun onPause() {
         shown = false
+        Preview.stop()
         keepDraft()
         Listening.onChange = null
         playingPiece = null
@@ -739,7 +740,7 @@ class ThreadActivity : AskingActivity() {
                 .let { lines -> if (group) lines.filter { it.mms } else lines }
                 .let { if (given.size > 1 || elsewhere.isNotEmpty()) (it + elsewhere).sortedBy { line -> line.at } else it }
             // foomms+: the calls with the person, at their time among the messages.
-            val calls = if (!group && Calls.offered && Conf.calls(this)) runCatching { Calls.with(this, number) }.getOrDefault(emptyList()) else emptyList()
+            val calls = if (!group && Calls.offered) runCatching { Calls.with(this, number) }.getOrDefault(emptyList()) else emptyList()
             val all = if (calls.isEmpty()) found else (found + calls).sortedBy { it.at }
             // The messages shown at once; signed ones verified from now.
             runOnUiThread {
@@ -1044,7 +1045,14 @@ class ThreadActivity : AskingActivity() {
         // MMS off: no part, no group -- said before anything else.
         if ((with != null || group) && !Conf.mms(this)) return say(getString(R.string.mms_off))
         // To a group, this phone gets it back: not without its number, which one's own contact gives.
-        if (group && Me.number(this) == null) return say(getString(R.string.group_needs_me))
+        if (group && Me.number(this) == null) {
+            // The way to it, on the profile's page opened over this one: back from it, the message is still here.
+            AlertDialog.Builder(this).setMessage(R.string.group_needs_me)
+                .setPositiveButton(R.string.page_profile) { _, _ -> Menus.profile(this) }
+                .setNegativeButton(R.string.close, null)
+                .show()
+            return
+        }
         // More than the limit set, oneself included: networks may refuse it, or deliver it to each alone. Asked.
         if (group && !manySaid && members.size + 1 > Conf.groupMost(this)) {
             AlertDialog.Builder(this)
@@ -1158,6 +1166,8 @@ class ThreadActivity : AskingActivity() {
         carried = what
         chipRow.visibility = if (what == null) View.GONE else View.VISIBLE
         carriedRow.attached(true)
+        // Shown small, to be checked before it leaves: looked at, watched or listened to when pressed.
+        Preview.show(this, carriedRow, what, person?.name ?: number)
         chip.text = what?.let {
             val weight = it.bytes.size / 1024 + 1
             it.millis?.let { long -> getString(R.string.carrying_long, it.name, Media.clock(long), weight) } ?: getString(R.string.carrying, it.name, weight)
