@@ -271,7 +271,7 @@
     <string name="send_each_note">Ο καθένας λαμβάνει δικό του μήνυμα και απαντά μόνο σε εσάς.</string>
     <string name="send_group_note">Ένα MMS για όλους, όπου ο καθένας βλέπει ποιος ανήκει στην ομάδα και τις απαντήσεις όλων.</string>
     <string name="send_group_most">Ένα ομαδικό MMS πηγαίνει σε 2 έως %1$d παραλήπτες.</string>
-    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <!-- Oneself, on the profile's page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Αλλαγή καρτέλας επαφής</string>
     <string name="me_create">✚ Δημιουργία της καρτέλας επαφής μου</string>
     <string name="me_tie_mine">Σύνδεση με το πιστοποιητικό μου: %1$s</string>
@@ -280,7 +280,7 @@
     <string name="me_default">☎ Ορισμός προεπιλεγμένου αριθμού</string>
     <string name="me_link">Σύνδεση με «%1$s» (%2$s)</string>
     <string name="me_choose_for">Εγώ, στο %1$s:</string>
-    <string name="me_no_number">Αυτή η καρτέλα επαφής δεν έχει αριθμό τηλεφώνου: εδώ δεν μπορεί να είναι η δική σας. Προσθέστε τον αριθμό αυτού του τηλεφώνου και μετά συνδέστε την από το «Εγώ».</string>
+    <string name="me_no_number">Αυτή η καρτέλα επαφής δεν έχει αριθμό τηλεφώνου: εδώ δεν μπορεί να είναι η δική σας. Προσθέστε τον αριθμό αυτού του τηλεφώνου και μετά συνδέστε την από τη σελίδα «Το προφίλ μου».</string>
     <string name="me_tag">(εγώ)</string>
     <string name="me_unknown">άγνωστος αριθμός</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
@@ -288,7 +288,7 @@
     <string name="name_contact">Διατήρηση αυτού της επαφής:</string>
     <string name="name_certificate">Χρήση αυτού του πιστοποιητικού:</string>
     <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">Ένα ομαδικό MMS πηγαίνει και σε εσάς, στον αριθμό σας: συνδέστε πρώτα την καρτέλα επαφής σας, στο «Εγώ» της σελίδας Ομάδες MMS.</string>
+    <string name="group_needs_me">Ένα ομαδικό MMS πηγαίνει και σε εσάς, στον αριθμό σας: συνδέστε πρώτα την καρτέλα επαφής σας, στη σελίδα «Το προφίλ μου».</string>
     <string name="altered_title">Ομαδικό μήνυμα αλλοιωμένο</string>
     <string name="altered">Ένα ομαδικό μήνυμα που στείλατε επέστρεψε διαφορετικό: μάλλον αλλοιώθηκε στη διαδρομή, για όλους τους παραλήπτες.</string>
     <string name="channel_altered">Αλλοιωμένα μηνύματα</string>

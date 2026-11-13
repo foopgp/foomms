@@ -271,7 +271,7 @@
     <string name="send_each_note">Jeder erhält eine eigene Nachricht und antwortet nur Ihnen.</string>
     <string name="send_group_note">Eine MMS für alle, in der jeder sieht, wer zur Gruppe gehört, und die Antworten aller.</string>
     <string name="send_group_most">Eine Gruppen-MMS geht an 2 bis %1$d Empfänger.</string>
-    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <!-- Oneself, on the profile's page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Kontaktkarte wechseln</string>
     <string name="me_create">✚ Meine Kontaktkarte anlegen</string>
     <string name="me_tie_mine">Mit meinem Zertifikat verknüpfen: %1$s</string>
@@ -280,7 +280,7 @@
     <string name="me_default">☎ Standardnummer festlegen</string>
     <string name="me_link">Mit „%1$s“ verknüpfen (%2$s)</string>
     <string name="me_choose_for">Ich, unter %1$s:</string>
-    <string name="me_no_number">Diese Kontaktkarte trägt keine Telefonnummer: Sie kann hier nicht Ihre sein. Fügen Sie die Nummer dieses Telefons hinzu und verknüpfen Sie sie dann unter „Ich“.</string>
+    <string name="me_no_number">Diese Kontaktkarte trägt keine Telefonnummer: Sie kann hier nicht Ihre sein. Fügen Sie die Nummer dieses Telefons hinzu und verknüpfen Sie sie dann unter „Mein Profil“.</string>
     <string name="me_tag">(ich)</string>
     <string name="me_unknown">Nummer unbekannt</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
@@ -288,7 +288,7 @@
     <string name="name_contact">Den des Kontakts behalten:</string>
     <string name="name_certificate">Den des Zertifikats nehmen:</string>
     <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">Eine Gruppen-MMS geht auch an Sie, an Ihre Nummer: Verknüpfen Sie zuerst Ihre Kontaktkarte unter „Ich“ auf der Seite MMS-Gruppen.</string>
+    <string name="group_needs_me">Eine Gruppen-MMS geht auch an Sie, an Ihre Nummer: Verknüpfen Sie zuerst Ihre Kontaktkarte, auf der Seite „Mein Profil“.</string>
     <string name="altered_title">Gruppennachricht verändert</string>
     <string name="altered">Eine von Ihnen gesendete Gruppennachricht kam verändert zurück: Sie wurde wohl unterwegs verändert, für alle Empfänger.</string>
     <string name="channel_altered">Veränderte Nachrichten</string>

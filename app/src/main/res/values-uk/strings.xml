@@ -281,7 +281,7 @@
     <string name="send_each_note">Кожен отримує своє повідомлення й відповідає лише вам.</string>
     <string name="send_group_note">Один MMS для всіх, у якому кожен бачить, хто в групі, і відповіді всіх.</string>
     <string name="send_group_most">Групове MMS — від 2 до %1$d одержувачів.</string>
-    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <!-- Oneself, on the profile's page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Змінити картку контакту</string>
     <string name="me_create">✚ Створити мою картку контакту</string>
     <string name="me_tie_mine">Пов\'язати з моїм сертифікатом: %1$s</string>
@@ -290,7 +290,7 @@
     <string name="me_default">☎ Вибрати типовий номер</string>
     <string name="me_link">Пов\'язати з «%1$s» (%2$s)</string>
     <string name="me_choose_for">Я, за номером %1$s:</string>
-    <string name="me_no_number">У цій картці контакту немає номера телефона: тут вона не може бути вашою. Додайте до неї номер цього телефона, потім пов\'яжіть її в розділі «Я».</string>
+    <string name="me_no_number">У цій картці контакту немає номера телефона: тут вона не може бути вашою. Додайте до неї номер цього телефона, потім пов\'яжіть її на сторінці «Мій профіль».</string>
     <string name="me_tag">(я)</string>
     <string name="me_unknown">номер невідомий</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
@@ -298,7 +298,7 @@
     <string name="name_contact">Залишити ім\'я з контакту:</string>
     <string name="name_certificate">Узяти ім\'я із сертифіката:</string>
     <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">Групове MMS надходить і вам, на ваш номер: спершу пов\'яжіть свою картку контакту в розділі «Я» на сторінці «MMS-групи».</string>
+    <string name="group_needs_me">Групове MMS надходить і вам, на ваш номер: спершу пов\'яжіть свою картку контакту на сторінці «Мій профіль».</string>
     <string name="altered_title">Групове повідомлення змінено</string>
     <string name="altered">Надіслане вами групове повідомлення повернулося іншим: імовірно, його змінили в дорозі, для всіх одержувачів.</string>
     <string name="channel_altered">Змінені повідомлення</string>

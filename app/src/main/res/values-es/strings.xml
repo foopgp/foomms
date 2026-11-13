@@ -271,7 +271,7 @@
     <string name="send_each_note">Cada uno recibe su propio mensaje y solo le responde a usted.</string>
     <string name="send_group_note">Un solo MMS para todos, en el que cada uno ve quién forma parte del grupo y las respuestas de todos.</string>
     <string name="send_group_most">Un MMS de grupo va de 2 a %1$d destinatarios.</string>
-    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <!-- Oneself, on the profile's page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Cambiar de ficha de contacto</string>
     <string name="me_create">✚ Crear mi ficha de contacto</string>
     <string name="me_tie_mine">Vincular a mi certificado: %1$s</string>
@@ -280,7 +280,7 @@
     <string name="me_default">☎ Definir el número predeterminado</string>
     <string name="me_link">Vincular a «%1$s» (%2$s)</string>
     <string name="me_choose_for">Yo, en el %1$s:</string>
-    <string name="me_no_number">Esta ficha de contacto no lleva ningún número de teléfono: aquí no puede ser la suya. Añádale el número de este teléfono y vincúlela desde «Yo».</string>
+    <string name="me_no_number">Esta ficha de contacto no lleva ningún número de teléfono: aquí no puede ser la suya. Añádale el número de este teléfono y vincúlela desde «Mi perfil».</string>
     <string name="me_tag">(yo)</string>
     <string name="me_unknown">número desconocido</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
@@ -288,7 +288,7 @@
     <string name="name_contact">Conservar el del contacto:</string>
     <string name="name_certificate">Tomar el del certificado:</string>
     <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">Un MMS de grupo también se le envía a usted, a su número: vincule primero su ficha de contacto, en «Yo» de la página Grupos MMS.</string>
+    <string name="group_needs_me">Un MMS de grupo también se le envía a usted, a su número: vincule primero su ficha de contacto, en la página «Mi perfil».</string>
     <string name="altered_title">Mensaje de grupo alterado</string>
     <string name="altered">Un mensaje de grupo que envió le volvió distinto: probablemente se alteró por el camino, para todos sus destinatarios.</string>
     <string name="channel_altered">Mensajes alterados</string>

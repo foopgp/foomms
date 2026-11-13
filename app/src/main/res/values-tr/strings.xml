@@ -271,7 +271,7 @@
     <string name="send_each_note">Herkes kendi mesajını alır ve yalnızca size yanıt verir.</string>
     <string name="send_group_note">Herkes için tek bir MMS; herkes grupta kimin olduğunu ve herkesin yanıtlarını görür.</string>
     <string name="send_group_most">Grup MMS\'i 2 ile %1$d alıcı arasına gider.</string>
-    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <!-- Oneself, on the profile's page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Kişi kartını değiştir</string>
     <string name="me_create">✚ Kişi kartımı oluştur</string>
     <string name="me_tie_mine">Sertifikama bağla: %1$s</string>
@@ -280,7 +280,7 @@
     <string name="me_default">☎ Varsayılan numarayı belirle</string>
     <string name="me_link">“%1$s” ile bağla (%2$s)</string>
     <string name="me_choose_for">Ben, %1$s numarasında:</string>
-    <string name="me_no_number">Bu kişi kartında telefon numarası yok: burada sizinki olamaz. Bu telefonun numarasını ekleyin, sonra “Ben” bölümünden bağlayın.</string>
+    <string name="me_no_number">Bu kişi kartında telefon numarası yok: burada sizinki olamaz. Bu telefonun numarasını ekleyin, sonra “Profilim” sayfasından bağlayın.</string>
     <string name="me_tag">(ben)</string>
     <string name="me_unknown">numara bilinmiyor</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
@@ -288,7 +288,7 @@
     <string name="name_contact">Kişi kartındakini koru:</string>
     <string name="name_certificate">Sertifikadakini al:</string>
     <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">Grup MMS\'i size de, numaranıza gider: önce MMS grupları sayfasındaki “Ben” bölümünden kişi kartınızı bağlayın.</string>
+    <string name="group_needs_me">Grup MMS\'i size de, numaranıza gider: önce “Profilim” sayfasından kişi kartınızı bağlayın.</string>
     <string name="altered_title">Grup mesajı değiştirilmiş</string>
     <string name="altered">Gönderdiğiniz bir grup mesajı size farklı döndü: yolda büyük olasılıkla tüm alıcılar için değiştirildi.</string>
     <string name="channel_altered">Değiştirilmiş mesajlar</string>

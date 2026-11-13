@@ -271,7 +271,7 @@
     <string name="send_each_note">Cada um recebe a sua própria mensagem e responde só a si.</string>
     <string name="send_group_note">Um só MMS para todos, em que cada um vê quem faz parte do grupo e as respostas de todos.</string>
     <string name="send_group_most">Um MMS de grupo vai de 2 a %1$d destinatários.</string>
-    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <!-- Oneself, on the profile's page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Mudar de ficha de contacto</string>
     <string name="me_create">✚ Criar a minha ficha de contacto</string>
     <string name="me_tie_mine">Ligar ao meu certificado: %1$s</string>
@@ -280,7 +280,7 @@
     <string name="me_default">☎ Definir o número predefinido</string>
     <string name="me_link">Ligar a «%1$s» (%2$s)</string>
     <string name="me_choose_for">Eu, no %1$s:</string>
-    <string name="me_no_number">Esta ficha de contacto não tem número de telefone: aqui não pode ser a sua. Acrescente-lhe o número deste telefone e depois ligue-a a partir de «Eu».</string>
+    <string name="me_no_number">Esta ficha de contacto não tem número de telefone: aqui não pode ser a sua. Acrescente-lhe o número deste telefone e depois ligue-a a partir de «O meu perfil».</string>
     <string name="me_tag">(eu)</string>
     <string name="me_unknown">número desconhecido</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
@@ -288,7 +288,7 @@
     <string name="name_contact">Manter o do contacto:</string>
     <string name="name_certificate">Usar o do certificado:</string>
     <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">Um MMS de grupo também lhe é enviado, para o seu número: ligue primeiro a sua ficha de contacto, em «Eu» na página Grupos MMS.</string>
+    <string name="group_needs_me">Um MMS de grupo também lhe é enviado, para o seu número: ligue primeiro a sua ficha de contacto, na página «O meu perfil».</string>
     <string name="altered_title">Mensagem de grupo alterada</string>
     <string name="altered">Uma mensagem de grupo que enviou voltou diferente: foi provavelmente alterada pelo caminho, para todos os destinatários.</string>
     <string name="channel_altered">Mensagens alteradas</string>

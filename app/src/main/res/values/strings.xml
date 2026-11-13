@@ -273,7 +273,7 @@
     <string name="send_each_note">Each gets their own message, and answers you alone.</string>
     <string name="send_group_note">One MMS for all, where everyone sees who is in the group and everyone\'s replies.</string>
     <string name="send_group_most">A group MMS goes to 2 to %1$d people.</string>
-    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <!-- Oneself, on the profile's page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Change contact card</string>
     <string name="me_create">✚ Create my contact card</string>
     <string name="me_tie_mine">Tie to my certificate: %1$s</string>
@@ -282,7 +282,7 @@
     <string name="me_default">☎ Set the default number</string>
     <string name="me_link">Tie to “%1$s” (%2$s)</string>
     <string name="me_choose_for">Me, at %1$s:</string>
-    <string name="me_no_number">This contact card carries no phone number: it cannot be yours here. Add this phone\'s number to it, then tie it from “Me”.</string>
+    <string name="me_no_number">This contact card carries no phone number: it cannot be yours here. Add this phone\'s number to it, then tie it from “My profile”.</string>
     <string name="me_tag">(me)</string>
     <string name="me_unknown">number unknown</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
@@ -290,7 +290,7 @@
     <string name="name_contact">Keep the contact\'s:</string>
     <string name="name_certificate">Take the certificate\'s:</string>
     <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">A group MMS goes to you too, at your number: tie your own contact card first, under “Me” on the MMS groups page.</string>
+    <string name="group_needs_me">A group MMS goes to you too, at your number: tie your own contact card first, on the “My profile” page.</string>
     <string name="altered_title">Group message altered</string>
     <string name="altered">A group message you sent came back different: it was most likely changed on its way, for everyone it went to.</string>
     <string name="channel_altered">Altered messages</string>

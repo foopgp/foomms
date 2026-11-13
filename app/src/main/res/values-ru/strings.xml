@@ -281,7 +281,7 @@
     <string name="send_each_note">Каждый получает своё сообщение и отвечает только вам.</string>
     <string name="send_group_note">Один MMS для всех, в котором каждый видит, кто в группе, и ответы всех.</string>
     <string name="send_group_most">Групповое MMS — от 2 до %1$d получателей.</string>
-    <!-- Oneself, on the groups' page: one's own contact, and this phone's number among its numbers. -->
+    <!-- Oneself, on the profile's page: one's own contact, and this phone's number among its numbers. -->
     <string name="me_change">⇄ Сменить карточку контакта</string>
     <string name="me_create">✚ Создать мою карточку контакта</string>
     <string name="me_tie_mine">Связать с моим сертификатом: %1$s</string>
@@ -290,7 +290,7 @@
     <string name="me_default">☎ Выбрать номер по умолчанию</string>
     <string name="me_link">Связать с «%1$s» (%2$s)</string>
     <string name="me_choose_for">Я, по номеру %1$s:</string>
-    <string name="me_no_number">В этой карточке контакта нет номера телефона: здесь она не может быть вашей. Добавьте в неё номер этого телефона, затем свяжите её в разделе «Я».</string>
+    <string name="me_no_number">В этой карточке контакта нет номера телефона: здесь она не может быть вашей. Добавьте в неё номер этого телефона, затем свяжите её на странице «Мой профиль».</string>
     <string name="me_tag">(я)</string>
     <string name="me_unknown">номер неизвестен</string>
     <!-- Tying a certificate: the contact's name, or the one the certificate gives. -->
@@ -298,7 +298,7 @@
     <string name="name_contact">Оставить имя из контакта:</string>
     <string name="name_certificate">Взять имя из сертификата:</string>
     <!-- A group MMS goes to oneself too: one's number needed, and what comes back held against what left. -->
-    <string name="group_needs_me">Групповое MMS приходит и вам, на ваш номер: сначала свяжите свою карточку контакта в разделе «Я» на странице «MMS-группы».</string>
+    <string name="group_needs_me">Групповое MMS приходит и вам, на ваш номер: сначала свяжите свою карточку контакта на странице «Мой профиль».</string>
     <string name="altered_title">Групповое сообщение изменено</string>
     <string name="altered">Отправленное вами групповое сообщение вернулось другим: вероятно, его изменили в пути, для всех получателей.</string>
     <string name="channel_altered">Изменённые сообщения</string>
