@@ -398,39 +398,47 @@ class MainActivity : AskingActivity() {
             LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
         )
         meActions.removeAllViews()
+        chasing?.let { meActions.removeCallbacks(it) }
+        chasing = null
         val side = Look.dp(this, 16)
         for ((words, then) in MeMenu.actions(this, known) { meChanged() }) {
             meActions.addView(
                 Look.words(this, words, size = 16f).apply {
                     setPadding(side, pad, side, pad)
                     setOnClickListener { then() }
-                    // No contact of one's own yet: what ties or makes one blinks, until one is.
-                    if (own == null) blink(this)
                 },
             )
         }
+        // No contact of one's own yet: one of these is to be chosen, and each says so in turn, until one is.
+        if (own == null) chase()
     }
 
-    /** Faded and back, over and over, while it is shown: dropped with the view when the page is drawn again. */
-    private fun blink(view: View) {
-        android.animation.ObjectAnimator.ofFloat(view, View.ALPHA, 1f, 0.25f).apply {
-            duration = BLINK_MS
-            repeatMode = android.animation.ValueAnimator.REVERSE
-            repeatCount = android.animation.ValueAnimator.INFINITE
-            view.addOnAttachStateChangeListener(
-                object : View.OnAttachStateChangeListener {
-                    override fun onViewAttachedToWindow(v: View) = Unit
-                    override fun onViewDetachedFromWindow(v: View) = cancel()
-                },
-            )
-            start()
+    /** What lights the choices of oneself in turn, while there is no contact of one's own: none otherwise. */
+    private var chasing: Runnable? = null
+
+    /** Each choice of oneself lit in orange in turn, the others in the ink of the theme -- white, or black. */
+    private fun chase() {
+        var lit = 0
+        val step = object : Runnable {
+            override fun run() {
+                val count = meActions.childCount
+                if (count == 0) return
+                for (at in 0 until count) (meActions.getChildAt(at) as? android.widget.TextView)?.setTextColor(if (at == lit) Look.ORANGE else Look.INK)
+                lit = (lit + 1) % count
+                meActions.postDelayed(this, CHASE_MS)
+            }
         }
+        chasing = step
+        meActions.post(step)
     }
 
     /** Another page: the conversations, or oneself and the counts. */
     private fun go(to: Page) {
         if (to == page) return
         page = to
+        // Off the profile's page, nothing of it to light.
+        chasing?.let { meActions.removeCallbacks(it) }
+        chasing = null
         // Called by its own name: inside the bar's code, "show()" was the bar's, which shows the bar.
         redraw()
         readMe()
@@ -1285,8 +1293,8 @@ class MainActivity : AskingActivity() {
         /** How long the messages are to stay still before the list is read again. */
         const val SETTLE_MS = 400L
 
-        /** Half a blink of what is to be pressed: faded, then back. */
-        const val BLINK_MS = 600L
+        /** How long each choice of oneself stays lit before the next. */
+        const val CHASE_MS = 250L
         const val BLOCK = 30
 
         /** How near the end of what the list holds the next block is asked for: read before it is reached. */
